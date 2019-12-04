@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#273FB5</color>
+    <color name="fragmentBackground">#030622</color>
+    <color name="fragmentBackgroundDarker">#00021B</color>
+    <color name="fragmentBackgroundDarkest">#000218</color>
+    <color name="soonFeature">#273FB5</color>
+    <color name="soonFeatureShadow">#273FB5</color>
+    <color name="dark">#000000</color>
+    <color name="now_playing_gray">#585858</color>
+</resources>
