@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/menuCS"
+    android:layout_width="match_parent"
+    android:layout_height="55dp"
+    android:background="@color/fragmentBackgroundDarkerOpacity"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/folder_menu_layout"
+            style="@style/MenuButtonsLayout">
+
+            <ImageButton
+                android:id="@+id/folder"
+                style="@style/MenuButtons"
+                android:contentDescription="@string/open_folder"
+                android:src="@drawable/folder" />
+
+            <TextView
+                android:id="@+id/folders_textView"
+                style="@style/MenuArticle"
+                android:text="@string/folder" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/album_menu_layout"
+            style="@style/MenuButtonsLayout">
+
+            <ImageButton
+                android:id="@+id/album"
+                style="@style/MenuButtons"
+                android:contentDescription="@string/open_album"
+                android:src="@drawable/album" />
+
+            <TextView
+                android:id="@+id/albums_textView"
+                style="@style/MenuArticle"
+                android:text="@string/albums" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/song_menu_layout"
+            style="@style/MenuButtonsLayout">
+
+            <ImageButton
+                android:id="@+id/songs"
+                style="@style/MenuButtons"
+                android:contentDescription="@string/open_songs"
+                android:src="@drawable/songs" />
+
+            <TextView
+                android:id="@+id/songs_textView"
+                style="@style/MenuArticle"
+                android:text="@string/songs" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/radio_menu_layout"
+            style="@style/MenuButtonsLayout">
+
+            <ImageButton
+                android:id="@+id/radio"
+                style="@style/MenuButtons"
+                android:contentDescription="@string/open_radio"
+                android:src="@drawable/radio" />
+
+            <TextView
+                android:id="@+id/radio_textView"
+                style="@style/MenuArticle"
+                android:text="@string/radio" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/vk_menu_layout"
+            style="@style/MenuButtonsLayout">
+
+            <ImageButton
+                android:id="@+id/vk"
+                style="@style/MenuButtons"
+                android:contentDescription="@string/open_vk"
+                android:src="@drawable/vk" />
+
+            <TextView
+                android:id="@+id/vk_textView"
+                style="@style/MenuArticle"
+                android:text="@string/vk" />
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

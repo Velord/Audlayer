@@ -1,7 +1,7 @@
-package velord.university.ui.main
+package velord.university.ui.fragment.vk
 
 import androidx.lifecycle.ViewModel
 
-class MainViewModel : ViewModel() {
+class VkViewModel : ViewModel() {
     // TODO: Implement the ViewModel
 }
