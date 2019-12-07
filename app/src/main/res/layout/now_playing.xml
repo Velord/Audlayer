@@ -162,7 +162,7 @@
             android:layout_marginBottom="8dp"
 
             android:progressBackgroundTint="@color/now_playing_gray"
-            android:progressTint="@color/soonFeature"
+            android:progressTint="@color/blue"
 
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/textView6"

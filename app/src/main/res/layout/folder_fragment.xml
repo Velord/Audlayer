@@ -4,7 +4,7 @@
     android:id="@+id/folder_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/star_sky">
+    android:background="@drawable/sea_lake_island">
 
     <include layout="@layout/feature_will_be_added_soon"/>
 

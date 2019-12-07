@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity(), MenuFragment.Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-        initFragment(fm, RadioFragment(), R.id.container)
+        initFragment(fm, SongFragment(), R.id.container)
     }
 
     override fun openAlbumFragment() {

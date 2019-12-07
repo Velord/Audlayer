@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.lifecycle.ViewModelProviders
 import velord.university.R
 import velord.university.ui.fragment.MenuFragment
@@ -17,6 +18,12 @@ class RadioFragment : MenuFragment() {
         fun newInstance() = RadioFragment()
     }
 
+    override val pressedButton: ImageButton
+        get() = radioImageBt
+
+    override val newBackground: Int
+        get() = R.drawable.radio_pressed
+
     private val viewModel by lazy {
         ViewModelProviders.of(this).get(RadioViewModel::class.java)
     }
@@ -26,7 +33,7 @@ class RadioFragment : MenuFragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.radio_fragment, container, false).apply {
-            initMenuButtons(this)
+            super.initView(this)
         }
     }
 }

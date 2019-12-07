@@ -30,11 +30,12 @@
                 android:id="@+id/folder"
                 style="@style/MenuButtons"
                 android:contentDescription="@string/open_folder"
-                android:src="@drawable/folder" />
+                android:src="@drawable/menu_folder_selector" />
 
             <TextView
-                android:id="@+id/folders_textView"
+                android:id="@+id/folder_textView"
                 style="@style/MenuArticle"
+                android:textColor="@drawable/menu_article_selector"
                 android:text="@string/folder" />
         </LinearLayout>
 
@@ -46,11 +47,12 @@
                 android:id="@+id/album"
                 style="@style/MenuButtons"
                 android:contentDescription="@string/open_album"
-                android:src="@drawable/album" />
+                android:src="@drawable/menu_album_selector" />
 
             <TextView
-                android:id="@+id/albums_textView"
+                android:id="@+id/album_textView"
                 style="@style/MenuArticle"
+                android:textColor="@drawable/menu_article_selector"
                 android:text="@string/albums" />
         </LinearLayout>
 
@@ -59,14 +61,15 @@
             style="@style/MenuButtonsLayout">
 
             <ImageButton
-                android:id="@+id/songs"
+                android:id="@+id/song"
                 style="@style/MenuButtons"
                 android:contentDescription="@string/open_songs"
-                android:src="@drawable/songs" />
+                android:src="@drawable/menu_song_selector" />
 
             <TextView
-                android:id="@+id/songs_textView"
+                android:id="@+id/song_textView"
                 style="@style/MenuArticle"
+                android:textColor="@drawable/menu_article_selector"
                 android:text="@string/songs" />
         </LinearLayout>
 
@@ -78,11 +81,12 @@
                 android:id="@+id/radio"
                 style="@style/MenuButtons"
                 android:contentDescription="@string/open_radio"
-                android:src="@drawable/radio" />
+                android:src="@drawable/menu_radio_selector" />
 
             <TextView
                 android:id="@+id/radio_textView"
                 style="@style/MenuArticle"
+                android:textColor="@drawable/menu_article_selector"
                 android:text="@string/radio" />
         </LinearLayout>
 
@@ -94,11 +98,12 @@
                 android:id="@+id/vk"
                 style="@style/MenuButtons"
                 android:contentDescription="@string/open_vk"
-                android:src="@drawable/vk" />
+                android:src="@drawable/menu_vk_selector" />
 
             <TextView
                 android:id="@+id/vk_textView"
                 style="@style/MenuArticle"
+                android:textColor="@drawable/menu_article_selector"
                 android:text="@string/vk" />
         </LinearLayout>
 

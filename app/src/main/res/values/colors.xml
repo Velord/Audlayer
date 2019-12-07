@@ -6,15 +6,15 @@
     <color name="fragmentBackground">#030622</color>
     <color name="fragmentBackgroundDarker">#00021B</color>
     <color name="fragmentBackgroundDarkest">#000218</color>
-    <color name="soonFeature">#273FB5</color>
-    <color name="soonFeatureShadow">#273FB5</color>
+    <color name="blue">#273FB5</color>
+    <color name="blueShadow">#273FB5</color>
     <color name="dark">#000000</color>
     <color name="now_playing_gray">#585858</color>
     <color name="now_playing_grayOpacity">#33585858</color>
     <color name="fragmentBackgroundOpacity">#33030622</color>
     <color name="fragmentBackgroundDarkerOpacity">#3300021B</color>
     <color name="fragmentBackgroundDarkestOpacity">#33000218</color>
-    <color name="soonFeatureOpacity">#33273FB5</color>
-    <color name="soonFeatureShadowOpacity">#33273FB5</color>
+    <color name="blueOpacity">#33273FB5</color>
+    <color name="blueShadowOpacity">#33273FB5</color>
     <color name="darkOpacity">#33000000</color>
 </resources>
