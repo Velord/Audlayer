@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProviders
 import velord.university.R
 import velord.university.ui.fragment.MenuFragment
 
+
 class FolderFragment : MenuFragment() {
 
     override val TAG: String
@@ -28,6 +29,7 @@ class FolderFragment : MenuFragment() {
         ViewModelProviders.of(this).get(FolderViewModel::class.java)
     }
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -36,4 +38,5 @@ class FolderFragment : MenuFragment() {
             super.initView(this)
         }
     }
+
 }
