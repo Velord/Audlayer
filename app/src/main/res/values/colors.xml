@@ -11,10 +11,11 @@
     <color name="dark">#000000</color>
     <color name="now_playing_gray">#585858</color>
     <color name="now_playing_grayOpacity">#33585858</color>
-    <color name="fragmentBackgroundOpacity">#33030622</color>
+    <color name="fragmentBackgroundOpacity">#66030622</color>
     <color name="fragmentBackgroundDarkerOpacity">#3300021B</color>
     <color name="fragmentBackgroundDarkestOpacity">#33000218</color>
     <color name="blueOpacity">#33273FB5</color>
     <color name="blueShadowOpacity">#33273FB5</color>
     <color name="darkOpacity">#33000000</color>
+    <color name="menuArticle">#C8FFFFFF</color>
 </resources>
