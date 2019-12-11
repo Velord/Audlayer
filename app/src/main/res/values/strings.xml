@@ -23,4 +23,7 @@
     <string name="now_playing_song_play_or_pause">Play or psuse song</string>
     <string name="now_playing_song_start_song">00: 00</string>
     <string name="now_playing_song_end_song">04: 00</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

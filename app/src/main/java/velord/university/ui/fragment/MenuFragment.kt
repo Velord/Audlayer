@@ -51,7 +51,7 @@ abstract class MenuFragment : LoggerSelfLifecycleFragment() {
         callbacks = null
     }
 
-    protected fun initView(view: View) {
+    protected fun initMenuFragmentView(view: View) {
         initMenuButtons(view)
         changeBackgroundPressedButton()
     }

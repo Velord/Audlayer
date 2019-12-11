@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProviders
 import velord.university.R
-import velord.university.ui.fragment.MenuFragment
+import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 
 
-class FolderFragment : MenuFragment() {
+class FolderFragment : LoggerSelfLifecycleFragment() {
 
     override val TAG: String
         get() = "FolderFragment"
@@ -19,24 +19,18 @@ class FolderFragment : MenuFragment() {
         fun newInstance() = FolderFragment()
     }
 
-    override val pressedButton: ImageButton
-        get() = folderImageBt
-
-    override val newBackground: Int
-        get() = R.drawable.folder_pressed
-
     private val viewModel by lazy {
         ViewModelProviders.of(this).get(FolderViewModel::class.java)
     }
 
+    private lateinit var nowPlayingLayout: ConstraintLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.folder_fragment, container, false).apply {
-            super.initView(this)
+
         }
     }
-
 }

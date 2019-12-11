@@ -5,22 +5,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/now_playing_ConstraintLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginBottom="8dp"
-    android:background="@color/fragmentBackgroundOpacity"
-    app:layout_constraintBottom_toTopOf="@+id/menuCS"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.0"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/work_in_progress_imageView"
-    app:layout_constraintVertical_bias="1.0">
+    android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/now_playing_ImageView"
+        android:id="@+id/now_playing_imageView"
         android:layout_width="90dp"
         android:layout_height="90dp"
+        android:layout_marginStart="8dp"
         android:contentDescription="@string/now_playing_song_image"
         android:src="@drawable/repair_tools"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="@string/now_playing_song_name"
-        app:layout_constraintStart_toEndOf="@+id/now_playing_ImageView"
+        app:layout_constraintStart_toEndOf="@+id/now_playing_imageView"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -46,7 +37,7 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="@+id/now_playing_song_liked"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/now_playing_ImageView"
+        app:layout_constraintStart_toEndOf="@+id/now_playing_imageView"
         app:layout_constraintTop_toBottomOf="@+id/now_playing_song_name" />
 
     <TextView
@@ -68,8 +59,8 @@
         android:contentDescription="@string/now_playing_song_shuffle"
         android:src="@drawable/shuffle_gray"
 
-        app:layout_constraintBottom_toBottomOf="@+id/now_playing_ImageView"
-        app:layout_constraintStart_toEndOf="@+id/now_playing_ImageView"
+        app:layout_constraintBottom_toBottomOf="@+id/now_playing_imageView"
+        app:layout_constraintStart_toEndOf="@+id/now_playing_imageView"
         app:layout_constraintTop_toBottomOf="@+id/now_playing_song_artist" />
 
     <ImageButton
@@ -78,7 +69,7 @@
         android:contentDescription="@string/now_playing_song_repeat"
         android:src="@drawable/repeat_gray"
 
-        app:layout_constraintBottom_toBottomOf="@+id/now_playing_ImageView"
+        app:layout_constraintBottom_toBottomOf="@+id/now_playing_imageView"
         app:layout_constraintStart_toEndOf="@+id/now_playing_song_shuffle"
         app:layout_constraintTop_toBottomOf="@+id/now_playing_song_artist" />
 
@@ -88,7 +79,7 @@
         android:contentDescription="@string/now_playing_song_liked"
         android:src="@drawable/heart_gray"
 
-        app:layout_constraintBottom_toBottomOf="@+id/now_playing_ImageView"
+        app:layout_constraintBottom_toBottomOf="@+id/now_playing_imageView"
         app:layout_constraintStart_toEndOf="@+id/now_playing_song_repeat"
         app:layout_constraintTop_toBottomOf="@+id/now_playing_song_artist" />
 
@@ -98,7 +89,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="@+id/now_playing_ImageView"
+        app:layout_constraintBottom_toBottomOf="@+id/now_playing_imageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/now_playing_song_liked">
 
@@ -122,17 +113,17 @@
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout2"
+        android:id="@+id/time_song_constraintLayout"
         android:layout_width="0dp"
         android:layout_height="30dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/now_playing_ImageView">
+        app:layout_constraintTop_toBottomOf="@+id/now_playing_imageView">
 
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/time_song_start"
             style="@style/NowPlayingStartEndTrack"
             android:text="@string/now_playing_song_start_song"
             android:textAlignment="center"
@@ -142,7 +133,7 @@
             app:layout_constraintVertical_bias="0.428" />
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/time_song_end"
             style="@style/NowPlayingStartEndTrack"
             android:layout_marginEnd="8dp"
             android:text="@string/now_playing_song_end_song"
@@ -165,8 +156,8 @@
             android:progressTint="@color/blue"
 
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/textView6"
-            app:layout_constraintStart_toEndOf="@+id/textView5"
+            app:layout_constraintEnd_toStartOf="@+id/time_song_end"
+            app:layout_constraintStart_toEndOf="@+id/time_song_start"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.vk
+package velord.university.ui.fragment.main
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,27 +6,26 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
 import velord.university.R
-import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 
-class VKFragment : LoggerSelfLifecycleFragment() {
+class MainFragment : MenuNowPlayingFragment() {
 
     override val TAG: String
-        get() = "VKFragment"
+        get() = "MainFragment"
 
     companion object {
-        fun newInstance() = VKFragment()
+        fun newInstance() = MainFragment()
     }
 
     private val viewModel by lazy {
-        ViewModelProviders.of(this).get(VkViewModel::class.java)
+        ViewModelProviders.of(this).get(MainViewModel::class.java)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.vk_fragment, container, false).apply {
-
+        return inflater.inflate(R.layout.main_fragment, container, false).apply {
+            super.initMenuFragmentView(this)
         }
     }
 }

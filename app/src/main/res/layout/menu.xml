@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/menuCS"
     android:layout_width="match_parent"
-    android:layout_height="55dp"
-    android:background="@color/fragmentBackgroundDarkerOpacity"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="55dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:baselineAligned="false"
         android:orientation="horizontal"
@@ -35,8 +30,8 @@
             <TextView
                 android:id="@+id/folder_textView"
                 style="@style/MenuArticle"
-                android:textColor="@drawable/menu_article_selector"
-                android:text="@string/folder" />
+                android:text="@string/folder"
+                android:textColor="@drawable/menu_article_selector" />
         </LinearLayout>
 
         <LinearLayout
@@ -52,8 +47,8 @@
             <TextView
                 android:id="@+id/album_textView"
                 style="@style/MenuArticle"
-                android:textColor="@drawable/menu_article_selector"
-                android:text="@string/albums" />
+                android:text="@string/albums"
+                android:textColor="@drawable/menu_article_selector" />
         </LinearLayout>
 
         <LinearLayout
@@ -69,8 +64,8 @@
             <TextView
                 android:id="@+id/song_textView"
                 style="@style/MenuArticle"
-                android:textColor="@drawable/menu_article_selector"
-                android:text="@string/songs" />
+                android:text="@string/songs"
+                android:textColor="@drawable/menu_article_selector" />
         </LinearLayout>
 
         <LinearLayout
@@ -86,8 +81,8 @@
             <TextView
                 android:id="@+id/radio_textView"
                 style="@style/MenuArticle"
-                android:textColor="@drawable/menu_article_selector"
-                android:text="@string/radio" />
+                android:text="@string/radio"
+                android:textColor="@drawable/menu_article_selector" />
         </LinearLayout>
 
         <LinearLayout
@@ -103,8 +98,8 @@
             <TextView
                 android:id="@+id/vk_textView"
                 style="@style/MenuArticle"
-                android:textColor="@drawable/menu_article_selector"
-                android:text="@string/vk" />
+                android:text="@string/vk"
+                android:textColor="@drawable/menu_article_selector" />
         </LinearLayout>
 
     </LinearLayout>
