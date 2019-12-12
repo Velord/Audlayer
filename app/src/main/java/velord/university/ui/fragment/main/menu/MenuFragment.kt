@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.main
+package velord.university.ui.fragment.main.menu
 
 import android.util.Log
 import android.view.View
@@ -73,7 +73,6 @@ abstract class MenuFragment : LoggerSelfLifecycleFragment() {
                     2 -> {  Log.d(TAG, "onPageScrolled SongFragment") }
                     3 -> {  Log.d(TAG, "onPageScrolled RadioFragment") }
                     4 -> {  Log.d(TAG, "onPageScrolled VKFragment") }
-                    else -> {  Log.d(TAG, "onPageScrolled SongFragment") }
                 }
             }
 
@@ -98,10 +97,6 @@ abstract class MenuFragment : LoggerSelfLifecycleFragment() {
                     4 -> {
                         Log.d(TAG, "onPageSelected VKFragment")
                         changeUI(R.drawable.sea_lake_island, position)
-                    }
-                    else -> {
-                        Log.d(TAG, "onPageSelected SongFragment")
-                        changeUI(R.drawable.star_sky_mount, position)
                     }
                 }
             }
@@ -235,7 +230,6 @@ abstract class MenuFragment : LoggerSelfLifecycleFragment() {
                 2 -> {  Log.d(TAG, "Destroy SongFragment") }
                 3 -> {  Log.d(TAG, "Destroy RadioFragment") }
                 4 -> {  Log.d(TAG, "Destroy VKFragment") }
-                else -> {  Log.d(TAG, "Destroy SongFragment") }
             }
         }
 
@@ -246,7 +240,6 @@ abstract class MenuFragment : LoggerSelfLifecycleFragment() {
                 2 -> {  Log.d(TAG, "Instantiate SongFragment") }
                 3 -> {  Log.d(TAG, "Instantiate RadioFragment") }
                 4 -> {  Log.d(TAG, "Instantiate VKFragment") }
-                else -> {  Log.d(TAG, "Instantiate SongFragment") }
             }
             return super.instantiateItem(container, position)
         }
