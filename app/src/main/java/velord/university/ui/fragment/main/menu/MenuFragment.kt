@@ -58,7 +58,7 @@ abstract class MenuFragment : LoggerSelfLifecycleFragment() {
     private fun initViewPager(view: View) {
         viewPager = view.findViewById(R.id.menu_member_viewPager)
         viewPager.adapter = MenuMemberPagerAdapter(fm)
-        viewPager.setOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
 
             override fun onPageScrollStateChanged(state: Int) { }
 
