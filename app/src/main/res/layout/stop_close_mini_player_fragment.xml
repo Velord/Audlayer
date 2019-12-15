@@ -7,18 +7,19 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/stopAndCloseMiniPlayerTextView"
-        android:layout_width="190dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/stop_and_close_mini_player"
-        android:textColor="@color/mini_player_gray"
-        android:textSize="30sp"
+        android:id="@+id/stopAndCloseMiniPlayerTextViewLeft"
+        style="@style/StopCloseMiniPlayerText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/stopAndCloseMiniPlayerTextViewRight"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/stopAndCloseMiniPlayerTextViewRight"
+        style="@style/StopCloseMiniPlayerText"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

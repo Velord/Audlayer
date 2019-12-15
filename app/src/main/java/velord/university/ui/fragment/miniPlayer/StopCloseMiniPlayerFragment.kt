@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.main.miniPlayer
+package velord.university.ui.fragment.miniPlayer
 
 import android.os.Bundle
 import android.view.LayoutInflater

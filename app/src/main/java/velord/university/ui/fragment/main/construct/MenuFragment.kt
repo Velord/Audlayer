@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.main.menu
+package velord.university.ui.fragment.main.construct
 
 import android.util.Log
 import android.view.View
@@ -11,14 +11,14 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.ui.fragment.LoggerSelfLifecycleFragment
+import velord.university.ui.fragment.BackPressedHandlerFragment
 import velord.university.ui.fragment.album.AlbumFragment
 import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.radio.RadioFragment
 import velord.university.ui.fragment.song.SongFragment
 import velord.university.ui.fragment.vk.VKFragment
 
-abstract class MenuFragment : LoggerSelfLifecycleFragment() {
+abstract class MenuFragment : BackPressedHandlerFragment() {
 
     override val TAG: String
         get() = "MenuNowPlayingFragment"

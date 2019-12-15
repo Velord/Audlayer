@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.main.menu
+package velord.university.ui.fragment.main.construct
 
 import android.util.Log
 import android.view.View
@@ -8,8 +8,8 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import velord.university.R
-import velord.university.ui.fragment.main.miniPlayer.MiniPlayerFragment
-import velord.university.ui.fragment.main.miniPlayer.StopCloseMiniPlayerFragment
+import velord.university.ui.fragment.miniPlayer.MiniPlayerFragment
+import velord.university.ui.fragment.miniPlayer.StopCloseMiniPlayerFragment
 
 
 private const val SWIPE_THRESHOLD = 100
