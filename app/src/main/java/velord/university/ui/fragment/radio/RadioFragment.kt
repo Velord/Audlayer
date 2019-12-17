@@ -10,8 +10,6 @@ import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 
 class RadioFragment : LoggerSelfLifecycleFragment() {
 
-    private lateinit var mainFragmentView: View
-
     override val TAG: String
         get() = "RadioFragment"
 

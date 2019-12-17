@@ -8,9 +8,9 @@ import android.util.Log
 
 interface MiniPlayerBroadcastReceiver {
 
-    abstract val TAG: String
+    val TAG: String
 
-    abstract val stopF: (Intent?) -> Unit
+    val stopF: (Intent?) -> Unit
     fun stop() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -18,7 +18,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val playF: (Intent?) -> Unit
+    val playF: (Intent?) -> Unit
     fun play() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -26,7 +26,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val likeF: (Intent?) -> Unit
+    val likeF: (Intent?) -> Unit
     fun like() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -34,7 +34,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val unlikeF: (Intent?) -> Unit
+    val unlikeF: (Intent?) -> Unit
     fun unlike() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -42,7 +42,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val skipNextF: (Intent?) -> Unit
+    val skipNextF: (Intent?) -> Unit
     fun skipNext() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -50,7 +50,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val skipPrevF: (Intent?) -> Unit
+    val skipPrevF: (Intent?) -> Unit
     fun skipPrev() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -58,7 +58,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val rewindF: (Intent?) -> Unit
+    val rewindF: (Intent?) -> Unit
     fun rewind() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -66,7 +66,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val shuffleF: (Intent?) -> Unit
+    val shuffleF: (Intent?) -> Unit
     fun shuffle() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -74,7 +74,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val unShuffleF: (Intent?) -> Unit
+    val unShuffleF: (Intent?) -> Unit
     fun unShuffle() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -82,7 +82,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val loopF: (Intent?) -> Unit
+    val loopF: (Intent?) -> Unit
     fun loop() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -90,7 +90,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val loopAllF: (Intent?) -> Unit
+    val loopAllF: (Intent?) -> Unit
     fun loopAll() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -98,14 +98,14 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val notLoopF: (Intent?) -> Unit
+    val notLoopF: (Intent?) -> Unit
     fun notLoop() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
             notLoopF(intent)
         }
     }
-    abstract val songArtistF: (Intent?) -> Unit
+    val songArtistF: (Intent?) -> Unit
     fun songArtist() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -113,7 +113,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val songNameF: (Intent?) -> Unit
+    val songNameF: (Intent?) -> Unit
     fun songName() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -121,7 +121,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val songHQF: (Intent?) -> Unit
+    val songHQF: (Intent?) -> Unit
     fun songHQ() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
@@ -129,7 +129,7 @@ interface MiniPlayerBroadcastReceiver {
         }
     }
 
-    abstract val songDurationF: (Intent?) -> Unit
+    val songDurationF: (Intent?) -> Unit
     fun songDuration() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")

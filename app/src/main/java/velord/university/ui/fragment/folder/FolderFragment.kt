@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProviders
 import velord.university.R
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
@@ -23,14 +22,10 @@ class FolderFragment : LoggerSelfLifecycleFragment() {
         ViewModelProviders.of(this).get(FolderViewModel::class.java)
     }
 
-    private lateinit var nowPlayingLayout: ConstraintLayout
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.folder_fragment, container, false).apply {
-
-        }
+        return inflater.inflate(R.layout.folder_fragment, container, false)
     }
 }
