@@ -23,7 +23,7 @@ abstract class MenuFragment : LoggerSelfLifecycleFragment() {
     override val TAG: String
         get() = "MenuNowPlayingFragment"
 
-    private lateinit var viewPager: ViewPager
+    lateinit var menuMemberViewPager: ViewPager
     private var buttonPressed: Int = 2
 
     private val fm by lazy {
@@ -56,9 +56,9 @@ abstract class MenuFragment : LoggerSelfLifecycleFragment() {
     }
 
     private fun initViewPager(view: View) {
-        viewPager = view.findViewById(R.id.menu_member_viewPager)
-        viewPager.adapter = MenuMemberPagerAdapter(fm)
-        viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        menuMemberViewPager = view.findViewById(R.id.menu_member_viewPager)
+        menuMemberViewPager.adapter = MenuMemberPagerAdapter(fm)
+        menuMemberViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
 
             override fun onPageScrollStateChanged(state: Int) { }
 
@@ -101,7 +101,7 @@ abstract class MenuFragment : LoggerSelfLifecycleFragment() {
                 }
             }
         })
-        viewPager.currentItem = 2
+        menuMemberViewPager.currentItem = 2
     }
 
     private fun initMenuTextButtons(view: View) {
@@ -134,27 +134,27 @@ abstract class MenuFragment : LoggerSelfLifecycleFragment() {
 
     private fun openFolderFragment() {
         Log.d(TAG, "opening FolderFragment")
-        viewPager.currentItem = 0
+        menuMemberViewPager.currentItem = 0
     }
 
     private fun openAlbumFragment() {
         Log.d(TAG, "opening AlbumFragment")
-        viewPager.currentItem = 1
+        menuMemberViewPager.currentItem = 1
     }
 
     private fun openSongFragment() {
         Log.d(TAG, "opening SongFragment")
-        viewPager.currentItem = 2
+        menuMemberViewPager.currentItem = 2
     }
 
     private fun openRadioFragment() {
         Log.d(TAG, "opening RadioFragment")
-        viewPager.currentItem = 3
+        menuMemberViewPager.currentItem = 3
     }
 
     private fun openVKFragment() {
         Log.d(TAG, "opening VKFragment")
-        viewPager.currentItem = 4
+        menuMemberViewPager.currentItem = 4
     }
 
     private fun changeUI(background: Int, position: Int) {

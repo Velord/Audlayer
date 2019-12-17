@@ -17,7 +17,7 @@ abstract class MenuMiniPlayerFragment : MenuFragment() {
         get() = "MenuNowPlayingFragment"
 
     private lateinit var viewFrame: View
-    private lateinit var viewPager: ViewPager
+    lateinit var miniPalyerViewPager: ViewPager
 
     private val fm by lazy {
         activity!!.supportFragmentManager
@@ -30,9 +30,9 @@ abstract class MenuMiniPlayerFragment : MenuFragment() {
     private fun initViewPager(view: View) {
         viewFrame = view.findViewById(R.id.mini_player_frame)
         //init viewPager
-        viewPager = view.findViewById(R.id.mini_player_viewPager)
-        viewPager.adapter = MiniPlayerPagerAdapter(fm)
-        viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        miniPalyerViewPager = view.findViewById(R.id.mini_player_viewPager)
+        miniPalyerViewPager.adapter = MiniPlayerPagerAdapter(fm)
+        miniPalyerViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
 
             override fun onPageScrollStateChanged(state: Int) { }
 
@@ -64,7 +64,7 @@ abstract class MenuMiniPlayerFragment : MenuFragment() {
                 }
             }
         })
-        viewPager.currentItem = 1
+        miniPalyerViewPager.currentItem = 1
     }
 
     private fun changeUI() {
