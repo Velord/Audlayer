@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.main.construct
+package velord.university.ui.fragment.main.initializer
 
 import android.util.Log
 import android.view.View
@@ -18,7 +18,7 @@ import velord.university.ui.fragment.radio.RadioFragment
 import velord.university.ui.fragment.song.SongFragment
 import velord.university.ui.fragment.vk.VKFragment
 
-abstract class MenuFragment : LoggerSelfLifecycleFragment() {
+abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
 
     override val TAG: String
         get() = "MenuNowPlayingFragment"

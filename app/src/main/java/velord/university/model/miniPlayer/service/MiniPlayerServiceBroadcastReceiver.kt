@@ -5,8 +5,7 @@ import android.util.Log
 import kotlinx.coroutines.*
 import velord.university.model.miniPlayer.broadcast.*
 
-class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(),
-    MiniPlayerBroadcastReceiver {
+class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadcastReceiver {
 
     override val TAG: String
         get() = "MnPlyrSrvcBrdcstRcvrs"
@@ -38,22 +37,98 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(),
                 it.first, it.second, PERM_PRIVATE_MINI_PLAYER)
         }
 
+        //only test
         scope.launch {
-            delay(6000)
-            Log.d(TAG, "sending broadcast to ui")
-            sendBroadcastStopUI(PERM_PRIVATE_MINI_PLAYER)
-            sendBroadcastLikeUI(PERM_PRIVATE_MINI_PLAYER)
-            sendBroadcastLoopUI(PERM_PRIVATE_MINI_PLAYER)
-            sendBroadcastPlayUI(PERM_PRIVATE_MINI_PLAYER)
-            sendBroadcastRewindUI(PERM_PRIVATE_MINI_PLAYER)
-            sendBroadcastSkipPrevUI(PERM_PRIVATE_MINI_PLAYER)
-            sendBroadcastSkipNextUI(PERM_PRIVATE_MINI_PLAYER)
-            sendBroadcastUnShuffleUI(PERM_PRIVATE_MINI_PLAYER)
-            sendBroadcastShuffleUI(PERM_PRIVATE_MINI_PLAYER)
-            sendBroadcastUnlikeUI(PERM_PRIVATE_MINI_PLAYER)
-            sendBroadcastLoopAllUI(PERM_PRIVATE_MINI_PLAYER)
+            delay(4000)
+            sendBroadcastSongArtistUI(PERM_PRIVATE_MINI_PLAYER, "David Guetta")
+            sendBroadcastSongNameUI(PERM_PRIVATE_MINI_PLAYER, "Clap Your Hands")
+            sendBroadcastSongHQUI(PERM_PRIVATE_MINI_PLAYER, true)
+            sendBroadcastSongDurationUI(PERM_PRIVATE_MINI_PLAYER, 127)
         }
 
         return START_STICKY
     }
+
+    override val stopF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastStopUI(PERM_PRIVATE_MINI_PLAYER)
+        }
+
+    override val playF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastPlayUI(PERM_PRIVATE_MINI_PLAYER)
+        }
+
+    override val likeF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastLikeUI(PERM_PRIVATE_MINI_PLAYER)
+        }
+
+    override val unlikeF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastUnlikeUI(PERM_PRIVATE_MINI_PLAYER)
+        }
+
+    override val skipNextF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastSkipNextUI(PERM_PRIVATE_MINI_PLAYER)
+        }
+
+    override val skipPrevF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastSkipPrevUI(PERM_PRIVATE_MINI_PLAYER)
+        }
+
+    override val rewindF: (Intent?) -> Unit
+        get() = {
+            it?.let {
+                val value = it.getIntExtra(PROGRESS, 0)
+                sendBroadcastRewindUI(PERM_PRIVATE_MINI_PLAYER, value)
+            }
+        }
+
+    override val shuffleF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastShuffleUI(PERM_PRIVATE_MINI_PLAYER)
+        }
+
+    override val unShuffleF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastUnShuffleUI(PERM_PRIVATE_MINI_PLAYER)
+        }
+
+    override val loopF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastLoopUI(PERM_PRIVATE_MINI_PLAYER)
+
+        }
+    override val loopAllF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastLoopAllUI(PERM_PRIVATE_MINI_PLAYER)
+        }
+
+    override val notLoopF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastNotLoopUI(PERM_PRIVATE_MINI_PLAYER)
+        }
+
+    override val songArtistF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastSongArtistUI(PERM_PRIVATE_MINI_PLAYER, "David Guetta")
+        }
+
+    override val songNameF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastSongNameUI(PERM_PRIVATE_MINI_PLAYER, "Clap Your Hands")
+        }
+
+    override val songHQF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastSongHQUI(PERM_PRIVATE_MINI_PLAYER, true)
+        }
+
+    override val songDurationF: (Intent?) -> Unit
+        get() = {
+            sendBroadcastSongDurationUI(PERM_PRIVATE_MINI_PLAYER, 127)
+        }
 }

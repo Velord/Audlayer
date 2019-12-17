@@ -8,7 +8,6 @@ import android.content.IntentFilter
 fun Context.unregisterBroadcastReceiver(receiver: BroadcastReceiver) =
     unregisterReceiver(receiver)
 
-
 fun Context.registerBroadcastReceiver(receiver: BroadcastReceiver,
                                       filter: IntentFilter,
                                       permission: String)  =
@@ -17,6 +16,28 @@ fun Context.registerBroadcastReceiver(receiver: BroadcastReceiver,
 fun Context.sendBroadcast(action: String, permission: String) =
     sendBroadcast(Intent(action), permission)
 
+fun Context.sendBroadcast(action: String, permission: String,
+                          valueName: String, value: String) {
+    val intent = Intent(action)
+    intent.putExtra(valueName, value)
+    sendBroadcast(intent, permission)
+}
+
+fun Context.sendBroadcast(action: String, permission: String,
+                          valueName: String, value: Boolean) {
+    val intent = Intent(action)
+    intent.putExtra(valueName, value)
+    sendBroadcast(intent, permission)
+}
+
+fun Context.sendBroadcast(action: String, permission: String,
+                          valueName: String, value: Int) {
+    val intent = Intent(action)
+    intent.putExtra(valueName, value)
+    sendBroadcast(intent, permission)
+}
+
+// to ui
 fun Context.sendBroadcastStopUI(permission: String) =
     sendBroadcast(ACTION_STOP_UI, permission)
 
@@ -35,9 +56,6 @@ fun Context.sendBroadcastSkipNextUI(permission: String) =
 fun Context.sendBroadcastSkipPrevUI(permission: String) =
     sendBroadcast(ACTION_SKIP_PREV_UI, permission)
 
-fun Context.sendBroadcastRewindUI(permission: String) =
-    sendBroadcast(ACTION_REWIND_UI, permission)
-
 fun Context.sendBroadcastShuffleUI(permission: String) =
     sendBroadcast(ACTION_SHUFFLE_UI, permission)
 
@@ -49,6 +67,28 @@ fun Context.sendBroadcastLoopUI(permission: String) =
 
 fun Context.sendBroadcastLoopAllUI(permission: String) =
     sendBroadcast(ACTION_LOOP_ALL_UI, permission)
+
+fun Context.sendBroadcastNotLoopUI(permission: String) =
+    sendBroadcast(ACTION_NOT_LOOP_UI, permission)
+
+fun Context.sendBroadcastRewindUI(permission: String, duration: Int) =
+    sendBroadcast(ACTION_REWIND_UI, permission, PROGRESS_UI , duration)
+
+fun Context.sendBroadcastSongNameUI(permission: String, name: String) =
+    sendBroadcast(ACTION_SONG_NAME_UI, permission, SONG_NAME_UI , name)
+
+fun Context.sendBroadcastSongArtistUI(permission: String, artist: String) =
+    sendBroadcast(ACTION_SONG_ARTIST_UI, permission, SONG_ARTIST_UI, artist)
+
+fun Context.sendBroadcastSongHQUI(permission: String, isHQ: Boolean) =
+    sendBroadcast(ACTION_SONG_HQ, permission, SONG_HQ_UI, isHQ)
+
+fun Context.sendBroadcastSongDurationUI(permission: String, duration: Int) =
+    sendBroadcast(ACTION_SONG_DURATION, permission, SONG_DURATION_UI, duration)
+
+//to service
+fun Context.sendBroadcastRewind(permission: String, duration: Int) =
+    sendBroadcast(ACTION_REWIND, permission, PROGRESS, duration)
 
 fun Context.sendBroadcastStop(permission: String) =
     sendBroadcast(ACTION_STOP, permission)
@@ -67,9 +107,6 @@ fun Context.sendBroadcastSkipNext(permission: String) =
 
 fun Context.sendBroadcastSkipPrev(permission: String) =
     sendBroadcast(ACTION_SKIP_PREV, permission)
-
-fun Context.sendBroadcastRewind(permission: String) =
-    sendBroadcast(ACTION_REWIND, permission)
 
 fun Context.sendBroadcastShuffle(permission: String) =
     sendBroadcast(ACTION_SHUFFLE, permission)

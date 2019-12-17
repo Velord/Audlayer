@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.main.construct
+package velord.university.ui.fragment.main.initializer
 
 import android.util.Log
 import android.view.View
@@ -11,13 +11,13 @@ import velord.university.R
 import velord.university.ui.fragment.miniPlayer.MiniPlayerFragment
 import velord.university.ui.fragment.miniPlayer.StopCloseMiniPlayerFragment
 
-abstract class MenuMiniPlayerFragment : MenuFragment() {
+abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment() {
 
     override val TAG: String
         get() = "MenuNowPlayingFragment"
 
     private lateinit var viewFrame: View
-    lateinit var miniPalyerViewPager: ViewPager
+    lateinit var miniPlayerViewPager: ViewPager
 
     private val fm by lazy {
         activity!!.supportFragmentManager
@@ -30,9 +30,9 @@ abstract class MenuMiniPlayerFragment : MenuFragment() {
     private fun initViewPager(view: View) {
         viewFrame = view.findViewById(R.id.mini_player_frame)
         //init viewPager
-        miniPalyerViewPager = view.findViewById(R.id.mini_player_viewPager)
-        miniPalyerViewPager.adapter = MiniPlayerPagerAdapter(fm)
-        miniPalyerViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        miniPlayerViewPager = view.findViewById(R.id.mini_player_viewPager)
+        miniPlayerViewPager.adapter = MiniPlayerPagerAdapter(fm)
+        miniPlayerViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
 
             override fun onPageScrollStateChanged(state: Int) { }
 
@@ -64,7 +64,7 @@ abstract class MenuMiniPlayerFragment : MenuFragment() {
                 }
             }
         })
-        miniPalyerViewPager.currentItem = 1
+        miniPlayerViewPager.currentItem = 1
     }
 
     private fun changeUI() {

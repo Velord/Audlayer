@@ -1,5 +1,6 @@
 package velord.university.model.miniPlayer.broadcast
 
+//what can receive service
 const val ACTION_STOP = "velord.university.STOP"
 const val ACTION_PLAY = "velord.university.PlAY"
 const val ACTION_LIKE = "velord.university.LIKE"
@@ -11,7 +12,7 @@ const val ACTION_SHUFFLE = "velord.university.SHUFFLE"
 const val ACTION_UN_SHUFFLE = "velord.university.UNSHUFFLE"
 const val ACTION_LOOP = "velord.university.LOOP"
 const val ACTION_LOOP_ALL = "velord.university.LOOP_ALL"
-
+//what can receive ui
 const val ACTION_STOP_UI = "velord.university.STOP_UI"
 const val ACTION_PLAY_UI = "velord.university.PlAY_UI"
 const val ACTION_LIKE_UI = "velord.university.LIKE_UI"
@@ -23,3 +24,8 @@ const val ACTION_SHUFFLE_UI = "velord.university.SHUFFLE_UI"
 const val ACTION_UN_SHUFFLE_UI = "velord.university.UNSHUFFLE_UI"
 const val ACTION_LOOP_UI = "velord.university.LOOP_UI"
 const val ACTION_LOOP_ALL_UI = "velord.university.LOOP_ALL_UI"
+const val ACTION_NOT_LOOP_UI = "velord.university.NOT_LOOP_UI"
+const val ACTION_SONG_ARTIST_UI = "velord.university.SONG_ARTIST_UI"
+const val ACTION_SONG_NAME_UI = "velord.university.SONG_NAME_UI"
+const val ACTION_SONG_HQ = "velord.university.SONG_HQ_UI"
+const val ACTION_SONG_DURATION = "velord.university.SONG_DURATION_UI"
