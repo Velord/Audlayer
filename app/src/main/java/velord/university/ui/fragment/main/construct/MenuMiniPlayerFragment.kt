@@ -11,10 +11,6 @@ import velord.university.R
 import velord.university.ui.fragment.miniPlayer.MiniPlayerFragment
 import velord.university.ui.fragment.miniPlayer.StopCloseMiniPlayerFragment
 
-
-private const val SWIPE_THRESHOLD = 100
-private const val SWIPE_VELOCITY_THRESHOLD = 100
-
 abstract class MenuMiniPlayerFragment : MenuFragment() {
 
     override val TAG: String

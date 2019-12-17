@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="velord.university">
 
+    <permission android:name="velord.university.PERM_PRIVATE_MINI_PLAYER"
+        android:protectionLevel="signature"/>
+
+    <uses-permission
+        android:name="velord.university.PERM_PRIVATE_MINI_PLAYER"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,8 +15,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name="velord.university.ui.activity.MainActivity">
+        <service
+            android:name=".model.miniPlayer.service.MiniPlayerService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
+        <service android:name=".model.miniPlayer.service.MiniPlayerServiceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+
+        </service>
+
+        <activity android:name=".ui.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
