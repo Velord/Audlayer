@@ -61,18 +61,22 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastR
         miniPlayerSongSkipPrevIB.setOnClickListener {
             SkipPrevLogic.press(requireActivity())
         }
-        miniPlayerSongTimeSeekBar.setOnSeekBarChangeListener(
+        miniPlayerSongTimeSeekBar.setOnSeekBarChangeListener (
             object : SeekBar.OnSeekBarChangeListener {
 
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                override fun onProgressChanged(
+                    seekBar: SeekBar,
+                    value: Int,
+                    fromUser: Boolean
+                ) {
                     if (fromUser)
                         requireActivity()
-                            .sendBroadcastRewind(PERM_PRIVATE_MINI_PLAYER, progress)
+                            .sendBroadcastRewind(PERM_PRIVATE_MINI_PLAYER, value)
                 }
 
-                override fun onStartTrackingTouch(seekBar: SeekBar?) { }
+                override fun onStartTrackingTouch(seekBar: SeekBar) { }
 
-                override fun onStopTrackingTouch(seekBar: SeekBar?) { }
+                override fun onStopTrackingTouch(seekBar: SeekBar) { }
             })
     }
 
@@ -147,7 +151,7 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastR
 
     override val unShuffleF: (Intent?) -> Unit
         get() = { mini_player_song_shuffle.setImageResource(R.drawable.shuffle_gray) }
-    ////!!!!!!
+
     override val loopF: (Intent?) -> Unit
         get() = { mini_player_song_repeat.setImageResource(R.drawable.repeat_one) }
 
