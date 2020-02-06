@@ -26,4 +26,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="stop_and_close_mini_player">Scroll to Stop and Close Mini Player</string>
     <string name="backPressed">Tap Again to Exit</string>
+    <string name="folder_fragment_item_icon">File icon</string>
+    <string name="folder_fragment_item_path">File path</string>
+    <string name="folder_fragment_item_action">File action</string>
 </resources>

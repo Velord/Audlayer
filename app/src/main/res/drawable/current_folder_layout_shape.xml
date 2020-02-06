@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/fragmentBackgroundDarkerOpacity"/>
+        </shape>
+    </item>
+
+    <item
+        android:height="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/dark"/>
+        </shape>
+    </item>
+</layer-list>
+
+
+<!--Create dark line on bottom in current folder layout.
+To do this you should take height you would then set up second item shape height parameter.-->

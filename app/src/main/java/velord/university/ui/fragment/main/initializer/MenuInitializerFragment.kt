@@ -18,6 +18,7 @@ import velord.university.ui.fragment.radio.RadioFragment
 import velord.university.ui.fragment.song.SongFragment
 import velord.university.ui.fragment.vk.VKFragment
 
+
 abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
 
     override val TAG: String
@@ -31,6 +32,8 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
     }
 
     private lateinit var selfView: View
+
+    protected val fragmentHashMap = HashMap<Int, Fragment>()
 
     protected lateinit var folderImageBt: ImageButton
     protected lateinit var albumImageBt: ImageButton
@@ -244,35 +247,44 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
             return super.instantiateItem(container, position)
         }
 
-        override fun getItem(pos: Int): Fragment =
-            when (pos) {
-                // Fragment # 0 - This will show FirstFragment
-                0 -> {
-                    Log.d(TAG, "create FolderFragment")
-                    FolderFragment()
-                }
-                1 -> {
-                    Log.d(TAG, "create AlbumFragment")
-                    AlbumFragment()
-                }
-                2 -> {
-                    Log.d(TAG, "create SongFragment")
-                    SongFragment()
-                }
-                3 -> {
-                    Log.d(TAG, "create RadioFragment")
-                    RadioFragment()
-                }
-                4 ->  {
-                    Log.d(TAG, "create VKFragment")
-                    VKFragment()
-                }
-                else -> {
-                    Log.d(TAG, "create SongFragment")
-                    SongFragment()
-                }
+        override fun getItem(pos: Int): Fragment {
+            if (fragmentHashMap[pos] != null) {
+                return fragmentHashMap[pos]!!
             }
+            val fragment = whichFragment(pos)
+            fragmentHashMap[pos] = fragment
+            return fragment
+        }
 
         override fun getCount(): Int = 5
     }
+
+    private fun whichFragment(position: Int): Fragment =
+        when (position) {
+            // Fragment # 0 - This will show FirstFragment
+            0 -> {
+                Log.d(TAG, "create FolderFragment")
+                FolderFragment()
+            }
+            1 -> {
+                Log.d(TAG, "create AlbumFragment")
+                AlbumFragment()
+            }
+            2 -> {
+                Log.d(TAG, "create SongFragment")
+                SongFragment()
+            }
+            3 -> {
+                Log.d(TAG, "create RadioFragment")
+                RadioFragment()
+            }
+            4 ->  {
+                Log.d(TAG, "create VKFragment")
+                VKFragment()
+            }
+            else -> {
+                Log.d(TAG, "create SongFragment")
+                SongFragment()
+            }
+        }
 }

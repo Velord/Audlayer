@@ -41,6 +41,6 @@ class MainFragment : MenuMiniPlayerInitializerFragment(), BackPressedHandler{
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
         return PressedBackLogic
-            .pressOccur(requireActivity(), menuMemberViewPager)
+            .pressOccur(requireActivity(), menuMemberViewPager, fragmentHashMap)
     }
 }

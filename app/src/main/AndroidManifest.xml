@@ -5,6 +5,9 @@
     <permission android:name="velord.university.PERM_PRIVATE_MINI_PLAYER"
         android:protectionLevel="signature"/>
 
+    <uses-permission android:name = "android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name = "android.permission.READ_EXTERNAL_STORAGE"/>
+
     <uses-permission
         android:name="velord.university.PERM_PRIVATE_MINI_PLAYER"/>
 
@@ -16,12 +19,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".model.miniPlayer.service.MiniPlayerService"
+            android:name="velord.university.model.miniPlayer.service.MiniPlayerService"
             android:enabled="true"
             android:exported="true">
         </service>
 
-        <service android:name=".model.miniPlayer.service.MiniPlayerServiceBroadcastReceiver"
+        <service android:name="velord.university.model.miniPlayer.service.MiniPlayerServiceBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
 

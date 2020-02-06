@@ -3,6 +3,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
+//protobuf
+apply plugin: 'com.google.protobuf'
 
 android {
     compileSdkVersion 29
@@ -39,6 +41,32 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.2'
     //slide ui
     implementation 'com.github.Chrisvin:LiquidSwipe:1.3'
-    //dd the RubberPicker
+    //the RubberPicker
     implementation 'com.github.Chrisvin:RubberPicker:v1.2'
+    //ProtoBuf
+    implementation 'com.google.protobuf:protobuf-lite:3.0.1'
+    implementation 'io.grpc:grpc-okhttp:1.25.0' // CURRENT_GRPC_VERSION
+    implementation 'io.grpc:grpc-protobuf-lite:1.25.0' // CURRENT_GRPC_VERSION
+    implementation 'io.grpc:grpc-stub:1.25.0' // CURRENT_GRPC_VERSION
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+}
+
+//ProtoBuf
+protobuf {
+    protoc { artifact = 'com.google.protobuf:protoc:3.10.0' }
+    plugins {
+        javalite { artifact = "com.google.protobuf:protoc-gen-javalite:3.0.0" }
+        grpc { artifact = 'io.grpc:protoc-gen-grpc-java:1.25.0' // CURRENT_GRPC_VERSION
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.plugins {
+                javalite {}
+                grpc { // Options added to --grpc_out
+                    option 'lite' }
+            }
+        }
+    }
 }

@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/stopMiniPlayerCS"
     android:layout_width="match_parent"
+    android:background="@drawable/mini_player_fragment_shape"
     android:layout_height="match_parent">
 
     <TextView
