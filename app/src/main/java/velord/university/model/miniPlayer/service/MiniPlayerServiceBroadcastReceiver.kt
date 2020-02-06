@@ -1,11 +1,13 @@
 package velord.university.model.miniPlayer.service
 
 import android.content.Intent
+import android.media.SoundPool
 import android.util.Log
 import kotlinx.coroutines.*
 import velord.university.model.miniPlayer.broadcast.*
+import java.io.File
 
-class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadcastReceiver {
+class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadcastReceiverService {
 
     override val TAG: String
         get() = "MnPlyrSrvcBrdcstRcvrs"
@@ -13,6 +15,7 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
     private val receivers = arrayOf(
+        Pair(playByPath(), filterPlayByPathService),
         Pair(stop(), filterStopService),  Pair(play(), filterPlayService),
         Pair(like(), filterLikeService), Pair(unlike(), filterUnlikeService),
         Pair(shuffle(), filterShuffleService), Pair(unShuffle(), filterUnShuffleService),
@@ -48,6 +51,29 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
 
         return START_STICKY
     }
+
+    override val playByPathF: (Intent?) -> Unit
+        get() = {
+            it?.let {
+                val path = it.getStringExtra(AUDIO_FILE_PATH)
+                val file = File(path)
+                sendBroadcastSongArtistUI(
+                    file.name.substringBefore(" - "))
+                sendBroadcastSongNameUI(
+                    file.name
+                        .substringAfter(" - ")
+                        .substringBefore(".${file.extension}")
+                )
+
+
+                val soundPool = SoundPool.Builder()
+                    .setMaxStreams(1)
+                    .build()
+                val soundId = soundPool.load(path, 1)
+                soundPool.play(soundId, 1.0f,
+                    1.0f, 1, 0 , 1.0f)
+            }
+        }
 
     override val stopF: (Intent?) -> Unit
         get() = {
@@ -110,21 +136,6 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
     override val notLoopF: (Intent?) -> Unit
         get() = {
             sendBroadcastNotLoopUI(PERM_PRIVATE_MINI_PLAYER)
-        }
-
-    override val songArtistF: (Intent?) -> Unit
-        get() = {
-            sendBroadcastSongArtistUI(PERM_PRIVATE_MINI_PLAYER, "David Guetta")
-        }
-
-    override val songNameF: (Intent?) -> Unit
-        get() = {
-            sendBroadcastSongNameUI(PERM_PRIVATE_MINI_PLAYER, "Clap Your Hands")
-        }
-
-    override val songHQF: (Intent?) -> Unit
-        get() = {
-            sendBroadcastSongHQUI(PERM_PRIVATE_MINI_PLAYER, true)
         }
 
     override val songDurationF: (Intent?) -> Unit

@@ -1,6 +1,7 @@
 package velord.university.model.miniPlayer.broadcast
 
 //what can receive service
+const val ACTION_PLAY_BY_PATH = "velord.university.PLAY_BY_PATH"
 const val ACTION_STOP = "velord.university.STOP"
 const val ACTION_PLAY = "velord.university.PlAY"
 const val ACTION_LIKE = "velord.university.LIKE"

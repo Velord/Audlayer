@@ -13,8 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import velord.university.R
 import velord.university.model.FileExtension
-import velord.university.model.FileExtension.checkCompatibleFileExtension
 import velord.university.model.FileExtensionModifier
+import velord.university.model.miniPlayer.broadcast.PERM_PRIVATE_MINI_PLAYER
+import velord.university.model.miniPlayer.broadcast.sendBroadcastPlayByPath
 import velord.university.ui.fragment.BackPressedHandler
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 import velord.university.util.PermissionChecker
@@ -66,10 +67,10 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
 
         currentFolder = view.findViewById(R.id.current_folder_textView)
     }
-    
+
     private fun setupAdapter(path: String? = null) {
         fun setupAdapter_(startupFolder: File) {
-            currentFolder.text = "${startupFolder.path}"
+            currentFolder.text = startupFolder.path
 
             val filesInFolder = startupFolder.listFiles()
 
@@ -78,7 +79,7 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
             else {
                 //if you would see not compatible format just remove or comment 2 lines bottom
                 val compatibleFileFormat = filesInFolder.filterNot{
-                    checkCompatibleFileExtension(it) == FileExtensionModifier.NOTCOMPATIBLE
+                    FileExtension.checkCompatibleFileExtension(it) == FileExtensionModifier.NOTCOMPATIBLE
                 }
 
                 rv.adapter = FileAdapter(compatibleFileFormat.toTypedArray())
@@ -102,7 +103,8 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
     }
 
     private fun playAudioFile(file: File) {
-
+        requireActivity()
+            .sendBroadcastPlayByPath(PERM_PRIVATE_MINI_PLAYER, file.absolutePath)
     }
 
     private inner class FileHolder(itemView: View):

@@ -38,84 +38,87 @@ fun Context.sendBroadcast(action: String, permission: String,
 }
 
 // to ui
-fun Context.sendBroadcastStopUI(permission: String) =
+fun Context.sendBroadcastStopUI(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_STOP_UI, permission)
 
-fun Context.sendBroadcastPlayUI(permission: String) =
+fun Context.sendBroadcastPlayUI(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_PLAY_UI, permission)
 
-fun Context.sendBroadcastLikeUI(permission: String) =
+fun Context.sendBroadcastLikeUI(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_LIKE_UI, permission)
 
-fun Context.sendBroadcastUnlikeUI(permission: String) =
+fun Context.sendBroadcastUnlikeUI(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_UNLIKE_UI, permission)
 
-fun Context.sendBroadcastSkipNextUI(permission: String) =
+fun Context.sendBroadcastSkipNextUI(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_SKIP_NEXT_UI, permission)
 
-fun Context.sendBroadcastSkipPrevUI(permission: String) =
+fun Context.sendBroadcastSkipPrevUI(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_SKIP_PREV_UI, permission)
 
-fun Context.sendBroadcastShuffleUI(permission: String) =
+fun Context.sendBroadcastShuffleUI(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_SHUFFLE_UI, permission)
 
-fun Context.sendBroadcastUnShuffleUI(permission: String) =
+fun Context.sendBroadcastUnShuffleUI(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_UN_SHUFFLE_UI, permission)
 
-fun Context.sendBroadcastLoopUI(permission: String) =
+fun Context.sendBroadcastLoopUI(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_LOOP_UI, permission)
 
-fun Context.sendBroadcastLoopAllUI(permission: String) =
+fun Context.sendBroadcastLoopAllUI(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_LOOP_ALL_UI, permission)
 
-fun Context.sendBroadcastNotLoopUI(permission: String) =
+fun Context.sendBroadcastNotLoopUI(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_NOT_LOOP_UI, permission)
 
-fun Context.sendBroadcastRewindUI(permission: String, duration: Int) =
+fun Context.sendBroadcastRewindUI(permission: String = PERM_PRIVATE_MINI_PLAYER, duration: Int) =
     sendBroadcast(ACTION_REWIND_UI, permission, PROGRESS_UI , duration)
 
-fun Context.sendBroadcastSongNameUI(permission: String, name: String) =
+fun Context.sendBroadcastSongNameUI(name: String, permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_SONG_NAME_UI, permission, SONG_NAME_UI , name)
 
-fun Context.sendBroadcastSongArtistUI(permission: String, artist: String) =
+fun Context.sendBroadcastSongArtistUI(artist: String, permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_SONG_ARTIST_UI, permission, SONG_ARTIST_UI, artist)
 
-fun Context.sendBroadcastSongHQUI(permission: String, isHQ: Boolean) =
+fun Context.sendBroadcastSongHQUI(permission: String = PERM_PRIVATE_MINI_PLAYER, isHQ: Boolean) =
     sendBroadcast(ACTION_SONG_HQ, permission, SONG_HQ_UI, isHQ)
 
-fun Context.sendBroadcastSongDurationUI(permission: String, duration: Int) =
+fun Context.sendBroadcastSongDurationUI(permission: String = PERM_PRIVATE_MINI_PLAYER, duration: Int) =
     sendBroadcast(ACTION_SONG_DURATION, permission, SONG_DURATION_UI, duration)
 
 //to service
-fun Context.sendBroadcastRewind(permission: String, duration: Int) =
+fun Context.sendBroadcastPlayByPath(permission: String = PERM_PRIVATE_MINI_PLAYER, path: String) =
+    sendBroadcast(ACTION_PLAY_BY_PATH, permission, AUDIO_FILE_PATH, path)
+
+fun Context.sendBroadcastRewind(permission: String = PERM_PRIVATE_MINI_PLAYER, duration: Int) =
     sendBroadcast(ACTION_REWIND, permission, PROGRESS, duration)
 
-fun Context.sendBroadcastStop(permission: String) =
+fun Context.sendBroadcastStop(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_STOP, permission)
 
-fun Context.sendBroadcastPlay(permission: String) =
+fun Context.sendBroadcastPlay(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_PLAY, permission)
 
-fun Context.sendBroadcastLike(permission: String) =
+fun Context.sendBroadcastLike(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_LIKE, permission)
 
-fun Context.sendBroadcastUnlike(permission: String) =
+fun Context.sendBroadcastUnlike(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_UNLIKE, permission)
 
-fun Context.sendBroadcastSkipNext(permission: String) =
+fun Context.sendBroadcastSkipNext(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_SKIP_NEXT, permission)
 
-fun Context.sendBroadcastSkipPrev(permission: String) =
+fun Context.sendBroadcastSkipPrev(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_SKIP_PREV, permission)
 
-fun Context.sendBroadcastShuffle(permission: String) =
+fun Context.sendBroadcastShuffle(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_SHUFFLE, permission)
 
-fun Context.sendBroadcastUnShuffle(permission: String) =
+fun Context.sendBroadcastUnShuffle(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_UN_SHUFFLE, permission)
 
-fun Context.sendBroadcastLoop(permission: String) =
+fun Context.sendBroadcastLoop(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_LOOP, permission)
 
-fun Context.sendBroadcastLoopAll(permission: String) =
+fun Context.sendBroadcastLoopAll(permission: String = PERM_PRIVATE_MINI_PLAYER) =
     sendBroadcast(ACTION_LOOP_ALL, permission)

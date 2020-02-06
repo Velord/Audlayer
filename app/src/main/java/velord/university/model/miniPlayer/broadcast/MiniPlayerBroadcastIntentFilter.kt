@@ -2,6 +2,7 @@ package velord.university.model.miniPlayer.broadcast
 
 import android.content.IntentFilter
 
+val filterPlayByPathService = IntentFilter(ACTION_PLAY_BY_PATH)
 val filterStopService = IntentFilter(ACTION_STOP)
 val filterPlayService = IntentFilter(ACTION_PLAY)
 val filterLikeService = IntentFilter(ACTION_LIKE)
