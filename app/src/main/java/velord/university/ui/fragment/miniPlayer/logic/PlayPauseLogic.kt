@@ -1,9 +1,8 @@
 package velord.university.ui.fragment.miniPlayer.logic
 
 import androidx.fragment.app.FragmentActivity
-import velord.university.model.miniPlayer.broadcast.PERM_PRIVATE_MINI_PLAYER
-import velord.university.model.miniPlayer.broadcast.sendBroadcastPlay
-import velord.university.model.miniPlayer.broadcast.sendBroadcastStop
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastPlay
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastStop
 
 object PlayPauseLogic: TwoStateLogic() {
 
@@ -11,11 +10,15 @@ object PlayPauseLogic: TwoStateLogic() {
 
     override val firstCase: (context: FragmentActivity) -> Unit
         get() = { context ->
-            context.sendBroadcastStop(PERM_PRIVATE_MINI_PLAYER)
+            MiniPlayerBroadcastStop.apply {
+                context.sendBroadcastStop()
+            }
         }
 
     override val secondCase: (context: FragmentActivity) -> Unit
         get() = { context ->
-            context.sendBroadcastPlay(PERM_PRIVATE_MINI_PLAYER)
+            MiniPlayerBroadcastPlay.apply {
+                context.sendBroadcastPlay()
+            }
         }
 }

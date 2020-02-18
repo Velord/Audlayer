@@ -1,9 +1,9 @@
 package velord.university.ui.fragment.miniPlayer.logic
 
 import androidx.fragment.app.FragmentActivity
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastLike
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastUnlike
 import velord.university.model.miniPlayer.broadcast.PERM_PRIVATE_MINI_PLAYER
-import velord.university.model.miniPlayer.broadcast.sendBroadcastLike
-import velord.university.model.miniPlayer.broadcast.sendBroadcastUnlike
 
 object HeartLogic: TwoStateLogic() {
 
@@ -11,11 +11,15 @@ object HeartLogic: TwoStateLogic() {
 
     override val firstCase: (FragmentActivity) -> Unit
         get() = { context ->
-            context.sendBroadcastUnlike(PERM_PRIVATE_MINI_PLAYER)
+            MiniPlayerBroadcastUnlike.apply {
+                context.sendBroadcastUnlike(PERM_PRIVATE_MINI_PLAYER)
+            }
         }
 
     override val secondCase: (FragmentActivity) -> Unit
         get() = { context ->
-            context.sendBroadcastLike(PERM_PRIVATE_MINI_PLAYER)
+            MiniPlayerBroadcastLike.apply {
+                context.sendBroadcastLike(PERM_PRIVATE_MINI_PLAYER)
+            }
         }
 }

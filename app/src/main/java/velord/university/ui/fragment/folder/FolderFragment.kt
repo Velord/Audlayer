@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import velord.university.R
 import velord.university.model.FileExtension
 import velord.university.model.FileExtensionModifier
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastPlayByPath
 import velord.university.model.miniPlayer.broadcast.PERM_PRIVATE_MINI_PLAYER
-import velord.university.model.miniPlayer.broadcast.sendBroadcastPlayByPath
 import velord.university.ui.fragment.BackPressedHandler
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 import velord.university.util.PermissionChecker
@@ -103,8 +103,10 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
     }
 
     private fun playAudioFile(file: File) {
-        requireActivity()
-            .sendBroadcastPlayByPath(PERM_PRIVATE_MINI_PLAYER, file.absolutePath)
+        MiniPlayerBroadcastPlayByPath.apply {
+            requireActivity()
+                .sendBroadcastPlayByPath(PERM_PRIVATE_MINI_PLAYER, file.absolutePath)
+        }
     }
 
     private inner class FileHolder(itemView: View):

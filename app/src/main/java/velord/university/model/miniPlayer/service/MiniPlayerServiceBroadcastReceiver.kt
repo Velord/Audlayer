@@ -1,11 +1,24 @@
 package velord.university.model.miniPlayer.service
 
 import android.content.Intent
-import android.media.SoundPool
 import android.util.Log
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import velord.university.model.miniPlayer.broadcast.*
-import java.io.File
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastLike.sendBroadcastLikeUI
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastLoop.sendBroadcastLoopUI
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastLoopAll.sendBroadcastLoopAllUI
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastNotLoop.sendBroadcastNotLoopUI
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastPlay.sendBroadcastPlayUI
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastRewind.sendBroadcastRewindUI
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastShuffle.sendBroadcastShuffleUI
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastSkipNext.sendBroadcastSkipNextUI
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastSkipPrev.sendBroadcastSkipPrevUI
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastSongDuration.sendBroadcastSongDurationUI
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastStop.sendBroadcastStopUI
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastUnShuffle.sendBroadcastUnShuffleUI
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastUnlike.sendBroadcastUnlikeUI
 
 class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadcastReceiverService {
 
@@ -15,13 +28,19 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
     private val receivers = arrayOf(
-        Pair(playByPath(), filterPlayByPathService),
-        Pair(stop(), filterStopService),  Pair(play(), filterPlayService),
-        Pair(like(), filterLikeService), Pair(unlike(), filterUnlikeService),
-        Pair(shuffle(), filterShuffleService), Pair(unShuffle(), filterUnShuffleService),
-        Pair(skipNext(), filterSkipNextService), Pair(skipPrev(), filterSkipPrevService),
-        Pair(rewind(), filterRewindService), Pair(loop(), filterLoopService),
-        Pair(loopAll(), filterLoopAllService))
+        Pair(playByPath(), MiniPlayerBroadcastPlayByPath.filterService),
+        Pair(stop(), MiniPlayerBroadcastStop.filterService),
+        Pair(play(), MiniPlayerBroadcastPlay.filterService),
+        Pair(like(), MiniPlayerBroadcastLike.filterService),
+        Pair(unlike(), MiniPlayerBroadcastUnlike.filterService),
+        Pair(shuffle(), MiniPlayerBroadcastShuffle.filterService),
+        Pair(unShuffle(), MiniPlayerBroadcastUnShuffle.filterService),
+        Pair(skipNext(), MiniPlayerBroadcastSkipNext.filterService),
+        Pair(skipPrev(), MiniPlayerBroadcastSkipPrev.filterService),
+        Pair(rewind(), MiniPlayerBroadcastRewind.filterService),
+        Pair(loop(), MiniPlayerBroadcastLoop.filterService),
+        Pair(loopAll(), MiniPlayerBroadcastLoopAll.filterService),
+        Pair(notLoop(), MiniPlayerBroadcastNotLoop.filterService))
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy called")
@@ -40,106 +59,85 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
                 it.first, it.second, PERM_PRIVATE_MINI_PLAYER)
         }
 
-        //only test
-        scope.launch {
-            delay(4000)
-            sendBroadcastSongArtistUI(PERM_PRIVATE_MINI_PLAYER, "David Guetta")
-            sendBroadcastSongNameUI(PERM_PRIVATE_MINI_PLAYER, "Clap Your Hands")
-            sendBroadcastSongHQUI(PERM_PRIVATE_MINI_PLAYER, true)
-            sendBroadcastSongDurationUI(PERM_PRIVATE_MINI_PLAYER, 127)
-        }
-
         return START_STICKY
     }
 
     override val playByPathF: (Intent?) -> Unit
         get() = {
             it?.let {
-                val path = it.getStringExtra(AUDIO_FILE_PATH)
-                val file = File(path)
-                sendBroadcastSongArtistUI(
-                    file.name.substringBefore(" - "))
-                sendBroadcastSongNameUI(
-                    file.name
-                        .substringAfter(" - ")
-                        .substringBefore(".${file.extension}")
-                )
-
-
-                val soundPool = SoundPool.Builder()
-                    .setMaxStreams(1)
-                    .build()
-                val soundId = soundPool.load(path, 1)
-                soundPool.play(soundId, 1.0f,
-                    1.0f, 1, 0 , 1.0f)
+                val extra = MiniPlayerBroadcastPlayByPath.extraValueService
+                val path = it.getStringExtra(extra)
+                playByPath(path)
             }
         }
 
     override val stopF: (Intent?) -> Unit
         get() = {
-            sendBroadcastStopUI(PERM_PRIVATE_MINI_PLAYER)
+            sendBroadcastStopUI()
         }
 
     override val playF: (Intent?) -> Unit
         get() = {
-            sendBroadcastPlayUI(PERM_PRIVATE_MINI_PLAYER)
+            sendBroadcastPlayUI()
         }
 
     override val likeF: (Intent?) -> Unit
         get() = {
-            sendBroadcastLikeUI(PERM_PRIVATE_MINI_PLAYER)
+            sendBroadcastLikeUI()
         }
 
     override val unlikeF: (Intent?) -> Unit
         get() = {
-            sendBroadcastUnlikeUI(PERM_PRIVATE_MINI_PLAYER)
+            sendBroadcastUnlikeUI()
         }
 
     override val skipNextF: (Intent?) -> Unit
         get() = {
-            sendBroadcastSkipNextUI(PERM_PRIVATE_MINI_PLAYER)
+
+            sendBroadcastSkipNextUI()
         }
 
     override val skipPrevF: (Intent?) -> Unit
         get() = {
-            sendBroadcastSkipPrevUI(PERM_PRIVATE_MINI_PLAYER)
+            sendBroadcastSkipPrevUI()
         }
 
     override val rewindF: (Intent?) -> Unit
         get() = {
             it?.let {
-                val value = it.getIntExtra(PROGRESS, 0)
-                sendBroadcastRewindUI(PERM_PRIVATE_MINI_PLAYER, value)
+                val extra = MiniPlayerBroadcastRewind.extraValueService
+                val value = it.getIntExtra(extra, 0)
+                sendBroadcastRewindUI(value)
             }
         }
 
     override val shuffleF: (Intent?) -> Unit
         get() = {
-            sendBroadcastShuffleUI(PERM_PRIVATE_MINI_PLAYER)
+            sendBroadcastShuffleUI()
         }
 
     override val unShuffleF: (Intent?) -> Unit
         get() = {
-            sendBroadcastUnShuffleUI(PERM_PRIVATE_MINI_PLAYER)
+            sendBroadcastUnShuffleUI()
         }
 
     override val loopF: (Intent?) -> Unit
         get() = {
-            sendBroadcastLoopUI(PERM_PRIVATE_MINI_PLAYER)
+            sendBroadcastLoopUI()
 
         }
     override val loopAllF: (Intent?) -> Unit
         get() = {
-            sendBroadcastLoopAllUI(PERM_PRIVATE_MINI_PLAYER)
+            sendBroadcastLoopAllUI()
         }
 
     override val notLoopF: (Intent?) -> Unit
         get() = {
-            sendBroadcastNotLoopUI(PERM_PRIVATE_MINI_PLAYER)
+            sendBroadcastNotLoopUI()
         }
 
     override val songDurationF: (Intent?) -> Unit
         get() = {
-            sendBroadcastSongDurationUI(PERM_PRIVATE_MINI_PLAYER, 127)
+            sendBroadcastSongDurationUI(127)
         }
 }
