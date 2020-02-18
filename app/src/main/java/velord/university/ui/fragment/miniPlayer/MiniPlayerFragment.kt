@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import velord.university.R
+import velord.university.model.SongTimeConverter
 import velord.university.model.miniPlayer.broadcast.*
 import velord.university.ui.fragment.miniPlayer.logic.*
 
@@ -79,8 +80,12 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastR
                 ) {
                     if (fromUser)
                         MiniPlayerBroadcastRewind.apply {
+                            val allSeconds =
+                                SongTimeConverter.textToSeconds(miniPlayerSongTimeEndTV)
+                            val seconds =
+                                SongTimeConverter.percentToSeconds(value, allSeconds)
                             requireActivity()
-                                .sendBroadcastRewind(value)
+                                .sendBroadcastRewind(seconds)
                         }
                 }
 
@@ -129,49 +134,79 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastR
         }
 
     override val stopF: (Intent?) -> Unit
-        get() = { mini_player_song_play_or_pause.setImageResource(R.drawable.play) }
+        get() = {
+            mini_player_song_play_or_pause.setImageResource(R.drawable.play)
+            PlayPauseLogic.value = false
+        }
 
     override val playF: (Intent?) -> Unit
-        get() = { mini_player_song_play_or_pause.setImageResource(R.drawable.pause) }
+        get() = {
+            mini_player_song_play_or_pause.setImageResource(R.drawable.pause)
+            PlayPauseLogic.value = true
+        }
 
     override val likeF: (Intent?) -> Unit
-        get() = { mini_player_song_liked.setImageResource(R.drawable.heart_pressed) }
+        get() = {
+            mini_player_song_liked.setImageResource(R.drawable.heart_pressed)
+            HeartLogic.value = true
+        }
 
     override val unlikeF: (Intent?) -> Unit
-        get() = { mini_player_song_liked.setImageResource(R.drawable.heart_gray) }
+        get() = {
+            mini_player_song_liked.setImageResource(R.drawable.heart_gray)
+            HeartLogic.value = false
+        }
 
     override val skipNextF: (Intent?) -> Unit
-        get() = {}
+        get() = { }
 
     override val skipPrevF: (Intent?) -> Unit
-        get() = {}
+        get() = { }
 
     override val rewindF: (Intent?) -> Unit
         get() = { intent ->
             intent?.apply {
                 val extra = MiniPlayerBroadcastRewind.extraValueUI
-                val progress = intent.getIntExtra(extra, 0)
+                val second = intent.getIntExtra(extra, 0)
+
+                val allSeconds =
+                    SongTimeConverter.textToSeconds(miniPlayerSongTimeEndTV)
+                val progress =
+                    SongTimeConverter.secondsToPercent(second, allSeconds)
+
+                //change UI
                 miniPlayerSongTimeSeekBar.progress = progress
                 miniPlayerSongTimeStartTV.text =
-                    SongTimeConverter
-                        .percentToSongTimeText(progress, miniPlayerSongTimeEndTV)
+                    SongTimeConverter.secondsToTimeText(second)
             }
         }
 
     override val shuffleF: (Intent?) -> Unit
-        get() = { mini_player_song_shuffle.setImageResource(R.drawable.shuffle) }
+        get() = {
+            mini_player_song_shuffle.setImageResource(R.drawable.shuffle)
+            ShuffleLogic.value = true
+        }
 
     override val unShuffleF: (Intent?) -> Unit
-        get() = { mini_player_song_shuffle.setImageResource(R.drawable.shuffle_gray) }
+        get() = {
+            mini_player_song_shuffle.setImageResource(R.drawable.shuffle_gray)
+            ShuffleLogic.value = false
+        }
 
     override val loopF: (Intent?) -> Unit
-        get() = { mini_player_song_repeat.setImageResource(R.drawable.repeat_one) }
+        get() = {
+            mini_player_song_repeat.setImageResource(R.drawable.repeat_one)
+        }
 
     override val loopAllF: (Intent?) -> Unit
-        get() = { mini_player_song_repeat.setImageResource(R.drawable.repeat_all) }
+        get() = {
+            mini_player_song_repeat.setImageResource(R.drawable.repeat_all)
+        }
 
     override val notLoopF: (Intent?) -> Unit
-        get() = { mini_player_song_repeat.setImageResource(R.drawable.repeat_gray) }
+        get() = {
+            mini_player_song_repeat.setImageResource(R.drawable.repeat_gray) }
+
 
     override val songNameF: (Intent?) -> Unit
         get() = { intent ->
@@ -196,9 +231,10 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastR
         get() = { intent ->
             intent?.apply {
                 val extra = MiniPlayerBroadcastSongDuration.extraValueUI
-                val value = getIntExtra(extra, 100)
+                val seconds = getIntExtra(extra, 0)
+                val inMinutes = SongTimeConverter.millisecondsToSeconds(seconds)
                 miniPlayerSongTimeEndTV.text =
-                    SongTimeConverter.secondsToTimeText(value)
+                    SongTimeConverter.secondsToTimeText(inMinutes)
             }
         }
 }

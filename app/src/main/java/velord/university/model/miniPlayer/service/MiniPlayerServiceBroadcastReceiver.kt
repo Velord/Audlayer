@@ -68,16 +68,20 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
                 val extra = MiniPlayerBroadcastPlayByPath.extraValueService
                 val path = it.getStringExtra(extra)
                 playByPath(path)
+                //send command to change ui
+                sendBroadcastPlayUI()
             }
         }
 
     override val stopF: (Intent?) -> Unit
         get() = {
+            pausePlayer()
             sendBroadcastStopUI()
         }
 
     override val playF: (Intent?) -> Unit
         get() = {
+            playSong()
             sendBroadcastPlayUI()
         }
 
@@ -107,6 +111,7 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
             it?.let {
                 val extra = MiniPlayerBroadcastRewind.extraValueService
                 val value = it.getIntExtra(extra, 0)
+                rewindPlayer(value)
                 sendBroadcastRewindUI(value)
             }
         }

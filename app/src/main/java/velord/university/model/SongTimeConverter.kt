@@ -1,10 +1,10 @@
-package velord.university.ui.fragment.miniPlayer.logic
+package velord.university.model
 
 import android.widget.TextView
 
 object SongTimeConverter {
 
-    private fun textToSeconds(view: TextView): Int {
+    fun textToSeconds(view: TextView): Int {
         val text = view.text
         var min = 0
         var sec = 0
@@ -29,7 +29,7 @@ object SongTimeConverter {
         val secToView = (sec % 60)
         val minToView = (sec / 60)
         return when(secToView) {
-            in 0..10 -> {
+            in 0..9 -> {
                 if (minToView in 0..9) "0$minToView: 0$secToView"
                 else "$minToView: 0$secToView"
             }
@@ -41,9 +41,28 @@ object SongTimeConverter {
     }
 
     fun percentToSongTimeText(value: Int, view: TextView): String {
-        val secondsInSong = textToSeconds(view)
+        val secondsInSong =
+            textToSeconds(view)
         val onePercent = (secondsInSong.toFloat() / 100.0)
         val sec = (value.toFloat() * onePercent).toInt()
         return secondsToTimeText(sec)
     }
+
+    fun millisecondsToSeconds(value: Int): Int = (value / 1000)
+
+
+    fun percentToSeconds(percent: Int, all: Int): Int {
+        val onePercent = all.toFloat() / 100
+        val progress = percent.toFloat() * onePercent
+        return progress.toInt()
+    }
+
+    fun secondsToPercent(sec: Int, all: Int): Int {
+        val onePercent = all.toFloat() / 100
+        val progress = sec.toFloat() / onePercent
+        return progress.toInt()
+    }
+
+    fun secondsToMilliseconds(sec: Int): Int = sec * 1000
+
 }

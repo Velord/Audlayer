@@ -17,8 +17,8 @@ object FileExtension {
                     file.extension == "rtx" || file.extension == "ota" ||
                     file.extension == "imy" || file.extension == "mkv" ||
                     file.extension == "wav" || file.extension == "ogg"
-            -> velord.university.model.FileExtensionModifier.AUDIO
-            else -> velord.university.model.FileExtensionModifier.NOTCOMPATIBLE
+            -> FileExtensionModifier.AUDIO
+            else -> FileExtensionModifier.NOTCOMPATIBLE
         }
 }
 
