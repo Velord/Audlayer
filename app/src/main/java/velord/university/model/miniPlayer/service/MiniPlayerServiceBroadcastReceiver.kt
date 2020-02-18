@@ -129,7 +129,6 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
     override val loopF: (Intent?) -> Unit
         get() = {
             sendBroadcastLoopUI()
-
         }
     override val loopAllF: (Intent?) -> Unit
         get() = {

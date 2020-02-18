@@ -10,6 +10,7 @@ import kotlinx.coroutines.*
 import velord.university.model.FileNameParser
 import velord.university.model.SongTimeConverter
 import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastRewind
+import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastShow
 import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastSongArtist.sendBroadcastSongArtistUI
 import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastSongDuration
 import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastSongName.sendBroadcastSongNameUI
@@ -139,6 +140,10 @@ abstract class MiniPlayerService : Service() {
         val path = song.path
         createPlayer(path)
         playSong()
+        //showUI
+        MiniPlayerBroadcastShow.apply {
+            sendBroadcastShow()
+        }
         //send info
         sendSongNameAndArtist(song)
         sendDurationSong(player)

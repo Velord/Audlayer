@@ -1,5 +1,6 @@
 package velord.university.ui.fragment.main.initializer
 
+import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -8,10 +9,11 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import velord.university.R
+import velord.university.model.miniPlayer.broadcast.*
 import velord.university.ui.fragment.miniPlayer.MiniPlayerFragment
 import velord.university.ui.fragment.miniPlayer.StopCloseMiniPlayerFragment
 
-abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment() {
+abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), MiniPlayerBroadcastreceiverShower {
 
     override val TAG: String
         get() = "MenuNowPlayingFragment"
@@ -19,8 +21,29 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment() {
     private lateinit var viewFrame: View
     lateinit var miniPlayerViewPager: ViewPager
 
+    private val receivers = arrayOf(
+        Pair(show(), MiniPlayerBroadcastShow.filterUI))
+
     private val fm by lazy {
         activity!!.supportFragmentManager
+    }
+
+    override fun onStart() {
+        super.onStart()
+        receivers.forEach {
+            requireActivity()
+                .registerBroadcastReceiver(
+                    it.first, it.second, PERM_PRIVATE_MINI_PLAYER)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        receivers.forEach {
+            requireActivity()
+                .unregisterBroadcastReceiver(it.first)
+        }
     }
 
     protected fun initMiniPlayerFragmentView(view: View) {
@@ -116,4 +139,10 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment() {
 
         override fun getCount(): Int = 3
     }
+
+    override val showF: (Intent?) -> Unit
+        get() = {
+            miniPlayerViewPager.currentItem = 1
+            viewFrame.visibility = View.VISIBLE
+        }
 }

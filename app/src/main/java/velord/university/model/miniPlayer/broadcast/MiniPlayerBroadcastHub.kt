@@ -290,3 +290,12 @@ object MiniPlayerBroadcastSongDuration: MiniPlayerBroadcastHub() {
         sendBroadcast(actionUI, permission, extraValueUI, duration)
 }
 
+object MiniPlayerBroadcastShow: MiniPlayerBroadcastHub() {
+    override val actionUI: String = "velord.university.SONG_DURATION_UI"
+
+    override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+    fun Context.sendBroadcastShow(permission: String = PERM_PRIVATE_MINI_PLAYER) =
+        sendBroadcast(actionUI, permission)
+}
+
