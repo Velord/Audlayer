@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import velord.university.R
 import velord.university.model.FileExtension
 import velord.university.model.FileExtensionModifier
@@ -64,7 +65,6 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
     private fun initViews(view: View) {
         rv = view.findViewById(R.id.current_folder_RecyclerView)
         rv.layoutManager = LinearLayoutManager(activity)
-
         currentFolder = view.findViewById(R.id.current_folder_textView)
     }
 
@@ -167,7 +167,7 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
     }
 
     private inner class FileAdapter(val items: Array<out File>):
-        RecyclerView.Adapter<FileHolder>() {
+        RecyclerView.Adapter<FileHolder>(),  FastScrollRecyclerView.SectionedAdapter {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
@@ -185,5 +185,8 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
         }
 
         override fun getItemCount(): Int = items.size
+
+        override fun getSectionName(position: Int): String =
+            "${items[position].name[0]}"
     }
 }
