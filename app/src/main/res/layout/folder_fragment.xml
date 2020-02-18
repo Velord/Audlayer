@@ -8,7 +8,7 @@
     <FrameLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
-        android:layout_height="38dp"
+        android:layout_height="35dp"
         android:background="@color/fragmentBackgroundDarkerOpacity"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

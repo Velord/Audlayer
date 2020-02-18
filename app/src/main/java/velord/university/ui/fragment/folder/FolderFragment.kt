@@ -39,6 +39,10 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
 
     private lateinit var rv: RecyclerView
     private lateinit var currentFolder: TextView
+    private lateinit var menu: ImageButton
+    private lateinit var hint: TextView
+    private lateinit var seek: ImageButton
+    private lateinit var action: ImageButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,7 +75,16 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
     private fun initViews(view: View) {
         rv = view.findViewById(R.id.current_folder_RecyclerView)
         rv.layoutManager = LinearLayoutManager(activity)
+
         currentFolder = view.findViewById(R.id.current_folder_textView)
+
+        menu = view.findViewById(R.id.top_menu_settings)
+
+        hint = view.findViewById(R.id.top_menu_hint)
+
+        seek = view.findViewById(R.id.top_menu_seek)
+
+        action =  view.findViewById(R.id.top_menu_action)
     }
 
     private fun setupAdapter(path: String? = null) {
