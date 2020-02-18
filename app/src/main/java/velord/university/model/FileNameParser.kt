@@ -11,4 +11,10 @@ object FileNameParser {
         file.name
             .substringAfter(" - ")
             .substringBefore(".${file.extension}")
+
+    fun slashReplaceArrow(path: String): String =
+        path.replace("/", " > ").substringAfter(" > ")
+
+    fun arrowreplaceSlash(path: String): String =
+        "/${path.replace(" > ", "/")}"
 }

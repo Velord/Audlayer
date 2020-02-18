@@ -15,6 +15,7 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import velord.university.R
 import velord.university.model.FileExtension
 import velord.university.model.FileExtensionModifier
+import velord.university.model.FileNameParser
 import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastPlayByPath
 import velord.university.model.miniPlayer.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.ui.fragment.BackPressedHandler
@@ -52,15 +53,20 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
 
-        setupAdapter(File(currentFolder.text.toString()).parentFile!!.path)
+        val pathFromUI =
+            FileNameParser.arrowreplaceSlash(currentFolder.text.toString())
+        setupAdapter(File(pathFromUI).parentFile!!.path)
 
         return true
     }
 
-    fun focusOnMe(): Boolean =
-        if (currentFolder.text == Environment.getExternalStorageDirectory().path)
+    fun focusOnMe(): Boolean {
+        val pathFromUI =
+            FileNameParser.arrowreplaceSlash(currentFolder.text.toString())
+        return   if (pathFromUI == Environment.getExternalStorageDirectory().path)
             false
         else true
+    }
 
     private fun initViews(view: View) {
         rv = view.findViewById(R.id.current_folder_RecyclerView)
@@ -70,7 +76,8 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
 
     private fun setupAdapter(path: String? = null) {
         fun setupAdapter_(startupFolder: File) {
-            currentFolder.text = startupFolder.path
+            val pathToUI = FileNameParser.slashReplaceArrow(startupFolder.path)
+            currentFolder.text = pathToUI
 
             val filesInFolder = startupFolder.listFiles()
 
