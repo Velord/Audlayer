@@ -19,10 +19,11 @@ import velord.university.model.FileExtensionModifier
 import velord.university.model.FileNameParser
 import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastPlayByPath
 import velord.university.model.miniPlayer.broadcast.PERM_PRIVATE_MINI_PLAYER
-import velord.university.ui.fragment.ActionBarFragment
 import velord.university.ui.fragment.BackPressedHandler
+import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.util.PermissionChecker
 import java.io.File
+import java.util.*
 
 
 class FolderFragment : ActionBarFragment(), BackPressedHandler {
@@ -69,7 +70,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
             Observer { searchTerm ->
                 if (searchTerm.isNotEmpty()) {
                     val f: (File) -> Boolean = {
-                        it.path.toUpperCase().contains(searchTerm.toUpperCase()) &&
+                        it.path.toUpperCase(Locale.ROOT)
+                            .contains(searchTerm.toUpperCase(Locale.ROOT)) &&
                                 FileExtension.checkCompatibleFileExtension(it) !=
                                 FileExtensionModifier.NOTCOMPATIBLE
                     }
@@ -107,7 +109,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         currentFolderTextView = view.findViewById(R.id.current_folder_textView)
     }
 
-    private fun checkPermisiiion(): Boolean =
+    private fun checkPermission(): Boolean =
         PermissionChecker
                 .checkThenRequestReadWriteExternalStoragePermission(
                     this.requireContext(), this.requireActivity())
@@ -121,33 +123,29 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                              //default filter
                              filter: (File) -> Boolean = {
                                  FileExtension.checkCompatibleFileExtension(it) !=
-                                         FileExtensionModifier.NOTCOMPATIBLE
-                             }
+                                         FileExtensionModifier.NOTCOMPATIBLE }
     ) {
         fun setupAdapter_(file: File) {
+            currentFolder = file
             changeCurrentTextView(file)
             val filesInFolder = getFilesInCurrentFolder()
             //if you would see not compatible format
             //just remove or comment 2 lines bottom
             val compatibleFileFormat =
-                filesInFolder.filter{ filter(it) }
+                filesInFolder.filter { filter(it) }
 
             rv.adapter = FileAdapter(compatibleFileFormat.toTypedArray())
-
         }
-
         //while permission is not granted
-        if (checkPermisiiion().not()) setupAdapter()
+        if (checkPermission().not()) setupAdapter()
         //when we need handle arrived path
         path?.also {
-            currentFolder = File(path)
             val startupFolder = File(it)
             setupAdapter_(startupFolder)
             return
         }
         //default folder
         val startupFolder = Environment.getExternalStorageDirectory()
-        currentFolder = startupFolder
         //init adapter
         setupAdapter_(startupFolder)
     }

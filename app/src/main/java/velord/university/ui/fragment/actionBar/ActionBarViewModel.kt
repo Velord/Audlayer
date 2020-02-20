@@ -1,8 +1,9 @@
-package velord.university.ui.fragment.vk
+package velord.university.ui.fragment.actionBar
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import velord.university.application.QueryPreferences
 
 class ActionBarViewModel(private val app: Application) : AndroidViewModel(app) {
     val mutableSearchTerm = MutableLiveData<String>()
@@ -10,7 +11,7 @@ class ActionBarViewModel(private val app: Application) : AndroidViewModel(app) {
         get() = mutableSearchTerm.value ?: ""
 
     init {
-        //need retrieve from  QueryPreferences.getStoredQuery(app)
-        mutableSearchTerm.value = ""
+        //need retrieve from shared preferences
+        mutableSearchTerm.value = QueryPreferences.getStoredQuery(app)
     }
 }

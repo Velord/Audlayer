@@ -1,4 +1,4 @@
-package velord.university.ui.fragment
+package velord.university.ui.fragment.actionBar
 
 import android.util.Log
 import android.view.View
@@ -9,7 +9,8 @@ import android.widget.TextView
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import velord.university.R
-import velord.university.ui.fragment.vk.ActionBarViewModel
+import velord.university.application.QueryPreferences
+import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 
 abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
 
@@ -22,8 +23,14 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
     protected lateinit var actionBarFrame: FrameLayout
     protected lateinit var menu: ImageButton
     protected lateinit var searchView: SearchView
-    protected lateinit var action: ImageButton
+    protected lateinit var actionButton: ImageButton
     protected lateinit var hint: TextView
+
+    override fun onStop() {
+        super.onStop()
+        QueryPreferences.setStoredQuery(
+            requireContext(), viewModelActionBar.searchTerm)
+    }
 
     protected fun initActionBar(view: View) {
         actionBarFrame = view.findViewById(R.id.action_bar_frame_layout)
@@ -32,7 +39,7 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
         initSearchView(view)
 
         hint = view.findViewById(R.id.top_menu_hint)
-        action =  view.findViewById(R.id.top_menu_action)
+        initActionButton(view)
     }
 
     private fun initSearchView(view: View) {
@@ -68,6 +75,16 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
             setOnSearchClickListener {
                 hint.visibility = View.GONE
                 searchView.setQuery(viewModelActionBar.searchTerm,false)
+            }
+        }
+    }
+
+    private fun initActionButton(view: View) {
+        actionButton =  view.findViewById(R.id.top_menu_action)
+
+        actionButton.apply {
+            setOnClickListener {
+
             }
         }
     }
