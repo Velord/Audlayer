@@ -9,7 +9,6 @@ import android.widget.TextView
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import velord.university.R
-import velord.university.application.QueryPreferences
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 
 abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
@@ -26,24 +25,18 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
     protected lateinit var actionButton: ImageButton
     protected lateinit var hint: TextView
 
-    override fun onStop() {
-        super.onStop()
-        QueryPreferences.setStoredQuery(
-            requireContext(), viewModelActionBar.searchTerm)
-    }
-
     protected fun initActionBar(view: View) {
         actionBarFrame = view.findViewById(R.id.action_bar_frame_layout)
-        menu = view.findViewById(R.id.top_menu_settings)
+        menu = view.findViewById(R.id.action_bar_settings)
 
         initSearchView(view)
 
-        hint = view.findViewById(R.id.top_menu_hint)
+        hint = view.findViewById(R.id.action_bar_hint)
         initActionButton(view)
     }
 
     private fun initSearchView(view: View) {
-        searchView = view.findViewById(R.id.top_menu_searchView)
+        searchView = view.findViewById(R.id.action_bar_searchView)
         searchView.apply {
 
             setOnCloseListener {
@@ -74,13 +67,13 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
 
             setOnSearchClickListener {
                 hint.visibility = View.GONE
-                searchView.setQuery(viewModelActionBar.searchTerm,false)
+                searchView.setQuery(viewModelActionBar.searchTerm, false)
             }
         }
     }
 
     private fun initActionButton(view: View) {
-        actionButton =  view.findViewById(R.id.top_menu_action)
+        actionButton =  view.findViewById(R.id.action_bar_action)
 
         actionButton.apply {
             setOnClickListener {
@@ -89,8 +82,7 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
         }
     }
 
-    private fun changeUIAfterSubmitTextInSearchView(
-        searchView: SearchView) {
+    protected fun changeUIAfterSubmitTextInSearchView(searchView: SearchView) {
         //hide the soft keyboard and collapse the SearchView.
         searchView.onActionViewCollapsed()
         //show hint

@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import velord.university.R
+import velord.university.application.QueryPreferences
 import velord.university.model.FileExtension
 import velord.university.model.FileExtensionModifier
 import velord.university.model.FileNameParser
@@ -49,7 +50,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
     ): View? {
         return inflater.inflate(R.layout.folder_fragment, container, false).apply {
             initViews(this)
-            setupAdapter()
+            setupAdapterBySearchQuery(currentFolder)
             //observe changes in search view
             observeSearchTerm()
         }
@@ -59,8 +60,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         Log.d(TAG, "onBackPressed")
 
         val path = currentFolder.path
-        setupAdapter(File(path).parentFile!!.path)
-
+        currentFolder = File(path).parentFile!!
+        setupAdapterBySearchQuery(currentFolder)
         return true
     }
 
@@ -68,20 +69,66 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         super.viewModelActionBar.mutableSearchTerm.observe(
             viewLifecycleOwner,
             Observer { searchTerm ->
-                if (searchTerm.isNotEmpty()) {
-                    val f: (File) -> Boolean = {
-                        it.path.toUpperCase(Locale.ROOT)
-                            .contains(searchTerm.toUpperCase(Locale.ROOT)) &&
-                                FileExtension.checkCompatibleFileExtension(it) !=
-                                FileExtensionModifier.NOTCOMPATIBLE
-                    }
-                    setupAdapter(currentFolder.path, f)
-                }
-                else {
-                    setupAdapter(currentFolder.path)
-                }
+                //update files list
+                updateAdapterBySearchQuery(searchTerm)
+                //store search term in shared preferences
+                val folderPath = currentFolder.path
+                QueryPreferences.setStoredQueryFolder(requireContext(), folderPath, searchTerm)
             }
         )
+    }
+
+    private fun updateAdapterBySearchQuery(searchTerm: String) {
+        fun setupAdapter(file: File = Environment.getExternalStorageDirectory(),
+                        //default filter
+                         filter: (File) -> Boolean = {
+                             FileExtension.checkCompatibleFileExtension(it) !=
+                                     FileExtensionModifier.NOTCOMPATIBLE
+                         }
+        ) {
+            //while permission is not granted
+            if (checkPermission().not()) setupAdapter()
+            //now do everything to setup adapter
+            changeCurrentTextView(file)
+            val filesInFolder = getFilesInCurrentFolder()
+            //if you would see not compatible format
+            //just remove or comment 2 lines bottom
+            val compatibleFileFormat =
+                filesInFolder.filter { filter(it) }
+
+            rv.adapter = FileAdapter(compatibleFileFormat.toTypedArray())
+        }
+
+
+        if (searchTerm.isNotEmpty()) {
+            val f: (File) -> Boolean = {
+                val extension =
+                    FileExtension.checkCompatibleFileExtension(it) !=
+                        FileExtensionModifier.NOTCOMPATIBLE
+                val haveExtension =
+                    if (it.extension.isNotEmpty())
+                        it.path.substringBefore(it.extension)
+                    else it.path
+
+                val contQuery = haveExtension
+                    .substringAfterLast('/')
+                    .toUpperCase(Locale.ROOT)
+                    .contains(searchTerm.toUpperCase(Locale.ROOT))
+
+                extension && contQuery
+            }
+            setupAdapter(currentFolder, f)
+        }
+        else setupAdapter(currentFolder)
+    }
+
+    private fun setupAdapterBySearchQuery(file: File) {
+        currentFolder = file
+        val searchTerm =
+            QueryPreferences.getStoredQueryFolder(requireContext(), currentFolder.path)
+        //when mutable search term changed occurred invoke observer on it
+        super.searchView.setQuery(searchTerm, false)
+        super.viewModelActionBar.mutableSearchTerm.value = searchTerm
     }
 
     private fun getFilesInCurrentFolder(): Array<File> {
@@ -91,21 +138,22 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         return filesInFolder ?: arrayOf()
     }
 
-    fun focusOnMe(): Boolean {
-        val path = currentFolder.path
-        return if (path == Environment.getExternalStorageDirectory().path)
-            false
-        else true
-    }
-
     private fun initViews(view: View) {
         initActionBar(view)
+        initRV(view)
+        initCurrentFolder(view)
+    }
 
+    private fun initRV(view: View) {
         rv = view.findViewById(R.id.current_folder_RecyclerView)
         rv.layoutManager = LinearLayoutManager(activity)
         //controlling action bar frame visibility when recycler view is scrolling
         setOnScrollListenerBasedOnRecyclerViewScrolling(rv, 50, -5)
+    }
 
+    private fun initCurrentFolder(view: View) {
+        //setup current folder
+        currentFolder = Environment.getExternalStorageDirectory()
         currentFolderTextView = view.findViewById(R.id.current_folder_textView)
     }
 
@@ -119,41 +167,21 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         currentFolderTextView.text = pathToUI
     }
 
-    private fun setupAdapter(path: String? = null,
-                             //default filter
-                             filter: (File) -> Boolean = {
-                                 FileExtension.checkCompatibleFileExtension(it) !=
-                                         FileExtensionModifier.NOTCOMPATIBLE }
-    ) {
-        fun setupAdapter_(file: File) {
-            currentFolder = file
-            changeCurrentTextView(file)
-            val filesInFolder = getFilesInCurrentFolder()
-            //if you would see not compatible format
-            //just remove or comment 2 lines bottom
-            val compatibleFileFormat =
-                filesInFolder.filter { filter(it) }
-
-            rv.adapter = FileAdapter(compatibleFileFormat.toTypedArray())
-        }
-        //while permission is not granted
-        if (checkPermission().not()) setupAdapter()
-        //when we need handle arrived path
-        path?.also {
-            val startupFolder = File(it)
-            setupAdapter_(startupFolder)
-            return
-        }
-        //default folder
-        val startupFolder = Environment.getExternalStorageDirectory()
-        //init adapter
-        setupAdapter_(startupFolder)
-    }
-
     private fun playAudioFile(file: File) {
         MiniPlayerBroadcastPlayByPath.apply {
             requireActivity()
                 .sendBroadcastPlayByPath(PERM_PRIVATE_MINI_PLAYER, file.absolutePath)
+        }
+    }
+
+    fun focusOnMe(): Boolean {
+        val path = currentFolder.path
+        return if (path == Environment.getExternalStorageDirectory().path)
+            false
+        else {
+            //hide searchView
+            super.changeUIAfterSubmitTextInSearchView(super.searchView)
+            true
         }
     }
 
@@ -172,13 +200,13 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
             when(FileExtension.checkCompatibleFileExtension(file)) {
                 FileExtensionModifier.DIRECTORY -> {
                     itemView.setOnClickListener {
-                        setupAdapter(file.absolutePath)
+                        setupAdapterBySearchQuery(file)
                     }
                     fileIconImageButton.setOnClickListener {
-                        setupAdapter(file.absolutePath)
+                        setupAdapterBySearchQuery(file)
                     }
                     pathTextView.setOnClickListener {
-                        setupAdapter(file.absolutePath)
+                        setupAdapterBySearchQuery(file)
                     }
                     fileActionImageButton.setOnClickListener {}
                 }

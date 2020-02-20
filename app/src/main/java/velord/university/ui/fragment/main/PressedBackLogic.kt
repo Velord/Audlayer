@@ -1,6 +1,7 @@
 package velord.university.ui.fragment.main
 
 import android.content.Context
+import android.util.SparseArray
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
@@ -15,12 +16,12 @@ object PressedBackLogic {
     private var backPressedCount = 0
 
     //if folder fragment on focus
-    //if not center fragment set it
+    //if not center fragment -> set it
     //if center fragment -> make toast
     //if center fragment and toast was made less 5 seconds ago -> close app
     fun pressOccur(activity: Context,
                    menuMemberFragment: ViewPager,
-                   fragmentHashMap: HashMap<Int, Fragment>): Boolean {
+                   fragmentHashMap: SparseArray<Fragment>): Boolean {
         if (menuMemberFragment.currentItem == 0) {
             val folderFragment = fragmentHashMap[0] as FolderFragment
             if (folderFragment.focusOnMe()) {

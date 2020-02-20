@@ -9,9 +9,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ImageButton
-        android:id="@+id/top_menu_settings"
+        android:id="@+id/action_bar_settings"
         style="@style/TopMenuImageButtons"
         android:layout_width="50dp"
+        android:contentDescription="@string/action_bar_settings"
         android:layout_marginStart="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,34 +21,36 @@
         app:srcCompat="@drawable/top_menu_settings" />
 
     <ImageButton
-        android:id="@+id/top_menu_action"
+        android:id="@+id/action_bar_action"
         style="@style/TopMenuImageButtons"
         android:layout_width="30dp"
         android:layout_marginEnd="12dp"
+        android:contentDescription="@string/action_bar_action"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/top_menu_action" />
 
     <SearchView
-        android:id="@+id/top_menu_searchView"
+        android:id="@+id/action_bar_searchView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:maxWidth="250dp"
+        android:queryHint="@string/action_bar_hint_search_view"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/top_menu_action"
+        app:layout_constraintEnd_toStartOf="@+id/action_bar_action"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/top_menu_hint"
+        app:layout_constraintStart_toEndOf="@+id/action_bar_hint"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.499" />
 
     <TextView
-        android:id="@+id/top_menu_hint"
+        android:id="@+id/action_bar_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/top_menu_hint_folder"
+        android:text="@string/action_bar_hint_folder"
         android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

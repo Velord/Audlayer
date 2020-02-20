@@ -12,6 +12,6 @@ class ActionBarViewModel(private val app: Application) : AndroidViewModel(app) {
 
     init {
         //need retrieve from shared preferences
-        mutableSearchTerm.value = QueryPreferences.getStoredQuery(app)
+        mutableSearchTerm.value = QueryPreferences.getStoredQueryFolder(app)
     }
 }

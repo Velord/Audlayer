@@ -1,10 +1,12 @@
 package velord.university.ui.fragment.main.initializer
 
 import android.util.Log
+import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.core.util.set
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -33,7 +35,7 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
 
     private lateinit var selfView: View
 
-    protected val fragmentHashMap = HashMap<Int, Fragment>()
+    protected val fragmentHashMap = SparseArray<Fragment>()
 
     protected lateinit var folderImageBt: ImageButton
     protected lateinit var albumImageBt: ImageButton

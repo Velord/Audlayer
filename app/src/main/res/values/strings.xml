@@ -29,5 +29,8 @@
     <string name="folder_fragment_item_icon">File icon</string>
     <string name="folder_fragment_item_path">File path</string>
     <string name="folder_fragment_item_action">File action</string>
-    <string name="top_menu_hint_folder">Find Audio</string>
+    <string name="action_bar_hint_folder">Find Audio</string>
+    <string name="action_bar_hint_search_view">Type to find...</string>
+    <string name="action_bar_settings">Action Bar Settings Button</string>
+    <string name="action_bar_action">Action Bar Action Button</string>
 </resources>
