@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProviders
@@ -19,13 +18,13 @@ import velord.university.model.FileExtensionModifier
 import velord.university.model.FileNameParser
 import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastPlayByPath
 import velord.university.model.miniPlayer.broadcast.PERM_PRIVATE_MINI_PLAYER
+import velord.university.ui.fragment.ActionBarFragment
 import velord.university.ui.fragment.BackPressedHandler
-import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 import velord.university.util.PermissionChecker
 import java.io.File
 
 
-class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
+class FolderFragment : ActionBarFragment(), BackPressedHandler {
 
     override val TAG: String
         get() = "FolderFragment"
@@ -40,11 +39,6 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
 
     private lateinit var rv: RecyclerView
     private lateinit var currentFolder: TextView
-    private lateinit var actionBarFrame: FrameLayout
-    private lateinit var menu: ImageButton
-    private lateinit var hint: TextView
-    private lateinit var seek: ImageButton
-    private lateinit var action: ImageButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -75,43 +69,14 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
     }
 
     private fun initViews(view: View) {
-        actionBarFrame = view.findViewById(R.id.action_bar_frame_layout)
+        initActionBar(view)
 
         rv = view.findViewById(R.id.current_folder_RecyclerView)
         rv.layoutManager = LinearLayoutManager(activity)
         //controlling action bar frame visibility when recycler view is scrolling
-        rv.setOnScrollListener(object : RecyclerView.OnScrollListener(){
-
-            var scroll_down = false
-
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (scroll_down) {
-                    actionBarFrame.visibility = View.GONE
-                } else {
-                    actionBarFrame.visibility = View.VISIBLE
-                }
-            }
-
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                //scroll down
-                if (dy > 50) scroll_down = true
-                //scroll up
-                else if (dy < -5) scroll_down = false
-
-            }
-        })
+        setOnScrollListenerBasedOnRecyclerViewScrolling(rv, 50, -5)
 
         currentFolder = view.findViewById(R.id.current_folder_textView)
-
-        menu = view.findViewById(R.id.top_menu_settings)
-
-        hint = view.findViewById(R.id.top_menu_hint)
-
-        seek = view.findViewById(R.id.top_menu_seek)
-
-        action =  view.findViewById(R.id.top_menu_action)
     }
 
     private fun setupAdapter(path: String? = null) {
