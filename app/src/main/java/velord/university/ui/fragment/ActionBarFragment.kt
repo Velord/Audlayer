@@ -1,33 +1,85 @@
 package velord.university.ui.fragment
 
+import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageButton
+import android.widget.SearchView
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import velord.university.R
+import velord.university.ui.fragment.vk.ActionBarViewModel
 
 abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
 
     override val TAG: String = "ActionBarFragment"
 
+    protected val viewModelActionBar by lazy {
+        ViewModelProviders.of(this).get(ActionBarViewModel::class.java)
+    }
+
     protected lateinit var actionBarFrame: FrameLayout
     protected lateinit var menu: ImageButton
-    protected lateinit var hint: TextView
-    protected lateinit var seek: ImageButton
+    protected lateinit var searchView: SearchView
     protected lateinit var action: ImageButton
+    protected lateinit var hint: TextView
 
     protected fun initActionBar(view: View) {
         actionBarFrame = view.findViewById(R.id.action_bar_frame_layout)
-
         menu = view.findViewById(R.id.top_menu_settings)
 
+        initSearchView(view)
+
         hint = view.findViewById(R.id.top_menu_hint)
-
-        seek = view.findViewById(R.id.top_menu_seek)
-
         action =  view.findViewById(R.id.top_menu_action)
     }
+
+    private fun initSearchView(view: View) {
+        searchView = view.findViewById(R.id.top_menu_searchView)
+        searchView.apply {
+
+            setOnCloseListener {
+                hint.visibility = View.VISIBLE
+                viewModelActionBar.mutableSearchTerm.value = ""
+                false
+            }
+
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    Log.d(TAG, "QueryTextSubmit: $query")
+                    query?.let {
+                        viewModelActionBar.mutableSearchTerm.value = it
+                        changeUIAfterSubmitTextInSearchView(searchView)
+                        return false
+                    }
+                    hint.visibility = View.VISIBLE
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    Log.d(TAG, "QueryTextChange: $newText")
+                    hint.visibility = View.GONE
+                    return false
+                }
+            })
+
+            setOnSearchClickListener {
+                hint.visibility = View.GONE
+                searchView.setQuery(viewModelActionBar.searchTerm,false)
+            }
+        }
+    }
+
+    private fun changeUIAfterSubmitTextInSearchView(
+        searchView: SearchView) {
+        //hide the soft keyboard and collapse the SearchView.
+        searchView.onActionViewCollapsed()
+        //show hint
+        hint.visibility = View.VISIBLE
+    }
+
     //controlling action bar frame visibility when recycler view is scrolling
     protected fun setOnScrollListenerBasedOnRecyclerViewScrolling(
         rv: RecyclerView, hideStartFrom: Int, showStartFrom: Int) {
@@ -53,4 +105,6 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
             }
         })
     }
+
+    abstract fun observeSearchTerm()
 }

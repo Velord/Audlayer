@@ -1,7 +1,8 @@
 package velord.university.ui.fragment.folder
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 
-class FolderViewModel : ViewModel() {
-    // TODO: Implement the ViewModel
+class FolderViewModel(
+    private val app: Application) : AndroidViewModel(app) {
 }

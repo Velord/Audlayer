@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -38,7 +39,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
     }
 
     private lateinit var rv: RecyclerView
-    private lateinit var currentFolder: TextView
+    private lateinit var currentFolderTextView: TextView
+    private lateinit var currentFolder: File
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,23 +49,49 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         return inflater.inflate(R.layout.folder_fragment, container, false).apply {
             initViews(this)
             setupAdapter()
+            //observe changes in search view
+            observeSearchTerm()
         }
     }
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
 
-        val pathFromUI =
-            FileNameParser.arrowreplaceSlash(currentFolder.text.toString())
-        setupAdapter(File(pathFromUI).parentFile!!.path)
+        val path = currentFolder.path
+        setupAdapter(File(path).parentFile!!.path)
 
         return true
     }
 
+    override fun observeSearchTerm() {
+        super.viewModelActionBar.mutableSearchTerm.observe(
+            viewLifecycleOwner,
+            Observer { searchTerm ->
+                if (searchTerm.isNotEmpty()) {
+                    val f: (File) -> Boolean = {
+                        it.path.toUpperCase().contains(searchTerm.toUpperCase()) &&
+                                FileExtension.checkCompatibleFileExtension(it) !=
+                                FileExtensionModifier.NOTCOMPATIBLE
+                    }
+                    setupAdapter(currentFolder.path, f)
+                }
+                else {
+                    setupAdapter(currentFolder.path)
+                }
+            }
+        )
+    }
+
+    private fun getFilesInCurrentFolder(): Array<File> {
+        val path = currentFolder.path
+        val file = File(path)
+        val filesInFolder = file.listFiles()
+        return filesInFolder ?: arrayOf()
+    }
+
     fun focusOnMe(): Boolean {
-        val pathFromUI =
-            FileNameParser.arrowreplaceSlash(currentFolder.text.toString())
-        return if (pathFromUI == Environment.getExternalStorageDirectory().path)
+        val path = currentFolder.path
+        return if (path == Environment.getExternalStorageDirectory().path)
             false
         else true
     }
@@ -76,41 +104,51 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         //controlling action bar frame visibility when recycler view is scrolling
         setOnScrollListenerBasedOnRecyclerViewScrolling(rv, 50, -5)
 
-        currentFolder = view.findViewById(R.id.current_folder_textView)
+        currentFolderTextView = view.findViewById(R.id.current_folder_textView)
     }
 
-    private fun setupAdapter(path: String? = null) {
-        fun setupAdapter_(startupFolder: File) {
-            val pathToUI = FileNameParser.slashReplaceArrow(startupFolder.path)
-            currentFolder.text = pathToUI
-
-            val filesInFolder = startupFolder.listFiles()
-
-            if (filesInFolder ==  null)
-                rv.adapter = FileAdapter(arrayOf())
-            else {
-                //if you would see not compatible format just remove or comment 2 lines bottom
-                val compatibleFileFormat = filesInFolder.filterNot{
-                    FileExtension.checkCompatibleFileExtension(it) == FileExtensionModifier.NOTCOMPATIBLE
-                }
-
-                rv.adapter = FileAdapter(compatibleFileFormat.toTypedArray())
-            }
-        }
-
-        val permissionGranted =
-            PermissionChecker
+    private fun checkPermisiiion(): Boolean =
+        PermissionChecker
                 .checkThenRequestReadWriteExternalStoragePermission(
                     this.requireContext(), this.requireActivity())
-        if (permissionGranted.not()) setupAdapter()
 
+    private fun changeCurrentTextView(file: File) {
+        val pathToUI = FileNameParser.slashReplaceArrow(file.path)
+        currentFolderTextView.text = pathToUI
+    }
+
+    private fun setupAdapter(path: String? = null,
+                             //default filter
+                             filter: (File) -> Boolean = {
+                                 FileExtension.checkCompatibleFileExtension(it) !=
+                                         FileExtensionModifier.NOTCOMPATIBLE
+                             }
+    ) {
+        fun setupAdapter_(file: File) {
+            changeCurrentTextView(file)
+            val filesInFolder = getFilesInCurrentFolder()
+            //if you would see not compatible format
+            //just remove or comment 2 lines bottom
+            val compatibleFileFormat =
+                filesInFolder.filter{ filter(it) }
+
+            rv.adapter = FileAdapter(compatibleFileFormat.toTypedArray())
+
+        }
+
+        //while permission is not granted
+        if (checkPermisiiion().not()) setupAdapter()
+        //when we need handle arrived path
         path?.also {
+            currentFolder = File(path)
             val startupFolder = File(it)
             setupAdapter_(startupFolder)
             return
         }
         //default folder
         val startupFolder = Environment.getExternalStorageDirectory()
+        currentFolder = startupFolder
+        //init adapter
         setupAdapter_(startupFolder)
     }
 
