@@ -7,7 +7,7 @@ object FileExtension {
     //https://developer.android.com/guide/topics/media/media-formats
     fun checkCompatibleFileExtension(file: File): FileExtensionModifier =
         when {
-            file.isDirectory -> velord.university.model.FileExtensionModifier.DIRECTORY
+            file.isDirectory -> FileExtensionModifier.DIRECTORY
             file.extension == "mp3" || file.extension == "3gp" ||
                     file.extension == "mp4" || file.extension == "m4a" ||
                     file.extension == "aac" || file.extension == "ts" ||

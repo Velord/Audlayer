@@ -5,10 +5,10 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import velord.university.R
+import velord.university.application.initFragment
 import velord.university.model.miniPlayer.service.MiniPlayerServiceBroadcastReceiver
 import velord.university.ui.fragment.BackPressedHandler
 import velord.university.ui.fragment.main.MainFragment
-import velord.university.util.initFragment
 
 
 private const val TAG ="MainActivity"
@@ -25,7 +25,11 @@ class MainActivity : AppCompatActivity() {
         //self view
         setContentView(R.layout.main_activity)
         //fragment
-        initFragment(fm, MainFragment(), R.id.main_container)
+        initFragment(
+            fm,
+            MainFragment(),
+            R.id.main_container
+        )
     }
 
     override fun onBackPressed() {

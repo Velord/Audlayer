@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import velord.university.R
+import velord.university.application.PermissionChecker
 import velord.university.application.QueryPreferences
 import velord.university.model.FileExtension
 import velord.university.model.FileExtensionModifier
@@ -22,15 +23,13 @@ import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastPlayByPat
 import velord.university.model.miniPlayer.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.ui.fragment.BackPressedHandler
 import velord.university.ui.fragment.actionBar.ActionBarFragment
-import velord.university.util.PermissionChecker
 import java.io.File
 import java.util.*
 
 
 class FolderFragment : ActionBarFragment(), BackPressedHandler {
 
-    override val TAG: String
-        get() = "FolderFragment"
+    override val TAG: String = "FolderFragment"
 
     companion object {
         fun newInstance() = FolderFragment()
@@ -54,6 +53,25 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
             //observe changes in search view
             observeSearchTerm()
         }
+    }
+
+    private fun initViews(view: View) {
+        initActionBar(view)
+        initRV(view)
+        initCurrentFolder(view)
+    }
+
+    private fun initRV(view: View) {
+        rv = view.findViewById(R.id.current_folder_RecyclerView)
+        rv.layoutManager = LinearLayoutManager(activity)
+        //controlling action bar frame visibility when recycler view is scrolling
+        setOnScrollListenerBasedOnRecyclerViewScrolling(rv, 50, -5)
+    }
+
+    private fun initCurrentFolder(view: View) {
+        //setup current folder
+        currentFolder = Environment.getExternalStorageDirectory()
+        currentFolderTextView = view.findViewById(R.id.current_folder_textView)
     }
 
     override fun onBackPressed(): Boolean {
@@ -99,18 +117,13 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
             rv.adapter = FileAdapter(compatibleFileFormat.toTypedArray())
         }
 
-
         if (searchTerm.isNotEmpty()) {
             val f: (File) -> Boolean = {
                 val extension =
                     FileExtension.checkCompatibleFileExtension(it) !=
                         FileExtensionModifier.NOTCOMPATIBLE
-                val haveExtension =
-                    if (it.extension.isNotEmpty())
-                        it.path.substringBefore(it.extension)
-                    else it.path
-
-                val contQuery = haveExtension
+                val contQuery =
+                    FileNameParser.removeExtension(it)
                     .substringAfterLast('/')
                     .toUpperCase(Locale.ROOT)
                     .contains(searchTerm.toUpperCase(Locale.ROOT))
@@ -126,9 +139,11 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         currentFolder = file
         val searchTerm =
             QueryPreferences.getStoredQueryFolder(requireContext(), currentFolder.path)
-        //when mutable search term changed occurred invoke observer on it
-        super.searchView.setQuery(searchTerm, false)
-        super.viewModelActionBar.mutableSearchTerm.value = searchTerm
+        //invoke search view
+        if (searchTerm.isNotBlank()) {
+            super.searchView.setQuery(searchTerm, true)
+        }
+
     }
 
     private fun getFilesInCurrentFolder(): Array<File> {
@@ -136,25 +151,6 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         val file = File(path)
         val filesInFolder = file.listFiles()
         return filesInFolder ?: arrayOf()
-    }
-
-    private fun initViews(view: View) {
-        initActionBar(view)
-        initRV(view)
-        initCurrentFolder(view)
-    }
-
-    private fun initRV(view: View) {
-        rv = view.findViewById(R.id.current_folder_RecyclerView)
-        rv.layoutManager = LinearLayoutManager(activity)
-        //controlling action bar frame visibility when recycler view is scrolling
-        setOnScrollListenerBasedOnRecyclerViewScrolling(rv, 50, -5)
-    }
-
-    private fun initCurrentFolder(view: View) {
-        //setup current folder
-        currentFolder = Environment.getExternalStorageDirectory()
-        currentFolderTextView = view.findViewById(R.id.current_folder_textView)
     }
 
     private fun checkPermission(): Boolean =
@@ -228,7 +224,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
 
         fun bindItem(file: File, position: Int) {
             setOnClick(file)
-            pathTextView.text = file.name
+            pathTextView.text = FileNameParser.removeExtension(file)
 
 
             when(FileExtension.checkCompatibleFileExtension(file)) {

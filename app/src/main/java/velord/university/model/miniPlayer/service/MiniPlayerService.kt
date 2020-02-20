@@ -20,9 +20,9 @@ abstract class MiniPlayerService : Service() {
 
     abstract val TAG: String
 
-    lateinit var player: MediaPlayer
+    private lateinit var player: MediaPlayer
 
-    lateinit var song: File
+    private lateinit var song: File
 
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
     private lateinit var  rewindJob: Job
@@ -49,25 +49,25 @@ abstract class MiniPlayerService : Service() {
         return START_STICKY
     }
 
-    protected fun sendSongNameAndArtist(file: File) {
+    private fun sendSongNameAndArtist(file: File) {
         val songArtist = FileNameParser.getSongArtist(file)
         val songName = FileNameParser.getSongName(file)
         sendBroadcastSongArtistUI(songArtist)
         sendBroadcastSongNameUI(songName)
     }
 
-    protected fun sendDurationSong(player: MediaPlayer) {
+    private fun sendDurationSong(player: MediaPlayer) {
         val duration = player.duration
         MiniPlayerBroadcastSongDuration.apply {
             sendBroadcastSongDurationUI(duration)
         }
     }
 
-    protected fun sendIsHQ() {
+    private fun sendIsHQ() {
 
     }
 
-    protected fun stopPlayer() {
+    private fun stopPlayer() {
         if (::player.isInitialized) {
             player.stop()
             stopSendRewind()
@@ -92,12 +92,12 @@ abstract class MiniPlayerService : Service() {
         }
     }
 
-    protected fun createPlayer(path: String) {
+    private fun createPlayer(path: String) {
         val uri = Uri.parse(path)
         player = MediaPlayer.create(baseContext, uri)
     }
 
-    protected fun startSendRewind(player: MediaPlayer, startFrom: Int = 0) {
+    private fun startSendRewind(player: MediaPlayer, startFrom: Int = 0) {
         //this is how much we must change ui
         val durationInSeconds =
             SongTimeConverter.millisecondsToSeconds(player.duration)
@@ -126,7 +126,7 @@ abstract class MiniPlayerService : Service() {
         }
     }
 
-    protected fun stopSendRewind() {
+    private fun stopSendRewind() {
         rewindJob.cancel()
     }
 

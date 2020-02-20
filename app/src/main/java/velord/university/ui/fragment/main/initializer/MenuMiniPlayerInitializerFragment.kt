@@ -11,9 +11,10 @@ import androidx.viewpager.widget.ViewPager
 import velord.university.R
 import velord.university.model.miniPlayer.broadcast.*
 import velord.university.ui.fragment.miniPlayer.MiniPlayerFragment
-import velord.university.ui.fragment.miniPlayer.StopCloseMiniPlayerFragment
+import velord.university.ui.fragment.miniPlayer.miniPlayerHide.MiniPlayerHideFragment
+import velord.university.ui.fragment.miniPlayer.miniPlayerStopAndHide.MiniPlayerStopAndHideFragment
 
-abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), MiniPlayerBroadcastreceiverShower {
+abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), MiniPlayerBroadcastReceiverShowAndHider {
 
     override val TAG: String
         get() = "MenuNowPlayingFragment"
@@ -22,7 +23,8 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), Mi
     lateinit var miniPlayerViewPager: ViewPager
 
     private val receivers = arrayOf(
-        Pair(show(), MiniPlayerBroadcastShow.filterUI))
+        Pair(show(), MiniPlayerBroadcastShow.filterUI),
+        Pair(hide(), MiniPlayerBroadcastHide.filterUI))
 
     private val fm by lazy {
         activity!!.supportFragmentManager
@@ -75,14 +77,14 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), Mi
                 when(position) {
                     0 -> {
                         Log.d(TAG, "onPageSelected StopAndCloseFragment1")
-                        changeUI()
+                        hideMiniPlayer()
                     }
                     1 -> {
                         Log.d(TAG, "onPageSelected MiniPlayerFragment")
                     }
                     2 -> {
                         Log.d(TAG, "onPageSelected StopAndCloseFragment2")
-                        changeUI()
+                        stopAndHideMiniPLayer()
                     }
                 }
             }
@@ -90,8 +92,19 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), Mi
         miniPlayerViewPager.currentItem = 1
     }
 
-    private fun changeUI() {
-        viewFrame.visibility = View.GONE
+    private fun hideMiniPlayer() {
+        MiniPlayerBroadcastHide.apply {
+            requireContext().sendBroadcastHide()
+        }
+    }
+
+    private fun stopAndHideMiniPLayer() {
+        MiniPlayerBroadcastStop.apply {
+            requireContext().sendBroadcastStop()
+        }
+        MiniPlayerBroadcastHide.apply {
+            requireContext().sendBroadcastHide()
+        }
     }
 
     private inner class MiniPlayerPagerAdapter(
@@ -120,16 +133,16 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), Mi
             when (pos) {
                 // Fragment # 0 - This will show FirstFragment
                 0 -> {
-                    Log.d(TAG, "create StopAndCloseFragment1")
-                    StopCloseMiniPlayerFragment()
+                    Log.d(TAG, "create MiniPlayerHideFragment")
+                    MiniPlayerHideFragment()
                 }
                 1 -> {
                     Log.d(TAG, "create MiniPlayerFragment")
                     MiniPlayerFragment()
                 }
                 2 -> {
-                    Log.d(TAG, "create StopAndCloseFragment2")
-                    StopCloseMiniPlayerFragment()
+                    Log.d(TAG, "create MiniPlayerStopAndHideFragment")
+                    MiniPlayerStopAndHideFragment()
                 }
                 else -> {
                     Log.d(TAG, "create MiniPlayerFragment")
@@ -144,5 +157,10 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), Mi
         get() = {
             miniPlayerViewPager.currentItem = 1
             viewFrame.visibility = View.VISIBLE
+        }
+
+    override val hideF: (Intent?) -> Unit
+        get() = {
+            viewFrame.visibility = View.GONE
         }
 }

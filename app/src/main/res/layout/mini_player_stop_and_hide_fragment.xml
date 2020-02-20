@@ -4,22 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/stopMiniPlayerCS"
     android:layout_width="match_parent"
-    android:background="@drawable/mini_player_fragment_shape"
+    android:background="@drawable/mini_player_stop_and_hide_fragment"
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/stopAndCloseMiniPlayerTextViewLeft"
-        style="@style/StopCloseMiniPlayerText"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/stopAndCloseMiniPlayerTextViewRight"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
         android:id="@+id/stopAndCloseMiniPlayerTextViewRight"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
         style="@style/StopCloseMiniPlayerText"
         android:layout_marginStart="8dp"
+        android:text="@string/mini_player_stop_and_hide"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

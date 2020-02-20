@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 
-interface MiniPlayerBroadcastreceiverShower {
+interface MiniPlayerBroadcastReceiverShowAndHider {
 
     val TAG: String
 
@@ -14,6 +14,14 @@ interface MiniPlayerBroadcastreceiverShower {
         override fun onReceive(p0: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
             showF(intent)
+        }
+    }
+
+    val hideF: (Intent?) -> Unit
+    fun hide() = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            hideF(intent)
         }
     }
 }

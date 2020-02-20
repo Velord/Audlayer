@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.miniPlayer
+package velord.university.ui.fragment.miniPlayer.miniPlayerStopAndHide
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,7 +8,7 @@ import velord.university.R
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 import velord.university.ui.fragment.main.MainFragment
 
-class StopCloseMiniPlayerFragment : LoggerSelfLifecycleFragment() {
+class MiniPlayerStopAndHideFragment : LoggerSelfLifecycleFragment() {
 
     override val TAG: String
         get() = "StopCloseMiniPlayerFragment"
@@ -21,6 +21,6 @@ class StopCloseMiniPlayerFragment : LoggerSelfLifecycleFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.stop_close_mini_player_fragment, container, false)
+        return inflater.inflate(R.layout.mini_player_stop_and_hide_fragment, container, false)
     }
 }

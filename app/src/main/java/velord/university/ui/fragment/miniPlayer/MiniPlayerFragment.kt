@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.lifecycle.ViewModelProviders
-import kotlinx.android.synthetic.main.mini_player_fragment.*
+import kotlinx.android.synthetic.main.mini_player.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

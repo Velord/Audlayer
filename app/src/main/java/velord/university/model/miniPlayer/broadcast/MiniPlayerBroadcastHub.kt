@@ -291,11 +291,20 @@ object MiniPlayerBroadcastSongDuration: MiniPlayerBroadcastHub() {
 }
 
 object MiniPlayerBroadcastShow: MiniPlayerBroadcastHub() {
-    override val actionUI: String = "velord.university.SONG_DURATION_UI"
+    override val actionUI: String = "velord.university.SHOW"
 
     override val filterUI: IntentFilter = IntentFilter(actionUI)
 
     fun Context.sendBroadcastShow(permission: String = PERM_PRIVATE_MINI_PLAYER) =
+        sendBroadcast(actionUI, permission)
+}
+
+object MiniPlayerBroadcastHide: MiniPlayerBroadcastHub() {
+    override val actionUI: String = "velord.university.SONG_HIDE"
+
+    override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+    fun Context.sendBroadcastHide(permission: String = PERM_PRIVATE_MINI_PLAYER) =
         sendBroadcast(actionUI, permission)
 }
 

@@ -1,4 +1,4 @@
-package velord.university.util
+package velord.university.application
 
 import android.Manifest
 import android.app.Activity
