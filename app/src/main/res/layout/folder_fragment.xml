@@ -6,14 +6,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <FrameLayout
-        android:id="@+id/frameLayout"
+        android:id="@+id/action_bar_frame_layout"
         android:layout_width="match_parent"
         android:layout_height="35dp"
         android:background="@color/fragmentBackgroundDarkerOpacity"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
         <include layout="@layout/top_menu">
         </include>
 
@@ -29,7 +28,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frameLayout">
+        app:layout_constraintTop_toBottomOf="@+id/action_bar_frame_layout">
 
         <TextView
             android:id="@+id/current_folder_textView"

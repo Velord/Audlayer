@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProviders
@@ -39,6 +40,7 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
 
     private lateinit var rv: RecyclerView
     private lateinit var currentFolder: TextView
+    private lateinit var actionBarFrame: FrameLayout
     private lateinit var menu: ImageButton
     private lateinit var hint: TextView
     private lateinit var seek: ImageButton
@@ -67,14 +69,39 @@ class FolderFragment : LoggerSelfLifecycleFragment(), BackPressedHandler {
     fun focusOnMe(): Boolean {
         val pathFromUI =
             FileNameParser.arrowreplaceSlash(currentFolder.text.toString())
-        return   if (pathFromUI == Environment.getExternalStorageDirectory().path)
+        return if (pathFromUI == Environment.getExternalStorageDirectory().path)
             false
         else true
     }
 
     private fun initViews(view: View) {
+        actionBarFrame = view.findViewById(R.id.action_bar_frame_layout)
+
         rv = view.findViewById(R.id.current_folder_RecyclerView)
         rv.layoutManager = LinearLayoutManager(activity)
+        //controlling action bar frame visibility when recycler view is scrolling
+        rv.setOnScrollListener(object : RecyclerView.OnScrollListener(){
+
+            var scroll_down = false
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (scroll_down) {
+                    actionBarFrame.visibility = View.GONE
+                } else {
+                    actionBarFrame.visibility = View.VISIBLE
+                }
+            }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                //scroll down
+                if (dy > 50) scroll_down = true
+                //scroll up
+                else if (dy < -5) scroll_down = false
+
+            }
+        })
 
         currentFolder = view.findViewById(R.id.current_folder_textView)
 
