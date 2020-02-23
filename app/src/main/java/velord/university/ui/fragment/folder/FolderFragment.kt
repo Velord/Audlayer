@@ -49,9 +49,9 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
     ): View? {
         return inflater.inflate(R.layout.folder_fragment, container, false).apply {
             initViews(this)
-            setupAdapterBySearchQuery(currentFolder)
             //observe changes in search view
             observeSearchTerm()
+            setupAdapter(currentFolder)
         }
     }
 
@@ -77,9 +77,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
 
-        val path = currentFolder.path
-        currentFolder = File(path).parentFile!!
-        setupAdapterBySearchQuery(currentFolder)
+        val newFile =  currentFolder.parentFile!!
+        setupAdapter(newFile)
         return true
     }
 
@@ -92,12 +91,13 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                 //store search term in shared preferences
                 val folderPath = currentFolder.path
                 QueryPreferences.setStoredQueryFolder(requireContext(), folderPath, searchTerm)
+                Log.d(TAG, "query: $searchTerm path: $folderPath")
             }
         )
     }
 
     private fun updateAdapterBySearchQuery(searchTerm: String) {
-        fun setupAdapter(file: File = Environment.getExternalStorageDirectory(),
+        fun _setupAdapter(file: File = Environment.getExternalStorageDirectory(),
                         //default filter
                          filter: (File) -> Boolean = {
                              FileExtension.checkCompatibleFileExtension(it) !=
@@ -105,7 +105,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                          }
         ) {
             //while permission is not granted
-            if (checkPermission().not()) setupAdapter()
+            if (checkPermission().not()) _setupAdapter()
             //now do everything to setup adapter
             changeCurrentTextView(file)
             val filesInFolder = getFilesInCurrentFolder()
@@ -130,20 +130,14 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
 
                 extension && contQuery
             }
-            setupAdapter(currentFolder, f)
+            _setupAdapter(currentFolder, f)
         }
-        else setupAdapter(currentFolder)
+        else _setupAdapter(currentFolder)
     }
 
-    private fun setupAdapterBySearchQuery(file: File) {
+    private fun setupAdapter(file: File) {
         currentFolder = file
-        val searchTerm =
-            QueryPreferences.getStoredQueryFolder(requireContext(), currentFolder.path)
-        //invoke search view
-        if (searchTerm.isNotBlank()) {
-            super.searchView.setQuery(searchTerm, true)
-        }
-
+        super.viewModelActionBar.setupSearchQueryByFilePath(file)
     }
 
     private fun getFilesInCurrentFolder(): Array<File> {
@@ -196,13 +190,13 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
             when(FileExtension.checkCompatibleFileExtension(file)) {
                 FileExtensionModifier.DIRECTORY -> {
                     itemView.setOnClickListener {
-                        setupAdapterBySearchQuery(file)
+                        setupAdapter(file)
                     }
                     fileIconImageButton.setOnClickListener {
-                        setupAdapterBySearchQuery(file)
+                        setupAdapter(file)
                     }
                     pathTextView.setOnClickListener {
-                        setupAdapterBySearchQuery(file)
+                        setupAdapter(file)
                     }
                     fileActionImageButton.setOnClickListener {}
                 }

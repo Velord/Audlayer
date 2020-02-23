@@ -9,12 +9,12 @@ private const val PREF_SEARCH_QUERY = "searchQuery"
 object QueryPreferences {
 
     fun getStoredQueryFolder(context: Context,
-                             folder: String = PREF_SEARCH_QUERY): String  =
+                             folder: String): String  =
         PreferenceManager.getDefaultSharedPreferences(context)
             .getString(folder, "")!!
 
     fun setStoredQueryFolder(context: Context,
-                             folder: String = PREF_SEARCH_QUERY,
+                             folder: String,
                              query: String) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit {

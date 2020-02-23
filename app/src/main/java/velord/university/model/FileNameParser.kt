@@ -20,6 +20,6 @@ object FileNameParser {
 
     fun removeExtension(file: File): String =
         if (file.extension.isNotEmpty())
-            file.name.substringBefore(".${file.extension}")
+            file.name.substringBeforeLast(".${file.extension}")
         else file.name
 }

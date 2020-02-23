@@ -102,9 +102,7 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), Mi
         MiniPlayerBroadcastStop.apply {
             requireContext().sendBroadcastStop()
         }
-        MiniPlayerBroadcastHide.apply {
-            requireContext().sendBroadcastHide()
-        }
+        hide()
     }
 
     private inner class MiniPlayerPagerAdapter(

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import velord.university.application.QueryPreferences
+import java.io.File
 
 class ActionBarViewModel(private val app: Application) : AndroidViewModel(app) {
     val mutableSearchTerm = MutableLiveData<String>()
@@ -12,6 +13,11 @@ class ActionBarViewModel(private val app: Application) : AndroidViewModel(app) {
 
     init {
         //need retrieve from shared preferences
-        mutableSearchTerm.value = QueryPreferences.getStoredQueryFolder(app)
+        mutableSearchTerm.value = ""
+    }
+
+    fun setupSearchQueryByFilePath(file: File) {
+        mutableSearchTerm.value =
+            QueryPreferences.getStoredQueryFolder(app, file.path)
     }
 }

@@ -41,7 +41,8 @@ abstract class MiniPlayerService : Service() {
     override fun onDestroy() {
         Log.d(TAG, "onDestroy called")
         super.onDestroy()
-        player.stop()
+        if (::player.isInitialized)
+            player.stop()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
