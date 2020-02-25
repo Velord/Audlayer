@@ -8,7 +8,7 @@
         />
     <gradient
         android:angle="0"
-        android:startColor="@color/nowPlayingFragmentBackgroundDarkerOpacity"
+        android:startColor="@color/playerFragmentBackgroundDarkerOpacity"
         android:endColor="@null"
         android:type="linear"
         />

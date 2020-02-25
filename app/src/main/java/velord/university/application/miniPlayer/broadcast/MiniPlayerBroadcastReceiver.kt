@@ -1,21 +1,14 @@
-package velord.university.model.miniPlayer.broadcast
+package velord.university.application.miniPlayer.broadcast
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 
-interface MiniPlayerBroadcastReceiverService {
+
+interface MiniPlayerBroadcastReceiver {
 
     val TAG: String
-
-    val playByPathF: (Intent?) -> Unit
-    fun playByPath() = object : BroadcastReceiver() {
-        override fun onReceive(p0: Context?, intent: Intent?) {
-            Log.i(TAG, "received broadcast: ${intent?.action}")
-            playByPathF(intent)
-        }
-    }
 
     val stopF: (Intent?) -> Unit
     fun stop() = object : BroadcastReceiver() {
@@ -110,6 +103,29 @@ interface MiniPlayerBroadcastReceiverService {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
             notLoopF(intent)
+        }
+    }
+    val songArtistF: (Intent?) -> Unit
+    fun songArtist() = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            songArtistF(intent)
+        }
+    }
+
+    val songNameF: (Intent?) -> Unit
+    fun songName() = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            songNameF(intent)
+        }
+    }
+
+    val songHQF: (Intent?) -> Unit
+    fun songHQ() = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            songHQF(intent)
         }
     }
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryOpacity">#80008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#273FB5</color>
     <color name="fragmentBackground">#030622</color>
@@ -18,6 +19,7 @@
     <color name="blueShadowOpacity">#33273FB5</color>
     <color name="darkOpacity">#33000000</color>
     <color name="menuArticle">#C8FFFFFF</color>
-    <color name="nowPlayingFragmentBackgroundDarkerOpacity">#4D00022C</color>
+    <color name="playerFragmentBackgroundDarkerOpacity">#4D00022C</color>
     <color name="menuFragmentBackgroundDarkestOpacity">#6600020E</color>
+    <color name="popUpMenuActionBarFolder">#1A306FFF</color>
 </resources>

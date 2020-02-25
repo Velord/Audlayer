@@ -21,11 +21,16 @@
 
     <TextView
         android:id="@+id/mini_player_song_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="18dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="2dp"
+        android:maxWidth="220dp"
+        android:maxHeight="18dp"
+        android:ellipsize="marquee"
         android:text="@string/mini_player_song_name"
+        app:layout_constraintEnd_toStartOf="@+id/mini_player_song_quality"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/mini_player_imageView"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -35,10 +40,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="marquee"
+        android:maxWidth="220dp"
+        android:maxHeight="15dp"
         android:text="@string/mini_player_song_artist"
         android:textColor="@color/mini_player_gray"
         android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="@+id/mini_player_song_liked"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/mini_player_imageView"
         app:layout_constraintTop_toBottomOf="@+id/mini_player_song_name" />
@@ -47,24 +56,24 @@
         android:id="@+id/mini_player_song_quality"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
         android:text="@string/mini_player_song_high_quality"
         android:textSize="8sp"
         app:layout_constraintBottom_toBottomOf="@+id/mini_player_song_name"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/mini_player_song_name"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/mini_player_song_shuffle"
         style="@style/MiniPlayerShuffleRepeatLikedImageButtons"
+        android:layout_marginStart="8dp"
         android:contentDescription="@string/mini_player_song_shuffle"
-        android:src="@drawable/shuffle_gray"
 
+        android:src="@drawable/shuffle_gray"
         app:layout_constraintBottom_toBottomOf="@+id/mini_player_imageView"
         app:layout_constraintStart_toEndOf="@+id/mini_player_imageView"
-        app:layout_constraintTop_toBottomOf="@+id/mini_player_song_artist" />
+        app:layout_constraintTop_toBottomOf="@+id/mini_player_song_artist"
+        app:layout_constraintVertical_bias="1.0" />
 
     <ImageButton
         android:id="@+id/mini_player_song_repeat"

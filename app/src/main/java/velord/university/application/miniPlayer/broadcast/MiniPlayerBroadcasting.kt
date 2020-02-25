@@ -1,4 +1,4 @@
-package velord.university.model.miniPlayer.broadcast
+package velord.university.application.miniPlayer.broadcast
 
 import android.content.BroadcastReceiver
 import android.content.Context

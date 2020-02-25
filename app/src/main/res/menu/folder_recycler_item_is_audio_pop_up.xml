@@ -1,0 +1,27 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/folder_recyclerView_item_isAudio_play"
+        app:showAsAction="ifRoom"
+        android:title="@string/pop_up_menu_item_play" />
+
+    <item android:id="@+id/folder_recyclerView_item_isAudio_play_next"
+        android:title="@string/pop_up_menu_item_play_next"
+        app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/folder_recyclerView_item_isAudio_set_as_ringtone"
+        android:title="@string/pop_up_menu_item_set_as_ringtone"
+        app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/folder_recyclerView_item_isAudio_create_playlist"
+        android:title="@string/pop_up_menu_item_create_playlist"
+        app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/folder_recyclerView_item_isAudio_add_to_playlist"
+        android:title="@string/pop_up_menu_item_add_to_playlist"
+        app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/folder_recyclerView_item_isAudio_add_to_home_screen"
+        android:title="@string/pop_up_menu_item_add_to_home_screen"
+        app:showAsAction="ifRoom"/>
+</menu>

@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/action_folder_show_incompatible_files"
+        android:title="@string/pop_up_menu_item_show_incompatible_files"
+        app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/action_folder_add_to_home_screen"
+        android:title="@string/pop_up_menu_item_add_to_home_screen"
+        app:showAsAction="ifRoom"/>
+</menu>

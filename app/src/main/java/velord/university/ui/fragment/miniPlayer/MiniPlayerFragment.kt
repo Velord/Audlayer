@@ -12,8 +12,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import velord.university.R
+import velord.university.application.miniPlayer.broadcast.*
 import velord.university.model.SongTimeConverter
-import velord.university.model.miniPlayer.broadcast.*
 import velord.university.ui.fragment.miniPlayer.logic.*
 
 class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastReceiver {
@@ -30,7 +30,9 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastR
         ViewModelProviders.of(this).get(MiniPlayerViewModel::class.java)
     }
 
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+    private var scope = CoroutineScope(Job() + Dispatchers.Default)
+    private lateinit var  songNameJob: Job
+    private lateinit var  songArtistJob: Job
 
     private val receivers = arrayOf(
         Pair(stop(), MiniPlayerBroadcastStop.filterUI),
@@ -48,7 +50,8 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastR
         Pair(songName(), MiniPlayerBroadcastSongName.filterUI),
         Pair(songDuration(), MiniPlayerBroadcastSongDuration.filterUI),
         Pair(songArtist(), MiniPlayerBroadcastSongArtist.filterUI),
-        Pair(songHQ(), MiniPlayerBroadcastSongHQ.filterUI))
+        Pair(songHQ(), MiniPlayerBroadcastSongHQ.filterUI)
+    )
 
 
     private fun initView(view: View) {
@@ -137,12 +140,14 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastR
         get() = {
             mini_player_song_play_or_pause.setImageResource(R.drawable.play)
             PlayPauseLogic.value = false
+            stopSongAndArtistNameScrolling()
         }
 
     override val playF: (Intent?) -> Unit
         get() = {
             mini_player_song_play_or_pause.setImageResource(R.drawable.pause)
             PlayPauseLogic.value = true
+            startSongAndArtistNameScrolling()
         }
 
     override val likeF: (Intent?) -> Unit
@@ -205,7 +210,8 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastR
 
     override val notLoopF: (Intent?) -> Unit
         get() = {
-            mini_player_song_repeat.setImageResource(R.drawable.repeat_gray) }
+            mini_player_song_repeat.setImageResource(R.drawable.repeat_gray)
+        }
 
 
     override val songNameF: (Intent?) -> Unit
@@ -237,4 +243,16 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastR
                     SongTimeConverter.secondsToTimeText(inMinutes)
             }
         }
+
+    private fun startSongAndArtistNameScrolling() {
+        miniPlayerSongArtistTV.isSelected = true
+        miniPlayerSongNameTV.isSelected = true
+    }
+
+    private fun stopSongAndArtistNameScrolling()  {
+        miniPlayerSongArtistTV.isSelected = false
+        miniPlayerSongNameTV.isSelected = false
+    }
+
 }
+

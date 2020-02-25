@@ -1,4 +1,4 @@
-package velord.university.model.miniPlayer.broadcast
+package velord.university.application.miniPlayer.broadcast
 
 import android.content.Context
 import android.content.IntentFilter
@@ -232,13 +232,13 @@ object MiniPlayerBroadcastNotLoop: MiniPlayerBroadcastHub() {
 
 object MiniPlayerBroadcastPlayByPath: MiniPlayerBroadcastHub() {
 
-    override val actionService: String = "velord.university.PLAY_BY_PATH"
+    override val actionService: String = "velord.university.PLAY_BY_PATH_WITH_FILTER"
 
     override val filterService: IntentFilter =  IntentFilter(actionService)
 
     override val extraValueService: String = "AUDIO_FILE_PATH"
 
-    fun Context.sendBroadcastPlayByPath(permission: String = PERM_PRIVATE_MINI_PLAYER, path: String) =
+    fun Context.sendBroadcastPlayByPath(path: String, permission: String = PERM_PRIVATE_MINI_PLAYER) =
         sendBroadcast(actionService, permission, extraValueService, path)
 }
 
@@ -306,5 +306,56 @@ object MiniPlayerBroadcastHide: MiniPlayerBroadcastHub() {
 
     fun Context.sendBroadcastHide(permission: String = PERM_PRIVATE_MINI_PLAYER) =
         sendBroadcast(actionUI, permission)
+}
+
+object MiniPlayerBroadcastPlayAllInFolder: MiniPlayerBroadcastHub() {
+
+    override val actionService: String = "velord.university.PLAY_ALL_IN_FOLDER"
+
+    override val filterService: IntentFilter =  IntentFilter(actionService)
+
+    override val extraValueService: String = "AUDIO_FOLDER_PATH"
+
+    fun Context.sendBroadcastPlayAllInFolder(
+        folderPath: String, permission: String = PERM_PRIVATE_MINI_PLAYER) =
+        sendBroadcast(actionService, permission, extraValueService, folderPath)
+}
+
+object MiniPlayerBroadcastPlayNextAllInFolder: MiniPlayerBroadcastHub() {
+
+    override val actionService: String = "velord.university.PLAY_NEXT_ALL_IN_FOLDER"
+
+    override val filterService: IntentFilter =  IntentFilter(actionService)
+
+    override val extraValueService: String = "AUDIO_FOLDER_PATH"
+
+    fun Context.sendBroadcastPlayNextAllInFolder(
+        folderPath: String, permission: String = PERM_PRIVATE_MINI_PLAYER) =
+        sendBroadcast(actionService, permission, extraValueService, folderPath)
+}
+
+object MiniPlayerBroadcastShuffleAndPlayAllInFolder: MiniPlayerBroadcastHub() {
+
+    override val actionService: String = "velord.university.SHUFFLE_AND_PLAY_ALL_IN_FOLDER"
+
+    override val filterService: IntentFilter =  IntentFilter(actionService)
+
+    override val extraValueService: String = "AUDIO_FOLDER_PATH"
+
+    fun Context.sendBroadcastShuffleAndPlayAllInFolder(
+        folderPath: String, permission: String = PERM_PRIVATE_MINI_PLAYER) =
+        sendBroadcast(actionService, permission, extraValueService, folderPath)
+}
+
+object MiniPlayerBroadcastAddToQueue: MiniPlayerBroadcastHub() {
+
+    override val actionService: String = "velord.university.ADD_TO_QUEUE"
+
+    override val filterService: IntentFilter =  IntentFilter(actionService)
+
+    override val extraValueService: String = "AUDIO_FILE_PATH"
+
+    fun Context.sendBroadcastAddToQueue(path: String, permission: String = PERM_PRIVATE_MINI_PLAYER) =
+        sendBroadcast(actionService, permission, extraValueService, path)
 }
 

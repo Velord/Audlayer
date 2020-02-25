@@ -1,9 +1,9 @@
 package velord.university.ui.fragment.miniPlayer.logic
 
 import androidx.fragment.app.FragmentActivity
-import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastShuffle
-import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastUnShuffle
-import velord.university.model.miniPlayer.broadcast.PERM_PRIVATE_MINI_PLAYER
+import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastShuffle
+import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastUnShuffle
+import velord.university.application.miniPlayer.broadcast.PERM_PRIVATE_MINI_PLAYER
 
 object ShuffleLogic: TwoStateLogic() {
 

@@ -26,8 +26,8 @@ abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
 
     protected fun initMiniPlayerView(view: View) {
         miniPlayerIV = view.findViewById(R.id.mini_player_imageView)
-        miniPlayerSongNameTV = view.findViewById(R.id.mini_player_song_name)
-        miniPlayerSongArtistTV = view.findViewById(R.id.mini_player_song_artist)
+        initSongName(view)
+        initSongArtist(view)
         miniPlayerSongQualityTV = view.findViewById(R.id.mini_player_song_quality)
         miniPlayerSongShuffleIB = view.findViewById(R.id.mini_player_song_shuffle)
         miniPlayerSongRepeatIB = view.findViewById(R.id.mini_player_song_repeat)
@@ -40,5 +40,21 @@ abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
         miniPlayerSongTimeStartTV = view.findViewById(R.id.mini_player_song_time_start)
         miniPlayerSongTimeEndTV = view.findViewById(R.id.mini_player_song_time_end)
         miniPlayerSongTimeSeekBar = view.findViewById(R.id.mini_player_song_time_seekBar)
+    }
+
+    private fun initSongName(view: View) {
+        miniPlayerSongNameTV = view.findViewById(R.id.mini_player_song_name)
+        miniPlayerSongNameTV.apply {
+            setSingleLine()
+            isSelected = true
+        }
+    }
+
+    private fun initSongArtist(view: View) {
+        miniPlayerSongArtistTV = view.findViewById(R.id.mini_player_song_artist)
+        miniPlayerSongArtistTV.apply {
+            setSingleLine()
+            isSelected = true
+        }
     }
 }

@@ -19,7 +19,9 @@ object FileNameParser {
         "/${path.replace(" > ", "/")}"
 
     fun removeExtension(file: File): String =
-        if (file.extension.isNotEmpty())
-            file.name.substringBeforeLast(".${file.extension}")
-        else file.name
+        if(file.isDirectory.not()) {
+            if (file.extension.isNotEmpty())
+                file.name.substringBeforeLast(".${file.extension}")
+            else file.name
+        } else file.name
 }

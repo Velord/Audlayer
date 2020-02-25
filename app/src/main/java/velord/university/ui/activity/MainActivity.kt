@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import velord.university.R
 import velord.university.application.initFragment
-import velord.university.model.miniPlayer.service.MiniPlayerServiceBroadcastReceiver
+import velord.university.application.miniPlayer.service.MiniPlayerServiceBroadcastReceiver
 import velord.university.ui.fragment.BackPressedHandler
 import velord.university.ui.fragment.main.MainFragment
 

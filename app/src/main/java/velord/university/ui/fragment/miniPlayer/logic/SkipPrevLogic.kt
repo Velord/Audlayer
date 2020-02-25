@@ -1,7 +1,7 @@
 package velord.university.ui.fragment.miniPlayer.logic
 
 import androidx.fragment.app.FragmentActivity
-import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastSkipPrev
+import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastSkipPrev
 
 object SkipPrevLogic: BaseLogic {
 

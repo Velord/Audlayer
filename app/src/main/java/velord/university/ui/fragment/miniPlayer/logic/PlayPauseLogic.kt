@@ -1,8 +1,8 @@
 package velord.university.ui.fragment.miniPlayer.logic
 
 import androidx.fragment.app.FragmentActivity
-import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastPlay
-import velord.university.model.miniPlayer.broadcast.MiniPlayerBroadcastStop
+import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastPlay
+import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastStop
 
 object PlayPauseLogic: TwoStateLogic() {
 

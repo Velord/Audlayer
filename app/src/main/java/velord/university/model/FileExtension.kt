@@ -1,9 +1,9 @@
 package velord.university.model
 
 import java.io.File
+import java.util.*
 
 object FileExtension {
-
     //https://developer.android.com/guide/topics/media/media-formats
     fun checkCompatibleFileExtension(file: File): FileExtensionModifier =
         when {
@@ -20,6 +20,32 @@ object FileExtension {
             -> FileExtensionModifier.AUDIO
             else -> FileExtensionModifier.NOTCOMPATIBLE
         }
+
+    fun filterOnlyAudio(file: File): List<File> {
+        val filesInFolder = file.listFiles() ?: arrayOf()
+        return filesInFolder.filter {
+            checkCompatibleFileExtension(it) ==
+                    FileExtensionModifier.AUDIO
+        }
+    }
+
+    val filterBySearchQuery: (File, String) -> Boolean = { file, query ->
+        val extension =
+            checkCompatibleFileExtension(file) !=
+                    FileExtensionModifier.NOTCOMPATIBLE
+        val contQuery =
+            FileNameParser.removeExtension(file)
+                .substringAfterLast('/')
+                .toUpperCase(Locale.ROOT)
+                .contains(query.toUpperCase(Locale.ROOT))
+
+        extension && contQuery
+    }
+
+    val filterByEmptySearchQuery: (File, String) -> Boolean = { file, _->
+        checkCompatibleFileExtension(file) !=
+                FileExtensionModifier.NOTCOMPATIBLE
+    }
 }
 
 enum class FileExtensionModifier {

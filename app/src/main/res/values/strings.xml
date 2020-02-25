@@ -33,4 +33,12 @@
     <string name="action_bar_hint_search_view">Type to find...</string>
     <string name="action_bar_settings">Action Bar Settings Button</string>
     <string name="action_bar_action">Action Bar Action Button</string>
+    <string name="pop_up_menu_item_play">Play</string>
+    <string name="pop_up_menu_item_play_next">Play Next</string>
+    <string name="pop_up_menu_item_shuffle">Shuffle</string>
+    <string name="pop_up_menu_item_create_playlist">Create Playlist</string>
+    <string name="pop_up_menu_item_add_to_playlist">Add to Playlist</string>
+    <string name="pop_up_menu_item_add_to_home_screen">Add to Home Screen</string>
+    <string name="pop_up_menu_item_set_as_ringtone">Set as Ringtone</string>
+    <string name="pop_up_menu_item_show_incompatible_files">Show incompatible files</string>
 </resources>

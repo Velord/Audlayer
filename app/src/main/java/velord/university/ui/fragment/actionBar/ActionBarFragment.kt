@@ -1,18 +1,20 @@
 package velord.university.ui.fragment.actionBar
 
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.SearchView
 import android.widget.TextView
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import velord.university.R
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 
-abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
 
+abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
     override val TAG: String = "ActionBarFragment"
 
     protected val viewModelActionBar by lazy {
@@ -33,6 +35,22 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
 
         hint = view.findViewById(R.id.action_bar_hint)
         initActionButton(view)
+    }
+
+    abstract val initActionMenuStyle: () -> Int
+    abstract val initActionMenuItemClickListener: (MenuItem) -> Boolean
+    abstract val initActionMenuLayout: () -> Int
+
+    private fun initActionButton(view: View) {
+        actionButton = view.findViewById(R.id.action_bar_action)
+
+        velord.university.ui.initActionButton(
+            requireContext(),
+            actionButton,
+            initActionMenuStyle,
+            initActionMenuLayout,
+            initActionMenuItemClickListener
+        )
     }
 
     private fun initSearchView(view: View) {
@@ -72,16 +90,6 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
         }
     }
 
-    private fun initActionButton(view: View) {
-        actionButton =  view.findViewById(R.id.action_bar_action)
-
-        actionButton.apply {
-            setOnClickListener {
-
-            }
-        }
-    }
-
     protected fun changeUIAfterSubmitTextInSearchView(searchView: SearchView) {
         //hide the soft keyboard and collapse the SearchView.
         searchView.onActionViewCollapsed()
@@ -115,5 +123,14 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
         })
     }
 
-    abstract fun observeSearchTerm()
+    protected fun observeSearchTerm() {
+       viewModelActionBar.mutableSearchTerm.observe(
+            viewLifecycleOwner,
+            Observer { searchTerm ->
+                observeSearchTerm(searchTerm)
+            }
+       )
+    }
+
+    abstract val observeSearchTerm: (String) -> Unit
 }

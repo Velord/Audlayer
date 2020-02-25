@@ -19,12 +19,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name="velord.university.model.miniPlayer.service.MiniPlayerService"
+            android:name="velord.university.application.miniPlayer.service.MiniPlayerService"
             android:enabled="true"
             android:exported="true">
         </service>
 
-        <service android:name="velord.university.model.miniPlayer.service.MiniPlayerServiceBroadcastReceiver"
+        <service android:name="velord.university.application.miniPlayer.service.MiniPlayerServiceBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
 
