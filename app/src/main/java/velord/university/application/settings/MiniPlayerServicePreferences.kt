@@ -10,7 +10,7 @@ private const val PREF_MINI_PLAYER_SERVICE_CURRENT_DURATION = "serviceCurrentDur
 
 object MiniPlayerServicePreferences {
 
-    fun setMiniPlayerServiceCurrentPos(
+    fun setCurrentPos(
         context: Context,
         pos: Int,
         key: String = PREF_MINI_PLAYER_SERVICE_CURRENT_POS
@@ -20,14 +20,14 @@ object MiniPlayerServicePreferences {
                 putInt(key, pos)
             }
 
-    fun getMiniPlayerServiceCurrentPos(
+    fun getCurrentPos(
         context: Context,
         key: String = PREF_MINI_PLAYER_SERVICE_CURRENT_POS
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .getInt(key, -1)
 
-    fun setMiniPlayerServiceCurrentDuration(
+    fun setCurrentDuration(
         context: Context,
         duration: Int,
         key: String = PREF_MINI_PLAYER_SERVICE_CURRENT_DURATION
@@ -37,14 +37,14 @@ object MiniPlayerServicePreferences {
                 putInt(key, duration)
             }
 
-    fun getMiniPlayerServiceCurrentDuration(
+    fun getCurrentDuration(
         context: Context,
         key: String = PREF_MINI_PLAYER_SERVICE_CURRENT_DURATION
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .getInt(key, -1)
 
-    fun setMiniPlayerServiceIsPlaying(
+    fun setIsPlaying(
         context: Context,
         isPlaying: Boolean,
         key: String = PREF_MINI_PLAYER_SERVICE_IS_PLAYING
@@ -54,7 +54,7 @@ object MiniPlayerServicePreferences {
                 putBoolean(key, isPlaying)
             }
 
-    fun getMiniPlayerServiceIsPlaying(
+    fun getIsPlaying(
         context: Context,
         key: String = PREF_MINI_PLAYER_SERVICE_IS_PLAYING
     ) =

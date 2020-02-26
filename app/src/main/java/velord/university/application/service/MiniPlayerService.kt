@@ -50,7 +50,9 @@ abstract class MiniPlayerService : Service() {
     override fun onDestroy() {
         Log.d(TAG, "onDestroy called")
         super.onDestroy()
-        storeInfo()
+        //store player state
+        storeCurrentPlayerState()
+        stopPlayer()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -108,29 +110,27 @@ abstract class MiniPlayerService : Service() {
     }
 
     protected fun getInfoFromServiceToUI() {
-        sendInfoToUI()
-        playSongAfterCreatedPlayer()
-        pausePlayer()
-    }
-
-
-    protected fun pausePlayer() {
         if (::player.isInitialized) {
-            player.pause()
-            stopSendRewind()
+            sendInfoToUI()
+            playSongAfterCreatedPlayer()
+            pausePlayer()
         }
-        sendBroadcastStopUI()
     }
+
+    protected fun pausePlayer() = stopOrPausePlayer {
+            player.pause()
+        }
 
     protected fun playSongAfterCreatedPlayer() {
         if (::player.isInitialized) {
-            //was current player check
             if (player.currentPosition != player.duration) {
                 player.start()
                 val seconds =
                     SongTimeConverter.millisecondsToSeconds(player.currentPosition)
                 startSendRewind(player, seconds)
             }
+            //store player state
+            storeCurrentPlayerState()
         } else {
             if (songQueue.songs.isNotEmpty()) {
                 playNext()
@@ -168,6 +168,7 @@ abstract class MiniPlayerService : Service() {
                 pausePlayer()
                 playSongAfterCreatedPlayer()
             }
+            storeCurrentDuration(milliseconds)
         }
         sendBroadcastRewindUI(seconds)
     }
@@ -198,42 +199,6 @@ abstract class MiniPlayerService : Service() {
         Toast.makeText(this, info, Toast.LENGTH_SHORT).show()
     }
 
-    private fun storeInfo() {
-        if (::player.isInitialized) {
-            //store current state of player
-            if (player.isPlaying)
-                MiniPlayerServicePreferences
-                    .setMiniPlayerServiceIsPlaying(this@MiniPlayerService, true)
-            else
-                MiniPlayerServicePreferences
-                    .setMiniPlayerServiceIsPlaying(this, false)
-            stopPlayer()
-            //store current position in queue
-            val pos = songQueue.getSongPos()
-            MiniPlayerServicePreferences
-                .setMiniPlayerServiceCurrentPos(this, pos)
-            //store current duration of player
-            val currentDuration = player.currentPosition
-            MiniPlayerServicePreferences
-                .setMiniPlayerServiceCurrentDuration(this@MiniPlayerService, currentDuration)
-            Log.d(TAG, "pos: $pos; dur: $currentDuration")
-            storeQueue()
-        }
-    }
-
-    private fun storeQueue() {
-        scope.launch {
-            val songsToDb = songQueue.songs.map {
-                val path = it.path
-                val pos = songQueue.getSongPos(path)
-                MiniPlayerServiceSong(path, pos)
-            }.toTypedArray()
-            AudlayerApp.db?.let {
-                it.serviceDao().updateData(songsToDb)
-            }
-        }
-    }
-
     private fun retrieveInfo() {
         scope.launch {
             AudlayerApp.db?.let { db ->
@@ -246,29 +211,30 @@ abstract class MiniPlayerService : Service() {
 
                 if (songsToQueue.isNotEmpty()) {
                     addToSongQueue(songsToQueue)
-                    //what song should play
-                    val posWasPlayedSong =
-                        MiniPlayerServicePreferences
-                            .getMiniPlayerServiceCurrentPos(this@MiniPlayerService)
-                    val path =
-                        songQueue.getSong(posWasPlayedSong).path
-                    playNext(path)
-                    pausePlayer()
                     //restore duration
                     val duration =
                         MiniPlayerServicePreferences
-                            .getMiniPlayerServiceCurrentDuration(this@MiniPlayerService)
-                    //this means ui have been destroyed with service after destroy main activity
-                    //but app is still working -> after restoration we should play song
+                            .getCurrentDuration(this@MiniPlayerService)
+                    //what song should play
+                    val posWasPlayedSong =
+                        MiniPlayerServicePreferences
+                            .getCurrentPos(this@MiniPlayerService)
+                    val path =
+                        songQueue.getSong(posWasPlayedSong).path
                     val isPlaying =
                         MiniPlayerServicePreferences
-                            .getMiniPlayerServiceIsPlaying(this@MiniPlayerService)
+                            .getIsPlaying(this@MiniPlayerService)
                     val appWasDestroyed =
                         AppPreference.getAppIsDestroyed(this@MiniPlayerService)
+                    //after all info got -> start player ->  set current time -> stop
+                    playNext(path)
+                    rewindPlayer(duration)
+                    pausePlayer()
+                    //this means ui have been destroyed with service after destroy main activity
+                    //but app is still working -> after restoration we should play song
                     if (isPlaying && appWasDestroyed.not()) {
                         playSongAfterCreatedPlayer()
                     }
-                    rewindPlayer(duration)
                 }
             }
         }
@@ -277,9 +243,9 @@ abstract class MiniPlayerService : Service() {
     private suspend fun retrieveQueue(db: AppDatabase) =
         scope.async { db.serviceDao().getAll() }.await()
 
-
     private fun addToSongQueue(list: List<File>) {
         songQueue.songs.addAll(list)
+        storeQueue()
     }
 
     private fun clearSongQueue() {
@@ -304,12 +270,18 @@ abstract class MiniPlayerService : Service() {
 
     }
 
-    private fun stopPlayer() {
+    private fun stopOrPausePlayer(f: () -> Unit) {
         if (::player.isInitialized) {
-            player.stop()
+            f()
             stopSendRewind()
         }
         sendBroadcastStopUI()
+    }
+
+    private fun stopPlayer() {
+        stopOrPausePlayer {
+            player.stop()
+        }
     }
 
     private fun songIsOver() {
@@ -342,6 +314,8 @@ abstract class MiniPlayerService : Service() {
         playSongAfterCreatedPlayer()
         //send info
         sendInfoToUI(song)
+        //store pos
+        storeSongPositionInQueue()
     }
 
     private fun createPlayer(path: String) {
@@ -361,11 +335,50 @@ abstract class MiniPlayerService : Service() {
                     MiniPlayerBroadcastRewind.apply {
                         sendBroadcastRewindUI(rewindValue++)
                     }
+                    //store current duration cause onDestroy invoke only when view is destroy
+                    storeCurrentDuration()
                     delay(1000)
                 }
                 songIsOver()
             }
         }
+    }
+
+    private fun storeCurrentPlayerState() {
+        if (player.isPlaying)
+            MiniPlayerServicePreferences
+                .setIsPlaying(this@MiniPlayerService, true)
+        else
+            MiniPlayerServicePreferences
+                .setIsPlaying(this, false)
+    }
+
+    private fun storeSongPositionInQueue() {
+        val pos = songQueue.getSongPos()
+        MiniPlayerServicePreferences
+            .setCurrentPos(this, pos)
+        Log.d(TAG, "store pos: $pos")
+    }
+
+    private fun storeCurrentDuration(duration: Int = player.currentPosition) {
+        //store current duration cause onDestroy invoke only when view is destroy
+        MiniPlayerServicePreferences
+            .setCurrentDuration(this@MiniPlayerService, duration)
+        Log.d(TAG, "store duration: $duration")
+    }
+
+    private fun storeQueue() {
+        scope.launch {
+            val songsToDb = songQueue.songs.map {
+                val path = it.path
+                val pos = songQueue.getSongPos(path)
+                MiniPlayerServiceSong(path, pos)
+            }.toTypedArray()
+            AudlayerApp.db?.let {
+                it.serviceDao().updateData(songsToDb)
+            }
+        }
+        Log.d(TAG, "store queue")
     }
 
     private fun stopSendRewind() {
