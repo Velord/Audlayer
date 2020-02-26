@@ -1,9 +1,9 @@
 package velord.university.ui.fragment.miniPlayer.logic
 
 import androidx.fragment.app.FragmentActivity
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastLoop
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastLoopAll
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastNotLoop
+import velord.university.application.broadcast.MiniPlayerBroadcastLoop
+import velord.university.application.broadcast.MiniPlayerBroadcastLoopAll
+import velord.university.application.broadcast.MiniPlayerBroadcastNotLoop
 
 object RepeatLogic {
 

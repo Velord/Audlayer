@@ -1,4 +1,4 @@
-package velord.university.application.miniPlayer.broadcast
+package velord.university.application.broadcast
 
 import android.content.Context
 import android.content.IntentFilter
@@ -357,5 +357,14 @@ object MiniPlayerBroadcastAddToQueue: MiniPlayerBroadcastHub() {
 
     fun Context.sendBroadcastAddToQueue(path: String, permission: String = PERM_PRIVATE_MINI_PLAYER) =
         sendBroadcast(actionService, permission, extraValueService, path)
+}
+
+object MiniPlayerBroadcastGetInfo: MiniPlayerBroadcastHub() {
+    override val actionService: String = "velord.university.GET_INFO"
+
+    override val filterService: IntentFilter = IntentFilter(actionService)
+
+    fun Context.sendBroadcastGetInfo(permission: String = PERM_PRIVATE_MINI_PLAYER) =
+        sendBroadcast(actionService, permission)
 }
 

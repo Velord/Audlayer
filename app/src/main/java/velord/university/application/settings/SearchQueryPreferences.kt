@@ -1,4 +1,4 @@
-package velord.university.application
+package velord.university.application.settings
 
 import android.content.Context
 import android.preference.PreferenceManager
@@ -6,7 +6,7 @@ import androidx.core.content.edit
 
 private const val PREF_SEARCH_QUERY = "searchQuery"
 
-object QueryPreferences {
+object SearchQueryPreferences {
 
     fun getStoredQueryFolder(context: Context,
                              folder: String): String  =

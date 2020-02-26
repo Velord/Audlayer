@@ -1,4 +1,4 @@
-package velord.university.application
+package velord.university.application.permission
 
 import android.Manifest
 import android.app.Activity

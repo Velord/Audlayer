@@ -1,21 +1,14 @@
-package velord.university.application.miniPlayer.broadcast
+package velord.university.application.broadcast
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 
-interface MiniPlayerBroadcastReceiverService {
+
+interface MiniPlayerBroadcastReceiver {
 
     val TAG: String
-
-    val playByPathF: (Intent?) -> Unit
-    fun playByPath() = object : BroadcastReceiver() {
-        override fun onReceive(p0: Context?, intent: Intent?) {
-            Log.i(TAG, "received broadcast: ${intent?.action}")
-            playByPathF(intent)
-        }
-    }
 
     val stopF: (Intent?) -> Unit
     fun stop() = object : BroadcastReceiver() {
@@ -112,44 +105,35 @@ interface MiniPlayerBroadcastReceiverService {
             notLoopF(intent)
         }
     }
+    val songArtistF: (Intent?) -> Unit
+    fun songArtist() = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            songArtistF(intent)
+        }
+    }
+
+    val songNameF: (Intent?) -> Unit
+    fun songName() = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            songNameF(intent)
+        }
+    }
+
+    val songHQF: (Intent?) -> Unit
+    fun songHQ() = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            songHQF(intent)
+        }
+    }
 
     val songDurationF: (Intent?) -> Unit
     fun songDuration() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
             songDurationF(intent)
-        }
-    }
-
-    val playAllInFolderF: (Intent?) -> Unit
-    fun playAllInFolder() = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.i(TAG, "received broadcast: ${intent?.action}")
-            playAllInFolderF(intent)
-        }
-    }
-
-    val playNextAllInFolderF: (Intent?) -> Unit
-    fun playNextAllInFolder() = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.i(TAG, "received broadcast: ${intent?.action}")
-            playNextAllInFolderF(intent)
-        }
-    }
-
-    val shuffleAndPlayAllInFolderF: (Intent?) -> Unit
-    fun shuffleAndPlayAllInFolder() = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.i(TAG, "received broadcast: ${intent?.action}")
-            shuffleAndPlayAllInFolderF(intent)
-        }
-    }
-
-    val addToQueueF: (Intent?) -> Unit
-    fun addToQueue() = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.i(TAG, "received broadcast: ${intent?.action}")
-            addToQueueF(intent)
         }
     }
 }

@@ -14,11 +14,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import velord.university.R
-import velord.university.application.PermissionChecker
-import velord.university.application.miniPlayer.broadcast.*
+import velord.university.application.broadcast.*
+import velord.university.application.permission.PermissionChecker
 import velord.university.interactor.SongQueryInteractor
 import velord.university.model.FileExtension
 import velord.university.model.FileExtensionModifier
+import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
 import velord.university.ui.fragment.BackPressedHandler
 import velord.university.ui.fragment.actionBar.ActionBarFragment
@@ -105,7 +106,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
     private fun updateAdapterBySearchQuery(searchTerm: String) {
         fun _setupAdapter(file: File = Environment.getExternalStorageDirectory(),
                         //default filter
-                         filter: (File, String) -> Boolean = FileExtension.filterByEmptySearchQuery
+                         filter: (File, String) -> Boolean = FileFilter.filterByEmptySearchQuery
         ) {
             //while permission is not granted
             if (checkPermission().not()) _setupAdapter(file, filter)
@@ -122,7 +123,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         }
 
         if (searchTerm.isNotEmpty()) {
-            val f = FileExtension.filterBySearchQuery
+            val f = FileFilter.filterBySearchQuery
             _setupAdapter(viewModel.currentFolder, f)
         }
         else _setupAdapter(viewModel.currentFolder)

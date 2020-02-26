@@ -4,11 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProviders
 import velord.university.R
-import velord.university.application.initFragment
-import velord.university.application.miniPlayer.service.MiniPlayerServiceBroadcastReceiver
+import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
+import velord.university.application.settings.AppPreference
 import velord.university.ui.fragment.BackPressedHandler
 import velord.university.ui.fragment.main.MainFragment
+import velord.university.ui.initFragment
 
 
 private const val TAG ="MainActivity"
@@ -16,6 +18,10 @@ private const val TAG ="MainActivity"
 class MainActivity : AppCompatActivity() {
 
     private val fm = supportFragmentManager
+
+    private val viewModel by lazy {
+        ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "called onCreate")
@@ -30,6 +36,7 @@ class MainActivity : AppCompatActivity() {
             MainFragment(),
             R.id.main_container
         )
+        viewModel
     }
 
     override fun onBackPressed() {
@@ -60,6 +67,8 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "called onDestroy")
         super.onDestroy()
         stopService(Intent(this, MiniPlayerServiceBroadcastReceiver().javaClass))
+
+        AppPreference.setAppIsDestroyed(this, false)
     }
 }
 

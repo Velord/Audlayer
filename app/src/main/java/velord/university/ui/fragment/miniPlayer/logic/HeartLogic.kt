@@ -1,9 +1,9 @@
 package velord.university.ui.fragment.miniPlayer.logic
 
 import androidx.fragment.app.FragmentActivity
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastLike
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastUnlike
-import velord.university.application.miniPlayer.broadcast.PERM_PRIVATE_MINI_PLAYER
+import velord.university.application.broadcast.MiniPlayerBroadcastLike
+import velord.university.application.broadcast.MiniPlayerBroadcastUnlike
+import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 
 object HeartLogic: TwoStateLogic() {
 

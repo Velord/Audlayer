@@ -1,22 +1,23 @@
-package velord.university.application.miniPlayer.service
+package velord.university.application.service
 
 import android.content.Intent
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import velord.university.application.miniPlayer.broadcast.*
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastLike.sendBroadcastLikeUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastLoop.sendBroadcastLoopUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastLoopAll.sendBroadcastLoopAllUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastNotLoop.sendBroadcastNotLoopUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastShuffle.sendBroadcastShuffleUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastSkipNext.sendBroadcastSkipNextUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastSkipPrev.sendBroadcastSkipPrevUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastSongDuration.sendBroadcastSongDurationUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastUnShuffle.sendBroadcastUnShuffleUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastUnlike.sendBroadcastUnlikeUI
+import velord.university.application.broadcast.*
+import velord.university.application.broadcast.MiniPlayerBroadcastLike.sendBroadcastLikeUI
+import velord.university.application.broadcast.MiniPlayerBroadcastLoop.sendBroadcastLoopUI
+import velord.university.application.broadcast.MiniPlayerBroadcastLoopAll.sendBroadcastLoopAllUI
+import velord.university.application.broadcast.MiniPlayerBroadcastNotLoop.sendBroadcastNotLoopUI
+import velord.university.application.broadcast.MiniPlayerBroadcastShuffle.sendBroadcastShuffleUI
+import velord.university.application.broadcast.MiniPlayerBroadcastSkipNext.sendBroadcastSkipNextUI
+import velord.university.application.broadcast.MiniPlayerBroadcastSkipPrev.sendBroadcastSkipPrevUI
+import velord.university.application.broadcast.MiniPlayerBroadcastSongDuration.sendBroadcastSongDurationUI
+import velord.university.application.broadcast.MiniPlayerBroadcastUnShuffle.sendBroadcastUnShuffleUI
+import velord.university.application.broadcast.MiniPlayerBroadcastUnlike.sendBroadcastUnlikeUI
 import velord.university.model.QueueResolver
+import velord.university.model.SongTimeConverter
 
 class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadcastReceiverService {
 
@@ -42,7 +43,8 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
         Pair(playAllInFolder(), MiniPlayerBroadcastPlayAllInFolder.filterService),
         Pair(playNextAllInFolder(), MiniPlayerBroadcastPlayNextAllInFolder.filterService),
         Pair(shuffleAndPlayAllInFolder(), MiniPlayerBroadcastShuffleAndPlayAllInFolder.filterService),
-        Pair(addToQueue(), MiniPlayerBroadcastAddToQueue.filterService)
+        Pair(addToQueue(), MiniPlayerBroadcastAddToQueue.filterService),
+        Pair(getInfo(), MiniPlayerBroadcastGetInfo.filterService)
     )
 
     override fun onDestroy() {
@@ -105,13 +107,14 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
             super<MiniPlayerService>.skipSongAndPlayPrevious()
             sendBroadcastSkipPrevUI()
         }
-
+    //get in seconds cause view does not operate at milliseconds
     override val rewindF: (Intent?) -> Unit
         get() = {
             it?.let {
                 val extra = MiniPlayerBroadcastRewind.extraValueService
                 val value = it.getIntExtra(extra, 0)
-                super<MiniPlayerService>.rewindPlayer(value)
+                val milliseconds = SongTimeConverter.secondsToMilliseconds(value)
+                super<MiniPlayerService>.rewindPlayer(milliseconds)
             }
         }
 
@@ -189,4 +192,8 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
             }
         }
 
+    override val getInfoF: (Intent?) -> Unit
+        get() = {
+            super.getInfoFromServiceToUI()
+        }
 }

@@ -1,4 +1,4 @@
-package velord.university.application
+package velord.university.ui
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager

@@ -1,4 +1,4 @@
-package velord.university.application.miniPlayer.service
+package velord.university.application.service
 
 import android.app.Service
 import android.content.Intent
@@ -8,16 +8,21 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.*
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastPlay.sendBroadcastPlayUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastRewind
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastRewind.sendBroadcastRewindUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastShow
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastSongArtist.sendBroadcastSongArtistUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastSongDuration
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastSongName.sendBroadcastSongNameUI
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastStop.sendBroadcastStopUI
+import velord.university.application.AudlayerApp
+import velord.university.application.broadcast.MiniPlayerBroadcastPlay.sendBroadcastPlayUI
+import velord.university.application.broadcast.MiniPlayerBroadcastRewind
+import velord.university.application.broadcast.MiniPlayerBroadcastRewind.sendBroadcastRewindUI
+import velord.university.application.broadcast.MiniPlayerBroadcastShow
+import velord.university.application.broadcast.MiniPlayerBroadcastSongArtist.sendBroadcastSongArtistUI
+import velord.university.application.broadcast.MiniPlayerBroadcastSongDuration
+import velord.university.application.broadcast.MiniPlayerBroadcastSongName.sendBroadcastSongNameUI
+import velord.university.application.broadcast.MiniPlayerBroadcastStop.sendBroadcastStopUI
+import velord.university.application.settings.AppPreference
+import velord.university.application.settings.MiniPlayerServicePreferences
 import velord.university.interactor.SongQueryInteractor
 import velord.university.model.*
+import velord.university.repository.AppDatabase
+import velord.university.repository.MiniPlayerServiceSong
 import java.io.File
 
 abstract class MiniPlayerService : Service() {
@@ -39,13 +44,18 @@ abstract class MiniPlayerService : Service() {
     override fun onCreate() {
         Log.d(TAG, "onCreate called")
         super.onCreate()
+        retrieveInfo()
     }
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy called")
         super.onDestroy()
-        if (::player.isInitialized)
-            player.stop()
+        storeInfo()
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        Log.d(TAG, "onUnbind called")
+        return super.onUnbind(intent)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -55,7 +65,7 @@ abstract class MiniPlayerService : Service() {
 
     protected fun playAllInFolder(pathFolder: String) {
         clearSongQueue()
-        val songs = FileExtension.filterOnlyAudio(File(pathFolder))
+        val songs = FileFilter.filterOnlyAudio(File(pathFolder))
         val info = if (songs.isNotEmpty()) {
             addToSongQueue(songs)
             playNext(songQueue.songs[0].path)
@@ -67,7 +77,7 @@ abstract class MiniPlayerService : Service() {
     }
 
     protected fun playNextAllInFolder(pathFolder: String) {
-        val songs = FileExtension.filterOnlyAudio(File(pathFolder))
+        val songs = FileFilter.filterOnlyAudio(File(pathFolder))
         addToSongQueue(songs)
         val info = "added to queue: ${songs.size}"
         Log.d(TAG, info)
@@ -76,7 +86,7 @@ abstract class MiniPlayerService : Service() {
 
     protected fun shuffleAndPlayAllInFolder(pathFolder: String) {
         clearSongQueue()
-        val songs = FileExtension.filterOnlyAudio(File(pathFolder))
+        val songs = FileFilter.filterOnlyAudio(File(pathFolder))
         val info = if (songs.isNotEmpty()) {
             addToSongQueue(songs)
             songQueue.shuffle()
@@ -96,6 +106,13 @@ abstract class MiniPlayerService : Service() {
         //showUI
         MiniPlayerBroadcastShow.apply { sendBroadcastShow() }
     }
+
+    protected fun getInfoFromServiceToUI() {
+        sendInfoToUI()
+        playSongAfterCreatedPlayer()
+        pausePlayer()
+    }
+
 
     protected fun pausePlayer() {
         if (::player.isInitialized) {
@@ -142,13 +159,15 @@ abstract class MiniPlayerService : Service() {
         }
     }
 
-    protected fun rewindPlayer(seconds: Int) {
+    protected fun rewindPlayer(milliseconds: Int) {
+        val seconds = SongTimeConverter.millisecondsToSeconds(milliseconds)
         if (::player.isInitialized) {
-            //was current player check
-            val milliseconds = SongTimeConverter.secondsToMilliseconds(seconds)
             player.seekTo(milliseconds)
-            pausePlayer()
-            playSongAfterCreatedPlayer()
+            //to apply current duration
+            if (player.isPlaying) {
+                pausePlayer()
+                playSongAfterCreatedPlayer()
+            }
         }
         sendBroadcastRewindUI(seconds)
     }
@@ -178,6 +197,86 @@ abstract class MiniPlayerService : Service() {
         Log.d(TAG, info)
         Toast.makeText(this, info, Toast.LENGTH_SHORT).show()
     }
+
+    private fun storeInfo() {
+        if (::player.isInitialized) {
+            //store current state of player
+            if (player.isPlaying)
+                MiniPlayerServicePreferences
+                    .setMiniPlayerServiceIsPlaying(this@MiniPlayerService, true)
+            else
+                MiniPlayerServicePreferences
+                    .setMiniPlayerServiceIsPlaying(this, false)
+            stopPlayer()
+            //store current position in queue
+            val pos = songQueue.getSongPos()
+            MiniPlayerServicePreferences
+                .setMiniPlayerServiceCurrentPos(this, pos)
+            //store current duration of player
+            val currentDuration = player.currentPosition
+            MiniPlayerServicePreferences
+                .setMiniPlayerServiceCurrentDuration(this@MiniPlayerService, currentDuration)
+            Log.d(TAG, "pos: $pos; dur: $currentDuration")
+            storeQueue()
+        }
+    }
+
+    private fun storeQueue() {
+        scope.launch {
+            val songsToDb = songQueue.songs.map {
+                val path = it.path
+                val pos = songQueue.getSongPos(path)
+                MiniPlayerServiceSong(path, pos)
+            }.toTypedArray()
+            AudlayerApp.db?.let {
+                it.serviceDao().updateData(songsToDb)
+            }
+        }
+    }
+
+    private fun retrieveInfo() {
+        scope.launch {
+            AudlayerApp.db?.let { db ->
+                val songsFromDb = retrieveQueue(db)
+                val songsToQueue = songsFromDb.sortedBy {
+                    it.pos
+                }.map {
+                    File(it.path)
+                }
+
+                if (songsToQueue.isNotEmpty()) {
+                    addToSongQueue(songsToQueue)
+                    //what song should play
+                    val posWasPlayedSong =
+                        MiniPlayerServicePreferences
+                            .getMiniPlayerServiceCurrentPos(this@MiniPlayerService)
+                    val path =
+                        songQueue.getSong(posWasPlayedSong).path
+                    playNext(path)
+                    pausePlayer()
+                    //restore duration
+                    val duration =
+                        MiniPlayerServicePreferences
+                            .getMiniPlayerServiceCurrentDuration(this@MiniPlayerService)
+                    //this means ui have been destroyed with service after destroy main activity
+                    //but app is still working -> after restoration we should play song
+                    val isPlaying =
+                        MiniPlayerServicePreferences
+                            .getMiniPlayerServiceIsPlaying(this@MiniPlayerService)
+                    val appWasDestroyed =
+                        AppPreference.getAppIsDestroyed(this@MiniPlayerService)
+                    if (isPlaying && appWasDestroyed.not()) {
+                        playSongAfterCreatedPlayer()
+                    }
+                    rewindPlayer(duration)
+                }
+            }
+        }
+    }
+
+    private suspend fun retrieveQueue(db: AppDatabase) =
+        scope.async { db.serviceDao().getAll() }.await()
+
 
     private fun addToSongQueue(list: List<File>) {
         songQueue.songs.addAll(list)
@@ -273,11 +372,10 @@ abstract class MiniPlayerService : Service() {
         rewindJob.cancel()
     }
 
-    private fun sendInfoToUI(song: File) {
+    private fun sendInfoToUI(song: File = songQueue.getSong()) {
         //send info
         sendSongNameAndArtist(song)
         sendDurationSong(player)
         sendIsHQ()
     }
-
 }

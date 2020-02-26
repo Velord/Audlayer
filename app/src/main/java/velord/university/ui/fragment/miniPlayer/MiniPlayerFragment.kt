@@ -12,7 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import velord.university.R
-import velord.university.application.miniPlayer.broadcast.*
+import velord.university.application.broadcast.*
 import velord.university.model.SongTimeConverter
 import velord.university.ui.fragment.miniPlayer.logic.*
 
@@ -53,6 +53,38 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastR
         Pair(songHQ(), MiniPlayerBroadcastSongHQ.filterUI)
     )
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.mini_player_fragment, container, false).apply {
+            super.initMiniPlayerView(this)
+            initView(this)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        receivers.forEach {
+            requireActivity()
+                .registerBroadcastReceiver(
+                    it.first, it.second, PERM_PRIVATE_MINI_PLAYER)
+        }
+        //get info from service about song cause service was created earlier then this view
+        MiniPlayerBroadcastGetInfo.apply {
+            requireContext().sendBroadcastGetInfo()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        receivers.forEach {
+            requireActivity()
+                .unregisterBroadcastReceiver(it.first)
+        }
+    }
 
     private fun initView(view: View) {
         miniPlayerSongLikedIB.setOnClickListener {
@@ -96,35 +128,6 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastR
 
                 override fun onStopTrackingTouch(seekBar: SeekBar) { }
             })
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.mini_player_fragment, container, false).apply {
-            super.initMiniPlayerView(this)
-            initView(this)
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        receivers.forEach {
-            requireActivity()
-                .registerBroadcastReceiver(
-                    it.first, it.second, PERM_PRIVATE_MINI_PLAYER)
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        receivers.forEach {
-            requireActivity()
-                .unregisterBroadcastReceiver(it.first)
-        }
     }
 
     override val songArtistF: (Intent?) -> Unit

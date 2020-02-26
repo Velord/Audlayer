@@ -4,8 +4,8 @@ import android.app.Application
 import android.os.Environment
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import velord.university.application.QueryPreferences
-import velord.university.application.miniPlayer.broadcast.MiniPlayerBroadcastPlayByPath
+import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
+import velord.university.application.settings.SearchQueryPreferences
 import velord.university.interactor.SongQueryInteractor
 import java.io.File
 
@@ -27,7 +27,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
         //store search term in shared preferences
         currentQuery = query
         val folderPath = currentFolder.path
-        QueryPreferences.setStoredQueryFolder(app, folderPath, currentQuery)
+        SearchQueryPreferences.setStoredQueryFolder(app, folderPath, currentQuery)
         Log.d(TAG, "query: $currentQuery path: $folderPath")
     }
 

@@ -9,7 +9,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import velord.university.R
-import velord.university.application.miniPlayer.broadcast.*
+import velord.university.application.broadcast.*
 import velord.university.ui.fragment.miniPlayer.MiniPlayerFragment
 import velord.university.ui.fragment.miniPlayer.miniPlayerHide.MiniPlayerHideFragment
 import velord.university.ui.fragment.miniPlayer.miniPlayerStopAndHide.MiniPlayerStopAndHideFragment

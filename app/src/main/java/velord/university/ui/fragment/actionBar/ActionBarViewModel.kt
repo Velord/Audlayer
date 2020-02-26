@@ -3,7 +3,7 @@ package velord.university.ui.fragment.actionBar
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import velord.university.application.QueryPreferences
+import velord.university.application.settings.SearchQueryPreferences
 import java.io.File
 
 class ActionBarViewModel(private val app: Application) : AndroidViewModel(app) {
@@ -18,6 +18,6 @@ class ActionBarViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun setupSearchQueryByFilePath(file: File) {
         mutableSearchTerm.value =
-            QueryPreferences.getStoredQueryFolder(app, file.path)
+            SearchQueryPreferences.getStoredQueryFolder(app, file.path)
     }
 }

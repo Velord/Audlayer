@@ -46,7 +46,7 @@ abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
         miniPlayerSongNameTV = view.findViewById(R.id.mini_player_song_name)
         miniPlayerSongNameTV.apply {
             setSingleLine()
-            isSelected = true
+            isSelected = false
         }
     }
 
@@ -54,7 +54,7 @@ abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
         miniPlayerSongArtistTV = view.findViewById(R.id.mini_player_song_artist)
         miniPlayerSongArtistTV.apply {
             setSingleLine()
-            isSelected = true
+            isSelected = false
         }
     }
 }
