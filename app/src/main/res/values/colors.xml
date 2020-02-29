@@ -3,6 +3,7 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryOpacity">#80008577</color>
     <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorPrimaryDarkOpacity">#CC003029</color>
     <color name="colorAccent">#273FB5</color>
     <color name="fragmentBackground">#030622</color>
     <color name="fragmentBackgroundDarker">#00021B</color>

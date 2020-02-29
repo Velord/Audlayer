@@ -11,8 +11,7 @@
     <string name="songs">Songs</string>
     <string name="radio">Radio</string>
     <string name="vk">VK</string>
-    <string name="mini_player_song_name">South of the Border (Record Mix)</string>
-    <string name="mini_player_song_artist">LAZY JAY</string>
+    <string name="mini_player_song_no_information">No Song Are Selected</string>
     <string name="mini_player_song_high_quality">HQ</string>
     <string name="mini_player_song_image">Image of song</string>
     <string name="mini_player_song_shuffle">Shuffle songs</string>
@@ -20,7 +19,7 @@
     <string name="mini_player_song_liked">Like song</string>
     <string name="mini_player_song_skip_prev">Start playing previous song</string>
     <string name="mini_player_song_skip_next">Start playing next song</string>
-    <string name="mini_player_song_play_or_pause">Play or psuse song</string>
+    <string name="mini_player_song_play_or_pause">Play or pause song</string>
     <string name="mini_player_song_start_song">00: 00</string>
     <string name="mini_player_song_end_song">04: 00</string>
     <string name="mini_player_stop_and_hide">Scroll to Stop and Hide Player</string>
@@ -41,4 +40,10 @@
     <string name="pop_up_menu_item_add_to_home_screen">Add to Home Screen</string>
     <string name="pop_up_menu_item_set_as_ringtone">Set as Ringtone</string>
     <string name="pop_up_menu_item_show_incompatible_files">Show incompatible files</string>
+    <string name="pop_up_menu_item_sort_by">Sort By:</string>
+    <string name="pop_up_menu_item_sort_by_date_added">Date Added</string>
+    <string name="pop_up_menu_item_sort_by_name">Name</string>
+    <string name="pop_up_menu_item_sort_by_artist">Artist</string>
+    <string name="pop_up_menu_item_sort_by_ascending_order">Ascending Order</string>
+    <string name="pop_up_menu_item_sort_by_descending_order">Descending Order</string>
 </resources>
