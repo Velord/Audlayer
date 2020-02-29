@@ -16,7 +16,7 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import velord.university.R
 import velord.university.application.broadcast.*
 import velord.university.application.permission.PermissionChecker
-import velord.university.interactor.SongQueryInteractor
+import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileExtension
 import velord.university.model.FileExtensionModifier
 import velord.university.model.FileFilter
@@ -237,7 +237,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                             when (it.itemId) {
                                 R.id.folder_recyclerView_item_isAudio_play -> {
                                     //don't remember for SongQueryInteractor it will be used between this and service
-                                    SongQueryInteractor.songs = arrayOf(file)
+                                    SongPlaylistInteractor.songs = arrayOf(file)
                                     MiniPlayerBroadcastPlayByPath.apply {
                                         requireContext().sendBroadcastPlayByPath(file.path)
                                     }
@@ -248,7 +248,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                                 }
                                 R.id.folder_recyclerView_item_isAudio_play_next -> {
                                     //don't remember for SongQueryInteractor it will be used between this and service
-                                    SongQueryInteractor.songs = arrayOf(file)
+                                    SongPlaylistInteractor.songs = arrayOf(file)
                                     //add to queue one song
                                     MiniPlayerBroadcastAddToQueue.apply {
                                         requireContext().sendBroadcastAddToQueue(file.path)

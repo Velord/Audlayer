@@ -1,4 +1,4 @@
-package velord.university.repository
+package velord.university.model
 
 import androidx.room.*
 import java.util.*

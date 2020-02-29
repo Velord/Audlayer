@@ -19,10 +19,9 @@ import velord.university.application.broadcast.MiniPlayerBroadcastSongName.sendB
 import velord.university.application.broadcast.MiniPlayerBroadcastStop.sendBroadcastStopUI
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.MiniPlayerServicePreferences
-import velord.university.interactor.SongQueryInteractor
+import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.*
 import velord.university.repository.AppDatabase
-import velord.university.repository.MiniPlayerServiceSong
 import java.io.File
 
 abstract class MiniPlayerService : Service() {
@@ -31,7 +30,7 @@ abstract class MiniPlayerService : Service() {
 
     private lateinit var player: MediaPlayer
 
-    private val songQueue = SongQueue()
+    private val playlist = SongPlaylist()
 
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
     private lateinit var  rewindJob: Job
@@ -70,7 +69,7 @@ abstract class MiniPlayerService : Service() {
         val songs = FileFilter.filterOnlyAudio(File(pathFolder))
         val info = if (songs.isNotEmpty()) {
             addToSongQueue(songs)
-            playNext(songQueue.songs[0].path)
+            playNext(playlist.songs[0].path)
             "will play: ${songs.size}\n" +
                     "first: ${songs[0].name}"
         } else { "no one song" }
@@ -91,10 +90,10 @@ abstract class MiniPlayerService : Service() {
         val songs = FileFilter.filterOnlyAudio(File(pathFolder))
         val info = if (songs.isNotEmpty()) {
             addToSongQueue(songs)
-            songQueue.shuffle()
-            playNext(songQueue.songs[0].path)
+            playlist.shuffle()
+            playNext(playlist.songs[0].path)
             "will play: ${songs.size}\n" +
-                    "first: ${songQueue.songs[0].name}"
+                    "first: ${playlist.songs[0].name}"
         } else { "no one song" }
         Log.d(TAG, info)
         Toast.makeText(this, info, Toast.LENGTH_SHORT).show()
@@ -103,7 +102,7 @@ abstract class MiniPlayerService : Service() {
     protected fun playByPath(path: String) {
         //filter songs by received filter after that play it
         clearSongQueue()
-        addToSongQueue(SongQueryInteractor.songs.toList())
+        addToSongQueue(SongPlaylistInteractor.songs.toList())
         playNext(path)
         //showUI
         MiniPlayerBroadcastShow.apply { sendBroadcastShow() }
@@ -111,9 +110,13 @@ abstract class MiniPlayerService : Service() {
 
     protected fun getInfoFromServiceToUI() {
         if (::player.isInitialized) {
+            val restoreStatePlayer: () -> Unit =
+                if (player.isPlaying) { {} }
+                else { { pausePlayer() } }
+            pausePlayer()
             sendInfoToUI()
             playSongAfterCreatedPlayer()
-            pausePlayer()
+            restoreStatePlayer()
         }
     }
 
@@ -132,7 +135,7 @@ abstract class MiniPlayerService : Service() {
             //store player state
             storeCurrentPlayerState()
         } else {
-            if (songQueue.songs.isNotEmpty()) {
+            if (playlist.songs.isNotEmpty()) {
                 playNext()
             }
         }
@@ -148,12 +151,12 @@ abstract class MiniPlayerService : Service() {
 
     protected fun skipSongAndPlayPrevious() {
         if (::player.isInitialized) {
-            val currentPos = songQueue.getSongPos()
+            val currentPos = playlist.getSongPos()
             //current position minus 1 else first from end
             val newSong = if (currentPos != 0)
-                songQueue.getSong(currentPos - 1)
+                playlist.getSong(currentPos - 1)
             else
-                songQueue.songs[songQueue.songs.lastIndex]
+                playlist.songs[playlist.songs.lastIndex]
             //just need got path to new file
             playNext(newSong.path)
         }
@@ -176,25 +179,25 @@ abstract class MiniPlayerService : Service() {
     protected fun shuffleOn() {
         QueueResolver.shuffleState = true
         //store before shuffle
-        songQueue.notShuffled.apply {
+        playlist.notShuffled.apply {
             clear()
-            addAll(songQueue.songs)
+            addAll(playlist.songs)
         }
-        songQueue.songs.shuffle()
+        playlist.songs.shuffle()
     }
 
     protected fun shuffleOff() {
         QueueResolver.shuffleState = false
-        songQueue.songs.apply {
+        playlist.songs.apply {
             clear()
-            addAll(songQueue.notShuffled)
+            addAll(playlist.notShuffled)
         }
     }
 
     protected fun addToQueue(path: String) {
         val newSong = File(path)
-        songQueue.songs.add(newSong)
-        val info = "in queue at ${songQueue.getSongPos(newSong) + 1}"
+        playlist.songs.add(newSong)
+        val info = "in queue at ${playlist.getSongPos(newSong) + 1}"
         Log.d(TAG, info)
         Toast.makeText(this, info, Toast.LENGTH_SHORT).show()
     }
@@ -202,15 +205,15 @@ abstract class MiniPlayerService : Service() {
     private fun retrieveInfo() {
         scope.launch {
             AudlayerApp.db?.let { db ->
-                val songsFromDb = retrieveQueue(db)
-                val songsToQueue = songsFromDb.sortedBy {
+                val songsFromDb = retrievePlaylist(db)
+                val songsToPlaylist = songsFromDb.sortedBy {
                     it.pos
                 }.map {
                     File(it.path)
                 }
 
-                if (songsToQueue.isNotEmpty()) {
-                    addToSongQueue(songsToQueue)
+                if (songsToPlaylist.isNotEmpty()) {
+                    addToSongQueue(songsToPlaylist)
                     //restore duration
                     val duration =
                         MiniPlayerServicePreferences
@@ -220,7 +223,7 @@ abstract class MiniPlayerService : Service() {
                         MiniPlayerServicePreferences
                             .getCurrentPos(this@MiniPlayerService)
                     val path =
-                        songQueue.getSong(posWasPlayedSong).path
+                        playlist.getSong(posWasPlayedSong).path
                     val isPlaying =
                         MiniPlayerServicePreferences
                             .getIsPlaying(this@MiniPlayerService)
@@ -240,16 +243,16 @@ abstract class MiniPlayerService : Service() {
         }
     }
 
-    private suspend fun retrieveQueue(db: AppDatabase) =
+    private suspend fun retrievePlaylist(db: AppDatabase) =
         scope.async { db.serviceDao().getAll() }.await()
 
     private fun addToSongQueue(list: List<File>) {
-        songQueue.songs.addAll(list)
+        playlist.songs.addAll(list)
         storeQueue()
     }
 
     private fun clearSongQueue() {
-        songQueue.songs.clear()
+        playlist.songs.clear()
     }
 
     private fun sendSongNameAndArtist(file: File) {
@@ -288,14 +291,14 @@ abstract class MiniPlayerService : Service() {
         if (::player.isInitialized) {
             when {
                 QueueResolver.loop == true -> {
-                    playNext(songQueue.getSongPath())
+                    playNext(playlist.getSongPath())
                 }
                 QueueResolver.loopAll == true -> {
                     playNext()
                 }
                 //reset current song ui
                 else -> {
-                    playNext(songQueue.getSongPath())
+                    playNext(playlist.getSongPath())
                     pausePlayer()
                 }
             }
@@ -307,9 +310,9 @@ abstract class MiniPlayerService : Service() {
         stopPlayer()
         //start playing
         val song = if (path == null)
-             songQueue.getNext()
+             playlist.getNext()
         else
-            songQueue.getSongAndResetQuery(path)
+            playlist.getSongAndResetQuery(path)
         createPlayer(song.path)
         playSongAfterCreatedPlayer()
         //send info
@@ -354,7 +357,7 @@ abstract class MiniPlayerService : Service() {
     }
 
     private fun storeSongPositionInQueue() {
-        val pos = songQueue.getSongPos()
+        val pos = playlist.getSongPos()
         MiniPlayerServicePreferences
             .setCurrentPos(this, pos)
         Log.d(TAG, "store pos: $pos")
@@ -369,9 +372,9 @@ abstract class MiniPlayerService : Service() {
 
     private fun storeQueue() {
         scope.launch {
-            val songsToDb = songQueue.songs.map {
+            val songsToDb = playlist.songs.map {
                 val path = it.path
-                val pos = songQueue.getSongPos(path)
+                val pos = playlist.getSongPos(path)
                 MiniPlayerServiceSong(path, pos)
             }.toTypedArray()
             AudlayerApp.db?.let {
@@ -385,7 +388,7 @@ abstract class MiniPlayerService : Service() {
         rewindJob.cancel()
     }
 
-    private fun sendInfoToUI(song: File = songQueue.getSong()) {
+    private fun sendInfoToUI(song: File = playlist.getSong()) {
         //send info
         sendSongNameAndArtist(song)
         sendDurationSong(player)

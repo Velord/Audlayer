@@ -2,6 +2,6 @@ package velord.university.interactor
 
 import java.io.File
 
-object SongQueryInteractor {
+object SongPlaylistInteractor {
     lateinit var songs: Array<File>
 }

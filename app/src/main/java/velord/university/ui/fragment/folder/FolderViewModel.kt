@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
 import velord.university.application.settings.SearchQueryPreferences
-import velord.university.interactor.SongQueryInteractor
+import velord.university.interactor.SongPlaylistInteractor
 import java.io.File
 
 class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
@@ -40,7 +40,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun playAudioFile(file: File) {
        MiniPlayerBroadcastPlayByPath.apply {
-           SongQueryInteractor.songs = fileList
+           SongPlaylistInteractor.songs = fileList
            app.sendBroadcastPlayByPath(file.path)
        }
     }

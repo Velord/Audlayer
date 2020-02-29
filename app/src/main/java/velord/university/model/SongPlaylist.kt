@@ -2,7 +2,7 @@ package velord.university.model
 
 import java.io.File
 
-class SongQueue(val songs: MutableList<File> = mutableListOf()) {
+class SongPlaylist(val songs: MutableList<File> = mutableListOf()) {
 
     private var currentPos: Int = 0
 
