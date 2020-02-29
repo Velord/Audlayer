@@ -1,0 +1,34 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group android:checkableBehavior="single">
+
+        <item android:id="@+id/folder_sort_by_name"
+            android:title="@string/pop_up_menu_item_sort_by_name"
+            android:checkable="true"
+            app:showAsAction="ifRoom"/>
+
+        <item android:id="@+id/folder_sort_by_artist"
+            android:title="@string/pop_up_menu_item_sort_by_artist"
+            android:checkable="true"
+            app:showAsAction="ifRoom"/>
+
+        <item android:id="@+id/folder_sort_by_date_added"
+            android:title="@string/pop_up_menu_item_sort_by_date_added"
+            android:checkable="true"
+            app:showAsAction="ifRoom"/>
+
+    </group>
+
+    <group android:checkableBehavior="single">
+
+        <item android:id="@+id/folder_sort_by_ascending_order"
+            android:title="@string/pop_up_menu_item_sort_by_ascending_order"
+            app:showAsAction="ifRoom"/>
+
+        <item android:id="@+id/folder_sort_by_descending_order"
+            android:title="@string/pop_up_menu_item_sort_by_descending_order"
+            app:showAsAction="ifRoom"/>
+
+    </group>
+</menu>

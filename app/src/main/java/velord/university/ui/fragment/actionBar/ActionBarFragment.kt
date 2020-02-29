@@ -44,7 +44,11 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
     private fun initActionButton(view: View) {
         actionButton = view.findViewById(R.id.action_bar_action)
 
-        velord.university.ui.initActionButton(
+        rearwardActionButton()
+    }
+
+    protected fun rearwardActionButton() {
+        velord.university.ui.setupPopupMenuOnClick(
             requireContext(),
             actionButton,
             initActionMenuStyle,

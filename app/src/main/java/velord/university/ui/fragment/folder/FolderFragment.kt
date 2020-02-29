@@ -16,6 +16,7 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import velord.university.R
 import velord.university.application.broadcast.*
 import velord.university.application.permission.PermissionChecker
+import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileExtension
 import velord.university.model.FileExtensionModifier
@@ -61,6 +62,87 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
             R.id.action_folder_show_incompatible_files -> {
                 TODO()
             }
+            R.id.action_folder_sort_by -> {
+                val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
+                val initActionMenuLayout = { R.menu.folder_sort_by }
+                val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
+                    when (it.itemId) {
+                        R.id.folder_sort_by_name -> {
+                            SortByPreference.setNameArtistDateAdded(requireContext(), 0)
+
+                            updateAdapterBySearchQuery(viewModel.currentQuery)
+
+                            super.rearwardActionButton()
+                            true
+                        }
+                        R.id.folder_sort_by_artist -> {
+                            SortByPreference.setNameArtistDateAdded(requireContext(), 1)
+
+                            updateAdapterBySearchQuery(viewModel.currentQuery)
+
+                            super.rearwardActionButton()
+                            true
+                        }
+                        R.id.folder_sort_by_date_added -> {
+                            SortByPreference.setNameArtistDateAdded(requireContext(), 2)
+
+                            updateAdapterBySearchQuery(viewModel.currentQuery)
+
+                            super.rearwardActionButton()
+                            true                        }
+                        R.id.folder_sort_by_ascending_order -> {
+                            SortByPreference.setAscDesc(requireContext(), 0)
+
+                            updateAdapterBySearchQuery(viewModel.currentQuery)
+
+                            super.rearwardActionButton()
+                            true
+                        }
+                        R.id.folder_sort_by_descending_order -> {
+                            SortByPreference.setAscDesc(requireContext(), 1)
+
+                            updateAdapterBySearchQuery(viewModel.currentQuery)
+
+                            super.rearwardActionButton()
+                            true
+                        }
+                        else -> {
+                            super.rearwardActionButton()
+                            false
+                        }
+                    }
+                }
+
+                velord.university.ui.setupPopupMenuOnClick(
+                    requireContext(),
+                    super.actionButton,
+                    initActionMenuStyle,
+                    initActionMenuLayout,
+                    initActionMenuItemClickListener
+                ).also {
+                    //set up checked item
+                    val menuItem = it.menu
+
+                    val nameArtistDateOrder =
+                        SortByPreference.getNameArtistDateAdded(requireContext())
+                    when(nameArtistDateOrder) {
+                        0 -> { menuItem.getItem(0).isChecked = true }
+                        1 -> { menuItem.getItem(1).isChecked = true }
+                        2 -> { menuItem.getItem(2).isChecked = true }
+                    }
+
+                    val ascDescOrder = SortByPreference.getAscDesc(requireContext())
+                    when(ascDescOrder) {
+                        0 -> { menuItem.getItem(3).isChecked = true }
+                        1 -> { menuItem.getItem(4).isChecked = true }
+                        else -> {}
+                    }
+                }
+
+                //invoke immediately popup menu
+                super.actionButton.callOnClick()
+                true
+            }
             else -> {
                 false
             }
@@ -105,20 +187,17 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
 
     private fun updateAdapterBySearchQuery(searchTerm: String) {
         fun _setupAdapter(file: File = Environment.getExternalStorageDirectory(),
-                        //default filter
-                         filter: (File, String) -> Boolean = FileFilter.filterByEmptySearchQuery
+                            //default filter
+                          filter: (File, String) -> Boolean = FileFilter.filterByEmptySearchQuery
         ) {
             //while permission is not granted
             if (checkPermission().not()) _setupAdapter(file, filter)
             //now do everything to setup adapter
             changeCurrentTextView(file)
-            val filesInFolder = viewModel.getFilesInCurrentFolder()
-            //if you would see not compatible format
-            //just remove or comment 2 lines bottom
-            val compatibleFileFormat =
-                filesInFolder.filter { filter(it, searchTerm) }
 
-            viewModel.fileList = compatibleFileFormat.toTypedArray()
+            //apply all filters to recycler view
+            viewModel.fileList =
+                viewModel.filterAndSortFiles(requireContext(), filter, searchTerm)
             rv.adapter = FileAdapter(viewModel.fileList)
         }
 
@@ -216,13 +295,15 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                             }
                         }
 
-                        velord.university.ui.initActionButton(
+                        velord.university.ui.setupPopupMenuOnClick(
                             requireContext(),
                             fileActionImageButton,
                             initActionMenuStyle,
                             initActionMenuLayout,
                             initActionMenuItemClickListener
                         )
+
+                        Unit
                     }
 
                     setOnClick(action, popUpAction)
@@ -273,13 +354,15 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                             }
                         }
 
-                        velord.university.ui.initActionButton(
+                        velord.university.ui.setupPopupMenuOnClick(
                             requireContext(),
                             fileActionImageButton,
                             initActionMenuStyle,
                             initActionMenuLayout,
                             initActionMenuItemClickListener
                         )
+
+                        Unit
                     }
                     setOnClick(action, popUpAction)
                     fileIconImageButton.setImageResource(R.drawable.extension_file_song)

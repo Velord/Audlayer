@@ -30,4 +30,17 @@ object FileFilter {
         FileExtension.checkCompatibleFileExtension(file) !=
                 FileExtensionModifier.NOTCOMPATIBLE
     }
+
+    val orderByName: (File) -> String = {
+        FileNameParser.getSongName(it)
+    }
+
+    val orderByArtist: (File) -> String = {
+        FileNameParser.getSongArtist(it)
+    }
+
+    val orderByDateAdded: (File) -> Long = {
+        it.lastModified()
+    }
+
 }
