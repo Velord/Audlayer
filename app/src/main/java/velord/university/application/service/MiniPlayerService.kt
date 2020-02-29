@@ -100,7 +100,6 @@ abstract class MiniPlayerService : Service() {
     }
 
     protected fun playByPath(path: String) {
-        //filter songs by received filter after that play it
         clearSongQueue()
         addToSongQueue(SongPlaylistInteractor.songs.toList())
         playNext(path)
@@ -248,6 +247,9 @@ abstract class MiniPlayerService : Service() {
 
     private fun addToSongQueue(list: List<File>) {
         playlist.songs.addAll(list)
+        //restore shuffle state
+        if (QueueResolver.shuffleState)
+            shuffleOn()
         storeQueue()
     }
 
