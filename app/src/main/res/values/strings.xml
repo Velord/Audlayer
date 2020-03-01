@@ -11,6 +11,7 @@
     <string name="songs">Songs</string>
     <string name="radio">Radio</string>
     <string name="vk">VK</string>
+    <string name="add_song_hint">Choose Song</string>
     <string name="mini_player_song_no_information">No Song Are Selected</string>
     <string name="mini_player_song_high_quality">HQ</string>
     <string name="mini_player_song_image">Image of song</string>

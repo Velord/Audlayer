@@ -9,6 +9,14 @@
         android:title="@string/pop_up_menu_item_add_to_home_screen"
         app:showAsAction="ifRoom"/>
 
+    <item android:id="@+id/action_folder_create_playlist"
+        android:title="@string/pop_up_menu_item_create_playlist"
+        app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_folder_add_to_playlist"
+        android:title="@string/pop_up_menu_item_add_to_playlist"
+        app:showAsAction="ifRoom"/>
+
     <item android:id="@+id/action_folder_sort_by"
         android:title="@string/pop_up_menu_item_sort_by"
         app:showAsAction="ifRoom"/>

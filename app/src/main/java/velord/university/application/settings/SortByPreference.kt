@@ -9,7 +9,7 @@ private const val PREF_SORT_BY_NAME_ARTIST_DATEADDED = "NameArtistDateAdded"
 
 object SortByPreference {
 
-    fun setAscDesc(
+    fun setAscDescFolderFragment(
         context: Context,
         order: Int,
         key: String = PREF_SORT_BY_ORDER_ASC_DEC
@@ -19,14 +19,14 @@ object SortByPreference {
                 putInt(key, order)
             }
 
-    fun getAscDesc(
+    fun getAscDescFolderFragment(
         context: Context,
         key: String = PREF_SORT_BY_ORDER_ASC_DEC
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .getInt(key, -1)
 
-    fun setNameArtistDateAdded(
+    fun setNameArtistDateAddedFolderFragment(
         context: Context,
         pos: Int,
         key: String = PREF_SORT_BY_NAME_ARTIST_DATEADDED
@@ -36,7 +36,41 @@ object SortByPreference {
                 putInt(key, pos)
             }
 
-    fun getNameArtistDateAdded(
+    fun getNameArtistDateAddedFolderFragment(
+        context: Context,
+        key: String = PREF_SORT_BY_NAME_ARTIST_DATEADDED
+    ) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .getInt(key, -1)
+
+    fun setAscDescSongAddFragment(
+        context: Context,
+        order: Int,
+        key: String = PREF_SORT_BY_ORDER_ASC_DEC
+    ) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .edit {
+                putInt(key, order)
+            }
+
+    fun getAscDescSongAddFragment(
+        context: Context,
+        key: String = PREF_SORT_BY_ORDER_ASC_DEC
+    ) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .getInt(key, -1)
+
+    fun setNameArtistDateAddedSongAddFragment(
+        context: Context,
+        pos: Int,
+        key: String = PREF_SORT_BY_NAME_ARTIST_DATEADDED
+    ) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .edit {
+                putInt(key, pos)
+            }
+
+    fun getNameArtistDateAddedSongAddFragment(
         context: Context,
         key: String = PREF_SORT_BY_NAME_ARTIST_DATEADDED
     ) =

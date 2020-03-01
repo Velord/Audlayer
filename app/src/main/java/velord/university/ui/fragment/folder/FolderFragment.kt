@@ -1,5 +1,6 @@
 package velord.university.ui.fragment.folder
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -8,7 +9,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,6 +32,15 @@ import java.io.File
 
 class FolderFragment : ActionBarFragment(), BackPressedHandler {
 
+    //Required interface for hosting activities
+    interface Callbacks {
+        fun onCreatePlaylist()
+
+        fun onAddToPlaylist()
+    }
+
+    private var callbacks: Callbacks? =  null
+
     override val TAG: String = "FolderFragment"
 
     companion object {
@@ -41,6 +53,16 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
 
     private lateinit var rv: RecyclerView
     private lateinit var currentFolderTextView: TextView
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,11 +86,11 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
             }
             R.id.action_folder_sort_by -> {
                 val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
-                val initActionMenuLayout = { R.menu.folder_sort_by }
+                val initActionMenuLayout = { R.menu.sort_by }
                 val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                     when (it.itemId) {
                         R.id.folder_sort_by_name -> {
-                            SortByPreference.setNameArtistDateAdded(requireContext(), 0)
+                            SortByPreference.setNameArtistDateAddedFolderFragment(requireContext(), 0)
 
                             updateAdapterBySearchQuery(viewModel.currentQuery)
 
@@ -76,7 +98,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                             true
                         }
                         R.id.folder_sort_by_artist -> {
-                            SortByPreference.setNameArtistDateAdded(requireContext(), 1)
+                            SortByPreference.setNameArtistDateAddedFolderFragment(requireContext(), 1)
 
                             updateAdapterBySearchQuery(viewModel.currentQuery)
 
@@ -84,14 +106,14 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                             true
                         }
                         R.id.folder_sort_by_date_added -> {
-                            SortByPreference.setNameArtistDateAdded(requireContext(), 2)
+                            SortByPreference.setNameArtistDateAddedFolderFragment(requireContext(), 2)
 
                             updateAdapterBySearchQuery(viewModel.currentQuery)
 
                             super.rearwardActionButton()
                             true                        }
                         R.id.folder_sort_by_ascending_order -> {
-                            SortByPreference.setAscDesc(requireContext(), 0)
+                            SortByPreference.setAscDescFolderFragment(requireContext(), 0)
 
                             updateAdapterBySearchQuery(viewModel.currentQuery)
 
@@ -99,7 +121,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                             true
                         }
                         R.id.folder_sort_by_descending_order -> {
-                            SortByPreference.setAscDesc(requireContext(), 1)
+                            SortByPreference.setAscDescFolderFragment(requireContext(), 1)
 
                             updateAdapterBySearchQuery(viewModel.currentQuery)
 
@@ -124,14 +146,14 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                     val menuItem = it.menu
 
                     val nameArtistDateOrder =
-                        SortByPreference.getNameArtistDateAdded(requireContext())
+                        SortByPreference.getNameArtistDateAddedFolderFragment(requireContext())
                     when(nameArtistDateOrder) {
                         0 -> { menuItem.getItem(0).isChecked = true }
                         1 -> { menuItem.getItem(1).isChecked = true }
                         2 -> { menuItem.getItem(2).isChecked = true }
                     }
 
-                    val ascDescOrder = SortByPreference.getAscDesc(requireContext())
+                    val ascDescOrder = SortByPreference.getAscDescFolderFragment(requireContext())
                     when(ascDescOrder) {
                         0 -> { menuItem.getItem(3).isChecked = true }
                         1 -> { menuItem.getItem(4).isChecked = true }
@@ -143,10 +165,22 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                 super.actionButton.callOnClick()
                 true
             }
+            R.id.action_folder_add_to_playlist -> {
+                openCreatePlaylistFragment(viewModel.currentFolder)
+                true
+            }
+            R.id.action_folder_create_playlist -> {
+                openCreatePlaylistFragment(viewModel.currentFolder)
+                true
+            }
             else -> {
                 false
             }
         }
+    }
+
+    override val initHintTextView: (TextView) -> Unit = {
+        it.text = "Find Audio"
     }
 
     override val initActionMenuLayout: () -> Int = {
@@ -157,6 +191,17 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         R.style.PopupMenuOverlapAnchorFolder
     }
 
+    override val initLeftMenu: (ImageButton) -> Unit = {  }
+
+    override val initPopUpMenuOnActionButton: (PopupMenu) -> Unit = {}
+
+    override val observeSearchTerm: (String) -> Unit = { searchTerm ->
+        //store search term in shared preferences
+        viewModel.storeCurrentFolderSearchQuery(searchTerm)
+        //update files list
+        updateAdapterBySearchQuery(searchTerm)
+    }
+
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
 
@@ -165,11 +210,20 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         return true
     }
 
-    override val observeSearchTerm: (String) -> Unit = { searchTerm ->
-        //store search term in shared preferences
-        viewModel.storeCurrentFolderSearchQuery(searchTerm)
-        //update files list
-        updateAdapterBySearchQuery(searchTerm)
+    private fun openCreatePlaylistFragment(file: File) {
+        callbacks?.let {
+            val songs = FileFilter
+                .filterOnlyAudio(file)
+                .toTypedArray()
+
+            if (songs.isNotEmpty()) {
+                SongPlaylistInteractor.songs = songs
+                it.onCreatePlaylist()
+            }
+            else
+                Toast.makeText(requireContext(), "No one Song", Toast.LENGTH_SHORT)
+                    .show()
+        }
     }
 
     private fun initViews(view: View) {
@@ -216,7 +270,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
     private fun checkPermission(): Boolean =
         PermissionChecker
                 .checkThenRequestReadWriteExternalStoragePermission(
-                    this.requireContext(), this.requireActivity())
+                    requireContext(), requireActivity())
 
     private fun changeCurrentTextView(file: File) {
         val pathToUI = FileNameParser.slashReplaceArrow(file.path)
@@ -272,10 +326,12 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_add_to_playlist -> {
-                                    TODO()
+                                    openCreatePlaylistFragment(file)
+                                    true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_create_playlist -> {
-                                    TODO()
+                                    openCreatePlaylistFragment(file)
+                                    true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_shuffle -> {
                                     MiniPlayerBroadcastShuffleAndPlayAllInFolder.apply {

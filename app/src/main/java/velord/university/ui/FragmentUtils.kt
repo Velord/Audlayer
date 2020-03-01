@@ -3,7 +3,7 @@ package velord.university.ui
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
-val addFragment: (FragmentManager, Fragment, Int) -> Unit =
+val replaceFragment: (FragmentManager, Fragment, Int) -> Unit =
     { fm, fragment, containerId ->
         fm.beginTransaction()
             .replace(containerId, fragment)
@@ -17,12 +17,13 @@ val initFragment: (FragmentManager, Fragment, Int) -> Unit =
             fm.findFragmentById(containerId)
 
         if (currentFragment == null)
-            addFragment(fm, fragment, containerId)
+            replaceFragment(fm, fragment, containerId)
     }
 
-val replaceFragment: (FragmentManager, Fragment, Int) -> Unit =
+val addFragment: (FragmentManager, Fragment, Int) -> Unit =
     { fm,  fragment, containerId ->
         fm.beginTransaction()
             .add(containerId, fragment)
+            .addToBackStack(null)
             .commit()
     }

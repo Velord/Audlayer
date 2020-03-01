@@ -3,10 +3,7 @@ package velord.university.ui.fragment.actionBar
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.ImageButton
-import android.widget.SearchView
-import android.widget.TextView
+import android.widget.*
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
@@ -29,21 +26,37 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
 
     protected fun initActionBar(view: View) {
         actionBarFrame = view.findViewById(R.id.action_bar_frame_layout)
-        menu = view.findViewById(R.id.action_bar_settings)
+
+        initMenuButton(view)
 
         initSearchView(view)
 
-        hint = view.findViewById(R.id.action_bar_hint)
+        initHint(view)
+
         initActionButton(view)
     }
+
+    abstract val observeSearchTerm: (String) -> Unit
 
     abstract val initActionMenuStyle: () -> Int
     abstract val initActionMenuItemClickListener: (MenuItem) -> Boolean
     abstract val initActionMenuLayout: () -> Int
+    abstract val initLeftMenu: (ImageButton) -> Unit
+    abstract val initHintTextView: (TextView) -> Unit
+    abstract val initPopUpMenuOnActionButton: (PopupMenu) -> Unit
+
+    private fun initHint(view: View) {
+        hint = view.findViewById(R.id.action_bar_hint)
+        initHintTextView(hint)
+    }
+
+    private fun initMenuButton(view: View) {
+        menu = view.findViewById(R.id.action_bar_settings)
+        initLeftMenu(menu)
+    }
 
     private fun initActionButton(view: View) {
         actionButton = view.findViewById(R.id.action_bar_action)
-
         rearwardActionButton()
     }
 
@@ -54,7 +67,9 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
             initActionMenuStyle,
             initActionMenuLayout,
             initActionMenuItemClickListener
-        )
+        ).also {
+            initPopUpMenuOnActionButton(it)
+        }
     }
 
     private fun initSearchView(view: View) {
@@ -135,6 +150,4 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
             }
        )
     }
-
-    abstract val observeSearchTerm: (String) -> Unit
 }

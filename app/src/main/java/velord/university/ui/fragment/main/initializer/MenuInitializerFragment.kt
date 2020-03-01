@@ -140,6 +140,10 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
     private fun openFolderFragment() {
         Log.d(TAG, "opening FolderFragment")
         menuMemberViewPager.currentItem = 0
+        //when user press on folder and current folder is not default pressed back should occur
+        val folderFragment = fragmentHashMap[0] as FolderFragment
+        if(folderFragment.focusOnMe())
+                folderFragment.onBackPressed()
     }
 
     private fun openAlbumFragment() {

@@ -8,14 +8,18 @@ import androidx.lifecycle.ViewModelProviders
 import velord.university.R
 import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
 import velord.university.application.settings.AppPreference
+import velord.university.ui.BackPressedHandlerFirst
+import velord.university.ui.addFragment
 import velord.university.ui.fragment.BackPressedHandler
+import velord.university.ui.fragment.addToPlaylist.AddSongFragment
+import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.main.MainFragment
 import velord.university.ui.initFragment
 
 
 private const val TAG ="MainActivity"
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), FolderFragment.Callbacks, AddSongFragment.Callbacks {
 
     private val fm = supportFragmentManager
 
@@ -39,12 +43,30 @@ class MainActivity : AppCompatActivity() {
         viewModel
     }
 
+    override fun onDestroy() {
+        Log.d(TAG, "called onDestroy")
+        super.onDestroy()
+        stopService(Intent(this, MiniPlayerServiceBroadcastReceiver().javaClass))
+
+        AppPreference.setAppIsDestroyed(this, false)
+    }
+
     override fun onBackPressed() {
-       Log.d(TAG, "onBackPressed")
+        Log.d(TAG, "onBackPressed")
 
         val fragments = supportFragmentManager.fragments
 
         var handled = false
+
+        for (fragment in fragments) {
+            if (fragment is BackPressedHandlerFirst) {
+                handled = fragment.onBackPressed()
+                if (handled) {
+                    return
+                }
+            }
+        }
+
         for (fragment in fragments) {
             if (fragment is BackPressedHandler) {
                 handled = fragment.onBackPressed()
@@ -63,12 +85,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        Log.d(TAG, "called onDestroy")
-        super.onDestroy()
-        stopService(Intent(this, MiniPlayerServiceBroadcastReceiver().javaClass))
+    override fun onAddToPlaylist() {
+        onCreatePlaylist()
+    }
 
-        AppPreference.setAppIsDestroyed(this, false)
+    override fun onCreatePlaylist() {
+        addFragment(
+            fm,
+            AddSongFragment(),
+            R.id.main_container
+        )
+    }
+
+    override fun addSongOnBackPressed() {
+        fm.popBackStackImmediate()
     }
 }
 

@@ -42,22 +42,17 @@
             android:textColor="@color/mini_player_gray" />
     </LinearLayout>
 
-    <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-        android:id="@+id/current_folder_RecyclerView"
+    <FrameLayout
+        android:id="@+id/folder_fragment_rv_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:fastScrollAutoHide="true"
-        app:fastScrollAutoHideDelay="1500"
-        app:fastScrollPopupBgColor="@color/fragmentBackgroundDarkerOpacity"
-        app:fastScrollPopupTextColor="@android:color/primary_text_dark"
-        app:fastScrollThumbColor="@color/fragmentBackgroundDarkerOpacity"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/current_folder_layout">
 
-    </com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView>
+        <include layout="@layout/current_folder_rv"></include>
+    </FrameLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
