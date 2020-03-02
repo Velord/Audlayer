@@ -9,9 +9,12 @@ import velord.university.R
 import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
 import velord.university.application.settings.AppPreference
 import velord.university.ui.BackPressedHandlerFirst
+import velord.university.ui.BackPressedHandlerSecond
 import velord.university.ui.addFragment
 import velord.university.ui.fragment.BackPressedHandler
-import velord.university.ui.fragment.addToPlaylist.AddSongFragment
+import velord.university.ui.fragment.addToPlaylist.AddToPlaylist
+import velord.university.ui.fragment.addToPlaylist.CreateNewPlaylistDialogFragment
+import velord.university.ui.fragment.addToPlaylist.SelectSongFragment
 import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.main.MainFragment
 import velord.university.ui.initFragment
@@ -19,7 +22,11 @@ import velord.university.ui.initFragment
 
 private const val TAG ="MainActivity"
 
-class MainActivity : AppCompatActivity(), FolderFragment.Callbacks, AddSongFragment.Callbacks {
+class MainActivity : AppCompatActivity(),
+    FolderFragment.Callbacks,
+    SelectSongFragment.Callbacks,
+    AddToPlaylist.Callbacks,
+    CreateNewPlaylistDialogFragment.Callbacks {
 
     private val fm = supportFragmentManager
 
@@ -59,9 +66,20 @@ class MainActivity : AppCompatActivity(), FolderFragment.Callbacks, AddSongFragm
         var handled = false
 
         for (fragment in fragments) {
+            if (fragment is BackPressedHandlerSecond) {
+                handled = fragment.onBackPressed()
+                if (handled) {
+                    fm.popBackStackImmediate()
+                    return
+                }
+            }
+        }
+
+        for (fragment in fragments) {
             if (fragment is BackPressedHandlerFirst) {
                 handled = fragment.onBackPressed()
                 if (handled) {
+                    fm.popBackStackImmediate()
                     return
                 }
             }
@@ -71,7 +89,7 @@ class MainActivity : AppCompatActivity(), FolderFragment.Callbacks, AddSongFragm
             if (fragment is BackPressedHandler) {
                 handled = fragment.onBackPressed()
                 if (handled) {
-                    break
+                    return
                 }
             }
         }
@@ -86,19 +104,45 @@ class MainActivity : AppCompatActivity(), FolderFragment.Callbacks, AddSongFragm
     }
 
     override fun onAddToPlaylist() {
-        onCreatePlaylist()
-    }
-
-    override fun onCreatePlaylist() {
         addFragment(
             fm,
-            AddSongFragment(),
+            SelectSongFragment(),
             R.id.main_container
         )
     }
 
-    override fun addSongOnBackPressed() {
+    override fun onCreatePlaylist() {
+        openCreateNewPlaylistDialogFragment()
+    }
+
+    override fun onAddToPlaylistFromAddSongFragment() {
         fm.popBackStackImmediate()
+        openAddToPlaylistFragment()
+    }
+
+    override fun openCreateNewPlaylistDialogFragment() {
+        CreateNewPlaylistDialogFragment()
+            .show(fm, "CreateNewPlaylistDialogFragment")
+    }
+
+    override fun succes() {
+        onBackPressed()
+    }
+
+    override fun closeAddToPlaylistFragment() {
+        onBackPressed()
+    }
+
+    override fun onAddToPlaylistFromFolderFragment() {
+        openAddToPlaylistFragment()
+    }
+
+    private fun openAddToPlaylistFragment() {
+        addFragment(
+            fm,
+            AddToPlaylist(),
+            R.id.main_container
+        )
     }
 }
 

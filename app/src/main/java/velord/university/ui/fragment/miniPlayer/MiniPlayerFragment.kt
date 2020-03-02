@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import velord.university.R
 import velord.university.application.broadcast.*
-import velord.university.model.SongTimeConverter
+import velord.university.model.converter.SongTimeConverter
 import velord.university.ui.fragment.miniPlayer.logic.*
 
 class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastReceiver {

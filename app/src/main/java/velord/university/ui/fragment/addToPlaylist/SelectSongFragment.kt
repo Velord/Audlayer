@@ -7,14 +7,12 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.ImageButton
-import android.widget.PopupMenu
-import android.widget.TextView
+import android.widget.*
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.permission.PermissionChecker
 import velord.university.application.settings.SortByPreference
@@ -25,26 +23,30 @@ import velord.university.ui.BackPressedHandlerFirst
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import java.io.File
 
-class AddSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
-
+class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
     //Required interface for hosting activities
     interface Callbacks {
-        fun addSongOnBackPressed()
+        fun onAddToPlaylistFromAddSongFragment()
     }
-
     private var callbacks: Callbacks? =  null
 
     override val TAG: String = "AddSongFragment"
 
     companion object {
-        fun newInstance() = AddSongFragment()
+        fun newInstance() = SelectSongFragment()
     }
 
     private val viewModel by lazy {
-        ViewModelProviders.of(this).get(AddSongViewModel::class.java)
+        ViewModelProviders.of(this).get(SelectSongViewModel::class.java)
     }
 
+    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+
     private lateinit var rv: RecyclerView
+    private lateinit var selectAllButton: Button
+    private lateinit var continueButton: Button
+
+    private val checked = mutableListOf<String>()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -70,7 +72,42 @@ class AddSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
 
     private fun initViews(view: View) {
         super.initActionBar(view)
+        initSelectAll(view)
+        initContinue(view)
         initRV(view)
+    }
+
+    private fun initSelectAll(view: View) {
+        selectAllButton = view.findViewById(R.id.add_song_select_all)
+        selectAllButton.setOnClickListener {
+            scope.launch {
+                val checkedAll = checked.size == viewModel.fileList.size
+                checked.clear()
+                if (checkedAll.not())
+                    viewModel.fileList.forEach {
+                        checked += it.path
+                    }
+
+                withContext(Dispatchers.Main) {
+                    updateAdapterBySearchQuery(viewModel.currentQuery)
+                }
+            }
+        }
+    }
+
+    private fun initContinue(view: View) {
+        continueButton = view.findViewById(R.id.add_song_continue)
+        continueButton.setOnClickListener {
+            callbacks?.let {
+                if (checked.isNotEmpty()) {
+                    SongPlaylistInteractor.songsPath = checked.toTypedArray()
+                    it.onAddToPlaylistFromAddSongFragment()
+                }
+                else Toast.makeText(requireContext(),
+                        "Choose anyone song", Toast.LENGTH_SHORT)
+                        .show()
+            }
+        }
     }
 
     private fun initRV(view: View) {
@@ -82,10 +119,8 @@ class AddSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
-        callbacks?.addSongOnBackPressed()
         return true
     }
-
     // action bar ovveriding
     override val observeSearchTerm: (String) -> Unit = { searchTerm ->
         //store search term in shared preferences
@@ -93,7 +128,7 @@ class AddSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
         //update files list
         updateAdapterBySearchQuery(searchTerm)
     }
-    override val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
+    override val initActionPopUpMenuItemClickListener: (MenuItem) -> Boolean = {
         when (it.itemId) {
             R.id.folder_sort_by_name -> {
                 SortByPreference.setNameArtistDateAddedSongAddFragment(requireContext(), 0)
@@ -129,10 +164,10 @@ class AddSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
             }
         }
     }
-    override val initActionMenuLayout: () -> Int = {
+    override val initActionPopUpMenuLayout: () -> Int = {
         R.menu.sort_by
     }
-    override val initActionMenuStyle: () -> Int = {
+    override val initActionPopUpMenuStyle: () -> Int = {
         R.style.PopupMenuOverlapAnchorFolder
     }
     override val initHintTextView: (TextView) -> Unit = {
@@ -206,22 +241,38 @@ class AddSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
             fileIconImageButton.apply {
                 setImageResource(R.drawable.extension_file_song)
                 setOnClickListener {
+                    if (fileCheckBox.isChecked)
+                        checked -= file.path
+                    else
+                        checked += file.path
                     fileCheckBox.isChecked = !(fileCheckBox.isChecked)
                 }
             }
             pathTextView.setOnClickListener {
+                if (fileCheckBox.isChecked)
+                    checked -= file.path
+                else
+                    checked += file.path
                 fileCheckBox.isChecked = !(fileCheckBox.isChecked)
             }
 
             fileCheckBox.setOnClickListener {
-                fileCheckBox.isChecked = !(fileCheckBox.isChecked)
+                //this is strange but it's right behaviour
+                if (fileCheckBox.isChecked)
+                    checked += file.path
+                else
+                    checked -= file.path
             }
         }
-
 
         fun bindItem(file: File, position: Int) {
             setOnClickAndImageResource(file)
             pathTextView.text = FileNameParser.removeExtension(file)
+
+            if (file.path in checked)
+                fileCheckBox.isChecked = true
+            else
+                fileCheckBox.isChecked = false
         }
     }
 

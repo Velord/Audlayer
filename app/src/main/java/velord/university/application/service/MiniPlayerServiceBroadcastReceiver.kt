@@ -17,7 +17,7 @@ import velord.university.application.broadcast.MiniPlayerBroadcastSongDuration.s
 import velord.university.application.broadcast.MiniPlayerBroadcastUnShuffle.sendBroadcastUnShuffleUI
 import velord.university.application.broadcast.MiniPlayerBroadcastUnlike.sendBroadcastUnlikeUI
 import velord.university.model.QueueResolver
-import velord.university.model.SongTimeConverter
+import velord.university.model.converter.SongTimeConverter
 
 class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadcastReceiverService {
 

@@ -31,14 +31,14 @@ import java.io.File
 
 
 class FolderFragment : ActionBarFragment(), BackPressedHandler {
-
     //Required interface for hosting activities
     interface Callbacks {
         fun onCreatePlaylist()
 
         fun onAddToPlaylist()
-    }
 
+        fun onAddToPlaylistFromFolderFragment()
+    }
     private var callbacks: Callbacks? =  null
 
     override val TAG: String = "FolderFragment"
@@ -76,7 +76,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         }
     }
 
-    override val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
+    override val initActionPopUpMenuItemClickListener: (MenuItem) -> Boolean = {
         when (it.itemId) {
             R.id.action_folder_add_to_home_screen -> {
                 TODO()
@@ -166,7 +166,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                 true
             }
             R.id.action_folder_add_to_playlist -> {
-                openCreatePlaylistFragment(viewModel.currentFolder)
+                openAddToPlaylistFragment(viewModel.currentFolder)
                 true
             }
             R.id.action_folder_create_playlist -> {
@@ -183,17 +183,17 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         it.text = "Find Audio"
     }
 
-    override val initActionMenuLayout: () -> Int = {
+    override val initActionPopUpMenuLayout: () -> Int = {
         R.menu.action_bar_folder_pop_up
     }
 
-    override val initActionMenuStyle: () -> Int = {
+    override val initActionPopUpMenuStyle: () -> Int = {
         R.style.PopupMenuOverlapAnchorFolder
     }
 
     override val initLeftMenu: (ImageButton) -> Unit = {  }
 
-    override val initPopUpMenuOnActionButton: (PopupMenu) -> Unit = {}
+    override val initPopUpMenuOnActionButton: (PopupMenu) -> Unit = { }
 
     override val observeSearchTerm: (String) -> Unit = { searchTerm ->
         //store search term in shared preferences
@@ -210,7 +210,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
         return true
     }
 
-    private fun openCreatePlaylistFragment(file: File) {
+    private fun openAddToPlaylistFragment(file: File) {
         callbacks?.let {
             val songs = FileFilter
                 .filterOnlyAudio(file)
@@ -218,6 +218,23 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
 
             if (songs.isNotEmpty()) {
                 SongPlaylistInteractor.songs = songs
+                it.onAddToPlaylist()
+            }
+            else
+                Toast.makeText(requireContext(), "No one Song", Toast.LENGTH_SHORT)
+                    .show()
+        }
+    }
+
+    private fun openCreatePlaylistFragment(file: File) {
+        callbacks?.let {
+            val songs = FileFilter
+                .filterOnlyAudio(file)
+                .map { it.path }
+                .toTypedArray()
+
+            if (songs.isNotEmpty()) {
+                SongPlaylistInteractor.songsPath = songs
                 it.onCreatePlaylist()
             }
             else
@@ -326,7 +343,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_add_to_playlist -> {
-                                    openCreatePlaylistFragment(file)
+                                    openAddToPlaylistFragment(file)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_create_playlist -> {
@@ -393,10 +410,11 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
-                                    TODO()
-                                }
-                                R.id.folder_recyclerView_item_isAudio_create_playlist -> {
-                                    TODO()
+                                    callbacks?.let {
+                                        SongPlaylistInteractor.songsPath = arrayOf(file.path)
+                                        it.onAddToPlaylistFromFolderFragment()
+                                    }
+                                    true
                                 }
                                 R.id.folder_recyclerView_item_isAudio_set_as_ringtone -> {
                                     TODO()

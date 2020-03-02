@@ -38,9 +38,9 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
 
     abstract val observeSearchTerm: (String) -> Unit
 
-    abstract val initActionMenuStyle: () -> Int
-    abstract val initActionMenuItemClickListener: (MenuItem) -> Boolean
-    abstract val initActionMenuLayout: () -> Int
+    abstract val initActionPopUpMenuStyle: () -> Int
+    abstract val initActionPopUpMenuItemClickListener: (MenuItem) -> Boolean
+    abstract val initActionPopUpMenuLayout: () -> Int
     abstract val initLeftMenu: (ImageButton) -> Unit
     abstract val initHintTextView: (TextView) -> Unit
     abstract val initPopUpMenuOnActionButton: (PopupMenu) -> Unit
@@ -64,9 +64,9 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
         velord.university.ui.setupPopupMenuOnClick(
             requireContext(),
             actionButton,
-            initActionMenuStyle,
-            initActionMenuLayout,
-            initActionMenuItemClickListener
+            initActionPopUpMenuStyle,
+            initActionPopUpMenuLayout,
+            initActionPopUpMenuItemClickListener
         ).also {
             initPopUpMenuOnActionButton(it)
         }
@@ -137,7 +137,7 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
                 //scroll down
                 if (dy > hideStartFrom) scroll_down = true
                 //scroll up
-                else if (dy < -showStartFrom) scroll_down = false
+                else if (dy < showStartFrom) scroll_down = false
             }
         })
     }

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/edit_name"
+    android:layout_width="wrap_content"
+    android:background="@color/colorPrimary"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center">
+
+    <TextView
+        android:id="@+id/create_new_playlist_hint"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:background="@color/colorPrimaryDark"
+        android:gravity="center"
+        android:text="@string/add_to_playlist_create_new"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/create_new_playlist_txt_your_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:hint="Type.."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/create_new_playlist_name"
+        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_hint" />
+
+    <TextView
+        android:id="@+id/create_new_playlist_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Name"
+        app:layout_constraintBottom_toBottomOf="@+id/create_new_playlist_txt_your_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_hint" />
+
+    <ImageButton
+        android:id="@+id/create_new_playlist_cancel"
+        android:layout_width="90dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_txt_your_name"
+        app:srcCompat="@drawable/back_green" />
+
+    <ImageButton
+        android:id="@+id/create_new_playlist_apply"
+        android:layout_width="90dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/create_new_playlist_cancel"
+        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_txt_your_name"
+        app:srcCompat="@drawable/heart_gray" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

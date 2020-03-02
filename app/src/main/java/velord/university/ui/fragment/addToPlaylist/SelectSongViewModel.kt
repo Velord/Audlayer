@@ -7,7 +7,7 @@ import velord.university.application.settings.SortByPreference
 import velord.university.model.FileFilter
 import java.io.File
 
-class AddSongViewModel(private val app: Application) : AndroidViewModel(app) {
+class SelectSongViewModel(private val app: Application) : AndroidViewModel(app) {
 
     val TAG = "AddSongViewModel"
 

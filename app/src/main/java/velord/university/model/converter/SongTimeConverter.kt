@@ -1,4 +1,4 @@
-package velord.university.model
+package velord.university.model.converter
 
 import android.widget.TextView
 
@@ -42,10 +42,14 @@ object SongTimeConverter {
 
     fun percentToSongTimeText(value: Int, view: TextView): String {
         val secondsInSong =
-            textToSeconds(view)
+            textToSeconds(
+                view
+            )
         val onePercent = (secondsInSong.toFloat() / 100.0)
         val sec = (value.toFloat() * onePercent).toInt()
-        return secondsToTimeText(sec)
+        return secondsToTimeText(
+            sec
+        )
     }
 
     fun millisecondsToSeconds(value: Int): Int = (value / 1000)
