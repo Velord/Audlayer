@@ -106,21 +106,21 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),  BackPressedHandlerSecond {
 
         private fun updatePlaylist(playlist: Playlist) {
             AudlayerApp.db?.let {
+                //update db
                 scope.launch {
                     playlist.songs += songsToPlaylist
                     it.playlistDao().update(playlist)
-
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Songs added: ${songsToPlaylist.size}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
                 }
-            }
-            callbacks?.let {
-                it.closeAddToPlaylistFragment()
+                //show user info
+                Toast.makeText(
+                    requireContext(),
+                    "Songs added: ${songsToPlaylist.size}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                //back pressed
+                callbacks?.let {
+                    it.closeAddToPlaylistFragment()
+                }
             }
         }
 

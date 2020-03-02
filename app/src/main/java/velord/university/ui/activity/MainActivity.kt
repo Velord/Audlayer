@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun closeAddToPlaylistFragment() {
-        onBackPressed()
+        super.onBackPressed()
     }
 
     override fun onAddToPlaylistFromFolderFragment() {
