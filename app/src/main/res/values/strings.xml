@@ -54,4 +54,8 @@
     <string name="pop_up_menu_item_sort_by_artist">Artist</string>
     <string name="pop_up_menu_item_sort_by_ascending_order">Ascending Order</string>
     <string name="pop_up_menu_item_sort_by_descending_order">Descending Order</string>
+    <string name="create_new_playlist_hint">Type...</string>
+    <string name="create_new_playlist_name">Name</string>
+    <string name="create_new_playlist_cancel">Cancel</string>
+    <string name="create_new_playlist_apply">Apply</string>
 </resources>

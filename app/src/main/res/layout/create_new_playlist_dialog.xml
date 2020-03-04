@@ -27,9 +27,9 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
+        android:hint="Type.."
         android:imeOptions="actionDone"
         android:inputType="text"
-        android:hint="Type.."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/create_new_playlist_name"
         app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_hint" />
@@ -40,35 +40,59 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:text="Name"
+        android:textSize="16sp"
+        android:text="@string/create_new_playlist_name"
         app:layout_constraintBottom_toBottomOf="@+id/create_new_playlist_txt_your_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_hint" />
 
-    <ImageButton
-        android:id="@+id/create_new_playlist_cancel"
-        android:layout_width="90dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
+    <LinearLayout
+        android:id="@+id/create_new_playlist_cancel_layout"
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
+        android:background="@color/dark"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_txt_your_name"
-        app:srcCompat="@drawable/back_green" />
+        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_txt_your_name">
 
-    <ImageButton
-        android:id="@+id/create_new_playlist_apply"
-        android:layout_width="90dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
+        <ImageButton
+            android:id="@+id/create_new_playlist_cancel"
+            style="@style/CreateNewPlaylistButton"
+            android:src="@drawable/cancel" />
+
+        <TextView
+            android:id="@+id/create_new_playlist_cancel_msg"
+            style="@style/CreateNewPlaylistTextView"
+            android:text="@string/create_new_playlist_cancel" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/create_new_playlist_apply_layout"
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        android:background="@color/dark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/create_new_playlist_cancel"
-        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_txt_your_name"
-        app:srcCompat="@drawable/heart_gray" />
+        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_txt_your_name">
+
+        <ImageButton
+            android:id="@+id/create_new_playlist_apply"
+            style="@style/CreateNewPlaylistButton"
+            android:src="@drawable/apply" />
+
+        <TextView
+            android:id="@+id/create_new_playlist_apply_msg"
+            style="@style/CreateNewPlaylistTextView"
+            android:text="@string/create_new_playlist_apply" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

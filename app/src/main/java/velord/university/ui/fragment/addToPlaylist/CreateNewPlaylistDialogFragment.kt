@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import kotlinx.coroutines.CoroutineScope
@@ -31,8 +32,10 @@ class CreateNewPlaylistDialogFragment : DialogFragment(){
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
     private lateinit var editText: EditText
-    private lateinit var cancel: ImageButton
-    private lateinit var apply: ImageButton
+    private lateinit var cancel: TextView
+    private lateinit var cancelImage: ImageButton
+    private lateinit var apply: TextView
+    private lateinit var applyImage: ImageButton
 
     private val songsToPlaylist = SongPlaylistInteractor.songsPath
 
@@ -83,30 +86,45 @@ class CreateNewPlaylistDialogFragment : DialogFragment(){
     }
 
     private fun initCancel(view: View) {
-        cancel = view.findViewById(R.id.create_new_playlist_cancel)
+        cancel = view.findViewById(R.id.create_new_playlist_cancel_msg)
+        cancelImage =  view.findViewById(R.id.create_new_playlist_cancel)
         cancel.setOnClickListener {
-            dismiss()
-            callbacks?.succes()
+            close()
+        }
+        cancelImage.setOnClickListener {
+            close()
         }
     }
 
+    private fun close() {
+        dismiss()
+        callbacks?.succes()
+    }
 
     private fun initApply(view: View) {
-        apply = view.findViewById(R.id.create_new_playlist_apply)
+        apply = view.findViewById(R.id.create_new_playlist_apply_msg)
+        applyImage = view.findViewById(R.id.create_new_playlist_apply)
         apply.setOnClickListener {
-            AudlayerApp.db?.let {
-                if (playlistName.isNotEmpty()) {
-                    scope.launch {
-                        val playlist = Playlist(playlistName,
-                                songsToPlaylist.toList())
-                        it.playlistDao().insertAll(playlist)
-                    }
-                    dismiss()
-                } else Toast.makeText(
-                    requireContext(),
-                    "Please Type Playlist Name",
-                    Toast.LENGTH_SHORT).show()
-            }
+            createNewPlaylist()
+        }
+        applyImage.setOnClickListener {
+            createNewPlaylist()
+        }
+    }
+
+    private fun createNewPlaylist() {
+        AudlayerApp.db?.let {
+            if (playlistName.isNotEmpty()) {
+                scope.launch {
+                    val playlist = Playlist(playlistName,
+                        songsToPlaylist.toList())
+                    it.playlistDao().insertAll(playlist)
+                }
+                dismiss()
+            } else Toast.makeText(
+                requireContext(),
+                "Please Type Playlist Name",
+                Toast.LENGTH_SHORT).show()
         }
     }
 }

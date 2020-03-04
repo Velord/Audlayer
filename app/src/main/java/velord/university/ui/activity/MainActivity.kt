@@ -82,11 +82,12 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onCreatePlaylist() {
+        backPressedToZeroLevel()
         openCreateNewPlaylistDialogFragment()
     }
 
     override fun onAddToPlaylistFromAddSongFragment() {
-        fm.popBackStackImmediate()
+        backPressedToZeroLevel()
         openAddToPlaylistFragment()
     }
 
