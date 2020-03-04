@@ -6,8 +6,11 @@
     <color name="colorPrimaryDarkOpacity">#CC003029</color>
     <color name="colorAccent">#273FB5</color>
     <color name="fragmentBackground">#030622</color>
-    <color name="fragmentBackgroundDarker">#00021B</color>
+    <color name="fragmentBackgroundDarker">#00022C</color>
     <color name="fragmentBackgroundDarkest">#000218</color>
+    <color name="fragmentBackgroundPurple">#4A148C</color>
+    <color name="fragmentBackgroundDarkerPurple">#2C004B</color>
+    <color name="fragmentBackgroundDarkestPurple">#140022</color>
     <color name="blue">#273FB5</color>
     <color name="blueShadow">#273FB5</color>
     <color name="dark">#000000</color>
@@ -20,7 +23,9 @@
     <color name="blueShadowOpacity">#33273FB5</color>
     <color name="darkOpacity">#33000000</color>
     <color name="menuArticle">#C8FFFFFF</color>
+    <color name="white">#FFFFFF</color>
     <color name="playerFragmentBackgroundDarkerOpacity">#4D00022C</color>
     <color name="menuFragmentBackgroundDarkestOpacity">#6600020E</color>
     <color name="popUpMenuActionBarFolder">#1A306FFF</color>
 </resources>
+

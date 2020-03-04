@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/playlist_item_play"
+        app:showAsAction="ifRoom"
+        android:title="@string/pop_up_menu_item_play" />
+
+    <item android:id="@+id/playlist_item_add_to_home_screen"
+        android:title="@string/pop_up_menu_item_add_to_home_screen"
+        app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/playlist_item_delete"
+        android:title="@string/add_to_playlist_delete"
+        app:showAsAction="ifRoom"/>
+</menu>

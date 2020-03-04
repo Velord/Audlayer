@@ -46,8 +46,6 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
     private lateinit var selectAllButton: Button
     private lateinit var continueButton: Button
 
-    private val checked = mutableListOf<String>()
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callbacks = context as Callbacks?
@@ -81,11 +79,11 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
         selectAllButton = view.findViewById(R.id.add_song_select_all)
         selectAllButton.setOnClickListener {
             scope.launch {
-                val checkedAll = checked.size == viewModel.fileList.size
-                checked.clear()
+                val checkedAll = viewModel.checked.size == viewModel.fileList.size
+                viewModel.checked.clear()
                 if (checkedAll.not())
                     viewModel.fileList.forEach {
-                        checked += it.path
+                        viewModel.checked += it.path
                     }
 
                 withContext(Dispatchers.Main) {
@@ -99,8 +97,9 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
         continueButton = view.findViewById(R.id.add_song_continue)
         continueButton.setOnClickListener {
             callbacks?.let {
-                if (checked.isNotEmpty()) {
-                    SongPlaylistInteractor.songsPath = checked.toTypedArray()
+                if (viewModel.checked.isNotEmpty()) {
+                    SongPlaylistInteractor.songs =
+                        viewModel.checked.map { File(it) }.toTypedArray()
                     it.onAddToPlaylistFromAddSongFragment()
                 }
                 else Toast.makeText(requireContext(),
@@ -121,7 +120,7 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
         Log.d(TAG, "onBackPressed")
         return true
     }
-    // action bar ovveriding
+    // action bar overriding
     override val observeSearchTerm: (String) -> Unit = { searchTerm ->
         //store search term in shared preferences
         viewModel.currentQuery = searchTerm
@@ -242,26 +241,26 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
                 setImageResource(R.drawable.extension_file_song)
                 setOnClickListener {
                     if (fileCheckBox.isChecked)
-                        checked -= file.path
+                        viewModel.checked -= file.path
                     else
-                        checked += file.path
+                        viewModel.checked += file.path
                     fileCheckBox.isChecked = !(fileCheckBox.isChecked)
                 }
             }
             pathTextView.setOnClickListener {
                 if (fileCheckBox.isChecked)
-                    checked -= file.path
+                    viewModel.checked -= file.path
                 else
-                    checked += file.path
+                    viewModel.checked += file.path
                 fileCheckBox.isChecked = !(fileCheckBox.isChecked)
             }
 
             fileCheckBox.setOnClickListener {
                 //this is strange but it's right behaviour
                 if (fileCheckBox.isChecked)
-                    checked += file.path
+                    viewModel.checked += file.path
                 else
-                    checked -= file.path
+                    viewModel. checked -= file.path
             }
         }
 
@@ -269,7 +268,7 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
             setOnClickAndImageResource(file)
             pathTextView.text = FileNameParser.removeExtension(file)
 
-            if (file.path in checked)
+            if (file.path in  viewModel.checked)
                 fileCheckBox.isChecked = true
             else
                 fileCheckBox.isChecked = false

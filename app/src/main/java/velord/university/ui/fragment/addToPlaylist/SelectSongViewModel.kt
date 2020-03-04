@@ -13,6 +13,8 @@ class SelectSongViewModel(private val app: Application) : AndroidViewModel(app) 
 
     lateinit var fileList: Array<File>
 
+    val checked = mutableListOf<String>()
+
     lateinit var currentQuery: String
 
     fun filterAndSortFiles(context: Context,

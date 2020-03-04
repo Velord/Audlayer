@@ -16,6 +16,9 @@
     <string name="add_song_continue">Continue</string>
     <string name="add_to_playlist_hint">Add to Playlist</string>
     <string name="add_to_playlist_create_new">Create New Playlist</string>
+    <string name="add_to_playlist_name">Playlist name</string>
+    <string name="add_to_playlist_bottom_hint">Identical Songs Will not Be Added</string>
+    <string name="add_to_playlist_delete">Delete</string>
     <string name="mini_player_song_no_information">No Song Are Selected</string>
     <string name="mini_player_song_high_quality">HQ</string>
     <string name="mini_player_song_image">Image of song</string>

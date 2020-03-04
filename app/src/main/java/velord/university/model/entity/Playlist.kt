@@ -30,6 +30,9 @@ interface PlaylistDao {
     @Insert
     fun insertAll(vararg playlist: Playlist)
 
+    @Query("Delete From Playlist Where id = :playlistId")
+    fun deletePlaylist(playlistId: String)
+
     @Query("Delete From Playlist")
     fun nukeTable()
 }

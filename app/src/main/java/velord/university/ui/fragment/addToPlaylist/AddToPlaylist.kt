@@ -4,21 +4,22 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.AudlayerApp
+import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
 import velord.university.ui.BackPressedHandlerSecond
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
+import java.io.File
 
 class AddToPlaylist : LoggerSelfLifecycleFragment(),  BackPressedHandlerSecond {
     //Required interface for hosting activities
@@ -103,18 +104,23 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),  BackPressedHandlerSecond {
         RecyclerView.ViewHolder(itemView) {
 
         private val pathTextView: TextView = itemView.findViewById(R.id.add_to_playlist_item_name)
+        private val playlistActionImageButton: ImageButton = itemView.findViewById(R.id.item_action)
+        private val playlistActionFrame: FrameLayout = itemView.findViewById(R.id.item_action_frame)
 
         private fun updatePlaylist(playlist: Playlist) {
             AudlayerApp.db?.let {
+                val filtered = songsToPlaylist.filter {
+                    playlist.songs.contains(it)
+                }
                 //update db
                 scope.launch {
-                    playlist.songs += songsToPlaylist
+                    playlist.songs += filtered
                     it.playlistDao().update(playlist)
                 }
                 //show user info
                 Toast.makeText(
                     requireContext(),
-                    "Songs added: ${songsToPlaylist.size}",
+                    "Songs added: ${filtered.size}",
                     Toast.LENGTH_SHORT
                 ).show()
                 //back pressed
@@ -124,6 +130,50 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),  BackPressedHandlerSecond {
             }
         }
 
+        private val actionPopUpMenu: (Playlist) -> Unit = { playlist ->
+                val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
+                val initActionMenuLayout = { R.menu.add_to_playlist_pop_up }
+                val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
+                    when (it.itemId) {
+                        R.id.playlist_item_play -> {
+                            //don't remember for SongPlaylistInteractor
+                            SongPlaylistInteractor.songs =
+                                playlist.songs.map { File(it) }.toTypedArray()
+                            MiniPlayerBroadcastPlayByPath.apply {
+                                requireContext().sendBroadcastPlayByPath(playlist.songs[0])
+                            }
+                            true
+                        }
+                        R.id.playlist_item_add_to_home_screen -> {
+                            TODO()
+                            true
+                        }
+                        R.id.playlist_item_delete -> {
+                            AudlayerApp.db?.let {
+                                scope.launch {
+                                    it.playlistDao().deletePlaylist(playlist.id)
+                                }
+                            }
+                            setupAdapter()
+                            true
+                        }
+                        else -> {
+                            false
+                        }
+                    }
+                }
+
+                velord.university.ui.setupPopupMenuOnClick(
+                    requireContext(),
+                    playlistActionImageButton,
+                    initActionMenuStyle,
+                    initActionMenuLayout,
+                    initActionMenuItemClickListener
+                )
+
+                Unit
+            }
+
         private fun setOnClickAndImageResource(playlist: Playlist) {
             itemView.setOnClickListener {
                 updatePlaylist(playlist)
@@ -131,11 +181,18 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),  BackPressedHandlerSecond {
             pathTextView.setOnClickListener {
                 updatePlaylist(playlist)
             }
+            playlistActionImageButton.setOnClickListener {
+                actionPopUpMenu(playlist)
+            }
+            playlistActionFrame.setOnClickListener {
+                actionPopUpMenu(playlist)
+            }
         }
 
         fun bindItem(playlist: Playlist, position: Int) {
             setOnClickAndImageResource(playlist)
-            pathTextView.text = playlist.name
+
+            pathTextView.text = "${playlist.name} \nContain: ${playlist.songs.size}"
         }
     }
 

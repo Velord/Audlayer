@@ -8,10 +8,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.PopupMenu
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,12 +22,12 @@ import velord.university.model.FileExtension
 import velord.university.model.FileExtensionModifier
 import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
-import velord.university.ui.fragment.BackPressedHandler
+import velord.university.ui.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import java.io.File
 
 
-class FolderFragment : ActionBarFragment(), BackPressedHandler {
+class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
     //Required interface for hosting activities
     interface Callbacks {
         fun onCreatePlaylist()
@@ -228,13 +225,12 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
 
     private fun openCreatePlaylistFragment(file: File) {
         callbacks?.let {
+
             val songs = FileFilter
                 .filterOnlyAudio(file)
-                .map { it.path }
-                .toTypedArray()
 
             if (songs.isNotEmpty()) {
-                SongPlaylistInteractor.songsPath = songs
+                SongPlaylistInteractor.songs = songs.toTypedArray()
                 it.onCreatePlaylist()
             }
             else
@@ -310,11 +306,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
 
         private val fileIconImageButton: ImageButton = itemView.findViewById(R.id.folder_item_icon)
         private val pathTextView: TextView = itemView.findViewById(R.id.folder_item_path)
-        private val fileActionImageButton: ImageButton = itemView.findViewById(R.id.folder_item_action)
-
-        init {
-            fileActionImageButton.setImageResource(R.drawable.action_folder_item)
-        }
+        private val fileActionImageButton: ImageButton = itemView.findViewById(R.id.item_action)
+        private val fileActionFrame: FrameLayout = itemView.findViewById(R.id.item_action_frame)
 
         private fun setOnClickAndImageResource(file: File) {
             when(FileExtension.checkCompatibleFileExtension(file)) {
@@ -411,7 +404,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                                 }
                                 R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
                                     callbacks?.let {
-                                        SongPlaylistInteractor.songsPath = arrayOf(file.path)
+                                        SongPlaylistInteractor.songs = arrayOf(file)
                                         it.onAddToPlaylistFromFolderFragment()
                                     }
                                     true
@@ -458,6 +451,9 @@ class FolderFragment : ActionBarFragment(), BackPressedHandler {
                 f()
             }
             fileActionImageButton.setOnClickListener {
+                popUpF()
+            }
+            fileActionFrame.setOnClickListener {
                 popUpF()
             }
         }

@@ -8,16 +8,12 @@ import androidx.lifecycle.ViewModelProviders
 import velord.university.R
 import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
 import velord.university.application.settings.AppPreference
-import velord.university.ui.BackPressedHandlerFirst
-import velord.university.ui.BackPressedHandlerSecond
-import velord.university.ui.addFragment
-import velord.university.ui.fragment.BackPressedHandler
+import velord.university.ui.*
 import velord.university.ui.fragment.addToPlaylist.AddToPlaylist
 import velord.university.ui.fragment.addToPlaylist.CreateNewPlaylistDialogFragment
 import velord.university.ui.fragment.addToPlaylist.SelectSongFragment
 import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.main.MainFragment
-import velord.university.ui.initFragment
 
 
 private const val TAG ="MainActivity"
@@ -61,38 +57,12 @@ class MainActivity : AppCompatActivity(),
     override fun onBackPressed() {
         Log.d(TAG, "onBackPressed")
 
-        val fragments = supportFragmentManager.fragments
+        if (backPressedSecondLevel())
+            return
+        if (backPressedFirstLevel())
+            return
 
-        var handled = false
-
-        for (fragment in fragments) {
-            if (fragment is BackPressedHandlerSecond) {
-                handled = fragment.onBackPressed()
-                if (handled) {
-                    fm.popBackStackImmediate()
-                    return
-                }
-            }
-        }
-
-        for (fragment in fragments) {
-            if (fragment is BackPressedHandlerFirst) {
-                handled = fragment.onBackPressed()
-                if (handled) {
-                    fm.popBackStackImmediate()
-                    return
-                }
-            }
-        }
-
-        for (fragment in fragments) {
-            if (fragment is BackPressedHandler) {
-                handled = fragment.onBackPressed()
-                if (handled) {
-                    return
-                }
-            }
-        }
+        val handled = backPressedZeroLevel()
 
         if (!handled) {
             //Because single activity architecture
@@ -126,14 +96,15 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun succes() {
-        onBackPressed()
+        backPressedToZeroLevel()
     }
 
     override fun closeAddToPlaylistFragment() {
-        super.onBackPressed()
+        backPressedToZeroLevel()
     }
 
     override fun onAddToPlaylistFromFolderFragment() {
+        backPressedToZeroLevel()
         openAddToPlaylistFragment()
     }
 
@@ -143,6 +114,61 @@ class MainActivity : AppCompatActivity(),
             AddToPlaylist(),
             R.id.main_container
         )
+    }
+
+    private fun backPressedToZeroLevel() {
+        backPressedSecondLevel()
+        backPressedFirstLevel()
+    }
+
+    private fun backPressedSecondLevel(): Boolean {
+        val fragments = supportFragmentManager.fragments
+        var handled = false
+
+        for (fragment in fragments) {
+            if (fragment is BackPressedHandlerSecond) {
+                handled = fragment.onBackPressed()
+                if (handled) {
+                    fm.popBackStackImmediate()
+                    return true
+                }
+            }
+        }
+
+        return handled
+    }
+
+    private fun backPressedFirstLevel(): Boolean {
+        val fragments = supportFragmentManager.fragments
+        var handled = false
+
+        for (fragment in fragments) {
+            if (fragment is BackPressedHandlerFirst) {
+                handled = fragment.onBackPressed()
+                if (handled) {
+                    fm.popBackStackImmediate()
+                    return true
+                }
+            }
+        }
+
+        return handled
+    }
+
+    private fun backPressedZeroLevel(): Boolean {
+        val fragments = supportFragmentManager.fragments
+        var handled = false
+
+        for (fragment in fragments) {
+            if (fragment is BackPressedHandlerZero) {
+                handled = fragment.onBackPressed()
+                if (handled) {
+                    return true
+                }
+            }
+        }
+
+        return handled
     }
 }
 
