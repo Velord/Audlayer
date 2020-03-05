@@ -16,6 +16,11 @@ class ActionBarViewModel(private val app: Application) : AndroidViewModel(app) {
         mutableSearchTerm.value = ""
     }
 
+    fun setupSearchQueryByAlbumPreference() {
+        mutableSearchTerm.value =
+            SearchQueryPreferences.getStoredQueryAlbum(app)
+    }
+
     fun setupSearchQueryByFilePath(file: File) {
         mutableSearchTerm.value =
             SearchQueryPreferences.getStoredQueryFolder(app, file.path)

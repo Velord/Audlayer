@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import velord.university.R
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
+import velord.university.ui.util.setupPopupMenuOnClick
 
 
 abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
@@ -36,23 +37,23 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
         initActionButton(view)
     }
 
-    abstract val observeSearchTerm: (String) -> Unit
+    abstract val actionBarObserveSearchQuery: (String) -> Unit
 
-    abstract val initActionPopUpMenuStyle: () -> Int
-    abstract val initActionPopUpMenuItemClickListener: (MenuItem) -> Boolean
-    abstract val initActionPopUpMenuLayout: () -> Int
-    abstract val initLeftMenu: (ImageButton) -> Unit
-    abstract val initHintTextView: (TextView) -> Unit
-    abstract val initPopUpMenuOnActionButton: (PopupMenu) -> Unit
+    abstract val actionBarPopUpMenuStyle: () -> Int
+    abstract val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean
+    abstract val actionBarPopUpMenuLayout: () -> Int
+    abstract val actionBarLeftMenu: (ImageButton) -> Unit
+    abstract val actionBarHintArticle: (TextView) -> Unit
+    abstract val actionBarPopUpMenu: (PopupMenu) -> Unit
 
     private fun initHint(view: View) {
         hint = view.findViewById(R.id.action_bar_hint)
-        initHintTextView(hint)
+        actionBarHintArticle(hint)
     }
 
     private fun initMenuButton(view: View) {
         menu = view.findViewById(R.id.action_bar_settings)
-        initLeftMenu(menu)
+        actionBarLeftMenu(menu)
     }
 
     private fun initActionButton(view: View) {
@@ -61,14 +62,14 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
     }
 
     protected fun rearwardActionButton() {
-        velord.university.ui.setupPopupMenuOnClick(
+        setupPopupMenuOnClick(
             requireContext(),
             actionButton,
-            initActionPopUpMenuStyle,
-            initActionPopUpMenuLayout,
-            initActionPopUpMenuItemClickListener
+            actionBarPopUpMenuStyle,
+            actionBarPopUpMenuLayout,
+            actionBarPopUpMenuItemOnCLick
         ).also {
-            initPopUpMenuOnActionButton(it)
+            actionBarPopUpMenu(it)
         }
     }
 
@@ -146,7 +147,7 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
        viewModelActionBar.mutableSearchTerm.observe(
             viewLifecycleOwner,
             Observer { searchTerm ->
-                observeSearchTerm(searchTerm)
+                actionBarObserveSearchQuery(searchTerm)
             }
        )
     }

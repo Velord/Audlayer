@@ -1,5 +1,5 @@
 <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-    android:id="@+id/current_folder_RecyclerView"
+    android:id="@+id/general_RecyclerView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:fastScrollAutoHide="true"

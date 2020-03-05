@@ -1,4 +1,4 @@
-package velord.university.ui
+package velord.university.ui.util
 
 import android.content.Context
 import android.view.MenuItem

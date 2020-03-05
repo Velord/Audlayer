@@ -8,12 +8,16 @@ import androidx.lifecycle.ViewModelProviders
 import velord.university.R
 import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
 import velord.university.application.settings.AppPreference
-import velord.university.ui.*
+import velord.university.ui.backPressed.BackPressedHandlerFirst
+import velord.university.ui.backPressed.BackPressedHandlerSecond
+import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.addToPlaylist.AddToPlaylist
 import velord.university.ui.fragment.addToPlaylist.CreateNewPlaylistDialogFragment
 import velord.university.ui.fragment.addToPlaylist.SelectSongFragment
 import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.main.MainFragment
+import velord.university.ui.util.addFragment
+import velord.university.ui.util.initFragment
 
 
 private const val TAG ="MainActivity"

@@ -45,7 +45,7 @@
         android:maxWidth="220dp"
         android:maxHeight="15dp"
         android:text="@string/mini_player_song_no_information"
-        android:textColor="@color/mini_player_gray"
+        android:textColor="@color/gray"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -165,7 +165,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
 
-            android:progressBackgroundTint="@color/mini_player_gray"
+            android:progressBackgroundTint="@color/gray"
             android:progressTint="@color/colorPrimaryDark"
 
             app:layout_constraintBottom_toBottomOf="parent"

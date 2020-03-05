@@ -17,11 +17,13 @@ import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
-import velord.university.ui.BackPressedHandlerSecond
+import velord.university.ui.backPressed.BackPressedHandlerSecond
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
+import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
-class AddToPlaylist : LoggerSelfLifecycleFragment(),  BackPressedHandlerSecond {
+class AddToPlaylist : LoggerSelfLifecycleFragment(),
+    BackPressedHandlerSecond {
     //Required interface for hosting activities
     interface Callbacks {
         fun openCreateNewPlaylistDialogFragment()
@@ -83,7 +85,7 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),  BackPressedHandlerSecond {
     }
 
     private fun initRV(view: View) {
-        rv = view.findViewById(R.id.current_folder_RecyclerView)
+        rv = view.findViewById(R.id.general_RecyclerView)
         rv.layoutManager = LinearLayoutManager(activity)
     }
 
@@ -163,13 +165,13 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),  BackPressedHandlerSecond {
                     }
                 }
 
-                velord.university.ui.setupPopupMenuOnClick(
-                    requireContext(),
-                    playlistActionImageButton,
-                    initActionMenuStyle,
-                    initActionMenuLayout,
-                    initActionMenuItemClickListener
-                )
+            setupPopupMenuOnClick(
+                requireContext(),
+                playlistActionImageButton,
+                initActionMenuStyle,
+                initActionMenuLayout,
+                initActionMenuItemClickListener
+            )
 
                 Unit
             }

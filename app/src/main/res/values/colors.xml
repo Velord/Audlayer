@@ -14,8 +14,8 @@
     <color name="blue">#273FB5</color>
     <color name="blueShadow">#273FB5</color>
     <color name="dark">#000000</color>
-    <color name="mini_player_gray">#585858</color>
-    <color name="mini_player_grayOpacity">#33585858</color>
+    <color name="gray">#585858</color>
+    <color name="gray_opacity">#33585858</color>
     <color name="fragmentBackgroundOpacity">#66030622</color>
     <color name="fragmentBackgroundDarkerOpacity">#8000021B</color>
     <color name="fragmentBackgroundDarkestOpacity">#8000020E</color>
@@ -27,5 +27,6 @@
     <color name="playerFragmentBackgroundDarkerOpacity">#4D00022C</color>
     <color name="menuFragmentBackgroundDarkestOpacity">#6600020E</color>
     <color name="popUpMenuActionBarFolder">#1A306FFF</color>
+    <color name="gold">#C78C00</color>
 </resources>
 

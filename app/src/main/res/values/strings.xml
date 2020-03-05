@@ -52,10 +52,15 @@
     <string name="pop_up_menu_item_sort_by_date_added">Date Added</string>
     <string name="pop_up_menu_item_sort_by_name">Name</string>
     <string name="pop_up_menu_item_sort_by_artist">Artist</string>
+    <string name="pop_up_menu_item_sort_by_album">Album</string>
+    <string name="pop_up_menu_item_sort_by_number_of_tracks">Number of Tracks</string>
+    <string name="pop_up_menu_item_sort_by_year">Year</string>
     <string name="pop_up_menu_item_sort_by_ascending_order">Ascending Order</string>
     <string name="pop_up_menu_item_sort_by_descending_order">Descending Order</string>
     <string name="create_new_playlist_hint">Type...</string>
     <string name="create_new_playlist_name">Name</string>
     <string name="create_new_playlist_cancel">Cancel</string>
     <string name="create_new_playlist_apply">Apply</string>
+    <string name="album_album">Albums</string>
+    <string name="album_playlist">Playlists</string>
 </resources>

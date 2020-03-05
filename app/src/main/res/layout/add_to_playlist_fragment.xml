@@ -60,7 +60,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/add_to_playlist_create_new">
 
-            <include layout="@layout/current_folder_rv"></include>
+            <include layout="@layout/general_rv"></include>
 
         </FrameLayout>
 

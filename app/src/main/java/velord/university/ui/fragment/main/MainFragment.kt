@@ -10,10 +10,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import velord.university.R
-import velord.university.ui.BackPressedHandlerZero
+import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.main.initializer.MenuMiniPlayerInitializerFragment
 
-class MainFragment : MenuMiniPlayerInitializerFragment(), BackPressedHandlerZero {
+class MainFragment : MenuMiniPlayerInitializerFragment(),
+    BackPressedHandlerZero {
 
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
 

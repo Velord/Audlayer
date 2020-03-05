@@ -22,8 +22,9 @@ import velord.university.model.FileExtension
 import velord.university.model.FileExtensionModifier
 import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
-import velord.university.ui.BackPressedHandlerZero
+import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarFragment
+import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
 
@@ -51,29 +52,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
     private lateinit var rv: RecyclerView
     private lateinit var currentFolderTextView: TextView
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callbacks = context as Callbacks?
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        callbacks = null
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.folder_fragment, container, false).apply {
-            initViews(this)
-            //observe changes in search view
-            super.observeSearchTerm()
-            setupAdapter(viewModel.currentFolder)
-        }
-    }
-
-    override val initActionPopUpMenuItemClickListener: (MenuItem) -> Boolean = {
+    override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
             R.id.action_folder_add_to_home_screen -> {
                 TODO()
@@ -132,7 +111,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                     }
                 }
 
-                velord.university.ui.setupPopupMenuOnClick(
+                setupPopupMenuOnClick(
                     requireContext(),
                     super.actionButton,
                     initActionMenuStyle,
@@ -176,27 +155,52 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
         }
     }
 
-    override val initHintTextView: (TextView) -> Unit = {
+    override val actionBarHintArticle: (TextView) -> Unit = {
         it.text = "Find Audio"
     }
 
-    override val initActionPopUpMenuLayout: () -> Int = {
+    override val actionBarPopUpMenuLayout: () -> Int = {
         R.menu.action_bar_folder_pop_up
     }
 
-    override val initActionPopUpMenuStyle: () -> Int = {
+    override val actionBarPopUpMenuStyle: () -> Int = {
         R.style.PopupMenuOverlapAnchorFolder
     }
 
-    override val initLeftMenu: (ImageButton) -> Unit = {  }
+    override val actionBarLeftMenu: (ImageButton) -> Unit = {  }
 
-    override val initPopUpMenuOnActionButton: (PopupMenu) -> Unit = { }
+    override val actionBarPopUpMenu: (PopupMenu) -> Unit = {}
 
-    override val observeSearchTerm: (String) -> Unit = { searchTerm ->
+    override val actionBarObserveSearchQuery: (String) -> Unit = { searchTerm ->
         //store search term in shared preferences
         viewModel.storeCurrentFolderSearchQuery(searchTerm)
         //update files list
         updateAdapterBySearchQuery(searchTerm)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.folder_fragment, container, false).apply {
+            //init action bar
+            super.initActionBar(this)
+            //init self view
+            initViews(this)
+            //observe changes in search view
+            super.observeSearchTerm()
+            setupAdapter(viewModel.currentFolder)
+        }
     }
 
     override fun onBackPressed(): Boolean {
@@ -240,13 +244,12 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
     }
 
     private fun initViews(view: View) {
-        super.initActionBar(view)
         initRV(view)
         currentFolderTextView = view.findViewById(R.id.current_folder_textView)
     }
 
     private fun initRV(view: View) {
-        rv = view.findViewById(R.id.current_folder_RecyclerView)
+        rv = view.findViewById(R.id.general_RecyclerView)
         rv.layoutManager = LinearLayoutManager(activity)
         //controlling action bar frame visibility when recycler view is scrolling
         super.setOnScrollListenerBasedOnRecyclerViewScrolling(rv, 50, -5)
@@ -361,7 +364,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                             }
                         }
 
-                        velord.university.ui.setupPopupMenuOnClick(
+                        setupPopupMenuOnClick(
                             requireContext(),
                             fileActionImageButton,
                             initActionMenuStyle,
@@ -421,7 +424,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                             }
                         }
 
-                        velord.university.ui.setupPopupMenuOnClick(
+                        setupPopupMenuOnClick(
                             requireContext(),
                             fileActionImageButton,
                             initActionMenuStyle,

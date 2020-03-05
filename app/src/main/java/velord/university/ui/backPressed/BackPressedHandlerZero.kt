@@ -1,4 +1,4 @@
-package velord.university.ui
+package velord.university.ui.backPressed
 
 interface BackPressedHandlerZero {
 

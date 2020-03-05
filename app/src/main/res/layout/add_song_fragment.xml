@@ -39,7 +39,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/action_bar_frame_layout">
 
-        <include layout="@layout/current_folder_rv">
+        <include layout="@layout/general_rv">
 
         </include>
     </FrameLayout>

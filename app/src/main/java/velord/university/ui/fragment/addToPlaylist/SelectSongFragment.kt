@@ -19,11 +19,12 @@ import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
-import velord.university.ui.BackPressedHandlerFirst
+import velord.university.ui.backPressed.BackPressedHandlerFirst
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import java.io.File
 
-class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
+class SelectSongFragment : ActionBarFragment(),
+    BackPressedHandlerFirst {
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromAddSongFragment()
@@ -110,7 +111,7 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
     }
 
     private fun initRV(view: View) {
-        rv = view.findViewById(R.id.current_folder_RecyclerView)
+        rv = view.findViewById(R.id.general_RecyclerView)
         rv.layoutManager = LinearLayoutManager(activity)
         //controlling action bar frame visibility when recycler view is scrolling
         super.setOnScrollListenerBasedOnRecyclerViewScrolling(rv, 50, -5)
@@ -121,39 +122,39 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
         return true
     }
     // action bar overriding
-    override val observeSearchTerm: (String) -> Unit = { searchTerm ->
+    override val actionBarObserveSearchQuery: (String) -> Unit = { searchTerm ->
         //store search term in shared preferences
         viewModel.currentQuery = searchTerm
         //update files list
         updateAdapterBySearchQuery(searchTerm)
     }
-    override val initActionPopUpMenuItemClickListener: (MenuItem) -> Boolean = {
+    override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
             R.id.folder_sort_by_name -> {
-                SortByPreference.setNameArtistDateAddedSongAddFragment(requireContext(), 0)
+                SortByPreference.setNameArtistDateAddedSelectSongFragment(requireContext(), 0)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
             R.id.folder_sort_by_artist -> {
-                SortByPreference.setNameArtistDateAddedSongAddFragment(requireContext(), 1)
+                SortByPreference.setNameArtistDateAddedSelectSongFragment(requireContext(), 1)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
             R.id.folder_sort_by_date_added -> {
-                SortByPreference.setNameArtistDateAddedSongAddFragment(requireContext(), 2)
+                SortByPreference.setNameArtistDateAddedSelectSongFragment(requireContext(), 2)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true                        }
             R.id.folder_sort_by_ascending_order -> {
-                SortByPreference.setAscDescSongAddFragment(requireContext(), 0)
+                SortByPreference.setAscDescSelectSongFragment(requireContext(), 0)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
             R.id.folder_sort_by_descending_order -> {
-                SortByPreference.setAscDescSongAddFragment(requireContext(), 1)
+                SortByPreference.setAscDescSelectSongFragment(requireContext(), 1)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
@@ -163,16 +164,16 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
             }
         }
     }
-    override val initActionPopUpMenuLayout: () -> Int = {
+    override val actionBarPopUpMenuLayout: () -> Int = {
         R.menu.sort_by
     }
-    override val initActionPopUpMenuStyle: () -> Int = {
+    override val actionBarPopUpMenuStyle: () -> Int = {
         R.style.PopupMenuOverlapAnchorFolder
     }
-    override val initHintTextView: (TextView) -> Unit = {
+    override val actionBarHintArticle: (TextView) -> Unit = {
         it.text = "Choose Song"
     }
-    override val initLeftMenu: (ImageButton) -> Unit = {
+    override val actionBarLeftMenu: (ImageButton) -> Unit = {
         it.apply {
             setOnClickListener {
                 onBackPressed()
@@ -180,19 +181,19 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
             setImageResource(R.drawable.back_green)
         }
     }
-    override val initPopUpMenuOnActionButton: (PopupMenu) -> Unit = {
+    override val actionBarPopUpMenu: (PopupMenu) -> Unit = {
         //set up checked item
         val menuItem = it.menu
 
         val nameArtistDateOrder =
-            SortByPreference.getNameArtistDateAddedSongAddFragment(requireContext())
+            SortByPreference.getNameArtistDateAddedSelectSongFragment(requireContext())
         when(nameArtistDateOrder) {
             0 -> { menuItem.getItem(0).isChecked = true }
             1 -> { menuItem.getItem(1).isChecked = true }
             2 -> { menuItem.getItem(2).isChecked = true }
         }
 
-        val ascDescOrder = SortByPreference.getAscDescSongAddFragment(requireContext())
+        val ascDescOrder = SortByPreference.getAscDescSelectSongFragment(requireContext())
         when(ascDescOrder) {
             0 -> { menuItem.getItem(3).isChecked = true }
             1 -> { menuItem.getItem(4).isChecked = true }
