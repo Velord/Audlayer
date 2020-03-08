@@ -63,4 +63,5 @@
     <string name="create_new_playlist_apply">Apply</string>
     <string name="album_album">Albums</string>
     <string name="album_playlist">Playlists</string>
+    <string name="album_refresh">Refresh</string>
 </resources>

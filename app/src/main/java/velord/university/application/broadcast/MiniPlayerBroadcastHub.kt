@@ -232,7 +232,7 @@ object MiniPlayerBroadcastNotLoop: MiniPlayerBroadcastHub() {
 
 object MiniPlayerBroadcastPlayByPath: MiniPlayerBroadcastHub() {
 
-    override val actionService: String = "velord.university.PLAY_BY_PATH_WITH_FILTER"
+    override val actionService: String = "velord.university.PLAY_BY_PATH"
 
     override val filterService: IntentFilter =  IntentFilter(actionService)
 

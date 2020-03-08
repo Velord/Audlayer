@@ -2,7 +2,7 @@ package velord.university.model
 
 import java.io.File
 
-class SongPlaylist(val songs: MutableList<File> = mutableListOf()) {
+class ServicePlaylist(val songs: MutableList<File> = mutableListOf()) {
 
     private var currentPos: Int = 0
 
@@ -17,8 +17,9 @@ class SongPlaylist(val songs: MutableList<File> = mutableListOf()) {
     }
 
     fun getNext(): File {
-        if (currentPos == songs.lastIndex)
+        if (currentPos + 1 > songs.lastIndex) {
             currentPos = -1
+        }
         return songs[++currentPos]
     }
 
@@ -30,7 +31,7 @@ class SongPlaylist(val songs: MutableList<File> = mutableListOf()) {
 
     fun getSongAndResetQuery(path: String): File {
         val newCurrentPos = getSongPos(path)
-        currentPos = newCurrentPos
+        setCurentPos(newCurrentPos)
         return getSong()
     }
 

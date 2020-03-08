@@ -18,83 +18,88 @@
 
     </FrameLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/album_fragment_playlist_layout"
+    <ScrollView
         android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:background="@drawable/create_new_playlist_fragment_shape"
-        android:orientation="horizontal"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/action_bar_frame_layout">
 
-        <TextView
-            android:id="@+id/album_fragment_playlist_article"
-            style="@style/AlbumPlaylistTextView"
-            android:layout_marginStart="16dp"
-            android:text="@string/album_playlist"
-            android:textColor="@color/gold"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <LinearLayout
+                android:id="@+id/album_fragment_playlist_rv_frame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/dark_border_shape">
 
+                <TextView
+                    android:id="@+id/album_fragment_playlist_article"
+                    style="@style/AlbumPlaylistArticle"
+                    android:text="@string/album_playlist"
+                    android:height="40dp" />
 
-    <FrameLayout
-        android:id="@+id/album_fragment_playlist_rv_frame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/album_fragment_playlist_layout">
+                <TextView
+                    android:id="@+id/playlist_refresh"
+                    style="@style/AlbumPlaylistRefresh"
+                    android:text="@string/album_refresh" />
 
-        <include layout="@layout/general_rv">
+            </LinearLayout>
 
-        </include>
-    </FrameLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/album_fragment_album_layout"
-        android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/create_new_playlist_fragment_shape"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/album_fragment_playlist_rv_frame">
-
-        <TextView
-            android:id="@+id/album_fragment_album_article"
-            style="@style/AlbumPlaylistTextView"
-            android:layout_marginStart="16dp"
-            android:text="@string/album_album"
-            android:textColor="@color/gold"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+                android:id="@+id/playlist_RV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:fastScrollAutoHide="true"
+                app:fastScrollAutoHideDelay="1500"
+                app:fastScrollPopupBgColor="@color/fragmentBackgroundDarkerOpacity"
+                app:fastScrollPopupTextColor="@android:color/primary_text_dark"
+                app:fastScrollThumbColor="@color/fragmentBackgroundDarkerOpacity">
+            </com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView>
 
 
-    <FrameLayout
-        android:id="@+id/album_fragment_album_rv_frame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/album_fragment_album_layout">
+            <LinearLayout
+                android:id="@+id/album_fragment_album_rv_frame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/dark_border_shape">
 
-        <include layout="@layout/general_rv">
+                <TextView
+                    android:id="@+id/album_fragment_album_article"
+                    style="@style/AlbumPlaylistArticle"
+                    android:text="@string/album_album" />
 
-        </include>
-    </FrameLayout>
+                <TextView
+                    android:id="@+id/album_refresh"
+                    style="@style/AlbumPlaylistRefresh"
+                    android:text="@string/album_refresh" />
+
+            </LinearLayout>
+
+
+            <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+                android:id="@+id/album_RV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:fastScrollAutoHide="true"
+                android:visibility="gone"
+                app:fastScrollAutoHideDelay="1500"
+                app:fastScrollPopupBgColor="@color/fragmentBackgroundDarkerOpacity"
+                app:fastScrollPopupTextColor="@android:color/primary_text_dark"
+                app:fastScrollThumbColor="@color/fragmentBackgroundDarkerOpacity">
+            </com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView>
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

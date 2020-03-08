@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import velord.university.R
-import velord.university.application.broadcast.*
 import velord.university.application.permission.PermissionChecker
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
@@ -142,11 +141,11 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                 true
             }
             R.id.action_folder_add_to_playlist -> {
-                openAddToPlaylistFragment(viewModel.currentFolder)
+                openAddToPlaylistFragmentByQuery()
                 true
             }
             R.id.action_folder_create_playlist -> {
-                openCreatePlaylistFragment(viewModel.currentFolder)
+                openCreatePlaylistFragmentByQuery()
                 true
             }
             else -> {
@@ -211,12 +210,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
         return true
     }
 
-    private fun openAddToPlaylistFragment(file: File) {
+    private fun openAddToPlaylistFragment(songs: Array<File>) {
         callbacks?.let {
-            val songs = FileFilter
-                .filterOnlyAudio(file)
-                .toTypedArray()
-
             if (songs.isNotEmpty()) {
                 SongPlaylistInteractor.songs = songs
                 it.onAddToPlaylist()
@@ -227,20 +222,38 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
         }
     }
 
-    private fun openCreatePlaylistFragment(file: File) {
+    private fun openCreatePlaylistFragment(songs: Array<File>) {
         callbacks?.let {
-
-            val songs = FileFilter
-                .filterOnlyAudio(file)
-
             if (songs.isNotEmpty()) {
-                SongPlaylistInteractor.songs = songs.toTypedArray()
+                SongPlaylistInteractor.songs = songs
                 it.onCreatePlaylist()
             }
             else
                 Toast.makeText(requireContext(), "No one Song", Toast.LENGTH_SHORT)
                     .show()
         }
+    }
+
+    private fun openAddToPlaylistFragmentByFolder(file: File) {
+        val songs = viewModel.onlyAudio(file)
+        openAddToPlaylistFragment(songs)
+    }
+
+    private fun openCreatePlaylistFragmentByFolder(file: File) {
+        val songs = viewModel.onlyAudio(file)
+        openCreatePlaylistFragment(songs)
+    }
+
+    private fun openAddToPlaylistFragmentByQuery() {
+        val songs = viewModel.filterAndSortFiles(
+            FileFilter.filterBySearchQuery, viewModel.currentQuery)
+        openAddToPlaylistFragment(songs)
+    }
+
+    private fun openCreatePlaylistFragmentByQuery() {
+        val songs = viewModel.filterAndSortFiles(
+            FileFilter.filterBySearchQuery, viewModel.currentQuery)
+        openCreatePlaylistFragment(songs)
     }
 
     private fun initViews(view: View) {
@@ -264,10 +277,9 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
             if (checkPermission().not()) _setupAdapter(file, filter)
             //now do everything to setup adapter
             changeCurrentTextView(file)
-
             //apply all filters to recycler view
             viewModel.fileList =
-                viewModel.filterAndSortFiles(requireContext(), filter, searchTerm)
+                viewModel.filterAndSortFiles(filter, searchTerm)
             rv.adapter = FileAdapter(viewModel.fileList)
         }
 
@@ -322,37 +334,23 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                         val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                             when (it.itemId) {
                                 R.id.folder_recyclerView_item_isFolder_play -> {
-                                    //don't remember for SongQueryInteractor
-                                    MiniPlayerBroadcastPlayAllInFolder.apply {
-                                        requireContext().sendBroadcastPlayAllInFolder(file.path)
-                                    }
-                                    MiniPlayerBroadcastLoopAll.apply {
-                                        requireContext().sendBroadcastLoopAll()
-                                    }
+                                    viewModel.playAllInFolder(file)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_play_next -> {
-                                    //add to queue
-                                    MiniPlayerBroadcastPlayNextAllInFolder.apply {
-                                        requireContext().sendBroadcastPlayNextAllInFolder(file.path)
-                                    }
+                                    viewModel.playAllInFolderNext(file)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_add_to_playlist -> {
-                                    openAddToPlaylistFragment(file)
+                                    openAddToPlaylistFragmentByFolder(file)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_create_playlist -> {
-                                    openCreatePlaylistFragment(file)
+                                    openCreatePlaylistFragmentByFolder(file)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_shuffle -> {
-                                    MiniPlayerBroadcastShuffleAndPlayAllInFolder.apply {
-                                        requireContext().sendBroadcastShuffleAndPlayAllInFolder(file.path)
-                                    }
-                                    MiniPlayerBroadcastLoopAll.apply {
-                                        requireContext().sendBroadcastLoopAll()
-                                    }
+                                    viewModel.shuffleAndPlayAllInFolder(file)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_add_to_home_screen -> {
@@ -386,23 +384,11 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                         val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                             when (it.itemId) {
                                 R.id.folder_recyclerView_item_isAudio_play -> {
-                                    //don't remember for SongQueryInteractor it will be used between this and service
-                                    SongPlaylistInteractor.songs = arrayOf(file)
-                                    MiniPlayerBroadcastPlayByPath.apply {
-                                        requireContext().sendBroadcastPlayByPath(file.path)
-                                    }
-                                    MiniPlayerBroadcastLoop.apply {
-                                        requireContext().sendBroadcastLoop()
-                                    }
+                                    viewModel.playAudio(file)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isAudio_play_next -> {
-                                    //don't remember for SongQueryInteractor it will be used between this and service
-                                    SongPlaylistInteractor.songs = arrayOf(file)
-                                    //add to queue one song
-                                    MiniPlayerBroadcastAddToQueue.apply {
-                                        requireContext().sendBroadcastAddToQueue(file.path)
-                                    }
+                                    viewModel.playAudioNext(file)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {

@@ -19,7 +19,9 @@ import velord.university.application.broadcast.MiniPlayerBroadcastUnlike.sendBro
 import velord.university.model.QueueResolver
 import velord.university.model.converter.SongTimeConverter
 
-class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadcastReceiverService {
+class MiniPlayerServiceBroadcastReceiver :
+    MiniPlayerService(),
+    MiniPlayerBroadcastReceiverService {
 
     override val TAG: String
         get() = "MnPlyrSrvcBrdcstRcvrs"
@@ -78,33 +80,35 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
 
     override val stopF: (Intent?) -> Unit
         get() = {
-            super<MiniPlayerService>.pausePlayer()
+            super.pausePlayer()
         }
 
     override val playF: (Intent?) -> Unit
         get() = {
-            super<MiniPlayerService>.playSongAfterCreatedPlayer()
+            super.playSongAfterCreatedPlayer()
         }
 
     override val likeF: (Intent?) -> Unit
         get() = {
+            super.likeSong()
             sendBroadcastLikeUI()
         }
 
     override val unlikeF: (Intent?) -> Unit
         get() = {
+            super.unlikeSong()
             sendBroadcastUnlikeUI()
         }
 
     override val skipNextF: (Intent?) -> Unit
         get() = {
-            super<MiniPlayerService>.skipSongAndPlayNext()
+            super.skipSongAndPlayNext()
             sendBroadcastSkipNextUI()
         }
 
     override val skipPrevF: (Intent?) -> Unit
         get() = {
-            super<MiniPlayerService>.skipSongAndPlayPrevious()
+            super.skipSongAndPlayPrevious()
             sendBroadcastSkipPrevUI()
         }
     //get in seconds cause view does not operate at milliseconds
@@ -114,7 +118,7 @@ class MiniPlayerServiceBroadcastReceiver : MiniPlayerService(), MiniPlayerBroadc
                 val extra = MiniPlayerBroadcastRewind.extraValueService
                 val value = it.getIntExtra(extra, 0)
                 val milliseconds = SongTimeConverter.secondsToMilliseconds(value)
-                super<MiniPlayerService>.rewindPlayer(milliseconds)
+                super.rewindPlayer(milliseconds)
             }
         }
 

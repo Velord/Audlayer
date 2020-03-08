@@ -6,17 +6,19 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.ImageButton
-import android.widget.PopupMenu
-import android.widget.TextView
+import android.widget.*
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.settings.SortByPreference
+import velord.university.model.entity.Album
+import velord.university.model.entity.Playlist
 import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarFragment
+import velord.university.ui.util.setupPopupMenuOnClick
 
 
 class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
@@ -31,12 +33,16 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         ViewModelProviders.of(this).get(AlbumViewModel::class.java)
     }
 
+    val scope = CoroutineScope(Job() + Dispatchers.Default)
+
     private lateinit var albumArticle: TextView
     private lateinit var playlistArticle: TextView
-    private lateinit var albumFrame: FrameLayout
-    private lateinit var playlistFrame: FrameLayout
+    private lateinit var albumFrame: LinearLayout
+    private lateinit var playlistFrame: LinearLayout
     private lateinit var albumRV: RecyclerView
     private lateinit var playlistRV: RecyclerView
+    private lateinit var playlistRefresh: TextView
+    private lateinit var albumRefresh: TextView
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
@@ -121,58 +127,305 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.album_fragment, container, false).apply {
-            //init action bar
-            super.initActionBar(this)
-            //init self view
-            initViews(this)
-            //observe changes in search view
-            super.observeSearchTerm()
-            //setup adapter by invoke change in search view
-            setupAdapter()
+            scope.launch {
+                launch {
+                    viewModel.retrievePlaylistFromDb()
+                    viewModel.retrieveAlbumFromDb()
+                }
+                withContext(Dispatchers.Main) {
+                    //init action bar
+                    super.initActionBar(this@apply)
+                    //init self view
+                    initViews(this@apply)
+                    //observe changes in search view
+                    super.observeSearchTerm()
+                    //setup adapter by invoke change in search view
+                    setupAdapter()
+                }
+            }
         }
     }
 
     private fun initViews(view: View) {
-        initPlaylists(view)
+        initPlaylist(view)
         initAlbums(view)
     }
 
     private fun initAlbums(view: View) {
         albumArticle = view.findViewById(R.id.album_fragment_album_article)
         albumFrame = view.findViewById(R.id.album_fragment_album_rv_frame)
-        albumRV = view.findViewById(R.id.general_RecyclerView)
+        albumRV = view.findViewById(R.id.album_RV)
+        albumRefresh = view.findViewById(R.id.album_refresh)
 
         albumArticle.setOnClickListener {
-            albumFrame.visibility = if (albumFrame.visibility == View.GONE)
-                View.VISIBLE
-            else View.GONE
+            albumRV.visibility =
+                if (albumRV.visibility == View.GONE) View.VISIBLE
+                else View.GONE
         }
 
-        albumRV.layoutManager = LinearLayoutManager(activity)
+        albumRefresh.setOnClickListener {
+            scope.launch {
+                withContext(Dispatchers.Main) {
+                    val refresh = it as TextView
+                    refresh.text = "Refreshing..."
+                }
+                viewModel.refreshAllAlbum()
+                updateAdapterBySearchQuery(viewModel.currentQuery)
+                withContext(Dispatchers.Main) {
+                    val refresh = it as TextView
+                    refresh.text = "Refresh"
+                }
+            }
+        }
+
+        albumRV.apply {
+            isNestedScrollingEnabled = false
+            layoutManager = LinearLayoutManager(activity)
+        }
         //controlling action bar frame visibility when recycler view is scrolling
         super.setOnScrollListenerBasedOnRecyclerViewScrolling(albumRV, 50, -5)
     }
 
-    private fun initPlaylists(view: View) {
+    private fun initPlaylist(view: View) {
         playlistArticle =  view.findViewById(R.id.album_fragment_playlist_article)
         playlistFrame = view.findViewById(R.id.album_fragment_playlist_rv_frame)
-        playlistRV = view.findViewById(R.id.general_RecyclerView)
+        playlistRV = view.findViewById(R.id.playlist_RV)
+        playlistRefresh = view.findViewById(R.id.playlist_refresh)
 
         playlistArticle.setOnClickListener {
-            playlistFrame.visibility = if (playlistFrame.visibility == View.GONE)
-                View.VISIBLE
-            else View.GONE
+            playlistRV.visibility =
+                if (playlistRV.visibility == View.GONE) View.VISIBLE
+                else View.GONE
         }
 
-        playlistRV.layoutManager = LinearLayoutManager(activity)
+        playlistRefresh.setOnClickListener {
+            scope.launch {
+                withContext(Dispatchers.Main) {
+                    val refresh = it as TextView
+                    refresh.text = "Refreshing..."
+                }
+                viewModel.retrievePlaylistFromDb()
+                updateAdapterBySearchQuery(viewModel.currentQuery)
+                withContext(Dispatchers.Main) {
+                    val refresh = it as TextView
+                    refresh.text = "Refresh"
+                }
+            }
+        }
+
+        playlistRV.apply {
+            isNestedScrollingEnabled = false
+            layoutManager = LinearLayoutManager(activity)
+        }
         //controlling action bar frame visibility when recycler view is scrolling
         super.setOnScrollListenerBasedOnRecyclerViewScrolling(playlistRV, 50, -5)
     }
 
     private fun updateAdapterBySearchQuery(searchQuery: String) {
-
+        scope.launch {
+            this.launch {
+                if (viewModel.playlistIsInitialized()) {
+                    val playlistFiltered =
+                        viewModel.filterByQueryPlaylist(searchQuery).toTypedArray()
+                    withContext(Dispatchers.Main) {
+                        playlistRV.adapter = PlaylistAdapter(playlistFiltered)
+                    }
+                }
+            }
+            this.launch {
+                if (viewModel.albumsIsInitialized()) {
+                    val albums = viewModel.albums.toTypedArray()
+                    withContext(Dispatchers.Main) {
+                        albumRV.adapter = AlbumAdapter(albums)
+                    }
+                }
+            }
+        }
     }
 
     private fun setupAdapter() =
         super.viewModelActionBar.setupSearchQueryByAlbumPreference()
+
+    private inner class AlbumHolder(itemView: View):
+        RecyclerView.ViewHolder(itemView) {
+
+        private val pathTextView: TextView = itemView.findViewById(R.id.add_to_playlist_item_name)
+        private val playlistActionImageButton: ImageButton = itemView.findViewById(R.id.item_action)
+        private val playlistActionFrame: FrameLayout = itemView.findViewById(R.id.item_action_frame)
+
+        private fun openAlbum(album: Album) {
+            viewModel.playSongs(album.songs.toTypedArray())
+        }
+
+        private val actionPopUpMenu: (Album) -> Unit = { album ->
+            val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
+            val initActionMenuLayout = { R.menu.add_to_playlist_pop_up }
+            val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
+                when (it.itemId) {
+                    R.id.playlist_item_play -> {
+                        TODO()
+                        true
+                    }
+                    R.id.playlist_item_add_to_home_screen -> {
+                        TODO()
+                        true
+                    }
+                    R.id.playlist_item_delete -> {
+                        TODO()
+                        true
+                    }
+                    else -> {
+                        false
+                    }
+                }
+            }
+
+            setupPopupMenuOnClick(
+                requireContext(),
+                playlistActionImageButton,
+                initActionMenuStyle,
+                initActionMenuLayout,
+                initActionMenuItemClickListener
+            )
+
+            Unit
+        }
+
+        private fun setOnClickAndImageResource(album: Album) {
+            itemView.setOnClickListener {
+                openAlbum(album)
+            }
+            pathTextView.setOnClickListener {
+                openAlbum(album)
+            }
+            playlistActionImageButton.setOnClickListener {
+                actionPopUpMenu(album)
+            }
+            playlistActionFrame.setOnClickListener {
+                actionPopUpMenu(album)
+            }
+        }
+
+        fun bindItem(album: Album, position: Int) {
+            setOnClickAndImageResource(album)
+            pathTextView.text = "${album.name} \nContain: ${album.songs.size}"
+        }
+    }
+
+    private inner class AlbumAdapter(val items:  Array<out Album>):
+        RecyclerView.Adapter<AlbumHolder>(),  FastScrollRecyclerView.SectionedAdapter {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {
+            val layoutInflater = LayoutInflater.from(parent.context)
+            val view = layoutInflater.inflate(
+                R.layout.add_to_playlist_item, parent, false
+            )
+            return AlbumHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: AlbumHolder, position: Int) {
+            items[position].apply {
+                holder.bindItem(this, position)
+            }
+        }
+
+        override fun getItemCount(): Int = items.size
+
+        override fun getSectionName(position: Int): String =
+            "${items[position].name[0]}"
+    }
+
+    private inner class PlaylistHolder(itemView: View):
+        RecyclerView.ViewHolder(itemView) {
+
+        private val pathTextView: TextView = itemView.findViewById(R.id.add_to_playlist_item_name)
+        private val playlistActionImageButton: ImageButton = itemView.findViewById(R.id.item_action)
+        private val playlistActionFrame: FrameLayout = itemView.findViewById(R.id.item_action_frame)
+
+        private fun openPlaylist(playlist: Playlist) {
+            viewModel.playSongs(playlist.songs.toTypedArray())
+        }
+
+        private val actionPopUpMenu: (Playlist) -> Unit = { playlist ->
+            val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
+            val initActionMenuLayout = { R.menu.add_to_playlist_pop_up }
+            val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
+                when (it.itemId) {
+                    R.id.playlist_item_play -> {
+                        viewModel.playSongs(playlist.songs.toTypedArray())
+                        true
+                    }
+                    R.id.playlist_item_add_to_home_screen -> {
+                        TODO()
+                        true
+                    }
+                    R.id.playlist_item_delete -> {
+                        scope.launch {
+                            viewModel.deletePlaylist(playlist)
+                            withContext(Dispatchers.Main) {
+                                setupAdapter()
+                            }
+                        }
+                        true
+                    }
+                    else -> {
+                        false
+                    }
+                }
+            }
+
+            setupPopupMenuOnClick(
+                requireContext(),
+                playlistActionImageButton,
+                initActionMenuStyle,
+                initActionMenuLayout,
+                initActionMenuItemClickListener
+            )
+
+            Unit
+        }
+
+        private fun setOnClickAndImageResource(playlist: Playlist) {
+            itemView.setOnClickListener {
+                openPlaylist(playlist)
+            }
+            pathTextView.setOnClickListener {
+                openPlaylist(playlist)
+            }
+            playlistActionImageButton.setOnClickListener {
+                actionPopUpMenu(playlist)
+            }
+            playlistActionFrame.setOnClickListener {
+                actionPopUpMenu(playlist)
+            }
+        }
+
+        fun bindItem(playlist: Playlist, position: Int) {
+            setOnClickAndImageResource(playlist)
+            pathTextView.text = "${playlist.name} \nContain: ${playlist.songs.size}"
+        }
+    }
+
+    private inner class PlaylistAdapter(val items:  Array<out Playlist>):
+        RecyclerView.Adapter<PlaylistHolder>(),  FastScrollRecyclerView.SectionedAdapter {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder {
+            val layoutInflater = LayoutInflater.from(parent.context)
+            val view = layoutInflater.inflate(
+                R.layout.add_to_playlist_item, parent, false
+            )
+            return PlaylistHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: PlaylistHolder, position: Int) {
+            items[position].apply {
+                holder.bindItem(this, position)
+            }
+        }
+
+        override fun getItemCount(): Int = items.size
+
+        override fun getSectionName(position: Int): String =
+            "${items[position].name[0]}"
+    }
 }

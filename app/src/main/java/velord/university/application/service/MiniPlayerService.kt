@@ -9,12 +9,10 @@ import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.*
 import velord.university.application.AudlayerApp
+import velord.university.application.broadcast.*
 import velord.university.application.broadcast.MiniPlayerBroadcastPlay.sendBroadcastPlayUI
-import velord.university.application.broadcast.MiniPlayerBroadcastRewind
 import velord.university.application.broadcast.MiniPlayerBroadcastRewind.sendBroadcastRewindUI
-import velord.university.application.broadcast.MiniPlayerBroadcastShow
 import velord.university.application.broadcast.MiniPlayerBroadcastSongArtist.sendBroadcastSongArtistUI
-import velord.university.application.broadcast.MiniPlayerBroadcastSongDuration
 import velord.university.application.broadcast.MiniPlayerBroadcastSongName.sendBroadcastSongNameUI
 import velord.university.application.broadcast.MiniPlayerBroadcastStop.sendBroadcastStopUI
 import velord.university.application.settings.AppPreference
@@ -23,7 +21,7 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
 import velord.university.model.QueueResolver
-import velord.university.model.SongPlaylist
+import velord.university.model.ServicePlaylist
 import velord.university.model.converter.SongTimeConverter
 import velord.university.model.entity.MiniPlayerServiceSong
 import velord.university.repository.AppDatabase
@@ -35,7 +33,7 @@ abstract class MiniPlayerService : Service() {
 
     private lateinit var player: MediaPlayer
 
-    private val playlist = SongPlaylist()
+    private val playlist = ServicePlaylist()
 
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
     private lateinit var  rewindJob: Job
@@ -48,7 +46,10 @@ abstract class MiniPlayerService : Service() {
     override fun onCreate() {
         Log.d(TAG, "onCreate called")
         super.onCreate()
-        retrieveInfo()
+        scope.launch {
+            AudlayerApp.checkDbTableColumn()
+            retrieveInfo()
+        }
     }
 
     override fun onDestroy() {
@@ -206,15 +207,37 @@ abstract class MiniPlayerService : Service() {
         Toast.makeText(this, info, Toast.LENGTH_SHORT).show()
     }
 
+    protected fun likeSong() {
+        AudlayerApp.db?.let {
+            scope.launch {
+                val songPath = playlist.getSongPath()
+                val favourite = it.playlistDao().getByName("Favourite")
+                favourite.songs += songPath
+                it.playlistDao().update(favourite)
+            }
+        }
+    }
+
+    protected fun unlikeSong() {
+        AudlayerApp.db?.let {
+            scope.launch {
+                val songPath = playlist.getSongPath()
+                val favourite = it.playlistDao().getByName("Favourite")
+                favourite.songs = favourite.songs.filter { it != songPath }
+                it.playlistDao().update(favourite)
+            }
+        }
+    }
+
     private fun retrieveInfo() {
         scope.launch {
             AudlayerApp.db?.let { db ->
                 val songsFromDb = retrievePlaylist(db)
-                val songsToPlaylist = songsFromDb.sortedBy {
-                    it.pos
-                }.map {
-                    File(it.path)
-                }
+                val songsToPlaylist =
+                    songsFromDb
+                        .filter { it.path.isNotEmpty() }
+                        .sortedBy { it.pos }
+                        .map { File(it.path) }
 
                 if (songsToPlaylist.isNotEmpty()) {
                     addToSongQueue(songsToPlaylist)
@@ -248,7 +271,7 @@ abstract class MiniPlayerService : Service() {
     }
 
     private suspend fun retrievePlaylist(db: AppDatabase) =
-        scope.async { db.serviceDao().getAll() }.await()
+        withContext(Dispatchers.IO) { db.serviceDao().getAll() }
 
     private fun addToSongQueue(list: List<File>) {
         playlist.songs.addAll(list)
@@ -276,7 +299,7 @@ abstract class MiniPlayerService : Service() {
         }
     }
 
-    private fun sendIsHQ() {
+    private fun sendIsHQ(song: File) {
 
     }
 
@@ -322,10 +345,31 @@ abstract class MiniPlayerService : Service() {
             playlist.getSongAndResetQuery(path)
         createPlayer(song.path)
         playSongAfterCreatedPlayer()
+        //update db
+        scope.launch {
+            updatePlayedSong(song.path)
+        }
         //send info
         sendInfoToUI(song)
         //store pos
         storeSongPositionInQueue()
+    }
+
+    private suspend fun updatePlayedSong(path: String) = withContext(Dispatchers.IO) {
+        AudlayerApp.db?.apply {
+            //retrieve from Db
+            val playedSongs =
+                playlistDao().getByName("Played")
+            //add new path
+            //secure from duplicate last
+            //secure from null
+            playedSongs?.let {
+                if (playedSongs.songs.last() != path)
+                    playedSongs.songs += path
+                //update column
+                playlistDao().update(playedSongs)
+            }
+        }
     }
 
     private fun createPlayer(path: String) {
@@ -397,8 +441,25 @@ abstract class MiniPlayerService : Service() {
 
     private fun sendInfoToUI(song: File = playlist.getSong()) {
         //send info
-        sendSongNameAndArtist(song)
-        sendDurationSong(player)
-        sendIsHQ()
+        scope.launch {
+            sendSongNameAndArtist(song)
+            sendDurationSong(player)
+            sendIsHQ(song)
+            sendIsLoved(song)
+        }
+    }
+
+    private suspend fun sendIsLoved(song: File) = withContext(Dispatchers.IO) {
+        AudlayerApp.db?.let {
+            val favourite =
+                it.playlistDao().getByName("Favourite")
+            if (favourite.songs.contains(song.path))
+                MiniPlayerBroadcastLike.apply {
+                    sendBroadcastLikeUI()
+                }
+            else MiniPlayerBroadcastUnlike.apply {
+                sendBroadcastUnlikeUI()
+            }
+        }
     }
 }

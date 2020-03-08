@@ -115,10 +115,25 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="AlbumPlaylistTextView" parent="Widget.AppCompat.TextView">
-        <item name="android:layout_width">match_parent</item>
+    <style name="AlbumPlaylistArticle" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_weight">4</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/gold</item>
+        <item name="android:layout_marginStart">16dp</item>
+    </style>
+
+    <style name="AlbumPlaylistRefresh" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_weight">2</item>
+        <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/gold</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:textAlignment">center</item>
     </style>
 
 </resources>

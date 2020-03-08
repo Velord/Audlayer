@@ -5,6 +5,8 @@ import java.util.*
 
 object FileFilter {
 
+    const val MAXFILEAGE: Long = 2678400000L // 1 month in milliseconds
+
     fun filterOnlyAudio(file: File): List<File> {
         val filesInFolder = file.listFiles() ?: arrayOf()
         return filesInFolder.filter {
@@ -42,5 +44,11 @@ object FileFilter {
     val orderByDateAdded: (File) -> Long = {
         it.lastModified()
     }
+    //sort by last month
+    fun recentlyModified(files: List<File>,
+                         f: (File) -> Boolean = {
+                             it.lastModified() + MAXFILEAGE > System.currentTimeMillis()
+                         }
+    ): List<File> = files.filter { it.path.isNotEmpty() }.sortedBy(f)
 
 }

@@ -1,7 +1,7 @@
 <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
     android:id="@+id/general_RecyclerView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     app:fastScrollAutoHide="true"
     app:fastScrollAutoHideDelay="1500"
     app:fastScrollPopupBgColor="@color/fragmentBackgroundDarkerOpacity"

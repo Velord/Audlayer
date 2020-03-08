@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/edit_name"
     android:layout_width="wrap_content"
-    android:background="@color/colorPrimary"
+    android:background="@color/fragmentBackgroundDarkerPurple"
     android:layout_height="wrap_content"
     android:layout_gravity="center">
 
@@ -11,7 +11,7 @@
         android:id="@+id/create_new_playlist_hint"
         android:layout_width="300dp"
         android:layout_height="50dp"
-        android:background="@color/colorPrimaryDark"
+        android:background="@color/fragmentBackgroundDarkestPurple"
         android:gravity="center"
         android:text="@string/add_to_playlist_create_new"
         android:textAlignment="center"
@@ -54,7 +54,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
         android:orientation="horizontal"
-        android:background="@drawable/create_new_playlist_fragment_shape"
+        android:background="@drawable/dark_border_shape"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_txt_your_name">
@@ -78,7 +78,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:orientation="horizontal"
-        android:background="@drawable/create_new_playlist_fragment_shape"
+        android:background="@drawable/dark_border_shape"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_txt_your_name">

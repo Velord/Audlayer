@@ -153,7 +153,7 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),
                         R.id.playlist_item_delete -> {
                             AudlayerApp.db?.let {
                                 scope.launch {
-                                    it.playlistDao().deletePlaylist(playlist.id)
+                                    it.playlistDao().deletePlaylistById(playlist.id)
                                 }
                             }
                             setupAdapter()
