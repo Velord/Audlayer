@@ -13,7 +13,7 @@ class ActionBarViewModel(private val app: Application) : AndroidViewModel(app) {
 
     init {
         //need retrieve from shared preferences
-        mutableSearchTerm.value = ""
+        mutableSearchTerm.value = "-1"
     }
 
     fun setupSearchQueryByAlbumPreference() {

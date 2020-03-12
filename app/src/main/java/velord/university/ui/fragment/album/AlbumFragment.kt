@@ -116,10 +116,13 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         }
     }
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
-        //store search term in shared preferences
-        viewModel.storeSearchQuery(searchQuery)
-        //update files list
-        updateAdapterBySearchQuery(searchQuery)
+        //-1 is default value, just ignore it
+        if (searchQuery != "-1") {
+            //store search term in shared preferences
+            viewModel.storeSearchQuery(searchQuery)
+            //update files list
+            updateAdapterBySearchQuery(searchQuery)
+        }
     }
 
     override fun onCreateView(
@@ -138,7 +141,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
                     //init self view
                     initViews(this@apply)
                     //observe changes in search view
-                    super.observeSearchTerm()
+                    super.observeSearchQuery()
                     //setup adapter by invoke change in search view
                     setupAdapter()
                 }

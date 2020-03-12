@@ -170,11 +170,14 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
 
     override val actionBarPopUpMenu: (PopupMenu) -> Unit = {}
 
-    override val actionBarObserveSearchQuery: (String) -> Unit = { searchTerm ->
-        //store search term in shared preferences
-        viewModel.storeCurrentFolderSearchQuery(searchTerm)
-        //update files list
-        updateAdapterBySearchQuery(searchTerm)
+    override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
+        //-1 is default value, just ignore it
+        if (searchQuery != "-1") {
+            //store search term in shared preferences
+            viewModel.storeCurrentFolderSearchQuery(searchQuery)
+            //update files list
+            updateAdapterBySearchQuery(searchQuery)
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -197,7 +200,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
             //init self view
             initViews(this)
             //observe changes in search view
-            super.observeSearchTerm()
+            super.observeSearchQuery()
             setupAdapter(viewModel.currentFolder)
         }
     }
@@ -268,7 +271,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
         super.setOnScrollListenerBasedOnRecyclerViewScrolling(rv, 50, -5)
     }
 
-    private fun updateAdapterBySearchQuery(searchTerm: String) {
+    private fun updateAdapterBySearchQuery(searchQuery: String) {
         fun _setupAdapter(file: File = Environment.getExternalStorageDirectory(),
                             //default filter
                           filter: (File, String) -> Boolean = FileFilter.filterByEmptySearchQuery
@@ -279,11 +282,11 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
             changeCurrentTextView(file)
             //apply all filters to recycler view
             viewModel.fileList =
-                viewModel.filterAndSortFiles(filter, searchTerm)
+                viewModel.filterAndSortFiles(filter, searchQuery)
             rv.adapter = FileAdapter(viewModel.fileList)
         }
 
-        if (searchTerm.isNotEmpty()) {
+        if (searchQuery.isNotEmpty()) {
             val f = FileFilter.filterBySearchQuery
             _setupAdapter(viewModel.currentFolder, f)
         }

@@ -64,7 +64,7 @@ class SelectSongFragment : ActionBarFragment(),
         return inflater.inflate(R.layout.add_song_fragment, container, false).apply {
             initViews(this)
             //observe changes in search view
-            super.observeSearchTerm()
+            super.observeSearchQuery()
             setupAdapter()
         }
     }

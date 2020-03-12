@@ -40,11 +40,9 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
 
     lateinit var albums: List<Album>
 
-    fun albumsIsInitialized(): Boolean =
-        ::albums.isInitialized
+    fun albumsIsInitialized(): Boolean = ::albums.isInitialized
 
-    fun playlistIsInitialized(): Boolean =
-        ::playlist.isInitialized
+    fun playlistIsInitialized(): Boolean = ::playlist.isInitialized
 
     suspend fun retrievePlaylistFromDb() = withContext(Dispatchers.IO) {
         playlist = getPlaylists()
@@ -197,7 +195,9 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         //store search term in shared preferences
         currentQuery = query
         SearchQueryPreferences.setStoredQueryAlbum(app, currentQuery)
-        Log.d(TAG, "query: $currentQuery")
+        val dfgd = SearchQueryPreferences.getStoredQueryAlbum(app)
+        Log.d(TAG, "retrieved: $dfgd")
+        Log.d(TAG, "stored: $currentQuery")
     }
 
     private fun getAlbumImage(path: String): Bitmap? {

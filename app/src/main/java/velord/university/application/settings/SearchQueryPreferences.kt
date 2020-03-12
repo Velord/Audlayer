@@ -12,7 +12,7 @@ object SearchQueryPreferences {
     fun getStoredQueryFolder(context: Context,
                              folder: String): String  =
         PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(folder, "")!!
+            .getString(folder, "-1")!!
 
     fun setStoredQueryFolder(context: Context,
                              folder: String,
@@ -25,7 +25,7 @@ object SearchQueryPreferences {
     fun getStoredQueryAlbum(context: Context,
                             key: String = PREF_SEARCH_QUERY_ALBUM): String  =
         PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(key, "")!!
+            .getString(key, "-1")!!
 
     fun setStoredQueryAlbum(context: Context,
                             query: String,
