@@ -241,9 +241,9 @@ class SongFragment : ActionBarFragment() {
     private inner class SongHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val path: TextView = itemView.findViewById(R.id.add_to_playlist_item_name)
-        private val action: ImageButton = itemView.findViewById(R.id.item_action)
-        private val frame: FrameLayout = itemView.findViewById(R.id.action_item_frame)
+        private val path: TextView = itemView.findViewById(R.id.general_item_path)
+        private val action: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
+        private val frame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
 
         private val mediaRetriever = MediaMetadataRetriever()
 
@@ -320,7 +320,7 @@ class SongFragment : ActionBarFragment() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
-                R.layout.add_to_playlist_item, parent, false
+                R.layout.general_rv_item, parent, false
             )
             return SongHolder(view)
         }

@@ -254,9 +254,9 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
     private inner class AlbumHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val pathTextView: TextView = itemView.findViewById(R.id.add_to_playlist_item_name)
-        private val playlistActionImageButton: ImageButton = itemView.findViewById(R.id.item_action)
-        private val playlistActionFrame: FrameLayout = itemView.findViewById(R.id.action_item_frame)
+        private val pathTextView: TextView = itemView.findViewById(R.id.general_item_path)
+        private val actionImageButton: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
+        private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
 
         private fun openAlbum(album: Album) {
             viewModel.playSongs(album.songs.toTypedArray())
@@ -287,7 +287,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
 
             setupPopupMenuOnClick(
                 requireContext(),
-                playlistActionImageButton,
+                actionImageButton,
                 initActionMenuStyle,
                 initActionMenuLayout,
                 initActionMenuItemClickListener
@@ -303,10 +303,10 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
             pathTextView.setOnClickListener {
                 openAlbum(album)
             }
-            playlistActionImageButton.setOnClickListener {
+            actionImageButton.setOnClickListener {
                 actionPopUpMenu(album)
             }
-            playlistActionFrame.setOnClickListener {
+            actionFrame.setOnClickListener {
                 actionPopUpMenu(album)
             }
         }
@@ -323,7 +323,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
-                R.layout.add_to_playlist_item, parent, false
+                R.layout.general_rv_item, parent, false
             )
             return AlbumHolder(view)
         }
@@ -343,9 +343,9 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
     private inner class PlaylistHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val pathTextView: TextView = itemView.findViewById(R.id.add_to_playlist_item_name)
-        private val playlistActionImageButton: ImageButton = itemView.findViewById(R.id.item_action)
-        private val playlistActionFrame: FrameLayout = itemView.findViewById(R.id.action_item_frame)
+        private val pathTextView: TextView = itemView.findViewById(R.id.general_item_path)
+        private val actionImageButton: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
+        private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
 
         private fun openPlaylist(playlist: Playlist) {
             viewModel.playSongs(playlist.songs.toTypedArray())
@@ -381,7 +381,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
 
             setupPopupMenuOnClick(
                 requireContext(),
-                playlistActionImageButton,
+                actionImageButton,
                 initActionMenuStyle,
                 initActionMenuLayout,
                 initActionMenuItemClickListener
@@ -397,10 +397,10 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
             pathTextView.setOnClickListener {
                 openPlaylist(playlist)
             }
-            playlistActionImageButton.setOnClickListener {
+            actionImageButton.setOnClickListener {
                 actionPopUpMenu(playlist)
             }
-            playlistActionFrame.setOnClickListener {
+            actionFrame.setOnClickListener {
                 actionPopUpMenu(playlist)
             }
         }
@@ -417,7 +417,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
-                R.layout.add_to_playlist_item, parent, false
+                R.layout.general_rv_item, parent, false
             )
             return PlaylistHolder(view)
         }

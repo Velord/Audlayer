@@ -326,10 +326,10 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
     private inner class FileHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val fileIconImageButton: ImageButton = itemView.findViewById(R.id.folder_item_icon)
-        private val pathTextView: TextView = itemView.findViewById(R.id.folder_item_path)
-        private val fileActionImageButton: ImageButton = itemView.findViewById(R.id.item_action)
-        private val fileActionFrame: FrameLayout = itemView.findViewById(R.id.action_item_frame)
+        private val iconImageButton: ImageButton = itemView.findViewById(R.id.general_item_icon)
+        private val pathTextView: TextView = itemView.findViewById(R.id.general_item_path)
+        private val actionImageButton: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
+        private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
 
         private fun setOnClickAndImageResource(file: File) {
             when(FileExtension.checkCompatibleFileExtension(file)) {
@@ -371,7 +371,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
 
                         setupPopupMenuOnClick(
                             requireContext(),
-                            fileActionImageButton,
+                            actionImageButton,
                             initActionMenuStyle,
                             initActionMenuLayout,
                             initActionMenuItemClickListener
@@ -381,7 +381,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                     }
 
                     setOnClick(action, popUpAction)
-                    fileIconImageButton.setImageResource(R.drawable.extension_file_folder)
+                    iconImageButton.setImageResource(R.drawable.extension_file_folder)
                 }
                 FileExtensionModifier.AUDIO -> {
                     val action = { viewModel.playAudioFile(file) }
@@ -419,7 +419,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
 
                         setupPopupMenuOnClick(
                             requireContext(),
-                            fileActionImageButton,
+                            actionImageButton,
                             initActionMenuStyle,
                             initActionMenuLayout,
                             initActionMenuItemClickListener
@@ -428,10 +428,10 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                         Unit
                     }
                     setOnClick(action, popUpAction)
-                    fileIconImageButton.setImageResource(R.drawable.extension_file_song)
+                    iconImageButton.setImageResource(R.drawable.extension_file_song)
                 }
                 FileExtensionModifier.NOTCOMPATIBLE -> {
-                    fileIconImageButton.setImageResource(R.drawable.extension_file_not_important)
+                    iconImageButton.setImageResource(R.drawable.extension_file_not_important)
                 }
             }
         }
@@ -440,16 +440,16 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
             itemView.setOnClickListener {
                 f()
             }
-            fileIconImageButton.setOnClickListener {
+            iconImageButton.setOnClickListener {
                 f()
             }
             pathTextView.setOnClickListener {
                 f()
             }
-            fileActionImageButton.setOnClickListener {
+            actionImageButton.setOnClickListener {
                 popUpF()
             }
-            fileActionFrame.setOnClickListener {
+            actionFrame.setOnClickListener {
                 popUpF()
             }
         }
@@ -466,7 +466,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
-                R.layout.folder_fragment_item, parent, false
+                R.layout.general_rv_item, parent, false
             )
 
             return FileHolder(view)
