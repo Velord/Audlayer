@@ -114,7 +114,7 @@ class SelectSongFragment : ActionBarFragment(),
         rv = view.findViewById(R.id.general_RecyclerView)
         rv.layoutManager = LinearLayoutManager(activity)
         //controlling action bar frame visibility when recycler view is scrolling
-        super.setOnScrollListenerBasedOnRecyclerViewScrolling(rv, 50, -5)
+        super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
     }
 
     override fun onBackPressed(): Boolean {
@@ -131,19 +131,19 @@ class SelectSongFragment : ActionBarFragment(),
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
             R.id.folder_sort_by_name -> {
-                SortByPreference.setNameArtistDateAddedSelectSongFragment(requireContext(), 0)
+                SortByPreference.setSortBySelectSongFragment(requireContext(), 0)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
             R.id.folder_sort_by_artist -> {
-                SortByPreference.setNameArtistDateAddedSelectSongFragment(requireContext(), 1)
+                SortByPreference.setSortBySelectSongFragment(requireContext(), 1)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
             R.id.folder_sort_by_date_added -> {
-                SortByPreference.setNameArtistDateAddedSelectSongFragment(requireContext(), 2)
+                SortByPreference.setSortBySelectSongFragment(requireContext(), 2)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true                        }
@@ -186,7 +186,7 @@ class SelectSongFragment : ActionBarFragment(),
         val menuItem = it.menu
 
         val nameArtistDateOrder =
-            SortByPreference.getNameArtistDateAddedSelectSongFragment(requireContext())
+            SortByPreference.getSortBySelectSongFragment(requireContext())
         when(nameArtistDateOrder) {
             0 -> { menuItem.getItem(0).isChecked = true }
             1 -> { menuItem.getItem(1).isChecked = true }
@@ -282,7 +282,7 @@ class SelectSongFragment : ActionBarFragment(),
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
-                R.layout.add_song_fragment_item, parent, false
+                R.layout.add_song_item, parent, false
             )
 
             return FileHolder(view)

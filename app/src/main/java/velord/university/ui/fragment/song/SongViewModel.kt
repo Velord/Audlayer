@@ -1,7 +1,141 @@
 package velord.university.ui.fragment.song
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import android.media.MediaMetadataRetriever
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import velord.university.application.AudlayerApp
+import velord.university.application.broadcast.MiniPlayerBroadcastAddToQueue
+import velord.university.application.broadcast.MiniPlayerBroadcastLoop
+import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
+import velord.university.application.settings.SearchQueryPreferences
+import velord.university.application.settings.SortByPreference
+import velord.university.interactor.SongPlaylistInteractor
+import velord.university.model.FileFilter
+import velord.university.model.entity.Playlist
+import java.io.File
 
-class SongViewModel : ViewModel() {
-    // TODO: Implement the ViewModel
+
+class SongViewModel(private val app: Application) : AndroidViewModel(app) {
+
+    val TAG = "SongViewModel"
+
+    lateinit var songs: List<File>
+    lateinit var ordered: List<File>
+
+    lateinit var currentQuery: String
+
+    suspend fun retrieveSongsFromDb() = withContext(Dispatchers.IO) {
+        val allPlaylist = getAllPlaylist()
+        Log.d(TAG, "all playlist retrieved")
+        //unique songs
+        songs = allSongFromPlaylist(allPlaylist)
+        Log.d(TAG, "all song retrieved")
+    }
+
+    suspend fun filterByQuery(query: String): List<File> = withContext(Dispatchers.Default) {
+        val filtered = songs.filter {
+            FileFilter.filterBySearchQuery(it, query)
+        }
+        //sort by name or artist or date added or duration or size
+        val sorted = when(SortByPreference.getSortBySongFragment(app)) {
+            //name
+            0 -> filtered.sortedBy {
+                FileFilter.getName(it)
+            }
+            //artist
+            1 -> filtered.sortedBy {
+                FileFilter.getArtist(it)
+            }
+            //date added
+            2 -> filtered.sortedBy {
+                FileFilter.getLastDateModified(it)
+            }
+            //duration TODO()
+            3 -> {
+                val mediaMetadataRetriever = MediaMetadataRetriever()
+                filtered.sortedBy {
+                    mediaMetadataRetriever.setDataSource(it.absolutePath)
+                    val durationStr = mediaMetadataRetriever
+                        .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                    durationStr.toLong()
+                }
+            }
+            //file size
+            4 -> filtered.sortedBy { FileFilter.getSize(it) }
+            else -> filtered
+        }
+        // sort by ascending or descending order
+        ordered = when(SortByPreference.getAscDescSongFragment(app)) {
+            0 -> sorted
+            1 ->  sorted.reversed()
+            else -> sorted
+        }
+
+        return@withContext ordered
+    }
+
+    fun shuffle(): List<File> = ordered.shuffled()
+
+    fun storeSearchQuery(query: String) {
+        //store search term in shared preferences
+        currentQuery = query
+        SearchQueryPreferences.setStoredQuerySong(app, currentQuery)
+        val check = SearchQueryPreferences.getStoredQuerySong(app)
+        Log.d(TAG, "retrieved: $check")
+        Log.d(TAG, "stored: $currentQuery")
+    }
+
+    fun songsIsInitialized() = ::songs.isInitialized
+
+    fun getSearchQuery(): String = SearchQueryPreferences.getStoredQuerySong(app)
+
+    fun playAudioAndAllSong(file: File) {
+        MiniPlayerBroadcastPlayByPath.apply {
+            SongPlaylistInteractor.songs = ordered.toTypedArray()
+            app.sendBroadcastPlayByPath(file.path)
+        }
+        MiniPlayerBroadcastLoop.apply {
+            app.sendBroadcastLoop()
+        }
+    }
+
+    fun playAudio(file: File) {
+        //don't remember for SongQuery Interactor it will be used between this and service
+        SongPlaylistInteractor.songs = arrayOf(file)
+        MiniPlayerBroadcastPlayByPath.apply {
+            app.sendBroadcastPlayByPath(file.path)
+        }
+        MiniPlayerBroadcastLoop.apply {
+            app.sendBroadcastLoop()
+        }
+    }
+
+    fun playAudioNext(file: File) {
+        //don't remember for SongQuery Interactor it will be used between this and service
+        SongPlaylistInteractor.songs = arrayOf(file)
+        //add to queue one song
+        MiniPlayerBroadcastAddToQueue.apply {
+            app.sendBroadcastAddToQueue(file.path)
+        }
+    }
+
+    private suspend fun getAllPlaylist(): List<Playlist> =
+        withContext(Dispatchers.IO) {
+        return@withContext AudlayerApp.db?.run {
+            playlistDao().getAll()
+        }
+    } ?: listOf()
+
+    private fun allSongFromPlaylist(playlist: List<Playlist>): List<File> =
+        playlist.map { it.songs }
+            .fold(mutableListOf<String>()) { joined, fromDB ->
+                joined.addAll(fromDB)
+                joined
+            }
+            .distinct()
+            .map { File(it) }
+            .filter { it.path.isNotEmpty() }
 }

@@ -118,7 +118,7 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
     }
 
     //controlling action bar frame visibility when recycler view is scrolling
-    protected fun setOnScrollListenerBasedOnRecyclerViewScrolling(
+    protected fun setScrollListenerByRecyclerViewScrolling(
         rv: RecyclerView, hideStartFrom: Int, showStartFrom: Int) {
         rv.setOnScrollListener(object : RecyclerView.OnScrollListener(){
 

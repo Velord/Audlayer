@@ -246,9 +246,11 @@ abstract class MiniPlayerService : Service() {
                         MiniPlayerServicePreferences
                             .getCurrentDuration(this@MiniPlayerService)
                     //what song should play
-                    val posWasPlayedSong =
+                    var posWasPlayedSong =
                         MiniPlayerServicePreferences
                             .getCurrentPos(this@MiniPlayerService)
+                    if (posWasPlayedSong > songsToPlaylist.lastIndex)
+                        posWasPlayedSong = songsToPlaylist.lastIndex
                     val path =
                         playlist.getSong(posWasPlayedSong).path
                     val isPlaying =

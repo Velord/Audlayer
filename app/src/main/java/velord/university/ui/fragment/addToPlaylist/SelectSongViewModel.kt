@@ -21,29 +21,26 @@ class SelectSongViewModel(private val app: Application) : AndroidViewModel(app) 
                            filter: (File, String) -> Boolean,
                            searchTerm: String)
             : Array<File> {
-        //if you would see not compatible format
-        //just remove or comment 2 lines bottom
-        val compatibleFileFormat =
+        val songs =
             fileList.filter { filter(it, searchTerm) }
         // sort by name or artist or date added
-        val sortedFiles =
-            when(SortByPreference.getNameArtistDateAddedSelectSongFragment(context)) {
-                0 ->  {
-                    compatibleFileFormat.sortedBy {  FileFilter.orderByName(it)  }
-                }
-                1 ->  {
-                    compatibleFileFormat.sortedBy { FileFilter.orderByArtist(it) }
-                }
-                2 ->  {
-                    compatibleFileFormat.sortedBy { FileFilter.orderByDateAdded(it) }
-                }
-                else -> compatibleFileFormat
+        val sorted = when(SortByPreference.getSortBySelectSongFragment(context)) {
+            0 ->  {
+                songs.sortedBy {  FileFilter.getName(it)  }
             }
+            1 ->  {
+                songs.sortedBy { FileFilter.getArtist(it) }
+            }
+            2 ->  {
+                songs.sortedBy { FileFilter.getLastDateModified(it) }
+            }
+            else -> songs
+        }
         // sort by ascending or descending order
         return when(SortByPreference.getAscDescSelectSongFragment(context)) {
-            0 -> sortedFiles
-            1 ->  sortedFiles.reversed()
-            else -> sortedFiles
+            0 -> sorted
+            1 ->  sorted.reversed()
+            else -> sorted
         }.toTypedArray()
     }
 }

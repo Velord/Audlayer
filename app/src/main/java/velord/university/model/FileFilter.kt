@@ -1,7 +1,9 @@
 package velord.university.model
 
+import android.media.MediaMetadataRetriever
 import java.io.File
 import java.util.*
+
 
 object FileFilter {
 
@@ -33,17 +35,30 @@ object FileFilter {
                 FileExtensionModifier.NOTCOMPATIBLE
     }
 
-    val orderByName: (File) -> String = {
+    val getName: (File) -> String = {
         FileNameParser.getSongName(it)
     }
 
-    val orderByArtist: (File) -> String = {
+    val getArtist: (File) -> String = {
         FileNameParser.getSongArtist(it)
     }
 
-    val orderByDateAdded: (File) -> Long = {
+    val getLastDateModified: (File) -> Long = {
         it.lastModified()
     }
+
+    val getDuration: (MediaMetadataRetriever, File) -> Long = { metaRetriever, song ->
+        metaRetriever.setDataSource(song.path)
+        val duration = metaRetriever
+            .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+        duration.toLong()
+    }
+
+    val getSize: (File) -> Long = {
+        val fileSize: Long = (it.length() / 1024)
+        fileSize
+    }
+
     //sort by last month
     fun recentlyModified(files: List<File>,
                          f: (File) -> Boolean = {

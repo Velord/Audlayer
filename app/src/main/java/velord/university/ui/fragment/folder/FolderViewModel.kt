@@ -25,6 +25,9 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
         currentFolder = Environment.getExternalStorageDirectory()
     }
 
+    fun getSearchQuery(): String =
+        SearchQueryPreferences.getStoredQueryFolder(app, currentFolder.path)
+
     fun onlyAudio(file: File): Array<File> =
         FileFilter.filterOnlyAudio(file).toTypedArray()
 
@@ -104,15 +107,15 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
         val compatibleFileFormat =
             filesInFolder.filter { filter(it, searchTerm) }
         // sort by name or artist or date added
-        val sortedFiles = when(SortByPreference.getNameArtistDateAddedFolderFragment(app)) {
+        val sortedFiles = when(SortByPreference.getSortByFolderFragment(app)) {
             0 ->  {
-                compatibleFileFormat.sortedBy {  FileFilter.orderByName(it)  }
+                compatibleFileFormat.sortedBy {  FileFilter.getName(it)  }
             }
             1 ->  {
-                compatibleFileFormat.sortedBy { FileFilter.orderByArtist(it) }
+                compatibleFileFormat.sortedBy { FileFilter.getArtist(it) }
             }
             2 ->  {
-                compatibleFileFormat.sortedBy { FileFilter.orderByDateAdded(it) }
+                compatibleFileFormat.sortedBy { FileFilter.getLastDateModified(it) }
             }
             else -> compatibleFileFormat
         }

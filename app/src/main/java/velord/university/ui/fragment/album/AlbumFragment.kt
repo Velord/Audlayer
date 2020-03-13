@@ -52,24 +52,24 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
             R.id.album_sort_by_album -> {
-                SortByPreference.setAlbumArtistYearNumberAlbumFragment(requireContext(), 0)
+                SortByPreference.setSortByAlbumFragment(requireContext(), 0)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
             R.id.album_sort_by_artist -> {
-                SortByPreference.setAlbumArtistYearNumberAlbumFragment(requireContext(), 1)
+                SortByPreference.setSortByAlbumFragment(requireContext(), 1)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
             R.id.album_sort_by_year -> {
-                SortByPreference.setAlbumArtistYearNumberAlbumFragment(requireContext(), 2)
+                SortByPreference.setSortByAlbumFragment(requireContext(), 2)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true                        }
             R.id.album_sort_by_number_of_tracks -> {
-                SortByPreference.setAlbumArtistYearNumberAlbumFragment(requireContext(), 3)
+                SortByPreference.setSortByAlbumFragment(requireContext(), 3)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
@@ -100,7 +100,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         val menuItem = it.menu
 
         val nameArtistDateOrder =
-            SortByPreference.getAlbumArtistYearNumberAlbumFragment(requireContext())
+            SortByPreference.getSortByAlbumFragment(requireContext())
         when(nameArtistDateOrder) {
             0 -> { menuItem.getItem(0).isChecked = true }
             1 -> { menuItem.getItem(1).isChecked = true }
@@ -186,7 +186,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
             layoutManager = LinearLayoutManager(activity)
         }
         //controlling action bar frame visibility when recycler view is scrolling
-        super.setOnScrollListenerBasedOnRecyclerViewScrolling(albumRV, 50, -5)
+        super.setScrollListenerByRecyclerViewScrolling(albumRV, 50, -5)
     }
 
     private fun initPlaylist(view: View) {
@@ -221,7 +221,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
             layoutManager = LinearLayoutManager(activity)
         }
         //controlling action bar frame visibility when recycler view is scrolling
-        super.setOnScrollListenerBasedOnRecyclerViewScrolling(playlistRV, 50, -5)
+        super.setScrollListenerByRecyclerViewScrolling(playlistRV, 50, -5)
     }
 
     private fun updateAdapterBySearchQuery(searchQuery: String) {
@@ -246,15 +246,17 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         }
     }
 
-    private fun setupAdapter() =
-        super.viewModelActionBar.setupSearchQueryByAlbumPreference()
+    private fun setupAdapter() {
+        val query = viewModel.getSearchQuery()
+        super.viewModelActionBar.setupSearchQuery(query)
+    }
 
     private inner class AlbumHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
         private val pathTextView: TextView = itemView.findViewById(R.id.add_to_playlist_item_name)
         private val playlistActionImageButton: ImageButton = itemView.findViewById(R.id.item_action)
-        private val playlistActionFrame: FrameLayout = itemView.findViewById(R.id.item_action_frame)
+        private val playlistActionFrame: FrameLayout = itemView.findViewById(R.id.action_item_frame)
 
         private fun openAlbum(album: Album) {
             viewModel.playSongs(album.songs.toTypedArray())
@@ -343,7 +345,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
 
         private val pathTextView: TextView = itemView.findViewById(R.id.add_to_playlist_item_name)
         private val playlistActionImageButton: ImageButton = itemView.findViewById(R.id.item_action)
-        private val playlistActionFrame: FrameLayout = itemView.findViewById(R.id.item_action_frame)
+        private val playlistActionFrame: FrameLayout = itemView.findViewById(R.id.action_item_frame)
 
         private fun openPlaylist(playlist: Playlist) {
             viewModel.playSongs(playlist.songs.toTypedArray())

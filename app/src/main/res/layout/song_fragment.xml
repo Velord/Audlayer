@@ -1,12 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/song_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/feature_will_be_added_soon"/>
+    <FrameLayout
+        android:id="@+id/action_bar_frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:background="@color/fragmentBackgroundDarkerOpacity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <include layout="@layout/action_bar">
+        </include>
 
-    <include layout="@layout/work_in_progress"/>
+    </FrameLayout>
+
+
+    <FrameLayout
+        android:id="@+id/folder_fragment_rv_frame"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/action_bar_frame_layout">
+
+        <include layout="@layout/general_rv">
+        </include>
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

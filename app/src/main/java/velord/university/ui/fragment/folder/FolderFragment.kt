@@ -65,7 +65,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                 val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                     when (it.itemId) {
                         R.id.folder_sort_by_name -> {
-                            SortByPreference.setNameArtistDateAddedFolderFragment(requireContext(), 0)
+                            SortByPreference.setSortByFolderFragment(requireContext(), 0)
 
                             updateAdapterBySearchQuery(viewModel.currentQuery)
 
@@ -73,7 +73,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                             true
                         }
                         R.id.folder_sort_by_artist -> {
-                            SortByPreference.setNameArtistDateAddedFolderFragment(requireContext(), 1)
+                            SortByPreference.setSortByFolderFragment(requireContext(), 1)
 
                             updateAdapterBySearchQuery(viewModel.currentQuery)
 
@@ -81,7 +81,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                             true
                         }
                         R.id.folder_sort_by_date_added -> {
-                            SortByPreference.setNameArtistDateAddedFolderFragment(requireContext(), 2)
+                            SortByPreference.setSortByFolderFragment(requireContext(), 2)
 
                             updateAdapterBySearchQuery(viewModel.currentQuery)
 
@@ -109,19 +109,12 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                         }
                     }
                 }
-
-                setupPopupMenuOnClick(
-                    requireContext(),
-                    super.actionButton,
-                    initActionMenuStyle,
-                    initActionMenuLayout,
-                    initActionMenuItemClickListener
-                ).also {
+                val actionBarPopUpMenu: (PopupMenu) -> Unit = {
                     //set up checked item
                     val menuItem = it.menu
 
                     val nameArtistDateOrder =
-                        SortByPreference.getNameArtistDateAddedFolderFragment(requireContext())
+                        SortByPreference.getSortByFolderFragment(requireContext())
                     when(nameArtistDateOrder) {
                         0 -> { menuItem.getItem(0).isChecked = true }
                         1 -> { menuItem.getItem(1).isChecked = true }
@@ -134,6 +127,16 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                         1 -> { menuItem.getItem(4).isChecked = true }
                         else -> {}
                     }
+                }
+
+                setupPopupMenuOnClick(
+                    requireContext(),
+                    super.actionButton,
+                    initActionMenuStyle,
+                    initActionMenuLayout,
+                    initActionMenuItemClickListener
+                ).also {
+                    actionBarPopUpMenu(it)
                 }
 
                 //invoke immediately popup menu
@@ -159,7 +162,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
     }
 
     override val actionBarPopUpMenuLayout: () -> Int = {
-        R.menu.action_bar_folder_pop_up
+        R.menu.folder_fragment_pop_up
     }
 
     override val actionBarPopUpMenuStyle: () -> Int = {
@@ -268,7 +271,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
         rv = view.findViewById(R.id.general_RecyclerView)
         rv.layoutManager = LinearLayoutManager(activity)
         //controlling action bar frame visibility when recycler view is scrolling
-        super.setOnScrollListenerBasedOnRecyclerViewScrolling(rv, 50, -5)
+        super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
     }
 
     private fun updateAdapterBySearchQuery(searchQuery: String) {
@@ -295,7 +298,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
 
     private fun setupAdapter(file: File) {
         viewModel.currentFolder = file
-        super.viewModelActionBar.setupSearchQueryByFilePath(file)
+        val query = viewModel.getSearchQuery()
+        super.viewModelActionBar.setupSearchQuery(query)
     }
 
     private fun checkPermission(): Boolean =
@@ -325,7 +329,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
         private val fileIconImageButton: ImageButton = itemView.findViewById(R.id.folder_item_icon)
         private val pathTextView: TextView = itemView.findViewById(R.id.folder_item_path)
         private val fileActionImageButton: ImageButton = itemView.findViewById(R.id.item_action)
-        private val fileActionFrame: FrameLayout = itemView.findViewById(R.id.item_action_frame)
+        private val fileActionFrame: FrameLayout = itemView.findViewById(R.id.action_item_frame)
 
         private fun setOnClickAndImageResource(file: File) {
             when(FileExtension.checkCompatibleFileExtension(file)) {
@@ -333,7 +337,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                     val action = { setupAdapter(file) }
                     val popUpAction = {
                         val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
-                        val initActionMenuLayout = { R.menu.folder_recycler_item_is_folder_pop_up }
+                        val initActionMenuLayout = { R.menu.folder_item_is_folder_pop_up }
                         val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                             when (it.itemId) {
                                 R.id.folder_recyclerView_item_isFolder_play -> {
@@ -383,7 +387,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                     val action = { viewModel.playAudioFile(file) }
                     val popUpAction = {
                         val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
-                        val initActionMenuLayout = { R.menu.folder_recycler_item_is_audio_pop_up }
+                        val initActionMenuLayout = { R.menu.folder_item_is_audio_pop_up }
                         val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                             when (it.itemId) {
                                 R.id.folder_recyclerView_item_isAudio_play -> {

@@ -16,6 +16,7 @@ import velord.university.ui.fragment.addToPlaylist.CreateNewPlaylistDialogFragme
 import velord.university.ui.fragment.addToPlaylist.SelectSongFragment
 import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.main.MainFragment
+import velord.university.ui.fragment.song.SongFragment
 import velord.university.ui.util.addFragment
 import velord.university.ui.util.initFragment
 
@@ -26,7 +27,8 @@ class MainActivity : AppCompatActivity(),
     FolderFragment.Callbacks,
     SelectSongFragment.Callbacks,
     AddToPlaylist.Callbacks,
-    CreateNewPlaylistDialogFragment.Callbacks {
+    CreateNewPlaylistDialogFragment.Callbacks,
+    SongFragment.Callbacks{
 
     private val fm = supportFragmentManager
 
@@ -109,6 +111,14 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onAddToPlaylistFromFolderFragment() {
+        toZeroAndOpenAddToPlaylist()
+    }
+
+    override fun onAddToPlaylistFromSongFragment() {
+        toZeroAndOpenAddToPlaylist()
+    }
+
+    private fun toZeroAndOpenAddToPlaylist() {
         backPressedToZeroLevel()
         openAddToPlaylistFragment()
     }

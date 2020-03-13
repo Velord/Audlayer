@@ -10,6 +10,7 @@ import kotlinx.coroutines.*
 import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
 import velord.university.application.settings.SearchQueryPreferences
+import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.entity.Album
@@ -40,9 +41,63 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
 
     lateinit var albums: List<Album>
 
+    fun getSearchQuery(): String =
+        SearchQueryPreferences.getStoredQueryAlbum(app)
+
     fun albumsIsInitialized(): Boolean = ::albums.isInitialized
 
     fun playlistIsInitialized(): Boolean = ::playlist.isInitialized
+
+    fun filterByQueryPlaylist(query: String): List<Playlist> {
+        val newOther = other.filter { it.name.contains(query) }
+
+        // sort by album or artist or year or number of tracks
+        val sortedPlaylists = when(SortByPreference.getSortByAlbumFragment(app)) {
+            //album TODO()
+            0 -> newOther
+            //artist
+            1 -> newOther.sortedBy {
+                FileFilter.getArtist(File(it.songs[0]))
+            }
+            //year TODO()
+            2 -> newOther
+            //number of tracks
+            3 -> newOther.sortedBy { it.songs.size }
+            else -> newOther
+        }
+        // sort by ascending or descending order
+        val orderedPlaylists = when(SortByPreference.getAscDescAlbumFragment(app)) {
+            0 -> sortedPlaylists
+            1 ->  sortedPlaylists.reversed()
+            else -> sortedPlaylists
+        }
+
+        return collectPlaylist(
+            recentlyModified,
+            lastPlayed,
+            mostPlayed,
+            favourite,
+            orderedPlaylists
+        )
+    }
+
+    fun playSongs(songs: Array<String>) {
+        //don't remember for SongPlaylistInteractor
+        SongPlaylistInteractor.songs =
+            songs.map { File(it) }.toTypedArray()
+        MiniPlayerBroadcastPlayByPath.apply {
+            app.sendBroadcastPlayByPath(songs[0])
+        }
+    }
+
+    fun storeSearchQuery(query: String) {
+        //store search term in shared preferences
+        currentQuery = query
+        SearchQueryPreferences.setStoredQueryAlbum(app, currentQuery)
+        val check = SearchQueryPreferences.getStoredQueryAlbum(app)
+        Log.d(TAG, "retrieved: $check")
+        Log.d(TAG, "stored: $currentQuery")
+    }
 
     suspend fun retrievePlaylistFromDb() = withContext(Dispatchers.IO) {
         playlist = getPlaylists()
@@ -69,6 +124,55 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
             getPlaylists()
         }
     }
+
+    private fun collectPlaylist(recentlyModified: List<String>,
+                                lastPlayed: List<String>,
+                                mostPlayed: List<String>,
+                                favourite: List<String>,
+                                otherPlaylist: List<Playlist>): List<Playlist> {
+        return listOf(
+            Playlist("Recently Modified", recentlyModified),
+            Playlist("Last Played", lastPlayed),
+            Playlist("Most Played", mostPlayed),
+            Playlist("Favourite", favourite),
+            *otherPlaylist.map {
+                Playlist(it.name, it.songs)
+            }.toTypedArray()
+        )
+    }
+
+    private fun otherPlaylist(playlist: List<Playlist>): List<Playlist> =
+        playlist.filter {
+            it.name != "Favourite" && it.name != "Played"
+        }
+
+    private suspend fun getFavourite(): List<String> = withContext(Dispatchers.IO) {
+        return@withContext AudlayerApp.db?.run {
+            playlistDao().getByName("Favourite").songs.reversed().filter { it.isNotEmpty() }
+        }
+    } ?: listOf()
+
+    private suspend fun getPlayed(): List<String> = withContext(Dispatchers.IO) {
+        return@withContext AudlayerApp.db?.run {
+            playlistDao().getByName("Played").songs.reversed().filter { it.isNotEmpty() }
+        }
+    } ?: listOf()
+
+    private fun allSongFromPlaylist(playlist: List<Playlist>): List<File> =
+        playlist.map { it.songs }
+            .fold(mutableListOf<String>()) { joined, fromDB ->
+            joined.addAll(fromDB)
+            joined
+        }
+            .distinct()
+            .map { File(it) }
+            .filter { it.path.isNotEmpty() }
+
+    private suspend fun getAllPlaylist(): List<Playlist> = withContext(Dispatchers.IO) {
+        return@withContext AudlayerApp.db?.run {
+            playlistDao().getAll()
+        }
+    } ?: listOf()
 
     private suspend fun getPlaylists(): List<Playlist> {
         val allPlaylist = getAllPlaylist()
@@ -119,85 +223,6 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
             favourite,
             other
         )
-    }
-
-    fun filterByQueryPlaylist(query: String): List<Playlist> {
-        val newOther = other.filter { it.name.contains(query) }
-
-        return collectPlaylist(
-            recentlyModified,
-            lastPlayed,
-            mostPlayed,
-            favourite,
-            newOther
-        )
-    }
-
-    private fun otherPlaylist(playlist: List<Playlist>): List<Playlist> =
-        playlist.filter {
-            it.name != "Favourite" && it.name != "Played"
-        }
-
-    fun playSongs(songs: Array<String>) {
-        //don't remember for SongPlaylistInteractor
-        SongPlaylistInteractor.songs =
-            songs.map { File(it) }.toTypedArray()
-        MiniPlayerBroadcastPlayByPath.apply {
-            app.sendBroadcastPlayByPath(songs[0])
-        }
-    }
-
-    private fun collectPlaylist(recentlyModified: List<String>,
-                                lastPlayed: List<String>,
-                                mostPlayed: List<String>,
-                                favourite: List<String>,
-                                otherPlaylist: List<Playlist>): List<Playlist> {
-        return listOf(
-            Playlist("Recently Modified", recentlyModified),
-            Playlist("Last Played", lastPlayed),
-            Playlist("Most Played", mostPlayed),
-            Playlist("Favourite", favourite),
-            *otherPlaylist.map {
-                Playlist(it.name, it.songs)
-            }.toTypedArray()
-        )
-    }
-
-    private suspend fun getFavourite(): List<String> = withContext(Dispatchers.IO) {
-        return@withContext AudlayerApp.db?.run {
-            playlistDao().getByName("Favourite").songs.reversed().filter { it.isNotEmpty() }
-        }
-    } ?: listOf()
-
-    private suspend fun getPlayed(): List<String> = withContext(Dispatchers.IO) {
-        return@withContext AudlayerApp.db?.run {
-            playlistDao().getByName("Played").songs.reversed().filter { it.isNotEmpty() }
-        }
-    } ?: listOf()
-
-    private fun allSongFromPlaylist(playlist: List<Playlist>): List<File> =
-        playlist.map { it.songs }
-            .fold(mutableListOf<String>()) { joined, fromDB ->
-            joined.addAll(fromDB)
-            joined
-        }
-            .distinct()
-            .map { File(it) }
-            .filter { it.path.isNotEmpty() }
-
-    private suspend fun getAllPlaylist(): List<Playlist> = withContext(Dispatchers.IO) {
-        return@withContext AudlayerApp.db?.run {
-            playlistDao().getAll()
-        }
-    } ?: listOf()
-
-    fun storeSearchQuery(query: String) {
-        //store search term in shared preferences
-        currentQuery = query
-        SearchQueryPreferences.setStoredQueryAlbum(app, currentQuery)
-        val dfgd = SearchQueryPreferences.getStoredQueryAlbum(app)
-        Log.d(TAG, "retrieved: $dfgd")
-        Log.d(TAG, "stored: $currentQuery")
     }
 
     private fun getAlbumImage(path: String): Bitmap? {

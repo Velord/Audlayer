@@ -64,4 +64,6 @@
     <string name="album_album">Albums</string>
     <string name="album_playlist">Playlists</string>
     <string name="album_refresh">Refresh</string>
+    <string name="song_duration">Duration</string>
+    <string name="song_size">Size</string>
 </resources>

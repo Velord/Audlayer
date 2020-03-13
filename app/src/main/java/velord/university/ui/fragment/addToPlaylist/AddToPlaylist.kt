@@ -107,7 +107,7 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),
 
         private val pathTextView: TextView = itemView.findViewById(R.id.add_to_playlist_item_name)
         private val playlistActionImageButton: ImageButton = itemView.findViewById(R.id.item_action)
-        private val playlistActionFrame: FrameLayout = itemView.findViewById(R.id.item_action_frame)
+        private val playlistActionFrame: FrameLayout = itemView.findViewById(R.id.action_item_frame)
 
         private fun updatePlaylist(playlist: Playlist) {
             AudlayerApp.db?.let {
