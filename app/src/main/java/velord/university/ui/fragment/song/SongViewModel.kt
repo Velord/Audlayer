@@ -9,6 +9,7 @@ import kotlinx.coroutines.withContext
 import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.MiniPlayerBroadcastAddToQueue
 import velord.university.application.broadcast.MiniPlayerBroadcastLoop
+import velord.university.application.broadcast.MiniPlayerBroadcastLoopAll
 import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
@@ -97,8 +98,8 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
             SongPlaylistInteractor.songs = ordered.toTypedArray()
             app.sendBroadcastPlayByPath(file.path)
         }
-        MiniPlayerBroadcastLoop.apply {
-            app.sendBroadcastLoop()
+        MiniPlayerBroadcastLoopAll.apply {
+            app.sendBroadcastLoopAll()
         }
     }
 
