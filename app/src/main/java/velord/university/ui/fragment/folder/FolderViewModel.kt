@@ -9,6 +9,7 @@ import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
+import velord.university.ui.util.RecyclerViewSelectItemResolver
 import java.io.File
 
 class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
@@ -21,9 +22,13 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
 
     var currentFolder: File
 
+    lateinit var rvResolver: RecyclerViewSelectItemResolver<String>
+
     init {
         currentFolder = Environment.getExternalStorageDirectory()
     }
+
+    fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 
     fun getSearchQuery(): String =
         SearchQueryPreferences.getStoredQueryFolder(app, currentFolder.path)

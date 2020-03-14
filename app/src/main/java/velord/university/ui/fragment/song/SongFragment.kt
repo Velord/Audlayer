@@ -20,6 +20,7 @@ import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileNameParser
 import velord.university.ui.fragment.actionBar.ActionBarFragment
+import velord.university.ui.util.RecyclerViewSelectItemResolver
 import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
@@ -38,10 +39,6 @@ class SongFragment : ActionBarFragment() {
     }
 
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
-
-    private var clickedOnText = ""
-    private var clickedOnIcon = ""
-    private var clickedOnLayout = ""
 
     private val viewModel by lazy {
         ViewModelProviders.of(this).get(SongViewModel::class.java)
@@ -245,10 +242,10 @@ class SongFragment : ActionBarFragment() {
     private inner class SongHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val text: TextView = itemView.findViewById(R.id.general_item_path)
+        val text: TextView = itemView.findViewById(R.id.general_item_path)
         private val action: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
         private val frame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
-        private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
+        val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
 
         private fun playSong(song: File) {
             viewModel.playAudioAndAllSong(song)
@@ -296,18 +293,17 @@ class SongFragment : ActionBarFragment() {
             Unit
         }
 
-        private fun setOnClickAndImageResource(song: File,
-                                               f: ((String) -> Unit) -> (View) -> (String) -> Unit) {
+        private fun setOnClickAndImageResource(song: File, f: (Int) -> Unit) {
             itemView.setOnClickListener {
-                f(changeClickedOnLayout)(it)(song.path)
-               // playSong(song)
+                f(0)
+                playSong(song)
             }
             text.setOnClickListener {
-                f(changeClickedOnText)(it)(song.path)
-               // playSong(song)
+                f(1)
+                playSong(song)
             }
             icon.setOnClickListener {
-                f(changeClickedOnIcon)(it)(song.path)
+                f(2)
             }
             action.setOnClickListener {
                 actionPopUpMenu(song)
@@ -318,34 +314,29 @@ class SongFragment : ActionBarFragment() {
         }
 
         fun bindItem(song: File, position: Int,
-                     f: ((String) -> Unit) -> (View) -> (String) -> Unit) {
-            setOnClickAndImageResource(song, f)
+                     f: (View, Int, Int) -> (Int) -> Unit) {
+            val setBackground = f(itemView, R.color.fragmentBackgroundDarkerOpacity, R.color.opacity)
+            setOnClickAndImageResource(song, setBackground)
             text.text = FileNameParser.removeExtension(song)
-            if (isClickedOnItem(song.path))
-                itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
-            else
-                itemView.setBackgroundResource(R.color.opacity)
         }
     }
 
-    private val selectRecyclerViewItemResolver:
-                (RecyclerView.Adapter<RecyclerView.ViewHolder>) ->
-        ((String) -> Unit) ->
-        (View) ->
-        (String) -> Unit = { adapter ->
-        { clickF ->
-            { view ->
-                { path ->
-                    clearClicked()
-                    clickF(path)
-                    adapter.notifyDataSetChanged()
-                }
-            }
-        }
-    }
-
-    private inner class SongAdapter(val items:  Array<out File>):
+    private inner class SongAdapter(val items: Array<out File>):
         RecyclerView.Adapter<SongHolder>(),  FastScrollRecyclerView.SectionedAdapter{
+
+        private val rvSelectResolver =
+            //just change old adapter to new
+            if (viewModel.rvResolverIsInitialized()) {
+                viewModel.rvResolver.adapter = this as RecyclerView.Adapter<RecyclerView.ViewHolder>
+                viewModel.rvResolver
+            }
+            //new
+            else {
+                viewModel.rvResolver = RecyclerViewSelectItemResolver(
+                    this as RecyclerView.Adapter<RecyclerView.ViewHolder>, 3, ""
+                )
+                viewModel.rvResolver
+            }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
@@ -357,7 +348,7 @@ class SongFragment : ActionBarFragment() {
 
         override fun onBindViewHolder(holder: SongHolder, position: Int) {
             items[position].apply {
-                val f = selectRecyclerViewItemResolver(this@SongAdapter as RecyclerView.Adapter<RecyclerView.ViewHolder>)
+                val f = rvSelectResolver.resolver(this.path)
                 holder.bindItem(this, position, f)
             }
         }
@@ -366,30 +357,5 @@ class SongFragment : ActionBarFragment() {
 
         override fun getSectionName(position: Int): String =
             "${items[position].name[0]}"
-    }
-
-    private fun isClickedOnItem(path: String): Boolean  {
-        val isClickOnIcon = clickedOnIcon == path
-        val isClickOnPath = clickedOnText == path
-        val isClickedOnLayout = clickedOnLayout == path
-        return isClickOnIcon || isClickOnPath || isClickedOnLayout
-    }
-
-    private fun clearClicked() {
-        clickedOnIcon = ""
-        clickedOnLayout = ""
-        clickedOnText = ""
-    }
-
-    private val changeClickedOnIcon: (String) -> Unit = {
-        clickedOnIcon = it
-    }
-
-    private val changeClickedOnText: (String) -> Unit = {
-        clickedOnText = it
-    }
-
-    private val changeClickedOnLayout: (String) -> Unit = {
-        clickedOnLayout = it
     }
 }

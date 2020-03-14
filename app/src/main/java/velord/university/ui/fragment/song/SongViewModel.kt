@@ -16,6 +16,7 @@ import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.entity.Playlist
+import velord.university.ui.util.RecyclerViewSelectItemResolver
 import java.io.File
 
 
@@ -27,6 +28,8 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
     lateinit var ordered: List<File>
 
     lateinit var currentQuery: String
+
+    lateinit var rvResolver: RecyclerViewSelectItemResolver<String>
 
     suspend fun retrieveSongsFromDb() = withContext(Dispatchers.IO) {
         val allPlaylist = getAllPlaylist()
@@ -88,6 +91,8 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
         Log.d(TAG, "retrieved: $check")
         Log.d(TAG, "stored: $currentQuery")
     }
+
+    fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 
     fun songsIsInitialized() = ::songs.isInitialized
 
