@@ -1,6 +1,8 @@
 package velord.university.model.entity
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.*
 
 @Entity
@@ -12,34 +14,3 @@ data class Album(
     @PrimaryKey
     val id: String = UUID.randomUUID().toString()
 )
-
-@Dao
-interface AlbumDao {
-
-    @Query("Select * From Album")
-    fun getAll(): List<Album>
-
-    @Query("Select songs From Album Where name = :name")
-    fun getSongsByName(name: String): List<String>
-
-    @Query("Select * From Album Where name = :name")
-    fun getByName(name: String): Album
-    //don't work
-    @Query("UPDATE Album SET songs =:songsValue WHERE name =:nameValue")
-    fun updateByName(nameValue: String, songsValue: List<String>)
-
-    @Update
-    fun update(vararg album: Album)
-
-    @Insert
-    fun insertAll(vararg album: Album)
-
-    @Query("Delete From Album Where name = :albumName")
-    fun deleteAlbumByName(albumName: String)
-
-    @Query("Delete From Album Where id = :albumId")
-    fun deleteAlbumById(albumId: String)
-
-    @Query("Delete From Album")
-    fun nukeTable()
-}

@@ -148,7 +148,7 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.add_song_fragment, container, false).apply {
+        return inflater.inflate(R.layout.select_song_fragment, container, false).apply {
             initViews(this)
             //observe changes in search view
             super.observeSearchQuery()
@@ -278,7 +278,7 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
-                R.layout.add_song_item, parent, false
+                R.layout.select_song_item, parent, false
             )
 
             return FileHolder(view)

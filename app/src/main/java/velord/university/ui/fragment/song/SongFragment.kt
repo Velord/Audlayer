@@ -18,7 +18,10 @@ import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
+import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
+import velord.university.model.converter.roundOfDecimalToUp
+import velord.university.model.entity.Playlist
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RecyclerViewSelectItemResolver
 import velord.university.ui.util.setupPopupMenuOnClick
@@ -168,10 +171,10 @@ class SongFragment : ActionBarFragment() {
         val correctQuery =
             if (searchQuery == "-1") ""
             else searchQuery
-            //store search term in shared preferences
-            viewModel.storeSearchQuery(correctQuery)
-            //update files list
-            updateAdapterBySearchQuery(correctQuery)
+        //store search term in shared preferences
+        viewModel.storeSearchQuery(correctQuery)
+        //update files list
+        updateAdapterBySearchQuery(correctQuery)
     }
 
     override fun onAttach(context: Context) {
@@ -249,6 +252,41 @@ class SongFragment : ActionBarFragment() {
         private val frame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
         val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
 
+        val selected:  (File) -> Array<() -> Unit> = { song ->
+            arrayOf(
+                {
+                    icon.setImageResource(R.drawable.song_item_playing)
+                },
+                {
+                    val album = Playlist.whichPlaylist(viewModel.allPlaylist, song.path)
+                    val size: Double =
+                        roundOfDecimalToUp((FileFilter.getSize(song).toDouble() / 1024))
+                    text.text = getString(
+                        R.string.song_rv_item,
+                        FileNameParser.removeExtension(song),
+                        size.toString(), album
+                    )
+                },
+                {
+                    itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
+                }
+            )
+        }
+
+        val notSelected: (File) -> Array<() -> Unit> = { song ->
+            arrayOf(
+                {
+                    icon.setImageResource(R.drawable.song_item)
+                },
+                {
+                    text.text = FileNameParser.removeExtension(song)
+                },
+                {
+                    itemView.setBackgroundResource(R.color.opacity)
+                }
+            )
+        }
+
         private fun playSong(song: File) {
             viewModel.playAudioAndAllSong(song)
         }
@@ -316,10 +354,9 @@ class SongFragment : ActionBarFragment() {
         }
 
         fun bindItem(song: File, position: Int,
-                     f: (View, Int, Int) -> (Int) -> Unit) {
-            val setBackground = f(itemView, R.color.fragmentBackgroundDarkerOpacity, R.color.opacity)
+                     f: (Array<() -> Unit>) -> (Array<() -> Unit>) -> (Int) -> Unit) {
+            val setBackground = f(selected(song))(notSelected(song))
             setOnClickAndImageResource(song, setBackground)
-            text.text = FileNameParser.removeExtension(song)
         }
     }
 

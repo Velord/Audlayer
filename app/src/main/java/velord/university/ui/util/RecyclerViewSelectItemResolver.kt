@@ -1,6 +1,5 @@
 package velord.university.ui.util
 
-import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
 data class  RecyclerViewSelectItemResolver<T>(var adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>,
@@ -8,16 +7,18 @@ data class  RecyclerViewSelectItemResolver<T>(var adapter: RecyclerView.Adapter<
                                               private val defaultValue: T,
                                               private var isClickedHub: MutableList<T> = MutableList(countOfView) { defaultValue } ) {
 
-    val resolver: (T) -> (View, Int, Int) -> (Int) -> Unit =
+    val resolver: (T) -> (Array<() -> Unit>) -> (Array<() -> Unit>) -> (Int) -> Unit =
         { storageValue ->
-            { mainView, colorIs, colorIsNot ->
-                if (isClickedOnItem(storageValue)) mainView.setBackgroundResource(colorIs)
-                else mainView.setBackgroundResource(colorIsNot)
-                Unit
-                { clickedViewPos ->
-                    clearClicked()
-                    changeClickedOn(clickedViewPos, storageValue)
-                    adapter.notifyDataSetChanged()
+            { isAction ->
+                { isNotAction ->
+                    if (isClickedOnItem(storageValue)) isAction.forEach { it() }
+                    else isNotAction.forEach { it() }
+                    Unit
+                    { clickedViewPos ->
+                        clearClicked()
+                        changeClickedOn(clickedViewPos, storageValue)
+                        adapter.notifyDataSetChanged()
+                    }
                 }
             }
         }

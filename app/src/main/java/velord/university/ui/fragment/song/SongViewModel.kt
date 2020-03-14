@@ -24,6 +24,7 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
 
     val TAG = "SongViewModel"
 
+    lateinit var allPlaylist: List<Playlist>
     lateinit var songs: List<File>
     lateinit var ordered: List<File>
 
@@ -32,7 +33,7 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
     lateinit var rvResolver: RecyclerViewSelectItemResolver<String>
 
     suspend fun retrieveSongsFromDb() = withContext(Dispatchers.IO) {
-        val allPlaylist = PlaylistDb.getAllPlaylist()
+        allPlaylist = PlaylistDb.getAllPlaylist()
         Log.d(TAG, "all playlist retrieved")
         //unique songs
         songs = Playlist.allSongFromPlaylist(allPlaylist)

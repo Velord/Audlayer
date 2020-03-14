@@ -260,6 +260,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         private val pathTextView: TextView = itemView.findViewById(R.id.general_item_path)
         private val actionImageButton: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
         private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
+        private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
 
         private fun openAlbum(album: Album) {
             viewModel.playSongs(album.songs.toTypedArray())
@@ -271,7 +272,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                 when (it.itemId) {
                     R.id.playlist_item_play -> {
-                        TODO()
+                        viewModel.playSongs(album.songs.toTypedArray())
                         true
                     }
                     R.id.playlist_item_add_to_home_screen -> {
@@ -307,7 +308,13 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
                 openAlbum(album)
             }
             actionImageButton.setOnClickListener {
-                actionPopUpMenu(album)
+                    actionPopUpMenu(album)
+            }
+            icon.apply {
+                setOnClickListener {
+                    actionPopUpMenu(album)
+                }
+                setImageResource(R.drawable.album_item_icon)
             }
             actionFrame.setOnClickListener {
                 actionPopUpMenu(album)
@@ -327,7 +334,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
-                R.layout.general_rv_item, parent, false
+                R.layout.album_rv_item, parent, false
             )
             return AlbumHolder(view)
         }
@@ -350,6 +357,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         private val pathTextView: TextView = itemView.findViewById(R.id.general_item_path)
         private val actionImageButton: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
         private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
+        private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
 
         private fun openPlaylist(playlist: Playlist) {
             viewModel.playSongs(playlist.songs.toTypedArray())
@@ -402,7 +410,13 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
                 openPlaylist(playlist)
             }
             actionImageButton.setOnClickListener {
-                actionPopUpMenu(playlist)
+                    actionPopUpMenu(playlist)
+            }
+            icon.apply {
+                setOnClickListener {
+                    actionPopUpMenu(playlist)
+                }
+                setImageResource(R.drawable.playlist)
             }
             actionFrame.setOnClickListener {
                 actionPopUpMenu(playlist)
@@ -422,7 +436,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
-                R.layout.general_rv_item, parent, false
+                R.layout.album_rv_item, parent, false
             )
             return PlaylistHolder(view)
         }

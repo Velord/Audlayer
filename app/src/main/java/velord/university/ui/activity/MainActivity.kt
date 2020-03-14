@@ -88,12 +88,12 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onCreatePlaylist() {
-        backPressedToZeroLevel()
+        toZeroLevel()
         openCreateNewPlaylistDialogFragment()
     }
 
     override fun onAddToPlaylistFromAddSongFragment() {
-        backPressedToZeroLevel()
+        toZeroLevel()
         openAddToPlaylistFragment()
     }
 
@@ -103,11 +103,11 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun success() {
-        backPressedToZeroLevel()
+        toZeroLevel()
     }
 
     override fun closeAddToPlaylistFragment() {
-        backPressedToZeroLevel()
+        toZeroLevel()
     }
 
     override fun onAddToPlaylistFromFolderFragment() {
@@ -118,8 +118,12 @@ class MainActivity : AppCompatActivity(),
         toZeroAndOpenAddToPlaylist()
     }
 
+    override fun toZeroLevelFromSelectSongFragment() {
+        toZeroLevel()
+    }
+
     private fun toZeroAndOpenAddToPlaylist() {
-        backPressedToZeroLevel()
+        toZeroLevel()
         openAddToPlaylistFragment()
     }
 
@@ -131,7 +135,7 @@ class MainActivity : AppCompatActivity(),
         )
     }
 
-    private fun backPressedToZeroLevel() {
+    private fun toZeroLevel() {
         backPressedSecondLevel()
         backPressedFirstLevel()
     }

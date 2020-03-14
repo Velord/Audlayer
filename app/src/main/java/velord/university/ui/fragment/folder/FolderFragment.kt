@@ -20,6 +20,7 @@ import velord.university.model.FileExtension
 import velord.university.model.FileExtensionModifier
 import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
+import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RecyclerViewSelectItemResolver
@@ -323,8 +324,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
     private inner class FileHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val iconImageButton: ImageButton = itemView.findViewById(R.id.general_item_icon)
-        private val pathTextView: TextView = itemView.findViewById(R.id.general_item_path)
+        private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
+        private val path: TextView = itemView.findViewById(R.id.general_item_path)
         private val actionImageButton: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
         private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
 
@@ -377,7 +378,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                         Unit
                     }
                     setOnClick(action, popUpAction) {  }
-                    iconImageButton.setImageResource(R.drawable.extension_file_folder)
+                    icon.setImageResource(R.drawable.extension_file_folder)
                 }
                 FileExtensionModifier.AUDIO -> {
                     val action = { viewModel.playAudioFile(file) }
@@ -424,10 +425,9 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                         Unit
                     }
                     setOnClick(action, popUpAction, fSelect)
-                    iconImageButton.setImageResource(R.drawable.extension_file_song_purple)
                 }
                 FileExtensionModifier.NOT_COMPATIBLE -> {
-                    iconImageButton.setImageResource(R.drawable.extension_file_not_important)
+                    icon.setImageResource(R.drawable.extension_file_not_important)
                 }
             }
         }
@@ -437,11 +437,11 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                 f()
                 fSelect(0)
             }
-            iconImageButton.setOnClickListener {
+            icon.setOnClickListener {
                 f()
                 fSelect(2)
             }
-            pathTextView.setOnClickListener {
+            path.setOnClickListener {
                 f()
                 fSelect(1)
             }
@@ -453,10 +453,46 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
             }
         }
 
-        fun bindItem(file: File, position: Int, f: (View, Int, Int) -> (Int) -> Unit) {
-            val setBackground = f(itemView, R.color.fragmentBackgroundDarkerOpacity, R.color.opacity)
+        private val selected:  (File) -> Array<() -> Unit> = { file ->
+            arrayOf(
+                {
+                    val size: Double =
+                        roundOfDecimalToUp((FileFilter.getSize(file).toDouble() / 1024))
+                    path.text = getString(
+                        R.string.folder_fragment_rv_item,
+                        FileNameParser.removeExtension(file),
+                        size.toString()
+                    )
+                },
+                {
+                    itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
+                },
+                {
+                    icon.setImageResource(R.drawable.song_item_playing)
+
+                }
+            )
+        }
+
+        private val notSelected:  (File) -> Array<() -> Unit> = { file ->
+            arrayOf(
+                {
+                    path.text = FileNameParser.removeExtension(file)
+                },
+                {
+                    itemView.setBackgroundResource(R.color.opacity)
+                },
+                {
+                    icon.setImageResource(R.drawable.extension_file_song_purple)
+
+                }
+            )
+        }
+
+        fun bindItem(file: File, position: Int,
+                     f: (Array<() -> Unit>) -> (Array<() -> Unit>) -> (Int) -> Unit) {
+            val setBackground = f(selected(file))(notSelected(file))
             setOnClickAndImageResource(file, setBackground)
-            pathTextView.text = FileNameParser.removeExtension(file)
         }
     }
 
