@@ -28,5 +28,6 @@
     <color name="menuFragmentBackgroundDarkestOpacity">#6600020E</color>
     <color name="popUpMenuActionBarFolder">#1A306FFF</color>
     <color name="gold">#C78C00</color>
+    <color name="opacity">#00FFFFFF</color>
 </resources>
 

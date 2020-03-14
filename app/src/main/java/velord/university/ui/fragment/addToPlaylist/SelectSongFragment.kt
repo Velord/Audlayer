@@ -261,7 +261,7 @@ class SelectSongFragment : ActionBarFragment(),
                 if (fileCheckBox.isChecked)
                     viewModel.checked += file.path
                 else
-                    viewModel. checked -= file.path
+                    viewModel.checked -= file.path
             }
         }
 
@@ -269,7 +269,7 @@ class SelectSongFragment : ActionBarFragment(),
             setOnClickAndImageResource(file)
             pathTextView.text = FileNameParser.removeExtension(file)
 
-            if (file.path in  viewModel.checked)
+            if (file.path in viewModel.checked)
                 fileCheckBox.isChecked = true
             else
                 fileCheckBox.isChecked = false
