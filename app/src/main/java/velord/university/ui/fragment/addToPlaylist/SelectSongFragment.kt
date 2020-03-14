@@ -26,6 +26,8 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromAddSongFragment()
+
+        fun toZeroLevelFromSelectSongFragment()
     }
     private var callbacks: Callbacks? =  null
 
@@ -45,11 +47,13 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
     private lateinit var selectAllButton: Button
     private lateinit var continueButton: Button
     // action bar overriding
-    override val actionBarObserveSearchQuery: (String) -> Unit = { searchTerm ->
-        //store search term in shared preferences
-        viewModel.currentQuery = searchTerm
+    override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
+        val correctQuery =
+            if (searchQuery == "-1") ""
+            else searchQuery
+        viewModel.currentQuery = correctQuery
         //update files list
-        updateAdapterBySearchQuery(searchTerm)
+        updateAdapterBySearchQuery(correctQuery)
     }
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
@@ -99,7 +103,9 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
     override val actionBarLeftMenu: (ImageButton) -> Unit = {
         it.apply {
             setOnClickListener {
-                onBackPressed()
+                callbacks?.apply {
+                    toZeroLevelFromSelectSongFragment()
+                }
             }
             setImageResource(R.drawable.back_green)
         }
@@ -185,8 +191,7 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
                     it.onAddToPlaylistFromAddSongFragment()
                 }
                 else Toast.makeText(requireContext(),
-                        "Choose anyone song", Toast.LENGTH_SHORT)
-                        .show()
+                        "Choose anyone song", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -232,7 +237,8 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
 
         private fun setOnClickAndImageResource(file: File) {
             fileIconImageButton.apply {
-                setImageResource(R.drawable.extension_file_song)
+                setImageResource(R.drawable.select_song_icon
+                )
                 setOnClickListener {
                     if (fileCheckBox.isChecked)
                         viewModel.checked -= file.path

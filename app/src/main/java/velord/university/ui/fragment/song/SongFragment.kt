@@ -165,12 +165,13 @@ class SongFragment : ActionBarFragment() {
 
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
-        if (searchQuery != "-1") {
+        val correctQuery =
+            if (searchQuery == "-1") ""
+            else searchQuery
             //store search term in shared preferences
-            viewModel.storeSearchQuery(searchQuery)
+            viewModel.storeSearchQuery(correctQuery)
             //update files list
-            updateAdapterBySearchQuery(searchQuery)
-        }
+            updateAdapterBySearchQuery(correctQuery)
     }
 
     override fun onAttach(context: Context) {

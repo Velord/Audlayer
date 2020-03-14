@@ -174,12 +174,13 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
 
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
-        if (searchQuery != "-1") {
-            //store search term in shared preferences
-            viewModel.storeCurrentFolderSearchQuery(searchQuery)
-            //update files list
-            updateAdapterBySearchQuery(searchQuery)
-        }
+        val correctQuery =
+            if (searchQuery == "-1") ""
+            else searchQuery
+        //store search term in shared preferences
+        viewModel.storeCurrentFolderSearchQuery(correctQuery)
+        //update files list
+        updateAdapterBySearchQuery(correctQuery)
     }
 
     override fun onAttach(context: Context) {
@@ -423,7 +424,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                         Unit
                     }
                     setOnClick(action, popUpAction, fSelect)
-                    iconImageButton.setImageResource(R.drawable.extension_file_song)
+                    iconImageButton.setImageResource(R.drawable.extension_file_song_purple)
                 }
                 FileExtensionModifier.NOT_COMPATIBLE -> {
                     iconImageButton.setImageResource(R.drawable.extension_file_not_important)
