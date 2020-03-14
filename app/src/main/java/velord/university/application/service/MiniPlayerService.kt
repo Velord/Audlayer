@@ -322,12 +322,9 @@ abstract class MiniPlayerService : Service() {
     private fun songIsOver() {
         if (::player.isInitialized) {
             when {
-                QueueResolver.loop == true -> {
-                    playNext(playlist.getSongPath())
-                }
-                QueueResolver.loopAll == true -> {
-                    playNext()
-                }
+                QueueResolver.loop -> playNext(playlist.getSongPath())
+
+                QueueResolver.loopAll -> playNext()
                 //reset current song ui
                 else -> {
                     playNext(playlist.getSongPath())
@@ -430,9 +427,7 @@ abstract class MiniPlayerService : Service() {
                 val pos = playlist.getSongPos(path)
                 MiniPlayerServiceSong(path, pos)
             }.toTypedArray()
-            AudlayerApp.db?.let {
-                it.serviceDao().updateData(songsToDb)
-            }
+            AudlayerApp.db?.serviceDao()?.updateData(songsToDb)
         }
         Log.d(TAG, "store queue")
     }

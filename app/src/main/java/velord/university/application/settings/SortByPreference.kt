@@ -9,10 +9,10 @@ private const val ORDER_ASC_DEC_SELECT_SONG = "AscendingDescendingSelect"
 private const val ORDER_ASC_DEC_ALBUM = "AscendingDescendingAlbum"
 private const val ORDER_ASC_DEC_SONG = "AscendingDescendingSong"
 
-private const val NAME_ARTIST_DATEADDED_FOLDER = "NameArtistDateAdded"
-private const val NAME_ARTIST_DATEADED_SELECT = "NameArtistDateAdded"
-private const val ALBUM_ARTIST_YEAR_NUMBEROFTRACKS = "AlbumArtistYearNumberOfTracks"
-private const val NAME_ARTIST_DURATION_SIZE_DATEADDED_SONG = "NameArtistDurationSizeDateAdded"
+private const val NAME_ARTIST_DATE_ADDED_FOLDER = "NameArtistDateAdded"
+private const val NAME_ARTIST_DATE_ADED_SELECT = "NameArtistDateAdded"
+private const val ALBUM_ARTIST_YEAR_NUMBER_OF_TRACKS = "AlbumArtistYearNumberOfTracks"
+private const val NAME_ARTIST_DURATION_SIZE_DATE_ADDED_SONG = "NameArtistDurationSizeDateAdded"
 
 object SortByPreference {
 
@@ -36,7 +36,7 @@ object SortByPreference {
     fun setSortByFolderFragment(
         context: Context,
         sortBy: Int,
-        key: String = NAME_ARTIST_DATEADDED_FOLDER
+        key: String = NAME_ARTIST_DATE_ADDED_FOLDER
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
@@ -45,7 +45,7 @@ object SortByPreference {
 
     fun getSortByFolderFragment(
         context: Context,
-        key: String = NAME_ARTIST_DATEADDED_FOLDER
+        key: String = NAME_ARTIST_DATE_ADDED_FOLDER
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .getInt(key, -1)
@@ -70,7 +70,7 @@ object SortByPreference {
     fun setSortBySelectSongFragment(
         context: Context,
         sortBy: Int,
-        key: String = NAME_ARTIST_DATEADED_SELECT
+        key: String = NAME_ARTIST_DATE_ADED_SELECT
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
@@ -79,7 +79,7 @@ object SortByPreference {
 
     fun getSortBySelectSongFragment(
         context: Context,
-        key: String = NAME_ARTIST_DATEADED_SELECT
+        key: String = NAME_ARTIST_DATE_ADED_SELECT
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .getInt(key, -1)
@@ -87,7 +87,7 @@ object SortByPreference {
     fun setSortByAlbumFragment(
         context: Context,
         sortBy: Int,
-        key: String = ALBUM_ARTIST_YEAR_NUMBEROFTRACKS
+        key: String = ALBUM_ARTIST_YEAR_NUMBER_OF_TRACKS
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
@@ -96,7 +96,7 @@ object SortByPreference {
 
     fun getSortByAlbumFragment(
         context: Context,
-        key: String = ALBUM_ARTIST_YEAR_NUMBEROFTRACKS
+        key: String = ALBUM_ARTIST_YEAR_NUMBER_OF_TRACKS
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .getInt(key, -1)
@@ -138,7 +138,7 @@ object SortByPreference {
     fun setSortBySongFragment(
         context: Context,
         sortBy: Int,
-        key: String = NAME_ARTIST_DURATION_SIZE_DATEADDED_SONG
+        key: String = NAME_ARTIST_DURATION_SIZE_DATE_ADDED_SONG
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
@@ -147,7 +147,7 @@ object SortByPreference {
 
     fun getSortBySongFragment(
         context: Context,
-        key: String = NAME_ARTIST_DURATION_SIZE_DATEADDED_SONG
+        key: String = NAME_ARTIST_DURATION_SIZE_DATE_ADDED_SONG
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .getInt(key, -1)

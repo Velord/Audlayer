@@ -20,7 +20,7 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), Mi
         get() = "MenuNowPlayingFragment"
 
     private lateinit var viewFrame: View
-    lateinit var miniPlayerViewPager: ViewPager
+    private lateinit var miniPlayerViewPager: ViewPager
 
     private val receivers = arrayOf(
         Pair(show(), MiniPlayerBroadcastShow.filterUI),

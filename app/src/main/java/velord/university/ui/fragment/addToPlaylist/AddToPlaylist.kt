@@ -78,9 +78,7 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),
     private fun initCreateNew(view: View) {
         createNew = view.findViewById(R.id.add_to_playlist_create_new)
         createNew.setOnClickListener {
-            callbacks?.let {
-                it.openCreateNewPlaylistDialogFragment()
-            }
+            callbacks?.openCreateNewPlaylistDialogFragment()
         }
     }
 
@@ -91,13 +89,12 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),
 
     private fun setupAdapter() {
         scope.launch {
-            val playlists =
-                AudlayerApp.db?.let {
-                    it.playlistDao().getAll()
-                }?.toTypedArray() ?: arrayOf()
+            val playlist = AudlayerApp.db?.run {
+                playlistDao().getAll().toTypedArray()
+            } ?: arrayOf()
 
             withContext(Dispatchers.Main) {
-                rv.adapter = PlaylistAdapter(playlists)
+                rv.adapter = PlaylistAdapter(playlist)
             }
         }
     }
@@ -126,19 +123,17 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),
                     Toast.LENGTH_SHORT
                 ).show()
                 //back pressed
-                callbacks?.let {
-                    it.closeAddToPlaylistFragment()
-                }
+                callbacks?.closeAddToPlaylistFragment()
             }
         }
 
         private val actionPopUpMenu: (Playlist) -> Unit = { playlist ->
                 val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
                 val initActionMenuLayout = { R.menu.add_to_playlist_pop_up }
-                val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
-                    when (it.itemId) {
+                val initActionMenuItemClickListener: (MenuItem) -> Boolean = {menuItem ->
+                    when (menuItem.itemId) {
                         R.id.playlist_item_play -> {
-                            //don't remember for SongPlaylistInteractor
+                            //don't remember for SongPlaylist Interactor
                             SongPlaylistInteractor.songs =
                                 playlist.songs.map { File(it) }.toTypedArray()
                             MiniPlayerBroadcastPlayByPath.apply {

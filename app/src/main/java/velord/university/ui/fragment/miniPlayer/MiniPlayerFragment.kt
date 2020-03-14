@@ -8,9 +8,6 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.lifecycle.ViewModelProviders
 import kotlinx.android.synthetic.main.mini_player.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import velord.university.R
 import velord.university.application.broadcast.*
 import velord.university.model.converter.SongTimeConverter
@@ -18,21 +15,15 @@ import velord.university.ui.fragment.miniPlayer.logic.*
 
 class MiniPlayerFragment : MiniPlayerInitializerFragment(), MiniPlayerBroadcastReceiver {
 
-    override val TAG: String
-        get() = "MiniPlayerFragment"
+    override val TAG: String = "MiniPlayerFragment"
 
     companion object {
-        fun newInstance() =
-            MiniPlayerFragment()
+        fun newInstance() = MiniPlayerFragment()
     }
 
     private val viewModel by lazy {
         ViewModelProviders.of(this).get(MiniPlayerViewModel::class.java)
     }
-
-    private var scope = CoroutineScope(Job() + Dispatchers.Default)
-    private lateinit var  songNameJob: Job
-    private lateinit var  songArtistJob: Job
 
     private val receivers = arrayOf(
         Pair(stop(), MiniPlayerBroadcastStop.filterUI),

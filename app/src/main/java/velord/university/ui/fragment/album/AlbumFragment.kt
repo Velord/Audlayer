@@ -110,8 +110,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
             3 -> { menuItem.getItem(3).isChecked = true }
         }
 
-        val ascDescOrder = SortByPreference.getAscDescAlbumFragment(requireContext())
-        when(ascDescOrder) {
+        when(SortByPreference.getAscDescAlbumFragment(requireContext())) {
             0 -> { menuItem.getItem(4).isChecked = true }
             1 -> { menuItem.getItem(5).isChecked = true }
             else -> {}

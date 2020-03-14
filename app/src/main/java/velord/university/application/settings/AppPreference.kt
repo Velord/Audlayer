@@ -6,7 +6,6 @@ import androidx.core.content.edit
 
 private const val AUDLAYER_APP_DESTROYED = "appIsDestroyed"
 
-
 object AppPreference {
 
     fun setAppIsDestroyed(

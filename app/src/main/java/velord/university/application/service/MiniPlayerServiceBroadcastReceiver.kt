@@ -2,9 +2,6 @@ package velord.university.application.service
 
 import android.content.Intent
 import android.util.Log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import velord.university.application.broadcast.*
 import velord.university.application.broadcast.MiniPlayerBroadcastLike.sendBroadcastLikeUI
 import velord.university.application.broadcast.MiniPlayerBroadcastLoop.sendBroadcastLoopUI
@@ -23,10 +20,7 @@ class MiniPlayerServiceBroadcastReceiver :
     MiniPlayerService(),
     MiniPlayerBroadcastReceiverService {
 
-    override val TAG: String
-        get() = "MnPlyrSrvcBrdcstRcvrs"
-
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+    override val TAG: String = "MnPlyrSrvcBrdcstRcvrs"
 
     private val receivers = arrayOf(
         Pair(playByPath(), MiniPlayerBroadcastPlayByPath.filterService),

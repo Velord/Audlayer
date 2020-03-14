@@ -17,12 +17,12 @@ object FileExtension {
                     file.extension == "imy" || file.extension == "mkv" ||
                     file.extension == "wav" || file.extension == "ogg"
             -> FileExtensionModifier.AUDIO
-            else -> FileExtensionModifier.NOTCOMPATIBLE
+            else -> FileExtensionModifier.NOT_COMPATIBLE
         }
 }
 
 enum class FileExtensionModifier {
     DIRECTORY,
     AUDIO,
-    NOTCOMPATIBLE;
+    NOT_COMPATIBLE;
 }

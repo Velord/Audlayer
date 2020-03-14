@@ -25,7 +25,7 @@ import velord.university.model.entity.Playlist
 class CreateNewPlaylistDialogFragment : DialogFragment(){
     //Required interface for hosting activities
     interface Callbacks {
-        fun succes()
+        fun success()
     }
     private var callbacks: Callbacks? =  null
 
@@ -98,7 +98,7 @@ class CreateNewPlaylistDialogFragment : DialogFragment(){
 
     private fun close() {
         dismiss()
-        callbacks?.succes()
+        callbacks?.success()
     }
 
     private fun initApply(view: View) {

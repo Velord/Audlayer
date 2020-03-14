@@ -23,7 +23,7 @@ class ServicePlaylist(val songs: MutableList<File> = mutableListOf()) {
         return songs[++currentPos]
     }
 
-    fun setCurentPos(pos: Int) {
+    private fun setCurrentPos(pos: Int) {
         currentPos = pos
     }
 
@@ -31,7 +31,7 @@ class ServicePlaylist(val songs: MutableList<File> = mutableListOf()) {
 
     fun getSongAndResetQuery(path: String): File {
         val newCurrentPos = getSongPos(path)
-        setCurentPos(newCurrentPos)
+        setCurrentPos(newCurrentPos)
         return getSong()
     }
 

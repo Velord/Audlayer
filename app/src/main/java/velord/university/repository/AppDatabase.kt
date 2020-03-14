@@ -7,10 +7,7 @@ import velord.university.model.converter.StringListConverter
 import velord.university.model.entity.*
 
 @Database(
-    entities = arrayOf(
-        MiniPlayerServiceSong::class,
-        Playlist::class,
-        Album::class),
+    entities = [MiniPlayerServiceSong::class, Playlist::class, Album::class],
     version = 3,
     exportSchema = true)
 @TypeConverters(StringListConverter::class)

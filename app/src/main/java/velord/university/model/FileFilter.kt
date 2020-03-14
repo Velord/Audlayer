@@ -5,9 +5,9 @@ import java.io.File
 import java.util.*
 
 
-object FileFilter {
+private const val MAX_DATE: Long = 2678400000L // 1 month in milliseconds
 
-    const val MAXFILEAGE: Long = 2678400000L // 1 month in milliseconds
+object FileFilter {
 
     fun filterOnlyAudio(file: File): List<File> {
         val filesInFolder = file.listFiles() ?: arrayOf()
@@ -20,7 +20,7 @@ object FileFilter {
     val filterBySearchQuery: (File, String) -> Boolean = { file, query ->
         val extension =
             FileExtension.checkCompatibleFileExtension(file) !=
-                    FileExtensionModifier.NOTCOMPATIBLE
+                    FileExtensionModifier.NOT_COMPATIBLE
         val contQuery =
             FileNameParser.removeExtension(file)
                 .substringAfterLast('/')
@@ -32,7 +32,7 @@ object FileFilter {
 
     val filterByEmptySearchQuery: (File, String) -> Boolean = { file, _ ->
         FileExtension.checkCompatibleFileExtension(file) !=
-                FileExtensionModifier.NOTCOMPATIBLE
+                FileExtensionModifier.NOT_COMPATIBLE
     }
 
     val getName: (File) -> String = {
@@ -62,7 +62,7 @@ object FileFilter {
     //sort by last month
     fun recentlyModified(files: List<File>,
                          f: (File) -> Boolean = {
-                             it.lastModified() + MAXFILEAGE > System.currentTimeMillis()
+                             it.lastModified() + MAX_DATE > System.currentTimeMillis()
                          }
     ): List<File> = files.filter { it.path.isNotEmpty() }.sortedBy(f)
 

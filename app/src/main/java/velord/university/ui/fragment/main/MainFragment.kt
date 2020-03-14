@@ -6,9 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import velord.university.R
 import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.main.initializer.MenuMiniPlayerInitializerFragment
@@ -16,10 +13,7 @@ import velord.university.ui.fragment.main.initializer.MenuMiniPlayerInitializerF
 class MainFragment : MenuMiniPlayerInitializerFragment(),
     BackPressedHandlerZero {
 
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
-
-    override val TAG: String
-        get() = "MainFragment"
+    override val TAG: String = "MainFragment"
 
     companion object {
         fun newInstance() = MainFragment()

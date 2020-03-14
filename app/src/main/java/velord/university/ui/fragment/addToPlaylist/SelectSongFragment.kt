@@ -193,8 +193,7 @@ class SelectSongFragment : ActionBarFragment(),
             2 -> { menuItem.getItem(2).isChecked = true }
         }
 
-        val ascDescOrder = SortByPreference.getAscDescSelectSongFragment(requireContext())
-        when(ascDescOrder) {
+        when(SortByPreference.getAscDescSelectSongFragment(requireContext())) {
             0 -> { menuItem.getItem(3).isChecked = true }
             1 -> { menuItem.getItem(4).isChecked = true }
             else -> {}
@@ -202,11 +201,11 @@ class SelectSongFragment : ActionBarFragment(),
     }
 
     private fun updateAdapterBySearchQuery(searchTerm: String) {
-        fun _setupAdapter( //default filter
+        fun setupAdapter( //default filter
             filter: (File, String) -> Boolean = FileFilter.filterByEmptySearchQuery
         ) {
             //while permission is not granted
-            if (checkPermission().not()) _setupAdapter(filter)
+            if (checkPermission().not()) setupAdapter(filter)
             //apply all filters to recycler view
             val filteredAndSortered =
                 viewModel.filterAndSortFiles(requireContext(), filter, searchTerm)
@@ -215,9 +214,9 @@ class SelectSongFragment : ActionBarFragment(),
 
         if (searchTerm.isNotEmpty()) {
             val f = FileFilter.filterBySearchQuery
-            _setupAdapter(f)
+            setupAdapter(f)
         }
-        else _setupAdapter()
+        else setupAdapter()
     }
 
     private fun checkPermission(): Boolean =
@@ -269,10 +268,7 @@ class SelectSongFragment : ActionBarFragment(),
             setOnClickAndImageResource(file)
             pathTextView.text = FileNameParser.removeExtension(file)
 
-            if (file.path in viewModel.checked)
-                fileCheckBox.isChecked = true
-            else
-                fileCheckBox.isChecked = false
+            fileCheckBox.isChecked = file.path in viewModel.checked
         }
     }
 

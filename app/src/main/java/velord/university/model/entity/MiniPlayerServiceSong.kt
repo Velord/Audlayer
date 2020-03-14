@@ -14,7 +14,7 @@ data class MiniPlayerServiceSong(
 interface MiniPlayerServiceSongDao {
 
     @Transaction
-    open fun updateData(values: Array<MiniPlayerServiceSong>) {
+    fun updateData(values: Array<MiniPlayerServiceSong>) {
         nukeTable()
         insertAll(*values)
     }

@@ -63,8 +63,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
             R.id.action_folder_sort_by -> {
                 val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
                 val initActionMenuLayout = { R.menu.sort_by }
-                val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
-                    when (it.itemId) {
+                val initActionMenuItemClickListener: (MenuItem) -> Boolean = { menuItem ->
+                    when (menuItem.itemId) {
                         R.id.folder_sort_by_name -> {
                             SortByPreference.setSortByFolderFragment(requireContext(), 0)
 
@@ -110,9 +110,9 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                         }
                     }
                 }
-                val actionBarPopUpMenu: (PopupMenu) -> Unit = {
+                val actionBarPopUpMenu: (PopupMenu) -> Unit = { popUpMenu ->
                     //set up checked item
-                    val menuItem = it.menu
+                    val menuItem = popUpMenu.menu
 
                     val nameArtistDateOrder =
                         SortByPreference.getSortByFolderFragment(requireContext())
@@ -122,8 +122,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                         2 -> { menuItem.getItem(2).isChecked = true }
                     }
 
-                    val ascDescOrder = SortByPreference.getAscDescFolderFragment(requireContext())
-                    when(ascDescOrder) {
+                    when(SortByPreference.getAscDescFolderFragment(requireContext())) {
                         0 -> { menuItem.getItem(3).isChecked = true }
                         1 -> { menuItem.getItem(4).isChecked = true }
                         else -> {}
@@ -276,12 +275,12 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
     }
 
     private fun updateAdapterBySearchQuery(searchQuery: String) {
-        fun _setupAdapter(file: File = Environment.getExternalStorageDirectory(),
+        fun setupAdapter(file: File = Environment.getExternalStorageDirectory(),
                             //default filter
                           filter: (File, String) -> Boolean = FileFilter.filterByEmptySearchQuery
         ) {
             //while permission is not granted
-            if (checkPermission().not()) _setupAdapter(file, filter)
+            if (checkPermission().not()) setupAdapter(file, filter)
             //now do everything to setup adapter
             changeCurrentTextView(file)
             //apply all filters to recycler view
@@ -292,9 +291,9 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
 
         if (searchQuery.isNotEmpty()) {
             val f = FileFilter.filterBySearchQuery
-            _setupAdapter(viewModel.currentFolder, f)
+            setupAdapter(viewModel.currentFolder, f)
         }
-        else _setupAdapter(viewModel.currentFolder)
+        else setupAdapter(viewModel.currentFolder)
     }
 
     private fun setupAdapter(file: File) {
@@ -399,9 +398,9 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
-                                    callbacks?.let {
+                                    callbacks?.let { callback ->
                                         SongPlaylistInteractor.songs = arrayOf(file)
-                                        it.onAddToPlaylistFromFolderFragment()
+                                        callback.onAddToPlaylistFromFolderFragment()
                                     }
                                     true
                                 }
@@ -430,7 +429,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                     setOnClick(action, popUpAction, fSelect)
                     iconImageButton.setImageResource(R.drawable.extension_file_song)
                 }
-                FileExtensionModifier.NOTCOMPATIBLE -> {
+                FileExtensionModifier.NOT_COMPATIBLE -> {
                     iconImageButton.setImageResource(R.drawable.extension_file_not_important)
                 }
             }

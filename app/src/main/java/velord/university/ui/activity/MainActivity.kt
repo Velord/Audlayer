@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity(),
             .show(fm, "CreateNewPlaylistDialogFragment")
     }
 
-    override fun succes() {
+    override fun success() {
         backPressedToZeroLevel()
     }
 

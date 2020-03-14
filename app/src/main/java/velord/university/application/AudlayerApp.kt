@@ -6,7 +6,7 @@ import velord.university.model.entity.Playlist
 import velord.university.repository.AppDatabase
 import velord.university.repository.buildAppDatabase
 
-//default playlists is Favourite, Played
+//default playlist is Favourite, Played
 
 class AudlayerApp : Application() {
 
@@ -18,12 +18,12 @@ class AudlayerApp : Application() {
 
         suspend fun checkDbTableColumn() = withContext(Dispatchers.IO) {
             db?.apply {
-                val playlists = playlistDao().getAll()
+                val playlist = playlistDao().getAll()
 
                 var favouriteExist = false
                 var playedSongExist = false
 
-                playlists.forEach {
+                playlist.forEach {
                     if (it.name == "Favourite")
                         favouriteExist = true
                     if (it.name == "Played")

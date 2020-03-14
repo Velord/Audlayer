@@ -4,7 +4,6 @@ import android.content.Context
 import android.preference.PreferenceManager
 import androidx.core.content.edit
 
-private const val PREF_SEARCH_QUERY_FOLDER = "searchQuery"
 private const val PREF_SEARCH_QUERY_ALBUM = "searchQueryAlbum"
 private const val PREF_SEARCH_QUERY_SONG = "searchQuerySong"
 

@@ -20,13 +20,9 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
 
     lateinit var currentQuery: String
 
-    var currentFolder: File
+    var currentFolder: File = Environment.getExternalStorageDirectory()
 
     lateinit var rvResolver: RecyclerViewSelectItemResolver<String>
-
-    init {
-        currentFolder = Environment.getExternalStorageDirectory()
-    }
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 
@@ -37,7 +33,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
         FileFilter.filterOnlyAudio(file).toTypedArray()
 
     fun playAllInFolder(file: File) {
-        //don't remember for SongQueryInteractor
+        //don't remember for SongPlaylistInteractor
         MiniPlayerBroadcastPlayAllInFolder.apply {
             app.sendBroadcastPlayAllInFolder(file.path)
         }
@@ -63,7 +59,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     fun playAudio(file: File) {
-        //don't remember for SongQueryInteractor it will be used between this and service
+        //don't remember for SongPlaylistInteractor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(file)
         MiniPlayerBroadcastPlayByPath.apply {
             app.sendBroadcastPlayByPath(file.path)
@@ -90,7 +86,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
         Log.d(TAG, "query: $currentQuery path: $folderPath")
     }
 
-    fun getFilesInCurrentFolder(): Array<File> {
+    private fun getFilesInCurrentFolder(): Array<File> {
         val path = currentFolder.path
         val file = File(path)
         val filesInFolder = file.listFiles()

@@ -136,12 +136,13 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
     } ?: listOf()
 
     private fun allSongFromPlaylist(playlist: List<Playlist>): List<File> =
-        playlist.map { it.songs }
+        playlist.asSequence()
+            .map { it.songs }
             .fold(mutableListOf<String>()) { joined, fromDB ->
                 joined.addAll(fromDB)
                 joined
             }
             .distinct()
             .map { File(it) }
-            .filter { it.path.isNotEmpty() }
+            .filter { it.path.isNotEmpty() }.toList()
 }

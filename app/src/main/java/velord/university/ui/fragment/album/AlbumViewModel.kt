@@ -1,8 +1,6 @@
 package velord.university.ui.fragment.album
 
 import android.app.Application
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -17,8 +15,6 @@ import velord.university.model.entity.Album
 import velord.university.model.entity.Playlist
 import java.io.File
 
-
-const val MAX_FILEAGE: Long = 2678400000L // 1 month in milliseconds
 const val MAX_LAST_PLAYED: Int = 50
 const val MAX_MOST_PLAYED: Int = 50
 
@@ -26,18 +22,18 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
 
     val TAG = "AlbumViewModel"
 
-    val scope = CoroutineScope(Job() + Dispatchers.IO)
+    private val scope = CoroutineScope(Job() + Dispatchers.IO)
 
     lateinit var currentQuery: String
 
-    lateinit var playlist: List<Playlist>
-    lateinit var recentlyModified: List<String>
-    lateinit var lastPlayed: List<String>
-    lateinit var mostPlayed: List<String>
-    lateinit var favourite: List<String>
-    lateinit var other: List<Playlist>
+    private lateinit var playlist: List<Playlist>
+    private lateinit var recentlyModified: List<String>
+    private lateinit var lastPlayed: List<String>
+    private lateinit var mostPlayed: List<String>
+    private lateinit var favourite: List<String>
+    private lateinit var other: List<Playlist>
 
-    lateinit var allSongRemovedDuplicate: List<File>
+    private lateinit var allSongRemovedDuplicate: List<File>
 
     lateinit var albums: List<Album>
 
@@ -52,7 +48,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         val newOther = other.filter { it.name.contains(query) }
 
         // sort by album or artist or year or number of tracks
-        val sortedPlaylists = when(SortByPreference.getSortByAlbumFragment(app)) {
+        val sortedPlaylist = when(SortByPreference.getSortByAlbumFragment(app)) {
             //album TODO()
             0 -> newOther
             //artist
@@ -66,10 +62,10 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
             else -> newOther
         }
         // sort by ascending or descending order
-        val orderedPlaylists = when(SortByPreference.getAscDescAlbumFragment(app)) {
-            0 -> sortedPlaylists
-            1 ->  sortedPlaylists.reversed()
-            else -> sortedPlaylists
+        val orderedPlaylist = when(SortByPreference.getAscDescAlbumFragment(app)) {
+            0 -> sortedPlaylist
+            1 ->  sortedPlaylist.reversed()
+            else -> sortedPlaylist
         }
 
         return collectPlaylist(
@@ -77,7 +73,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
             lastPlayed,
             mostPlayed,
             favourite,
-            orderedPlaylists
+            orderedPlaylist
         )
     }
 
@@ -100,7 +96,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     suspend fun retrievePlaylistFromDb() = withContext(Dispatchers.IO) {
-        playlist = getPlaylists()
+        playlist = getDefaultAndUserPlaylist()
         Log.d(TAG, "all playlist collected")
     }
 
@@ -121,7 +117,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         AudlayerApp.db?.let {
             it.playlistDao().deletePlaylistByName(playlist.name)
             //refresh playlist
-            getPlaylists()
+            getDefaultAndUserPlaylist()
         }
     }
 
@@ -159,14 +155,15 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
     } ?: listOf()
 
     private fun allSongFromPlaylist(playlist: List<Playlist>): List<File> =
-        playlist.map { it.songs }
+        playlist.asSequence()
+            .map { it.songs }
             .fold(mutableListOf<String>()) { joined, fromDB ->
-            joined.addAll(fromDB)
-            joined
-        }
+                joined.addAll(fromDB)
+                joined
+            }
             .distinct()
             .map { File(it) }
-            .filter { it.path.isNotEmpty() }
+            .filter { it.path.isNotEmpty() }.toList()
 
     private suspend fun getAllPlaylist(): List<Playlist> = withContext(Dispatchers.IO) {
         return@withContext AudlayerApp.db?.run {
@@ -174,7 +171,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     } ?: listOf()
 
-    private suspend fun getPlaylists(): List<Playlist> {
+    private suspend fun getDefaultAndUserPlaylist(): List<Playlist> {
         val allPlaylist = getAllPlaylist()
         Log.d(TAG, "all playlist retrieved")
         //unique songs
@@ -194,11 +191,11 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         mostPlayed = played
             .fold(HashMap<String, Int>()) { mostPlayed, song ->
                 if (song.isNotEmpty()) {
-                    if (mostPlayed.containsKey(song).not())
-                        mostPlayed += Pair(song, 1)
+                    mostPlayed += if (mostPlayed.containsKey(song).not())
+                        Pair(song, 1)
                     else {
                         val count = mostPlayed[song]
-                        mostPlayed += Pair(song, count!!.plus(1))
+                        Pair(song, count!!.plus(1))
                     }
                 }
                 mostPlayed
@@ -225,14 +222,14 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         )
     }
 
-    private fun getAlbumImage(path: String): Bitmap? {
-        val mmr = MediaMetadataRetriever()
-        mmr.setDataSource(path)
-        val data = mmr.embeddedPicture
-        return if (data != null)
-            BitmapFactory.decodeByteArray(data, 0, data.size)
-        else null
-    }
+//    private fun getAlbumImage(path: String): Bitmap? {
+//        val mmr = MediaMetadataRetriever()
+//        mmr.setDataSource(path)
+//        val data = mmr.embeddedPicture
+//        return if (data != null)
+//            BitmapFactory.decodeByteArray(data, 0, data.size)
+//        else null
+//    }
     //something wrong
     private suspend fun getAlbumBasedOnAllSong(): List<Album> {
         val metaRetriever = MediaMetadataRetriever()

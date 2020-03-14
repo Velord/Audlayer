@@ -265,9 +265,9 @@ class SongFragment : ActionBarFragment() {
                         true
                     }
                     R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
-                        callbacks?.let {
+                        callbacks?.let { callback ->
                             SongPlaylistInteractor.songs = arrayOf(song)
-                            it.onAddToPlaylistFromSongFragment()
+                            callback.onAddToPlaylistFromSongFragment()
                         }
                         true
                     }
