@@ -159,7 +159,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
     }
 
     override val actionBarHintArticle: (TextView) -> Unit = {
-        it.text = "Find Audio"
+        it.text = getString(R.string.action_bar_hint_folder)
     }
 
     override val actionBarPopUpMenuLayout: () -> Int = {

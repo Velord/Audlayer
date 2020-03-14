@@ -19,12 +19,12 @@
             app:showAsAction="ifRoom"/>
 
         <item android:id="@+id/song_sort_by_duration"
-            android:title="@string/song_duration"
+            android:title="@string/pop_up_menu_item_sort_by_duration"
             android:checkable="true"
             app:showAsAction="ifRoom"/>
 
         <item android:id="@+id/song_sort_by_size"
-            android:title="@string/song_size"
+            android:title="@string/pop_up_menu_item_sort_by_size"
             android:checkable="true"
             app:showAsAction="ifRoom"/>
 

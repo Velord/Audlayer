@@ -6,9 +6,9 @@
     <string name="open_songs">Open all songs</string>
     <string name="open_radio">Open radio stations</string>
     <string name="open_vk">Open your vk music</string>
-    <string name="folder">Folders</string>
-    <string name="albums">Albums</string>
-    <string name="songs">Songs</string>
+    <string name="folder">Folder</string>
+    <string name="albums">Album</string>
+    <string name="songs">Song</string>
     <string name="radio">Radio</string>
     <string name="vk">VK</string>
     <string name="add_song_hint">Choose Song</string>
@@ -19,6 +19,7 @@
     <string name="add_to_playlist_name">Playlist name</string>
     <string name="add_to_playlist_bottom_hint">Identical Songs Will not Be Added</string>
     <string name="add_to_playlist_delete">Delete</string>
+    <string name="add_to_playlist_item">%1$s \nContain: %2$d</string>
     <string name="mini_player_song_no_information">No Song Are Selected</string>
     <string name="mini_player_song_high_quality">HQ</string>
     <string name="mini_player_song_image">Image of song</string>
@@ -37,9 +38,12 @@
     <string name="folder_fragment_item_path">File path</string>
     <string name="folder_fragment_item_action">File action</string>
     <string name="action_bar_hint_folder">Find Audio</string>
+    <string name="action_bar_hint_album">Playlist | Album</string>
+    <string name="action_bar_hint_select_song">Choose Song</string>
+    <string name="action_bar_hint_song">All Audio</string>
     <string name="action_bar_hint_search_view">Type to find...</string>
-    <string name="action_bar_settings">Action Bar Settings Button</string>
-    <string name="action_bar_action">Action Bar Action Button</string>
+    <string name="action_bar_settings">Settings Button</string>
+    <string name="action_bar_action">Action Button</string>
     <string name="pop_up_menu_item_play">Play</string>
     <string name="pop_up_menu_item_play_next">Play Next</string>
     <string name="pop_up_menu_item_shuffle">Shuffle</string>
@@ -55,6 +59,8 @@
     <string name="pop_up_menu_item_sort_by_album">Album</string>
     <string name="pop_up_menu_item_sort_by_number_of_tracks">Number of Tracks</string>
     <string name="pop_up_menu_item_sort_by_year">Year</string>
+    <string name="pop_up_menu_item_sort_by_duration">Duration</string>
+    <string name="pop_up_menu_item_sort_by_size">Size</string>
     <string name="pop_up_menu_item_sort_by_ascending_order">Ascending Order</string>
     <string name="pop_up_menu_item_sort_by_descending_order">Descending Order</string>
     <string name="create_new_playlist_hint">Type...</string>
@@ -64,6 +70,6 @@
     <string name="album_album">Albums</string>
     <string name="album_playlist">Playlists</string>
     <string name="album_refresh">Refresh</string>
-    <string name="song_duration">Duration</string>
-    <string name="song_size">Size</string>
+    <string name="album_refreshing">Refreshing...</string>
+    <string name="album_item">%1$s \nContain: %2$d</string>
 </resources>

@@ -194,7 +194,8 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),
         fun bindItem(playlist: Playlist, position: Int) {
             setOnClickAndImageResource(playlist)
 
-            pathTextView.text = "${playlist.name} \nContain: ${playlist.songs.size}"
+            pathTextView.text = getString(R.string.add_to_playlist_item,
+                playlist.name, playlist.songs.size)
         }
     }
 

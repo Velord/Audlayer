@@ -148,7 +148,7 @@ class SongFragment : ActionBarFragment() {
     }
 
     override val actionBarHintArticle: (TextView) -> Unit = {
-        it.text = "All Audio"
+        it.text = getString(R.string.action_bar_hint_song)
     }
 
     override val actionBarPopUpMenuLayout: () -> Int = {

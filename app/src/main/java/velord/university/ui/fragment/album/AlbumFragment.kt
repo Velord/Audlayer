@@ -93,7 +93,9 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
     }
     override val actionBarPopUpMenuLayout: () -> Int = { R.menu.album_fragment_pop_up }
     override val actionBarPopUpMenuStyle: () -> Int = { R.style.PopupMenuOverlapAnchorFolder }
-    override val actionBarHintArticle: (TextView) -> Unit = { it.text = "Playlist | Album" }
+    override val actionBarHintArticle: (TextView) -> Unit = {
+        it.text = getString(R.string.action_bar_hint_album)
+    }
     override val actionBarLeftMenu: (ImageButton) -> Unit = { }
     override val actionBarPopUpMenu: (PopupMenu) -> Unit = {
         //set up checked item
@@ -170,13 +172,13 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
             scope.launch {
                 withContext(Dispatchers.Main) {
                     val refresh = it as TextView
-                    refresh.text = "Refreshing..."
+                    refresh.text = getString(R.string.album_refreshing)
                 }
                 viewModel.refreshAllAlbum()
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 withContext(Dispatchers.Main) {
                     val refresh = it as TextView
-                    refresh.text = "Refresh"
+                    refresh.text = getString(R.string.album_refresh)
                 }
             }
         }
@@ -205,13 +207,13 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
             scope.launch {
                 withContext(Dispatchers.Main) {
                     val refresh = it as TextView
-                    refresh.text = "Refreshing..."
+                    refresh.text = getString(R.string.album_refreshing)
                 }
                 viewModel.retrievePlaylistFromDb()
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 withContext(Dispatchers.Main) {
                     val refresh = it as TextView
-                    refresh.text = "Refresh"
+                    refresh.text = getString(R.string.album_refresh)
                 }
             }
         }
@@ -313,7 +315,8 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
 
         fun bindItem(album: Album, position: Int) {
             setOnClickAndImageResource(album)
-            pathTextView.text = "${album.name} \nContain: ${album.songs.size}"
+            pathTextView.text =
+                getString(R.string.album_item, album.name, album.songs.size)
         }
     }
 
@@ -407,7 +410,8 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
 
         fun bindItem(playlist: Playlist, position: Int) {
             setOnClickAndImageResource(playlist)
-            pathTextView.text = "${playlist.name} \nContain: ${playlist.songs.size}"
+            pathTextView.text =
+                getString(R.string.album_item, playlist.name, playlist.songs.size)
         }
     }
 

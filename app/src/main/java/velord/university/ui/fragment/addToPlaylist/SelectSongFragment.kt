@@ -171,7 +171,7 @@ class SelectSongFragment : ActionBarFragment(),
         R.style.PopupMenuOverlapAnchorFolder
     }
     override val actionBarHintArticle: (TextView) -> Unit = {
-        it.text = "Choose Song"
+        it.text = getString(R.string.action_bar_hint_select_song)
     }
     override val actionBarLeftMenu: (ImageButton) -> Unit = {
         it.apply {
