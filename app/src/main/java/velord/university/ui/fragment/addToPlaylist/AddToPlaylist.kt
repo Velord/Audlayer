@@ -13,17 +13,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
+import velord.university.repository.transaction.PlaylistDb
 import velord.university.ui.backPressed.BackPressedHandlerSecond
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
-class AddToPlaylist : LoggerSelfLifecycleFragment(),
-    BackPressedHandlerSecond {
+class AddToPlaylist : LoggerSelfLifecycleFragment(), BackPressedHandlerSecond {
     //Required interface for hosting activities
     interface Callbacks {
         fun openCreateNewPlaylistDialogFragment()
@@ -89,9 +88,8 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),
 
     private fun setupAdapter() {
         scope.launch {
-            val playlist = AudlayerApp.db?.run {
-                playlistDao().getAll().toTypedArray()
-            } ?: arrayOf()
+            val playlist = Playlist.otherAndFavourite(
+                PlaylistDb.getAllPlaylist()).toTypedArray()
 
             withContext(Dispatchers.Main) {
                 rv.adapter = PlaylistAdapter(playlist)
@@ -107,14 +105,12 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),
         private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
 
         private fun updatePlaylist(playlist: Playlist) {
-            AudlayerApp.db?.let {
                 val filtered = songsToPlaylist.filter {
-                    playlist.songs.contains(it)
+                    playlist.songs.contains(it).not()
                 }
                 //update db
                 scope.launch {
-                    playlist.songs += filtered
-                    it.playlistDao().update(playlist)
+                    PlaylistDb.update(playlist)
                 }
                 //show user info
                 Toast.makeText(
@@ -124,7 +120,6 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),
                 ).show()
                 //back pressed
                 callbacks?.closeAddToPlaylistFragment()
-            }
         }
 
         private val actionPopUpMenu: (Playlist) -> Unit = { playlist ->
@@ -146,12 +141,12 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(),
                             true
                         }
                         R.id.playlist_item_delete -> {
-                            AudlayerApp.db?.let {
-                                scope.launch {
-                                    it.playlistDao().deletePlaylistById(playlist.id)
+                            scope.launch {
+                                PlaylistDb.delete(playlist.id)
+                                withContext(Dispatchers.Main) {
+                                    setupAdapter()
                                 }
                             }
-                            setupAdapter()
                             true
                         }
                         else -> {

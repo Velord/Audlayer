@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.permission.PermissionChecker
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
@@ -23,8 +22,7 @@ import velord.university.ui.backPressed.BackPressedHandlerFirst
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import java.io.File
 
-class SelectSongFragment : ActionBarFragment(),
-    BackPressedHandlerFirst {
+class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromAddSongFragment()
@@ -46,81 +44,6 @@ class SelectSongFragment : ActionBarFragment(),
     private lateinit var rv: RecyclerView
     private lateinit var selectAllButton: Button
     private lateinit var continueButton: Button
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callbacks = context as Callbacks?
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        callbacks = null
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.add_song_fragment, container, false).apply {
-            initViews(this)
-            //observe changes in search view
-            super.observeSearchQuery()
-            setupAdapter()
-        }
-    }
-
-    private fun initViews(view: View) {
-        super.initActionBar(view)
-        initSelectAll(view)
-        initContinue(view)
-        initRV(view)
-    }
-
-    private fun initSelectAll(view: View) {
-        selectAllButton = view.findViewById(R.id.add_song_select_all)
-        selectAllButton.setOnClickListener {
-            scope.launch {
-                val checkedAll = viewModel.checked.size == viewModel.fileList.size
-                viewModel.checked.clear()
-                if (checkedAll.not())
-                    viewModel.fileList.forEach {
-                        viewModel.checked += it.path
-                    }
-
-                withContext(Dispatchers.Main) {
-                    updateAdapterBySearchQuery(viewModel.currentQuery)
-                }
-            }
-        }
-    }
-
-    private fun initContinue(view: View) {
-        continueButton = view.findViewById(R.id.add_song_continue)
-        continueButton.setOnClickListener {
-            callbacks?.let {
-                if (viewModel.checked.isNotEmpty()) {
-                    SongPlaylistInteractor.songs =
-                        viewModel.checked.map { File(it) }.toTypedArray()
-                    it.onAddToPlaylistFromAddSongFragment()
-                }
-                else Toast.makeText(requireContext(),
-                        "Choose anyone song", Toast.LENGTH_SHORT)
-                        .show()
-            }
-        }
-    }
-
-    private fun initRV(view: View) {
-        rv = view.findViewById(R.id.general_RecyclerView)
-        rv.layoutManager = LinearLayoutManager(activity)
-        //controlling action bar frame visibility when recycler view is scrolling
-        super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
-    }
-
-    override fun onBackPressed(): Boolean {
-        Log.d(TAG, "onBackPressed")
-        return true
-    }
     // action bar overriding
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchTerm ->
         //store search term in shared preferences
@@ -200,12 +123,88 @@ class SelectSongFragment : ActionBarFragment(),
         }
     }
 
+    override fun onBackPressed(): Boolean {
+        Log.d(TAG, "onBackPressed")
+        return true
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.add_song_fragment, container, false).apply {
+            initViews(this)
+            //observe changes in search view
+            super.observeSearchQuery()
+            setupAdapter()
+        }
+    }
+
+    private fun initViews(view: View) {
+        super.initActionBar(view)
+        initSelectAll(view)
+        initContinue(view)
+        initRV(view)
+    }
+
+    private fun initSelectAll(view: View) {
+        selectAllButton = view.findViewById(R.id.add_song_select_all)
+        selectAllButton.setOnClickListener {
+            scope.launch {
+                val checkedAll = viewModel.checked.size == viewModel.fileList.size
+                viewModel.checked.clear()
+                if (checkedAll.not())
+                    viewModel.fileList.forEach {
+                        viewModel.checked += it.path
+                    }
+
+                withContext(Dispatchers.Main) {
+                    updateAdapterBySearchQuery(viewModel.currentQuery)
+                }
+            }
+        }
+    }
+
+    private fun initContinue(view: View) {
+        continueButton = view.findViewById(R.id.add_song_continue)
+        continueButton.setOnClickListener {
+            callbacks?.let {
+                if (viewModel.checked.isNotEmpty()) {
+                    SongPlaylistInteractor.songs =
+                        viewModel.checked.map { File(it) }.toTypedArray()
+                    it.onAddToPlaylistFromAddSongFragment()
+                }
+                else Toast.makeText(requireContext(),
+                        "Choose anyone song", Toast.LENGTH_SHORT)
+                        .show()
+            }
+        }
+    }
+
+    private fun initRV(view: View) {
+        rv = view.findViewById(R.id.general_RecyclerView)
+        rv.layoutManager = LinearLayoutManager(activity)
+        //controlling action bar frame visibility when recycler view is scrolling
+        super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
+    }
+
     private fun updateAdapterBySearchQuery(searchTerm: String) {
         fun setupAdapter( //default filter
             filter: (File, String) -> Boolean = FileFilter.filterByEmptySearchQuery
         ) {
             //while permission is not granted
-            if (checkPermission().not()) setupAdapter(filter)
+            if (viewModel.checkPermission(requireActivity()).not())
+                setupAdapter(filter)
             //apply all filters to recycler view
             val filteredAndSortered =
                 viewModel.filterAndSortFiles(requireContext(), filter, searchTerm)
@@ -218,11 +217,6 @@ class SelectSongFragment : ActionBarFragment(),
         }
         else setupAdapter()
     }
-
-    private fun checkPermission(): Boolean =
-        PermissionChecker
-            .checkThenRequestReadWriteExternalStoragePermission(
-                requireContext(), requireActivity())
 
     private fun setupAdapter() {
         viewModel.fileList = SongPlaylistInteractor.songs

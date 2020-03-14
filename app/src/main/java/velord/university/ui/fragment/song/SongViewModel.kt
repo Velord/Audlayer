@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.MiniPlayerBroadcastAddToQueue
 import velord.university.application.broadcast.MiniPlayerBroadcastLoop
 import velord.university.application.broadcast.MiniPlayerBroadcastLoopAll
@@ -16,6 +15,7 @@ import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.entity.Playlist
+import velord.university.repository.transaction.PlaylistDb
 import velord.university.ui.util.RecyclerViewSelectItemResolver
 import java.io.File
 
@@ -32,10 +32,10 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
     lateinit var rvResolver: RecyclerViewSelectItemResolver<String>
 
     suspend fun retrieveSongsFromDb() = withContext(Dispatchers.IO) {
-        val allPlaylist = getAllPlaylist()
+        val allPlaylist = PlaylistDb.getAllPlaylist()
         Log.d(TAG, "all playlist retrieved")
         //unique songs
-        songs = allSongFromPlaylist(allPlaylist)
+        songs = Playlist.allSongFromPlaylist(allPlaylist)
         Log.d(TAG, "all song retrieved")
     }
 
@@ -127,22 +127,4 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
             app.sendBroadcastAddToQueue(file.path)
         }
     }
-
-    private suspend fun getAllPlaylist(): List<Playlist> =
-        withContext(Dispatchers.IO) {
-        return@withContext AudlayerApp.db?.run {
-            playlistDao().getAll()
-        }
-    } ?: listOf()
-
-    private fun allSongFromPlaylist(playlist: List<Playlist>): List<File> =
-        playlist.asSequence()
-            .map { it.songs }
-            .fold(mutableListOf<String>()) { joined, fromDB ->
-                joined.addAll(fromDB)
-                joined
-            }
-            .distinct()
-            .map { File(it) }
-            .filter { it.path.isNotEmpty() }.toList()
 }

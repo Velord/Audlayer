@@ -139,6 +139,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
                 withContext(Dispatchers.Main) {
                     //init action bar
                     super.initActionBar(this@apply)
+                    super.changeUIAfterSubmitTextInSearchView(super.searchView)
                     //init self view
                     initViews(this@apply)
                     //observe changes in search view

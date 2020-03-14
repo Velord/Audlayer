@@ -24,7 +24,8 @@ import velord.university.model.QueueResolver
 import velord.university.model.ServicePlaylist
 import velord.university.model.converter.SongTimeConverter
 import velord.university.model.entity.MiniPlayerServiceSong
-import velord.university.repository.AppDatabase
+import velord.university.repository.transaction.PlaylistDb
+import velord.university.repository.transaction.ServiceDb
 import java.io.File
 
 abstract class MiniPlayerService : Service() {
@@ -208,72 +209,60 @@ abstract class MiniPlayerService : Service() {
     }
 
     protected fun likeSong() {
-        AudlayerApp.db?.let {
-            scope.launch {
-                val songPath = playlist.getSongPath()
-                val favourite = it.playlistDao().getByName("Favourite")
-                favourite.songs += songPath
-                it.playlistDao().update(favourite)
+        scope.launch {
+            val songPath = playlist.getSongPath()
+            PlaylistDb.updateFavourite {
+                val updated = it + songPath
+                updated
             }
         }
     }
 
     protected fun unlikeSong() {
-        AudlayerApp.db?.let {
-            scope.launch {
-                val songPath = playlist.getSongPath()
-                val favourite = it.playlistDao().getByName("Favourite")
-                favourite.songs = favourite.songs.filter { it != songPath }
-                it.playlistDao().update(favourite)
+        scope.launch {
+            val songPath = playlist.getSongPath()
+            PlaylistDb.updateFavourite {
+                it.filter { it != songPath }
             }
         }
     }
 
     private fun retrieveInfo() {
         scope.launch {
-            AudlayerApp.db?.let { db ->
-                val songsFromDb = retrievePlaylist(db)
-                val songsToPlaylist =
-                    songsFromDb
-                        .filter { it.path.isNotEmpty() }
-                        .sortedBy { it.pos }
-                        .map { File(it.path) }
+            val songsFromDb = ServiceDb.getPlaylist()
+            val songsToPlaylist = MiniPlayerServiceSong.getSongsToPlaylist(songsFromDb)
 
-                if (songsToPlaylist.isNotEmpty()) {
-                    addToSongQueue(songsToPlaylist)
-                    //restore duration
-                    val duration =
-                        MiniPlayerServicePreferences
-                            .getCurrentDuration(this@MiniPlayerService)
-                    //what song should play
-                    var posWasPlayedSong =
-                        MiniPlayerServicePreferences
-                            .getCurrentPos(this@MiniPlayerService)
-                    if (posWasPlayedSong > songsToPlaylist.lastIndex)
-                        posWasPlayedSong = songsToPlaylist.lastIndex
-                    val path =
-                        playlist.getSong(posWasPlayedSong).path
-                    val isPlaying =
-                        MiniPlayerServicePreferences
-                            .getIsPlaying(this@MiniPlayerService)
-                    val appWasDestroyed =
-                        AppPreference.getAppIsDestroyed(this@MiniPlayerService)
-                    //after all info got -> start player ->  set current time -> stop
-                    playNext(path)
-                    rewindPlayer(duration)
-                    pausePlayer()
-                    //this means ui have been destroyed with service after destroy main activity
-                    //but app is still working -> after restoration we should play song
-                    if (isPlaying && appWasDestroyed.not()) {
-                        playSongAfterCreatedPlayer()
-                    }
+            if (songsToPlaylist.isNotEmpty()) {
+                addToSongQueue(songsToPlaylist)
+                //restore duration
+                val duration =
+                    MiniPlayerServicePreferences
+                        .getCurrentDuration(this@MiniPlayerService)
+                //what song should play
+                var posWasPlayedSong =
+                    MiniPlayerServicePreferences
+                        .getCurrentPos(this@MiniPlayerService)
+                if (posWasPlayedSong > songsToPlaylist.lastIndex)
+                    posWasPlayedSong = songsToPlaylist.lastIndex
+                val path =
+                    playlist.getSong(posWasPlayedSong).path
+                val isPlaying =
+                    MiniPlayerServicePreferences
+                        .getIsPlaying(this@MiniPlayerService)
+                val appWasDestroyed =
+                    AppPreference.getAppIsDestroyed(this@MiniPlayerService)
+                //after all info got -> start player ->  set current time -> stop
+                playNext(path)
+                rewindPlayer(duration)
+                pausePlayer()
+                //this means ui have been destroyed with service after destroy main activity
+                //but app is still working -> after restoration we should play song
+                if (isPlaying && appWasDestroyed.not()) {
+                    playSongAfterCreatedPlayer()
                 }
             }
         }
     }
-
-    private suspend fun retrievePlaylist(db: AppDatabase) =
-        withContext(Dispatchers.IO) { db.serviceDao().getAll() }
 
     private fun addToSongQueue(list: List<File>) {
         playlist.songs.addAll(list)
@@ -346,29 +335,12 @@ abstract class MiniPlayerService : Service() {
         playSongAfterCreatedPlayer()
         //update db
         scope.launch {
-            updatePlayedSong(song.path)
+            PlaylistDb.updatePlayedSong(song.path)
         }
         //send info
         sendInfoToUI(song)
         //store pos
         storeSongPositionInQueue()
-    }
-
-    private suspend fun updatePlayedSong(path: String) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.apply {
-            //retrieve from Db
-            val playedSongs =
-                playlistDao().getByName("Played")
-            //add new path
-            //secure from duplicate last
-            //secure from null
-            playedSongs?.let {
-                if (playedSongs.songs.last() != path)
-                    playedSongs.songs += path
-                //update column
-                playlistDao().update(playedSongs)
-            }
-        }
     }
 
     private fun createPlayer(path: String) {
@@ -422,12 +394,11 @@ abstract class MiniPlayerService : Service() {
 
     private fun storeQueue() {
         scope.launch {
-            val songsToDb = playlist.songs.map {
-                val path = it.path
-                val pos = playlist.getSongPos(path)
-                MiniPlayerServiceSong(path, pos)
-            }.toTypedArray()
-            AudlayerApp.db?.serviceDao()?.updateData(songsToDb)
+            val getPosF: (String) -> Int =
+                { path ->  playlist.getSongPos(path) }
+            val songsToDb =
+                MiniPlayerServiceSong.getSongsToDb(playlist.songs, getPosF)
+            ServiceDb.update(songsToDb)
         }
         Log.d(TAG, "store queue")
     }
@@ -447,16 +418,13 @@ abstract class MiniPlayerService : Service() {
     }
 
     private suspend fun sendIsLoved(song: File) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.let {
-            val favourite =
-                it.playlistDao().getByName("Favourite")
-            if (favourite.songs.contains(song.path))
-                MiniPlayerBroadcastLike.apply {
-                    sendBroadcastLikeUI()
-                }
-            else MiniPlayerBroadcastUnlike.apply {
-                sendBroadcastUnlikeUI()
+        val favourite = PlaylistDb.getFavouriteSongs()
+        if (favourite.contains(song.path))
+            MiniPlayerBroadcastLike.apply {
+                sendBroadcastLikeUI()
             }
+        else MiniPlayerBroadcastUnlike.apply {
+            sendBroadcastUnlikeUI()
         }
     }
 }

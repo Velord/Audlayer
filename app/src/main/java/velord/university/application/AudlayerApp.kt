@@ -5,6 +5,7 @@ import kotlinx.coroutines.*
 import velord.university.model.entity.Playlist
 import velord.university.repository.AppDatabase
 import velord.university.repository.buildAppDatabase
+import velord.university.repository.transaction.PlaylistDb
 
 //default playlist is Favourite, Played
 
@@ -18,7 +19,7 @@ class AudlayerApp : Application() {
 
         suspend fun checkDbTableColumn() = withContext(Dispatchers.IO) {
             db?.apply {
-                val playlist = playlistDao().getAll()
+                val playlist = PlaylistDb.getAllPlaylist()
 
                 var favouriteExist = false
                 var playedSongExist = false

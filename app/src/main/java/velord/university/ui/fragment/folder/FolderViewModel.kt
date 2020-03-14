@@ -1,10 +1,12 @@
 package velord.university.ui.fragment.folder
 
+import android.app.Activity
 import android.app.Application
 import android.os.Environment
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import velord.university.application.broadcast.*
+import velord.university.application.permission.PermissionChecker
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
@@ -20,9 +22,9 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
 
     lateinit var currentQuery: String
 
-    var currentFolder: File = Environment.getExternalStorageDirectory()
-
     lateinit var rvResolver: RecyclerViewSelectItemResolver<String>
+
+    var currentFolder: File = Environment.getExternalStorageDirectory()
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 
@@ -86,13 +88,6 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
         Log.d(TAG, "query: $currentQuery path: $folderPath")
     }
 
-    private fun getFilesInCurrentFolder(): Array<File> {
-        val path = currentFolder.path
-        val file = File(path)
-        val filesInFolder = file.listFiles()
-        return filesInFolder ?: arrayOf()
-    }
-
     fun playAudioFile(file: File) {
        MiniPlayerBroadcastPlayByPath.apply {
            SongPlaylistInteractor.songs = fileList
@@ -126,5 +121,16 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
             1 ->  sortedFiles.reversed()
             else -> sortedFiles
         }.toTypedArray()
+    }
+
+    fun checkPermission(activity: Activity): Boolean =
+        PermissionChecker
+            .checkThenRequestReadWriteExternalStoragePermission(app, activity)
+
+    private fun getFilesInCurrentFolder(): Array<File> {
+        val path = currentFolder.path
+        val file = File(path)
+        val filesInFolder = file.listFiles()
+        return filesInFolder ?: arrayOf()
     }
 }

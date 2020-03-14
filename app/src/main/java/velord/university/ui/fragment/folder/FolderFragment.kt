@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import velord.university.R
-import velord.university.application.permission.PermissionChecker
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileExtension
@@ -200,6 +199,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
         return inflater.inflate(R.layout.folder_fragment, container, false).apply {
             //init action bar
             super.initActionBar(this)
+            super.changeUIAfterSubmitTextInSearchView(super.searchView)
             //init self view
             initViews(this)
             //observe changes in search view
@@ -280,7 +280,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                           filter: (File, String) -> Boolean = FileFilter.filterByEmptySearchQuery
         ) {
             //while permission is not granted
-            if (checkPermission().not()) setupAdapter(file, filter)
+            if (viewModel.checkPermission(requireActivity()).not())
+                setupAdapter(file, filter)
             //now do everything to setup adapter
             changeCurrentTextView(file)
             //apply all filters to recycler view
@@ -301,11 +302,6 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
         val query = viewModel.getSearchQuery()
         super.viewModelActionBar.setupSearchQuery(query)
     }
-
-    private fun checkPermission(): Boolean =
-        PermissionChecker
-                .checkThenRequestReadWriteExternalStoragePermission(
-                    requireContext(), requireActivity())
 
     private fun changeCurrentTextView(file: File) {
         val pathToUI = FileNameParser.slashReplaceArrow(file.path)

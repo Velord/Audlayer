@@ -17,9 +17,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import velord.university.R
-import velord.university.application.AudlayerApp
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.Playlist
+import velord.university.repository.transaction.PlaylistDb
 
 
 class CreateNewPlaylistDialogFragment : DialogFragment(){
@@ -113,18 +112,12 @@ class CreateNewPlaylistDialogFragment : DialogFragment(){
     }
 
     private fun createNewPlaylist() {
-        AudlayerApp.db?.let {
-            if (playlistName.isNotEmpty()) {
-                scope.launch {
-                    val playlist = Playlist(playlistName,
-                        songsToPlaylist.toList())
-                    it.playlistDao().insertAll(playlist)
-                }
-                dismiss()
-            } else Toast.makeText(
-                requireContext(),
-                "Please Type Playlist Name",
-                Toast.LENGTH_SHORT).show()
-        }
+        if (playlistName.isNotEmpty()) {
+            scope.launch {
+                PlaylistDb.createNewPlaylist(playlistName, songsToPlaylist.toList())
+            }
+            dismiss()
+        } else Toast.makeText(requireContext(),
+            "Please Type Playlist Name", Toast.LENGTH_SHORT).show()
     }
 }

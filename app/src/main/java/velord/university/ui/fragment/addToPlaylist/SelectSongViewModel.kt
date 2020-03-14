@@ -1,13 +1,15 @@
 package velord.university.ui.fragment.addToPlaylist
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
+import velord.university.application.permission.PermissionChecker
 import velord.university.application.settings.SortByPreference
 import velord.university.model.FileFilter
 import java.io.File
 
-class SelectSongViewModel(app: Application) : AndroidViewModel(app) {
+class SelectSongViewModel(private val app: Application) : AndroidViewModel(app) {
 
     val TAG = "AddSongViewModel"
 
@@ -19,8 +21,7 @@ class SelectSongViewModel(app: Application) : AndroidViewModel(app) {
 
     fun filterAndSortFiles(context: Context,
                            filter: (File, String) -> Boolean,
-                           searchTerm: String)
-            : Array<File> {
+                           searchTerm: String): Array<File> {
         val songs =
             fileList.filter { filter(it, searchTerm) }
         // sort by name or artist or date added
@@ -43,4 +44,8 @@ class SelectSongViewModel(app: Application) : AndroidViewModel(app) {
             else -> sorted
         }.toTypedArray()
     }
+
+    fun checkPermission(activity: Activity): Boolean =
+        PermissionChecker
+            .checkThenRequestReadWriteExternalStoragePermission(app, activity)
 }

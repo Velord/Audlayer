@@ -5,7 +5,6 @@ import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.*
-import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
@@ -13,6 +12,8 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.entity.Album
 import velord.university.model.entity.Playlist
+import velord.university.repository.transaction.AlbumDb
+import velord.university.repository.transaction.PlaylistDb
 import java.io.File
 
 const val MAX_LAST_PLAYED: Int = 50
@@ -68,7 +69,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
             else -> sortedPlaylist
         }
 
-        return collectPlaylist(
+        return Playlist.collect(
             recentlyModified,
             lastPlayed,
             mostPlayed,
@@ -95,125 +96,55 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         Log.d(TAG, "stored: $currentQuery")
     }
 
+    suspend fun deletePlaylist(playlist: Playlist) = withContext(Dispatchers.IO) {
+        PlaylistDb.deletePlaylist(playlist)
+        //refresh playlist
+        getDefaultAndUserPlaylist()
+    }
+
     suspend fun retrievePlaylistFromDb() = withContext(Dispatchers.IO) {
         playlist = getDefaultAndUserPlaylist()
         Log.d(TAG, "all playlist collected")
     }
 
     suspend fun retrieveAlbumFromDb() = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.apply {
-            albums = albumDao().getAll()
-        }
+        albums = AlbumDb.getAlbums()
         Log.d(TAG, "all albums collected")
     }
 
     suspend fun refreshAllAlbum() = withContext(Dispatchers.IO) {
         albums = getAlbumBasedOnAllSong()
-        scope.launch { saveAlbum(albums) }
+        scope.launch { AlbumDb.saveAlbum(albums) }
         Log.d(TAG, "all album collected")
     }
 
-    suspend fun deletePlaylist(playlist: Playlist) {
-        AudlayerApp.db?.let {
-            it.playlistDao().deletePlaylistByName(playlist.name)
-            //refresh playlist
-            getDefaultAndUserPlaylist()
-        }
-    }
-
-    private fun collectPlaylist(recentlyModified: List<String>,
-                                lastPlayed: List<String>,
-                                mostPlayed: List<String>,
-                                favourite: List<String>,
-                                otherPlaylist: List<Playlist>): List<Playlist> {
-        return listOf(
-            Playlist("Recently Modified", recentlyModified),
-            Playlist("Last Played", lastPlayed),
-            Playlist("Most Played", mostPlayed),
-            Playlist("Favourite", favourite),
-            *otherPlaylist.map {
-                Playlist(it.name, it.songs)
-            }.toTypedArray()
-        )
-    }
-
-    private fun otherPlaylist(playlist: List<Playlist>): List<Playlist> =
-        playlist.filter {
-            it.name != "Favourite" && it.name != "Played"
-        }
-
-    private suspend fun getFavourite(): List<String> = withContext(Dispatchers.IO) {
-        return@withContext AudlayerApp.db?.run {
-            playlistDao().getByName("Favourite").songs.reversed().filter { it.isNotEmpty() }
-        }
-    } ?: listOf()
-
-    private suspend fun getPlayed(): List<String> = withContext(Dispatchers.IO) {
-        return@withContext AudlayerApp.db?.run {
-            playlistDao().getByName("Played").songs.reversed().filter { it.isNotEmpty() }
-        }
-    } ?: listOf()
-
-    private fun allSongFromPlaylist(playlist: List<Playlist>): List<File> =
-        playlist.asSequence()
-            .map { it.songs }
-            .fold(mutableListOf<String>()) { joined, fromDB ->
-                joined.addAll(fromDB)
-                joined
-            }
-            .distinct()
-            .map { File(it) }
-            .filter { it.path.isNotEmpty() }.toList()
-
-    private suspend fun getAllPlaylist(): List<Playlist> = withContext(Dispatchers.IO) {
-        return@withContext AudlayerApp.db?.run {
-            playlistDao().getAll()
-        }
-    } ?: listOf()
-
     private suspend fun getDefaultAndUserPlaylist(): List<Playlist> {
-        val allPlaylist = getAllPlaylist()
+        val allPlaylist =  PlaylistDb.getAllPlaylist()
         Log.d(TAG, "all playlist retrieved")
         //unique songs
-        allSongRemovedDuplicate = allSongFromPlaylist(allPlaylist)
+        allSongRemovedDuplicate = Playlist.allSongFromPlaylist(allPlaylist)
         Log.d(TAG, "all song retrieved")
         //1 month
-        recentlyModified =
-            FileFilter.recentlyModified(allSongRemovedDuplicate)
+        recentlyModified = FileFilter
+                .recentlyModified(allSongRemovedDuplicate)
                 .map { it.path }
         Log.d(TAG, "last modified playlist retrieved")
         //lastPlayed
-        val played = getPlayed()
+        val played = PlaylistDb.getPlayedSongs()
         //last 50
         lastPlayed = played.take(MAX_LAST_PLAYED)
         Log.d(TAG, "last play playlist retrieved")
         //most played
-        mostPlayed = played
-            .fold(HashMap<String, Int>()) { mostPlayed, song ->
-                if (song.isNotEmpty()) {
-                    mostPlayed += if (mostPlayed.containsKey(song).not())
-                        Pair(song, 1)
-                    else {
-                        val count = mostPlayed[song]
-                        Pair(song, count!!.plus(1))
-                    }
-                }
-                mostPlayed
-            }
-            .toList()
-            .sortedBy { it.second }
-            .reversed()
-            .map { it.first }
-            .take(MAX_MOST_PLAYED)
+        mostPlayed = Playlist.getMostPlayed(played)
         Log.d(TAG, "most played playlist retrieved")
         //favourite
-        favourite = getFavourite()
+        favourite =  PlaylistDb.getFavouriteSongs()
         Log.d(TAG, "favourite playlist retrieved")
         //other
-        other = otherPlaylist(allPlaylist)
+        other = Playlist.other(allPlaylist)
         Log.d(TAG, "other playlist retrieved")
         //collect all to one list
-        return collectPlaylist(
+        return Playlist.collect(
             recentlyModified,
             lastPlayed,
             mostPlayed,
@@ -261,12 +192,5 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
                 Log.d(TAG, "check album on ${song.path}")
                 albums
             }.toList().map { it.second }
-    }
-
-    private suspend fun saveAlbum(album: List<Album>) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.apply {
-            albumDao().nukeTable()
-            albumDao().insertAll(*(album.toTypedArray()))
-        }
     }
 }
