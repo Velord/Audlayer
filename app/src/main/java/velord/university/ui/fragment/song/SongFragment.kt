@@ -1,6 +1,7 @@
 package velord.university.ui.fragment.song
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
+import velord.university.application.broadcast.*
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
@@ -28,7 +30,7 @@ import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
 
-class SongFragment : ActionBarFragment() {
+class SongFragment : ActionBarFragment(), SongBroadcastReceiver {
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromSongFragment()
@@ -48,6 +50,36 @@ class SongFragment : ActionBarFragment() {
     }
 
     private lateinit var rv: RecyclerView
+
+    private val receivers = arrayOf(
+        Pair(songPath(), MiniPlayerBroadcastSongPath.filterUI)
+    )
+
+    override val songPathF: (Intent?) -> Unit =
+        { nullableIntent ->
+            nullableIntent?.apply {
+                val extra = MiniPlayerBroadcastSongPath.extraValueUI
+                val songPath = getStringExtra(extra)
+                scope.launch {
+                    changeRVItem(songPath)
+                }
+            }
+        }
+
+    private tailrec suspend fun changeRVItem(songPath: String) {
+        if (viewModel.rvResolverIsInitialized()) {
+            viewModel.rvResolver.apply {
+                userChangeSong(songPath)
+                //apply to ui
+                val files = viewModel.ordered.map { it.path }
+                val containF: (String) -> Boolean = {
+                    it == songPath
+                }
+                applyToRvItem(files, rv, containF)
+            }
+            return
+        } else changeRVItem(songPath)
+    }
 
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
@@ -185,6 +217,26 @@ class SongFragment : ActionBarFragment() {
     override fun onDetach() {
         super.onDetach()
         callbacks = null
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        receivers.forEach {
+            requireActivity()
+                .registerBroadcastReceiver(
+                    it.first, it.second, PERM_PRIVATE_MINI_PLAYER
+                )
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        receivers.forEach {
+            requireActivity()
+                .unregisterBroadcastReceiver(it.first)
+        }
     }
 
     override fun onCreateView(

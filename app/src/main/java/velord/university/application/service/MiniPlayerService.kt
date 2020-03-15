@@ -276,24 +276,6 @@ abstract class MiniPlayerService : Service() {
         playlist.songs.clear()
     }
 
-    private fun sendSongNameAndArtist(file: File) {
-        val songArtist = FileNameParser.getSongArtist(file)
-        val songName = FileNameParser.getSongName(file)
-        sendBroadcastSongArtistUI(songArtist)
-        sendBroadcastSongNameUI(songName)
-    }
-
-    private fun sendDurationSong(player: MediaPlayer) {
-        val duration = player.duration
-        MiniPlayerBroadcastSongDuration.apply {
-            sendBroadcastSongDurationUI(duration)
-        }
-    }
-
-    private fun sendIsHQ(song: File) {
-
-    }
-
     private fun stopOrPausePlayer(f: () -> Unit) {
         if (::player.isInitialized) {
             f()
@@ -369,6 +351,10 @@ abstract class MiniPlayerService : Service() {
         }
     }
 
+    private fun stopSendRewind() {
+        rewindJob.cancel()
+    }
+
     private fun storeCurrentPlayerState() {
         if (player.isPlaying)
             MiniPlayerServicePreferences
@@ -403,18 +389,39 @@ abstract class MiniPlayerService : Service() {
         Log.d(TAG, "store queue")
     }
 
-    private fun stopSendRewind() {
-        rewindJob.cancel()
-    }
-
     private fun sendInfoToUI(song: File = playlist.getSong()) {
         //send info
         scope.launch {
+            sendPath(song)
             sendSongNameAndArtist(song)
             sendDurationSong(player)
             sendIsHQ(song)
             sendIsLoved(song)
         }
+    }
+
+    private fun sendPath(song: File) {
+        MiniPlayerBroadcastSongPath.apply {
+            sendBroadcastSongPathUI(song.path)
+        }
+    }
+
+    private fun sendDurationSong(player: MediaPlayer) {
+        val duration = player.duration
+        MiniPlayerBroadcastSongDuration.apply {
+            sendBroadcastSongDurationUI(duration)
+        }
+    }
+
+    private fun sendIsHQ(song: File) {
+
+    }
+
+    private fun sendSongNameAndArtist(file: File) {
+        val songArtist = FileNameParser.getSongArtist(file)
+        val songName = FileNameParser.getSongName(file)
+        sendBroadcastSongArtistUI(songArtist)
+        sendBroadcastSongNameUI(songName)
     }
 
     private suspend fun sendIsLoved(song: File) = withContext(Dispatchers.IO) {

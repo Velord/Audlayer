@@ -1,6 +1,7 @@
 package velord.university.ui.fragment.folder
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -13,7 +14,12 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import velord.university.R
+import velord.university.application.broadcast.*
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileExtension
@@ -27,8 +33,7 @@ import velord.university.ui.util.RecyclerViewSelectItemResolver
 import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
-
-class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
+class FolderFragment : ActionBarFragment(), BackPressedHandlerZero, SongBroadcastReceiver {
     //Required interface for hosting activities
     interface Callbacks {
         fun onCreatePlaylist()
@@ -48,6 +53,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
     private val viewModel by lazy {
         ViewModelProviders.of(this).get(FolderViewModel::class.java)
     }
+
+    private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
     private lateinit var rv: RecyclerView
     private lateinit var currentFolderTextView: TextView
@@ -184,6 +191,56 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
         updateAdapterBySearchQuery(correctQuery)
     }
 
+    private val receivers = arrayOf(
+        Pair(songPath(), MiniPlayerBroadcastSongPath.filterUI)
+    )
+
+    override val songPathF: (Intent?) -> Unit =
+        { nullableIntent ->
+            nullableIntent?.apply {
+                val extra = MiniPlayerBroadcastSongPath.extraValueUI
+                val songPath = getStringExtra(extra)
+                scope.launch {
+                    changeRVItem(songPath)
+                }
+            }
+        }
+
+    private tailrec suspend fun changeRVItem(songPath: String) {
+        if (viewModel.rvResolverIsInitialized()) {
+            viewModel.rvResolver.apply {
+                userChangeSong(songPath)
+                //apply to ui
+                val files = viewModel.ordered.map { it.path }
+                val containF: (String) -> Boolean = {
+                    it == songPath
+                }
+                applyToRvItem(files, rv, containF)
+            }
+            return
+        } else changeRVItem(songPath)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        receivers.forEach {
+            requireActivity()
+                .registerBroadcastReceiver(
+                    it.first, it.second, PERM_PRIVATE_MINI_PLAYER
+                )
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        receivers.forEach {
+            requireActivity()
+                .unregisterBroadcastReceiver(it.first)
+        }
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callbacks = context as Callbacks?
@@ -224,9 +281,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
                 SongPlaylistInteractor.songs = songs
                 it.onAddToPlaylist()
             }
-            else
-                Toast.makeText(requireContext(), "No one Song", Toast.LENGTH_SHORT)
-                    .show()
+            else Toast.makeText(requireContext(),
+                    "No one Song", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -253,9 +309,10 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero {
     }
 
     private fun openAddToPlaylistFragmentByQuery() {
-        val songs = viewModel.filterAndSortFiles(
+        val files = viewModel.filterAndSortFiles(
             FileFilter.filterBySearchQuery, viewModel.currentQuery)
-        openAddToPlaylistFragment(songs)
+        val audio = FileFilter.filterOnlyAudio(files).toTypedArray()
+        openAddToPlaylistFragment(audio)
     }
 
     private fun openCreatePlaylistFragmentByQuery() {

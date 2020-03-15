@@ -242,6 +242,18 @@ object MiniPlayerBroadcastPlayByPath: MiniPlayerBroadcastHub() {
         sendBroadcast(actionService, permission, extraValueService, path)
 }
 
+object MiniPlayerBroadcastSongPath: MiniPlayerBroadcastHub() {
+
+    override val actionUI: String = "velord.university.SONG_PATH_UI"
+
+    override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+    override val extraValueUI: String = "SONG_PATH_UI"
+
+    fun Context.sendBroadcastSongPathUI(path: String, permission: String = PERM_PRIVATE_MINI_PLAYER) =
+        sendBroadcast(actionUI, permission, extraValueUI, path)
+}
+
 object MiniPlayerBroadcastSongArtist: MiniPlayerBroadcastHub() {
 
     override val actionUI: String = "velord.university.SONG_ARTIST_UI"

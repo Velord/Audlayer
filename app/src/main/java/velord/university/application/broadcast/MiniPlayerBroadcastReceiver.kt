@@ -105,6 +105,7 @@ interface MiniPlayerBroadcastReceiver {
             notLoopF(intent)
         }
     }
+
     val songArtistF: (Intent?) -> Unit
     fun songArtist() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {

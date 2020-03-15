@@ -19,6 +19,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
     val TAG = "FolderViewModel"
 
     lateinit var fileList: Array<File>
+    lateinit var ordered: List<File>
 
     lateinit var currentQuery: String
 
@@ -116,11 +117,12 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
             else -> compatibleFileFormat
         }
         // sort by ascending or descending order
-        return when(SortByPreference.getAscDescFolderFragment(app)) {
+        ordered = when(SortByPreference.getAscDescFolderFragment(app)) {
             0 -> sortedFiles
             1 ->  sortedFiles.reversed()
             else -> sortedFiles
-        }.toTypedArray()
+        }
+        return ordered.toTypedArray()
     }
 
     fun checkPermission(activity: Activity): Boolean =
