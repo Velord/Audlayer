@@ -181,23 +181,17 @@ class SongFragment : ActionBarFragment(), SongBroadcastReceiver {
             else -> false
         }
     }
-
     override val actionBarHintArticle: (TextView) -> Unit = {
         it.text = getString(R.string.action_bar_hint_song)
     }
-
     override val actionBarPopUpMenuLayout: () -> Int = {
         R.menu.song_fragment_pop_up
     }
-
     override val actionBarPopUpMenuStyle: () -> Int = {
         R.style.PopupMenuOverlapAnchorFolder
     }
-
     override val actionBarLeftMenu: (ImageButton) -> Unit = {  }
-
     override val actionBarPopUpMenu: (PopupMenu) -> Unit = {  }
-
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
         val correctQuery =
@@ -208,6 +202,7 @@ class SongFragment : ActionBarFragment(), SongBroadcastReceiver {
         //update files list
         updateAdapterBySearchQuery(correctQuery)
     }
+    override val actionBarPopUp: (ImageButton) -> Unit = { }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

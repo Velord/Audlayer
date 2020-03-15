@@ -128,6 +128,7 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
             else -> {}
         }
     }
+    override val actionBarPopUp: (ImageButton) -> Unit = { }
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")

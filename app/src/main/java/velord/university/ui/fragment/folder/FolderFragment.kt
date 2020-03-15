@@ -163,23 +163,17 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero, SongBroadcas
             }
         }
     }
-
     override val actionBarHintArticle: (TextView) -> Unit = {
         it.text = getString(R.string.action_bar_hint_folder)
     }
-
     override val actionBarPopUpMenuLayout: () -> Int = {
         R.menu.folder_fragment_pop_up
     }
-
     override val actionBarPopUpMenuStyle: () -> Int = {
         R.style.PopupMenuOverlapAnchorFolder
     }
-
     override val actionBarLeftMenu: (ImageButton) -> Unit = {  }
-
     override val actionBarPopUpMenu: (PopupMenu) -> Unit = {}
-
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
         val correctQuery =
@@ -190,6 +184,7 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero, SongBroadcas
         //update files list
         updateAdapterBySearchQuery(correctQuery)
     }
+    override val actionBarPopUp: (ImageButton) -> Unit = { }
 
     private val receivers = arrayOf(
         Pair(songPath(), MiniPlayerBroadcastSongPath.filterUI)

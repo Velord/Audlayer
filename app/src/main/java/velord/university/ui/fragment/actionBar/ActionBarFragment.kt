@@ -45,6 +45,7 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
     abstract val actionBarLeftMenu: (ImageButton) -> Unit
     abstract val actionBarHintArticle: (TextView) -> Unit
     abstract val actionBarPopUpMenu: (PopupMenu) -> Unit
+    abstract val actionBarPopUp: (ImageButton) -> Unit
 
     private fun initHint(view: View) {
         hint = view.findViewById(R.id.action_bar_hint)
@@ -58,6 +59,7 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
 
     private fun initActionButton(view: View) {
         actionButton = view.findViewById(R.id.action_bar_action)
+        actionBarPopUp(actionButton)
         rearwardActionButton()
     }
 

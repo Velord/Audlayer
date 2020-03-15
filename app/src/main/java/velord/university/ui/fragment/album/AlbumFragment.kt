@@ -116,6 +116,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
             else -> {}
         }
     }
+    override val actionBarPopUp: (ImageButton) -> Unit = { }
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
         val correctQuery =
