@@ -21,9 +21,6 @@ import velord.university.ui.fragment.vk.VKFragment
 import velord.university.ui.util.addFragment
 import velord.university.ui.util.initFragment
 
-
-private const val TAG ="MainActivity"
-
 class MainActivity : AppCompatActivity(),
     FolderFragment.Callbacks,
     SelectSongFragment.Callbacks,
@@ -31,6 +28,8 @@ class MainActivity : AppCompatActivity(),
     CreateNewPlaylistDialogFragment.Callbacks,
     SongFragment.Callbacks,
     VKFragment.Callbacks{
+
+    private val TAG ="MainActivity"
 
     private val fm = supportFragmentManager
 

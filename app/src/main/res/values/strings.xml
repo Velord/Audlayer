@@ -42,6 +42,7 @@
     <string name="action_bar_hint_album">Playlist | Album</string>
     <string name="action_bar_hint_select_song">Choose Song</string>
     <string name="action_bar_hint_song">All Audio</string>
+    <string name="action_bar_hint_vk">Vk Playlist</string>
     <string name="action_bar_hint_search_view">Type to find...</string>
     <string name="action_bar_settings">Settings Button</string>
     <string name="action_bar_action">Action Button</string>
@@ -74,4 +75,14 @@
     <string name="album_refreshing">Refreshing...</string>
     <string name="album_item">%1$s \nContain: %2$d</string>
     <string name="song_rv_item">%1$s \nMb: %2$s Playlist: %3$s</string>
+    <string name="vk_login_enter_your_id_page">Enter your id page</string>
+    <string name="vk_login_authorize">Authorize</string>
+    <string name="vk_login_vk_admin">App gonna be authorize you through VK Admin</string>
+    <string name="vk_login_check_credentials">Check credentials</string>
+    <string name="vk_login_email">Email: %1$s</string>
+    <string name="vk_login_page">Page id: %1$d</string>
+    <string name="vk_login_go_back_at">Go back at: %1$d</string>
+    <string name="vk_login_birth_date">Birth date: %1$s</string>
+    <string name="vk_base_url">https://api.vk.com/method/</string>
+    <integer name="com_vk_sdk_AppId">7360134</integer>
 </resources>

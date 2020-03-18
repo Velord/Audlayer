@@ -7,10 +7,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.ImageButton
-import android.widget.PopupMenu
-import android.widget.TextView
+import android.widget.*
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,11 +16,14 @@ import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.*
 import velord.university.application.settings.SortByPreference
-import velord.university.interactor.SongPlaylistInteractor
+import velord.university.application.settings.VkPreference
+import velord.university.model.entity.vk.VkSong
+import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RecyclerViewSelectItemResolver
 import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
+
 
 class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
     //Required interface for hosting activities
@@ -45,6 +45,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
     private lateinit var rv: RecyclerView
+    private lateinit var login: Button
 
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
@@ -61,46 +62,17 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
                 val initActionMenuLayout = { R.menu.song_fragment_sort_by }
                 val initActionMenuItemClickListener: (MenuItem) -> Boolean = { menuItem ->
                     when (menuItem.itemId) {
-                        R.id.song_sort_by_name -> {
-                            SortByPreference.setSortBySongFragment(requireContext(), 0)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true
-                        }
-                        R.id.song_sort_by_artist -> {
-                            SortByPreference.setSortBySongFragment(requireContext(), 1)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true
-                        }
-                        R.id.song_sort_by_date_added -> {
-                            SortByPreference.setSortBySongFragment(requireContext(), 2)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true                        }
-                        R.id.song_sort_by_duration -> {
-                            SortByPreference.setSortBySongFragment(requireContext(), 3)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true
-                        }
-                        R.id.song_sort_by_size -> {
-                            SortByPreference.setSortBySongFragment(requireContext(), 4)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true
-                        }
+                        R.id.song_sort_by_name -> sortBy(0)
+                        R.id.song_sort_by_artist -> sortBy(1)
+                        R.id.song_sort_by_date_added ->sortBy(2)
+                        R.id.song_sort_by_duration ->sortBy(3)
+                        R.id.song_sort_by_size -> sortBy(4)
+
                         R.id.song_sort_by_ascending_order -> {
-                            SortByPreference.setAscDescSongFragment(requireContext(), 0)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true
+                            sortByAscDesc(0)
                         }
                         R.id.song_sort_by_descending_order -> {
-                            SortByPreference.setAscDescSongFragment(requireContext(), 1)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true
+                            sortByAscDesc(1)
                         }
                         else -> {
                             super.rearwardActionButton()
@@ -113,7 +85,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
                     val menuItem = menu.menu
 
                     val sortBy =
-                        SortByPreference.getSortBySongFragment(requireContext())
+                        SortByPreference.getSortByVkFragment(requireContext())
                     when(sortBy) {
                         0 -> { menuItem.getItem(0).isChecked = true }
                         1 -> { menuItem.getItem(1).isChecked = true }
@@ -123,7 +95,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
                     }
 
                     val ascDescOrder =
-                        SortByPreference.getAscDescSongFragment(requireContext())
+                        SortByPreference.getAscDescVkFragment(requireContext())
                     when(ascDescOrder) {
                         0 -> { menuItem.getItem(5).isChecked = true }
                         1 -> { menuItem.getItem(6).isChecked = true }
@@ -147,7 +119,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         }
     }
     override val actionBarHintArticle: (TextView) -> Unit = {
-        it.text = getString(R.string.action_bar_hint_song)
+        it.text = getString(R.string.action_bar_hint_vk)
     }
     override val actionBarPopUpMenuLayout: () -> Int = {
         R.menu.song_fragment_pop_up
@@ -221,6 +193,8 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
                     it.first, it.second, PERM_PRIVATE_MINI_PLAYER
                 )
         }
+
+        checkToken()
     }
 
     override fun onStop() {
@@ -248,20 +222,69 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
                     super.observeSearchQuery()
                     //setup adapter by invoke change in search view
                     setupAdapter()
+                    checkToken()
                 }
             }
         }
     }
 
-    private fun initViews(view: View) {
-        rv = view.findViewById(R.id.general_RecyclerView)
+    private fun checkToken() {
+        if (::login.isInitialized) {
+            val token = VkPreference.getAccessToken(requireContext())
+            if (token.isBlank()) {
+                login.visibility = View.VISIBLE
+                Toast.makeText(
+                    requireContext(),
+                    "Login to continue", Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                login.visibility = View.GONE
+                scope.launch {
+                    viewModel.getAudio()
+                    withContext(Dispatchers.Main) {
+                        rv.adapter = SongAdapter(viewModel.vkPlaylist.items)
+                    }
+                }
+            }
+        }
+    }
 
+    private fun sortBy(index: Int): Boolean {
+        SortByPreference.setSortByVkFragment(requireContext(), index)
+        updateAdapterBySearchQuery(viewModel.currentQuery)
+        super.rearwardActionButton()
+        return true
+    }
+
+    private fun sortByAscDesc(index: Int): Boolean {
+        SortByPreference.setAscDescVkFragment(requireContext(), index)
+        updateAdapterBySearchQuery(viewModel.currentQuery)
+        super.rearwardActionButton()
+        return true
+    }
+
+    private fun initViews(view: View) {
+        initRV(view)
+        initLogin(view)
+    }
+
+    private fun initRV(view: View) {
+        rv = view.findViewById(R.id.general_RecyclerView)
         rv.apply {
             isNestedScrollingEnabled = false
             layoutManager = LinearLayoutManager(activity)
         }
         //controlling action bar frame visibility when recycler view is scrolling
         super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
+    }
+
+    private fun initLogin(view: View) {
+        login = view.findViewById(R.id.vk_login)
+        login.setOnClickListener {
+            val intent = VkLoginActivity
+                .newIntent(requireContext())
+            startActivity(intent)
+        }
     }
 
     private fun setupAdapter() {
@@ -272,8 +295,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
     private fun updateAdapterBySearchQuery(searchQuery: String) {
         if (viewModel.songsIsInitialized()) {
             scope.launch {
-                val songsFiltered =
-                    viewModel.filterByQuery(searchQuery).toTypedArray()
+                val songsFiltered = viewModel.vkPlaylist.items
                 withContext(Dispatchers.Main) {
                     rv.adapter = SongAdapter(songsFiltered)
                 }
@@ -283,7 +305,10 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
 
     private fun updateAdapterWithShuffled() {
         if (viewModel.songsIsInitialized()) {
-            val shuffled = viewModel.shuffle().toTypedArray()
+            val shuffled = viewModel.vkPlaylist.items
+                .toList()
+                .shuffled()
+                .toTypedArray()
             rv.adapter = SongAdapter(shuffled)
         }
     }
@@ -296,10 +321,14 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         private val frame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
         val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
 
-        val selected:  (File) -> Array<() -> Unit> = { song ->
+        val selected: (VkSong) -> Array<() -> Unit> = { song ->
             arrayOf(
                 {
                     icon.setImageResource(R.drawable.song_item_playing)
+                },
+                {
+                    val album = song.album?.title
+                    text.text = "${song.artist} - ${song.title}\nAlbum: $album"
                 },
                 {
                     itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
@@ -307,10 +336,15 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
             )
         }
 
-        val notSelected: (File) -> Array<() -> Unit> = { song ->
+        val notSelected: (VkSong) -> Array<() -> Unit> = { song ->
             arrayOf(
                 {
                     icon.setImageResource(R.drawable.song_item)
+                },
+                {
+                    val album = song.album?.title
+
+                    text.text = "${song.artist} - ${song.title}\nAlbum: $album"
                 },
                 {
                     itemView.setBackgroundResource(R.color.opacity)
@@ -322,24 +356,20 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
             viewModel.playAudioAndAllSong(song)
         }
 
-        private val actionPopUpMenu: (File) -> Unit = { song ->
+        private val actionPopUpMenu: (VkSong) -> Unit = { song ->
             val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
             val initActionMenuLayout = { R.menu.folder_item_is_audio_pop_up }
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                 when (it.itemId) {
                     R.id.folder_recyclerView_item_isAudio_play -> {
-                        viewModel.playAudio(song)
+
                         true
                     }
                     R.id.folder_recyclerView_item_isAudio_play_next -> {
-                        viewModel.playAudioNext(song)
+
                         true
                     }
                     R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
-                        callbacks?.let { callback ->
-                            SongPlaylistInteractor.songs = arrayOf(song)
-                            callback.onAddToPlaylistFromVkFragment()
-                        }
                         true
                     }
                     R.id.folder_recyclerView_item_isAudio_set_as_ringtone -> {
@@ -364,14 +394,12 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
             Unit
         }
 
-        private fun setOnClickAndImageResource(song: File, f: (Int) -> Unit) {
+        private fun setOnClickAndImageResource(song: VkSong, f: (Int) -> Unit) {
             itemView.setOnClickListener {
                 f(0)
-                playSong(song)
             }
             text.setOnClickListener {
                 f(1)
-                playSong(song)
             }
             icon.setOnClickListener {
                 f(2)
@@ -384,14 +412,14 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
             }
         }
 
-        fun bindItem(song: File, position: Int,
+        fun bindItem(song: VkSong, position: Int,
                      f: (Array<() -> Unit>) -> (Array<() -> Unit>) -> (Int) -> Unit) {
             val setBackground = f(selected(song))(notSelected(song))
             setOnClickAndImageResource(song, setBackground)
         }
     }
 
-    private inner class SongAdapter(val items: Array<out File>):
+    private inner class SongAdapter(val items: Array<out VkSong>):
         RecyclerView.Adapter<VkHolder>(),  FastScrollRecyclerView.SectionedAdapter{
 
         private val rvSelectResolver =
@@ -418,7 +446,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
 
         override fun onBindViewHolder(holder: VkHolder, position: Int) {
             items[position].apply {
-                val f = rvSelectResolver.resolver(this.path)
+                val f = rvSelectResolver.resolver("${this.artist} - ${this.title}")
                 holder.bindItem(this, position, f)
             }
         }
@@ -426,6 +454,6 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         override fun getItemCount(): Int = items.size
 
         override fun getSectionName(position: Int): String =
-            "${items[position].name[0]}"
+            "${items[position].title[0]}"
     }
 }

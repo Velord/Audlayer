@@ -1,11 +1,12 @@
 package velord.university.application.settings
 
 import android.content.Context
-import android.preference.PreferenceManager
 import androidx.core.content.edit
+import androidx.preference.PreferenceManager
 
 private const val PREF_SEARCH_QUERY_ALBUM = "searchQueryAlbum"
 private const val PREF_SEARCH_QUERY_SONG = "searchQuerySong"
+private const val PREF_SEARCH_QUERY_VK = "searchQueryVk"
 
 object SearchQueryPreferences {
 
@@ -43,6 +44,19 @@ object SearchQueryPreferences {
     fun setStoredQuerySong(context: Context,
                             query: String,
                             key: String = PREF_SEARCH_QUERY_SONG) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .edit {
+                putString(key, query)
+            }
+
+    fun getStoredQueryVk(context: Context,
+                           key: String = PREF_SEARCH_QUERY_VK): String  =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .getString(key, "-1")!!
+
+    fun setStoredQueryVk(context: Context,
+                           query: String,
+                           key: String = PREF_SEARCH_QUERY_VK) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
                 putString(key, query)

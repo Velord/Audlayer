@@ -1,18 +1,21 @@
 package velord.university.application.settings
 
 import android.content.Context
-import android.preference.PreferenceManager
 import androidx.core.content.edit
+import androidx.preference.PreferenceManager
 
 private const val ORDER_ASC_DEC_FOLDER = "AscendingDescendingFolder"
 private const val ORDER_ASC_DEC_SELECT_SONG = "AscendingDescendingSelect"
 private const val ORDER_ASC_DEC_ALBUM = "AscendingDescendingAlbum"
 private const val ORDER_ASC_DEC_SONG = "AscendingDescendingSong"
+private const val ORDER_ASC_DEC_VK = "AscendingDescendingVK"
 
 private const val NAME_ARTIST_DATE_ADDED_FOLDER = "NameArtistDateAdded"
 private const val NAME_ARTIST_DATE_ADED_SELECT = "NameArtistDateAdded"
 private const val ALBUM_ARTIST_YEAR_NUMBER_OF_TRACKS = "AlbumArtistYearNumberOfTracks"
-private const val NAME_ARTIST_DURATION_SIZE_DATE_ADDED_SONG = "NameArtistDurationSizeDateAdded"
+private const val NAME_ARTIST_DURATION_SIZE_DATE_ADDED_SONG = "NameArtistDurationSizeDateAddedSong"
+private const val NAME_ARTIST_DURATION_SIZE_DATE_ADDED_VK = "NameArtistDurationSizeDateAddedVk"
+
 
 object SortByPreference {
 
@@ -148,6 +151,40 @@ object SortByPreference {
     fun getSortBySongFragment(
         context: Context,
         key: String = NAME_ARTIST_DURATION_SIZE_DATE_ADDED_SONG
+    ) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .getInt(key, -1)
+
+    fun setSortByVkFragment(
+        context: Context,
+        sortBy: Int,
+        key: String = NAME_ARTIST_DURATION_SIZE_DATE_ADDED_VK
+    ) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .edit {
+                putInt(key, sortBy)
+            }
+
+    fun getSortByVkFragment(
+        context: Context,
+        key: String = NAME_ARTIST_DURATION_SIZE_DATE_ADDED_VK
+    ) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .getInt(key, -1)
+
+    fun setAscDescVkFragment(
+        context: Context,
+        order: Int,
+        key: String = ORDER_ASC_DEC_VK
+    ) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .edit {
+                putInt(key, order)
+            }
+
+    fun getAscDescVkFragment(
+        context: Context,
+        key: String = ORDER_ASC_DEC_VK
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .getInt(key, -1)

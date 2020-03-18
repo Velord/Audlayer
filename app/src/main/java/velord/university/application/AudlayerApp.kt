@@ -7,6 +7,7 @@ import velord.university.repository.AppDatabase
 import velord.university.repository.buildAppDatabase
 import velord.university.repository.transaction.PlaylistDb
 
+
 //default playlist is Favourite, Played
 
 class AudlayerApp : Application() {
@@ -23,12 +24,15 @@ class AudlayerApp : Application() {
 
                 var favouriteExist = false
                 var playedSongExist = false
+                var vkExist = false
 
                 playlist.forEach {
                     if (it.name == "Favourite")
                         favouriteExist = true
                     if (it.name == "Played")
                         playedSongExist = true
+                    if (it.name == "Vk")
+                        vkExist = true
                 }
 
                 if (favouriteExist.not())
@@ -36,13 +40,16 @@ class AudlayerApp : Application() {
 
                 if (playedSongExist.not())
                     playlistDao().insertAll(Playlist("Played", listOf()))
+
+                if (vkExist.not())
+                    playlistDao().insertAll(Playlist("Vk", listOf()))
             }
         }
     }
 
+
     override fun onCreate() {
         super.onCreate()
-
         //init db and create tables if not exist
         db = buildAppDatabase(this)
         scope.launch {

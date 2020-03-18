@@ -31,7 +31,7 @@ data class RecyclerViewSelectItemResolver<T>(var adapter: RecyclerView.Adapter<R
     }
 
     private fun scrollTo(index: Int, rv: RecyclerView) {
-        if ((rvPosition + index < rvPosition + maxScroll) or
+        if ((rvPosition + index < rvPosition + maxScroll) &&
             (rvPosition - index < rvPosition - maxScroll))
             rv.smoothScrollToPosition(index)
         else
