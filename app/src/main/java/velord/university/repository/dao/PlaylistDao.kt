@@ -31,7 +31,7 @@ interface PlaylistDao {
     fun deletePlaylistByName(playlistName: String)
 
     @Query("Delete From Playlist Where id = :playlistId")
-    fun deletePlaylistById(playlistId: String)
+    fun deletePlaylistById(playlistId: Long)
 
     @Query("Delete From Playlist")
     fun nukeTable()

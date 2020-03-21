@@ -18,7 +18,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import velord.university.R
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.repository.transaction.PlaylistDb
+import velord.university.repository.transaction.PlaylistTransaction
 
 
 class CreateNewPlaylistDialogFragment : DialogFragment(){
@@ -114,7 +114,7 @@ class CreateNewPlaylistDialogFragment : DialogFragment(){
     private fun createNewPlaylist() {
         if (playlistName.isNotEmpty()) {
             scope.launch {
-                PlaylistDb.createNewPlaylist(playlistName, songsToPlaylist.toList())
+                PlaylistTransaction.createNewPlaylist(playlistName, songsToPlaylist.toList())
             }
             dismiss()
         } else Toast.makeText(requireContext(),

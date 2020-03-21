@@ -15,7 +15,7 @@ import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.entity.Playlist
-import velord.university.repository.transaction.PlaylistDb
+import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.ui.util.RecyclerViewSelectItemResolver
 import java.io.File
 
@@ -33,7 +33,7 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
     lateinit var rvResolver: RecyclerViewSelectItemResolver<String>
 
     suspend fun retrieveSongsFromDb() = withContext(Dispatchers.IO) {
-        allPlaylist = PlaylistDb.getAllPlaylist()
+        allPlaylist = PlaylistTransaction.getAllPlaylist()
         Log.d(TAG, "all playlist retrieved")
         //unique songs
         songs = Playlist.allSongFromPlaylist(allPlaylist)

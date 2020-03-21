@@ -5,7 +5,7 @@ import kotlinx.coroutines.withContext
 import velord.university.application.AudlayerApp
 import velord.university.model.entity.Playlist
 
-object PlaylistDb {
+object PlaylistTransaction {
 
     private val context = Dispatchers.IO
 
@@ -78,7 +78,7 @@ object PlaylistDb {
         }
     }
 
-    suspend fun delete(id: String) = withContext(Dispatchers.IO) {
+    suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
         AudlayerApp.db?.apply {
             playlistDao().deletePlaylistById(id)
         }

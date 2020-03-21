@@ -10,11 +10,16 @@ import android.widget.Toast
 import kotlinx.coroutines.*
 import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.*
+import velord.university.application.broadcast.MiniPlayerBroadcastLoop.sendBroadcastLoopUI
+import velord.university.application.broadcast.MiniPlayerBroadcastLoopAll.sendBroadcastLoopAllUI
+import velord.university.application.broadcast.MiniPlayerBroadcastNotLoop.sendBroadcastNotLoopUI
 import velord.university.application.broadcast.MiniPlayerBroadcastPlay.sendBroadcastPlayUI
 import velord.university.application.broadcast.MiniPlayerBroadcastRewind.sendBroadcastRewindUI
+import velord.university.application.broadcast.MiniPlayerBroadcastShuffle.sendBroadcastShuffleUI
 import velord.university.application.broadcast.MiniPlayerBroadcastSongArtist.sendBroadcastSongArtistUI
 import velord.university.application.broadcast.MiniPlayerBroadcastSongName.sendBroadcastSongNameUI
 import velord.university.application.broadcast.MiniPlayerBroadcastStop.sendBroadcastStopUI
+import velord.university.application.broadcast.MiniPlayerBroadcastUnShuffle.sendBroadcastUnShuffleUI
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.MiniPlayerServicePreferences
 import velord.university.interactor.SongPlaylistInteractor
@@ -24,8 +29,8 @@ import velord.university.model.QueueResolver
 import velord.university.model.ServicePlaylist
 import velord.university.model.converter.SongTimeConverter
 import velord.university.model.entity.MiniPlayerServiceSong
-import velord.university.repository.transaction.PlaylistDb
-import velord.university.repository.transaction.ServiceDb
+import velord.university.repository.transaction.PlaylistTransaction
+import velord.university.repository.transaction.ServiceTransaction
 import java.io.File
 
 abstract class MiniPlayerService : Service() {
@@ -37,7 +42,7 @@ abstract class MiniPlayerService : Service() {
     private val playlist = ServicePlaylist()
 
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
-    private lateinit var  rewindJob: Job
+    private lateinit var rewindJob: Job
 
     override fun onBind(intent: Intent?): IBinder? {
         Log.d(TAG, "onBind called")
@@ -49,7 +54,7 @@ abstract class MiniPlayerService : Service() {
         super.onCreate()
         scope.launch {
             AudlayerApp.checkDbTableColumn()
-            retrieveInfo()
+            restoreState()
         }
     }
 
@@ -57,7 +62,7 @@ abstract class MiniPlayerService : Service() {
         Log.d(TAG, "onDestroy called")
         super.onDestroy()
         //store player state
-        storeCurrentPlayerState()
+        storeIsPlayingState()
         stopPlayer()
     }
 
@@ -72,11 +77,11 @@ abstract class MiniPlayerService : Service() {
     }
 
     protected fun playAllInFolder(pathFolder: String) {
-        clearSongQueue()
+        playlist.clearQueue()
         val songs = FileFilter.filterOnlyAudio(File(pathFolder))
         val info = if (songs.isNotEmpty()) {
-            addToSongQueue(songs)
-            playNext(playlist.songs[0].path)
+            addToQueue(songs)
+            playNext(playlist.firstInQueue().path)
             "will play: ${songs.size}\n" +
                     "first: ${songs[0].name}"
         } else { "no one song" }
@@ -86,29 +91,29 @@ abstract class MiniPlayerService : Service() {
 
     protected fun playNextAllInFolder(pathFolder: String) {
         val songs = FileFilter.filterOnlyAudio(File(pathFolder))
-        addToSongQueue(songs)
+        addToQueue(songs)
         val info = "added to queue: ${songs.size}"
         Log.d(TAG, info)
         Toast.makeText(this, info, Toast.LENGTH_SHORT).show()
     }
 
     protected fun shuffleAndPlayAllInFolder(pathFolder: String) {
-        clearSongQueue()
+        playlist.clearQueue()
         val songs = FileFilter.filterOnlyAudio(File(pathFolder))
         val info = if (songs.isNotEmpty()) {
-            addToSongQueue(songs)
+            addToQueue(songs)
             playlist.shuffle()
-            playNext(playlist.songs[0].path)
-            "will play: ${songs.size}\n" +
-                    "first: ${playlist.songs[0].name}"
+            val firstInQueue = playlist.firstInQueue()
+            playNext(firstInQueue.path)
+            "will play: ${songs.size}\n" + "first: ${firstInQueue.name}"
         } else { "no one song" }
         Log.d(TAG, info)
         Toast.makeText(this, info, Toast.LENGTH_SHORT).show()
     }
 
     protected fun playByPath(path: String) {
-        clearSongQueue()
-        addToSongQueue(SongPlaylistInteractor.songs.toList())
+        playlist.clearQueue()
+        addToQueue(SongPlaylistInteractor.songs.toList())
         playNext(path)
         //showUI
         MiniPlayerBroadcastShow.apply { sendBroadcastShow() }
@@ -139,9 +144,9 @@ abstract class MiniPlayerService : Service() {
                 startSendRewind(player, seconds)
             }
             //store player state
-            storeCurrentPlayerState()
+            storeIsPlayingState()
         } else {
-            if (playlist.songs.isNotEmpty()) {
+            if (playlist.notShuffled.isNotEmpty()) {
                 playNext()
             }
         }
@@ -162,7 +167,7 @@ abstract class MiniPlayerService : Service() {
             val newSong = if (currentPos != 0)
                 playlist.getSong(currentPos - 1)
             else
-                playlist.songs[playlist.songs.lastIndex]
+                playlist.lastInQueue()
             //just need got path to new file
             playNext(newSong.path)
         }
@@ -185,25 +190,24 @@ abstract class MiniPlayerService : Service() {
     protected fun shuffleOn() {
         QueueResolver.shuffleState = true
         //store before shuffle
-        playlist.notShuffled.apply {
-            clear()
-            addAll(playlist.songs)
-        }
-        playlist.songs.shuffle()
+        playlist.shuffle()
+        MiniPlayerServicePreferences
+            .setIsShuffle(this, QueueResolver.shuffleState)
+        sendBroadcastShuffleUI()
     }
 
     protected fun shuffleOff() {
         QueueResolver.shuffleState = false
-        playlist.songs.apply {
-            clear()
-            addAll(playlist.notShuffled)
-        }
+        playlist.notShuffle()
+        MiniPlayerServicePreferences
+            .setIsShuffle(this, QueueResolver.shuffleState)
+        sendBroadcastUnShuffleUI()
     }
 
-    protected fun addToQueue(path: String) {
-        val newSong = File(path)
-        playlist.songs.add(newSong)
-        val info = "in queue at ${playlist.getSongPos(newSong) + 1}"
+    protected fun addToQueueOneSong(path: String) {
+        val song = File(path)
+        val index = playlist.addToQueue(song)
+        val info = "in queue at $index"
         Log.d(TAG, info)
         Toast.makeText(this, info, Toast.LENGTH_SHORT).show()
     }
@@ -211,7 +215,7 @@ abstract class MiniPlayerService : Service() {
     protected fun likeSong() {
         scope.launch {
             val songPath = playlist.getSongPath()
-            PlaylistDb.updateFavourite {
+            PlaylistTransaction.updateFavourite {
                 val updated = it + songPath
                 updated
             }
@@ -221,36 +225,68 @@ abstract class MiniPlayerService : Service() {
     protected fun unlikeSong() {
         scope.launch {
             val songPath = playlist.getSongPath()
-            PlaylistDb.updateFavourite {
+            PlaylistTransaction.updateFavourite {
                 it.filter { it != songPath }
             }
         }
     }
 
-    private fun retrieveInfo() {
+    protected fun loopState() {
+        QueueResolver.loopState()
+        MiniPlayerServicePreferences
+            .setLoopState(this, 1)
+        sendBroadcastLoopUI()
+    }
+
+    protected fun notLoopState() {
+        QueueResolver.notLoopState()
+        MiniPlayerServicePreferences
+            .setLoopState(this, 0)
+        sendBroadcastNotLoopUI()
+    }
+
+    protected fun loopAllState() {
+        QueueResolver.loopAllState()
+        MiniPlayerServicePreferences
+            .setLoopState(this, 2)
+        sendBroadcastLoopAllUI()
+    }
+
+    private fun restoreState() {
         scope.launch {
-            val songsFromDb = ServiceDb.getPlaylist()
+            val songsFromDb = ServiceTransaction.getPlaylist()
             val songsToPlaylist = MiniPlayerServiceSong.getSongsToPlaylist(songsFromDb)
 
             if (songsToPlaylist.isNotEmpty()) {
-                addToSongQueue(songsToPlaylist)
+                playlist.addToQueue(*songsToPlaylist.toTypedArray())
+                //restore shuffle and loop state
+                val isShuffle = MiniPlayerServicePreferences
+                    .getIsShuffle(this@MiniPlayerService)
+                val loopState = MiniPlayerServicePreferences
+                    .getLoopState(this@MiniPlayerService)
                 //restore duration
-                val duration =
-                    MiniPlayerServicePreferences
+                val duration = MiniPlayerServicePreferences
                         .getCurrentDuration(this@MiniPlayerService)
                 //what song should play
-                var posWasPlayedSong =
-                    MiniPlayerServicePreferences
+                var posWasPlayedSong = MiniPlayerServicePreferences
                         .getCurrentPos(this@MiniPlayerService)
                 if (posWasPlayedSong > songsToPlaylist.lastIndex)
                     posWasPlayedSong = songsToPlaylist.lastIndex
-                val path =
-                    playlist.getSong(posWasPlayedSong).path
-                val isPlaying =
-                    MiniPlayerServicePreferences
+                val path = playlist.notShuffled[posWasPlayedSong].path
+                //restore isPlaying state
+                val isPlaying = MiniPlayerServicePreferences
                         .getIsPlaying(this@MiniPlayerService)
-                val appWasDestroyed =
-                    AppPreference.getAppIsDestroyed(this@MiniPlayerService)
+                val appWasDestroyed = AppPreference
+                    .getAppIsDestroyed(this@MiniPlayerService)
+                //apply shuffle state player
+                if (isShuffle) shuffleOn()
+                else shuffleOff()
+                //apply loop state player
+                when(loopState) {
+                    0 -> notLoopState()
+                    1 -> loopState()
+                    2 -> loopAllState()
+                }
                 //after all info got -> start player ->  set current time -> stop
                 playNext(path)
                 rewindPlayer(duration)
@@ -264,16 +300,11 @@ abstract class MiniPlayerService : Service() {
         }
     }
 
-    private fun addToSongQueue(list: List<File>) {
-        playlist.songs.addAll(list)
+    private fun addToQueue(list: List<File>) {
+        playlist.addToQueue(*list.toTypedArray())
         //restore shuffle state
-        if (QueueResolver.shuffleState)
-            shuffleOn()
+        if (QueueResolver.shuffleState) shuffleOn()
         storeQueue()
-    }
-
-    private fun clearSongQueue() {
-        playlist.songs.clear()
     }
 
     private fun stopOrPausePlayer(f: () -> Unit) {
@@ -317,7 +348,7 @@ abstract class MiniPlayerService : Service() {
         playSongAfterCreatedPlayer()
         //update db
         scope.launch {
-            PlaylistDb.updatePlayedSong(song.path)
+            PlaylistTransaction.updatePlayedSong(song.path)
         }
         //send info
         sendInfoToUI(song)
@@ -355,7 +386,7 @@ abstract class MiniPlayerService : Service() {
         rewindJob.cancel()
     }
 
-    private fun storeCurrentPlayerState() {
+    private fun storeIsPlayingState() {
         if (player.isPlaying)
             MiniPlayerServicePreferences
                 .setIsPlaying(this@MiniPlayerService, true)
@@ -365,9 +396,9 @@ abstract class MiniPlayerService : Service() {
     }
 
     private fun storeSongPositionInQueue() {
-        val pos = playlist.getSongPos()
-        MiniPlayerServicePreferences
-            .setCurrentPos(this, pos)
+        val posInQueue = playlist.getSong()
+        val pos = playlist.notShuffled.indexOf(posInQueue)
+        MiniPlayerServicePreferences.setCurrentPos(this, pos)
         Log.d(TAG, "store pos: $pos")
     }
 
@@ -380,11 +411,9 @@ abstract class MiniPlayerService : Service() {
 
     private fun storeQueue() {
         scope.launch {
-            val getPosF: (String) -> Int =
-                { path ->  playlist.getSongPos(path) }
             val songsToDb =
-                MiniPlayerServiceSong.getSongsToDb(playlist.songs, getPosF)
-            ServiceDb.update(songsToDb)
+                MiniPlayerServiceSong.getSongsToDb(playlist.notShuffled)
+            ServiceTransaction.clearAndInsert(songsToDb)
         }
         Log.d(TAG, "store queue")
     }
@@ -392,12 +421,28 @@ abstract class MiniPlayerService : Service() {
     private fun sendInfoToUI(song: File = playlist.getSong()) {
         //send info
         scope.launch {
+            sendLoopState()
+            sendShuffleState()
             sendPath(song)
             sendSongNameAndArtist(song)
             sendDurationSong(player)
             sendIsHQ(song)
             sendIsLoved(song)
         }
+    }
+
+    private fun sendLoopState() {
+        when(MiniPlayerServicePreferences.getLoopState(this)) {
+            0 -> sendBroadcastNotLoopUI()
+            1 -> sendBroadcastLoopUI()
+            2 -> sendBroadcastLoopAllUI()
+        }
+    }
+
+    private fun sendShuffleState() {
+        if (MiniPlayerServicePreferences.getIsShuffle(this))
+            sendBroadcastShuffleUI()
+        else sendBroadcastUnShuffleUI()
     }
 
     private fun sendPath(song: File) {
@@ -425,7 +470,7 @@ abstract class MiniPlayerService : Service() {
     }
 
     private suspend fun sendIsLoved(song: File) = withContext(Dispatchers.IO) {
-        val favourite = PlaylistDb.getFavouriteSongs()
+        val favourite = PlaylistTransaction.getFavouriteSongs()
         if (favourite.contains(song.path))
             MiniPlayerBroadcastLike.apply {
                 sendBroadcastLikeUI()

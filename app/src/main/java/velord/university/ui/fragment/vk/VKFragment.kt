@@ -22,7 +22,6 @@ import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RecyclerViewSelectItemResolver
 import velord.university.ui.util.setupPopupMenuOnClick
-import java.io.File
 
 
 class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
@@ -46,6 +45,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
 
     private lateinit var rv: RecyclerView
     private lateinit var login: Button
+    private lateinit var pb: ProgressBar
 
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
@@ -212,6 +212,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
     ): View {
         return inflater.inflate(R.layout.vk_fragment, container, false).apply {
             scope.launch {
+                viewModel
                 withContext(Dispatchers.Main) {
                     //init action bar
                     super.initActionBar(this@apply)
@@ -222,28 +223,32 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
                     super.observeSearchQuery()
                     //setup adapter by invoke change in search view
                     setupAdapter()
-                    checkToken()
                 }
+                checkToken()
             }
         }
     }
 
     private fun checkToken() {
         if (::login.isInitialized) {
-            val token = VkPreference.getAccessToken(requireContext())
-            if (token.isBlank()) {
-                login.visibility = View.VISIBLE
-                Toast.makeText(
-                    requireContext(),
-                    "Login to continue", Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                login.visibility = View.GONE
-                scope.launch {
-                    viewModel.getAudio()
+            scope.launch {
+                val token = VkPreference.getAccessToken(requireContext())
+                if (token.isBlank()) {
+                    login.visibility = View.VISIBLE
+                    Toast.makeText(
+                        requireContext(),
+                        "Login to continue", Toast.LENGTH_SHORT
+                    ).show()
+                } else {
                     withContext(Dispatchers.Main) {
-                        rv.adapter = SongAdapter(viewModel.vkPlaylist.items)
+                        login.visibility = View.GONE
+                        pb.visibility = View.VISIBLE
                     }
+                    viewModel.refreshByToken()
+                    withContext(Dispatchers.Main) {
+                        pb.visibility = View.GONE
+                    }
+                    updateAdapterBySearchQuery(viewModel.currentQuery)
                 }
             }
         }
@@ -264,6 +269,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
     }
 
     private fun initViews(view: View) {
+        pb = view.findViewById(R.id.vk_pb)
         initRV(view)
         initLogin(view)
     }
@@ -293,19 +299,19 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
     }
 
     private fun updateAdapterBySearchQuery(searchQuery: String) {
-        if (viewModel.songsIsInitialized()) {
+        if (viewModel.vkPlaylistIsInitialized()) {
             scope.launch {
-                val songsFiltered = viewModel.vkPlaylist.items
+                val songsFiltered = viewModel.filterByQuery(searchQuery)
                 withContext(Dispatchers.Main) {
-                    rv.adapter = SongAdapter(songsFiltered)
+                    rv.adapter = SongAdapter(songsFiltered.toTypedArray())
                 }
             }
         }
     }
 
     private fun updateAdapterWithShuffled() {
-        if (viewModel.songsIsInitialized()) {
-            val shuffled = viewModel.vkPlaylist.items
+        if (viewModel.vkPlaylistIsInitialized()) {
+            val shuffled = viewModel.vkPlaylist
                 .toList()
                 .shuffled()
                 .toTypedArray()
@@ -316,10 +322,10 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
     private inner class VkHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        val text: TextView = itemView.findViewById(R.id.general_item_path)
+        private val text: TextView = itemView.findViewById(R.id.general_item_path)
         private val action: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
         private val frame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
-        val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
+        private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
 
         val selected: (VkSong) -> Array<() -> Unit> = { song ->
             arrayOf(
@@ -327,8 +333,10 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
                     icon.setImageResource(R.drawable.song_item_playing)
                 },
                 {
-                    val album = song.album?.title
-                    text.text = "${song.artist} - ${song.title}\nAlbum: $album"
+                    val album = viewModel.vkAlbums.find {
+                        it.id == song.albumId
+                    }?.title?.let { "Album: $it" } ?: ""
+                    text.text = "${song.artist} - ${song.title}\n$album"
                 },
                 {
                     itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
@@ -342,18 +350,15 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
                     icon.setImageResource(R.drawable.song_item)
                 },
                 {
-                    val album = song.album?.title
-
-                    text.text = "${song.artist} - ${song.title}\nAlbum: $album"
+                    val album = viewModel.vkAlbums.find {
+                        it.id == song.albumId
+                    }?.title?.let { "Album: $it" } ?: ""
+                    text.text = "${song.artist} - ${song.title}\n$album"
                 },
                 {
                     itemView.setBackgroundResource(R.color.opacity)
                 }
             )
-        }
-
-        private fun playSong(song: File) {
-            viewModel.playAudioAndAllSong(song)
         }
 
         private val actionPopUpMenu: (VkSong) -> Unit = { song ->
@@ -362,14 +367,15 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                 when (it.itemId) {
                     R.id.folder_recyclerView_item_isAudio_play -> {
-
+                        viewModel.playAudioAndAllSong(song.path)
                         true
                     }
                     R.id.folder_recyclerView_item_isAudio_play_next -> {
-
+                        viewModel.playAudioNext(song.path)
                         true
                     }
                     R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
+                        viewModel.addToPlaylist(song.path)
                         true
                     }
                     R.id.folder_recyclerView_item_isAudio_set_as_ringtone -> {

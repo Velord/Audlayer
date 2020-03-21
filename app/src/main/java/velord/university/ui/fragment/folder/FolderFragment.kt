@@ -33,7 +33,9 @@ import velord.university.ui.util.RecyclerViewSelectItemResolver
 import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
-class FolderFragment : ActionBarFragment(), BackPressedHandlerZero, SongBroadcastReceiver {
+class FolderFragment : ActionBarFragment(),
+    BackPressedHandlerZero,
+    SongBroadcastReceiver {
     //Required interface for hosting activities
     interface Callbacks {
         fun onCreatePlaylist()
@@ -72,45 +74,11 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero, SongBroadcas
                 val initActionMenuLayout = { R.menu.sort_by }
                 val initActionMenuItemClickListener: (MenuItem) -> Boolean = { menuItem ->
                     when (menuItem.itemId) {
-                        R.id.folder_sort_by_name -> {
-                            SortByPreference.setSortByFolderFragment(requireContext(), 0)
-
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-
-                            super.rearwardActionButton()
-                            true
-                        }
-                        R.id.folder_sort_by_artist -> {
-                            SortByPreference.setSortByFolderFragment(requireContext(), 1)
-
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-
-                            super.rearwardActionButton()
-                            true
-                        }
-                        R.id.folder_sort_by_date_added -> {
-                            SortByPreference.setSortByFolderFragment(requireContext(), 2)
-
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-
-                            super.rearwardActionButton()
-                            true                        }
-                        R.id.folder_sort_by_ascending_order -> {
-                            SortByPreference.setAscDescFolderFragment(requireContext(), 0)
-
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-
-                            super.rearwardActionButton()
-                            true
-                        }
-                        R.id.folder_sort_by_descending_order -> {
-                            SortByPreference.setAscDescFolderFragment(requireContext(), 1)
-
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-
-                            super.rearwardActionButton()
-                            true
-                        }
+                        R.id.folder_sort_by_name -> sortBy(0)
+                        R.id.folder_sort_by_artist -> sortBy(1)
+                        R.id.folder_sort_by_date_added -> sortBy(2)
+                        R.id.folder_sort_by_ascending_order -> sortByAscDesc(0)
+                        R.id.folder_sort_by_descending_order -> sortByAscDesc(1)
                         else -> {
                             super.rearwardActionButton()
                             false
@@ -287,9 +255,8 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero, SongBroadcas
                 SongPlaylistInteractor.songs = songs
                 it.onCreatePlaylist()
             }
-            else
-                Toast.makeText(requireContext(), "No one Song", Toast.LENGTH_SHORT)
-                    .show()
+            else Toast.makeText(requireContext(),
+                    "No one Song", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -326,6 +293,20 @@ class FolderFragment : ActionBarFragment(), BackPressedHandlerZero, SongBroadcas
         rv.layoutManager = LinearLayoutManager(activity)
         //controlling action bar frame visibility when recycler view is scrolling
         super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
+    }
+
+    private fun sortBy(index: Int): Boolean {
+        SortByPreference.setSortByFolderFragment(requireContext(), index)
+        updateAdapterBySearchQuery(viewModel.currentQuery)
+        super.rearwardActionButton()
+        return true
+    }
+
+    private fun sortByAscDesc(index: Int): Boolean {
+        SortByPreference.setAscDescFolderFragment(requireContext(), index)
+        updateAdapterBySearchQuery(viewModel.currentQuery)
+        super.rearwardActionButton()
+        return true
     }
 
     private fun updateAdapterBySearchQuery(searchQuery: String) {

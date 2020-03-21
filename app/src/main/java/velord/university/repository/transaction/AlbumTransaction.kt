@@ -5,7 +5,7 @@ import kotlinx.coroutines.withContext
 import velord.university.application.AudlayerApp
 import velord.university.model.entity.Album
 
-object AlbumDb {
+object AlbumTransaction {
 
     suspend fun saveAlbum(album: List<Album>) = withContext(Dispatchers.IO) {
         AudlayerApp.db?.apply {

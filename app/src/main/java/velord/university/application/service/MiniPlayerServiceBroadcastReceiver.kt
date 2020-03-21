@@ -4,16 +4,10 @@ import android.content.Intent
 import android.util.Log
 import velord.university.application.broadcast.*
 import velord.university.application.broadcast.MiniPlayerBroadcastLike.sendBroadcastLikeUI
-import velord.university.application.broadcast.MiniPlayerBroadcastLoop.sendBroadcastLoopUI
-import velord.university.application.broadcast.MiniPlayerBroadcastLoopAll.sendBroadcastLoopAllUI
-import velord.university.application.broadcast.MiniPlayerBroadcastNotLoop.sendBroadcastNotLoopUI
-import velord.university.application.broadcast.MiniPlayerBroadcastShuffle.sendBroadcastShuffleUI
 import velord.university.application.broadcast.MiniPlayerBroadcastSkipNext.sendBroadcastSkipNextUI
 import velord.university.application.broadcast.MiniPlayerBroadcastSkipPrev.sendBroadcastSkipPrevUI
 import velord.university.application.broadcast.MiniPlayerBroadcastSongDuration.sendBroadcastSongDurationUI
-import velord.university.application.broadcast.MiniPlayerBroadcastUnShuffle.sendBroadcastUnShuffleUI
 import velord.university.application.broadcast.MiniPlayerBroadcastUnlike.sendBroadcastUnlikeUI
-import velord.university.model.QueueResolver
 import velord.university.model.converter.SongTimeConverter
 
 class MiniPlayerServiceBroadcastReceiver :
@@ -119,30 +113,25 @@ class MiniPlayerServiceBroadcastReceiver :
     override val shuffleF: (Intent?) -> Unit
         get() = {
             super.shuffleOn()
-            sendBroadcastShuffleUI()
         }
 
     override val unShuffleF: (Intent?) -> Unit
         get() = {
             super.shuffleOff()
-            sendBroadcastUnShuffleUI()
         }
 
     override val loopF: (Intent?) -> Unit
         get() = {
-            QueueResolver.loopState()
-            sendBroadcastLoopUI()
+            super.loopState()
         }
     override val loopAllF: (Intent?) -> Unit
         get() = {
-            QueueResolver.loopAllState()
-            sendBroadcastLoopAllUI()
+            super.loopAllState()
         }
 
     override val notLoopF: (Intent?) -> Unit
         get() = {
-            QueueResolver.notLoopState()
-            sendBroadcastNotLoopUI()
+            super.notLoopState()
         }
 
     override val songDurationF: (Intent?) -> Unit
@@ -186,7 +175,7 @@ class MiniPlayerServiceBroadcastReceiver :
                 val extra =
                     MiniPlayerBroadcastAddToQueue.extraValueService
                 val path = it.getStringExtra(extra)
-                super<MiniPlayerService>.addToQueue(path)
+                super<MiniPlayerService>.addToQueueOneSong(path)
             }
         }
 

@@ -4,20 +4,19 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.io.File
-import java.util.*
 
 @Entity
 data class MiniPlayerServiceSong(
     @ColumnInfo(name = "path") val path: String,
     @ColumnInfo(name = "position") val pos: Int,
-    @PrimaryKey val id: String = UUID.randomUUID().toString()
+
+    @PrimaryKey(autoGenerate = true) val id: Long = 0
 ) {
     companion object {
-        fun getSongsToDb(songs: List<File>, getPosF: (String) -> Int): Array<MiniPlayerServiceSong> =
-            songs.map {
-                val path = it.path
-                val pos = getPosF(path)
-                MiniPlayerServiceSong(path, pos)
+        fun getSongsToDb(songs: List<File>): Array<MiniPlayerServiceSong> =
+            songs.mapIndexed { index, elem ->
+                val path = elem.path
+                MiniPlayerServiceSong(path, index)
             }.toTypedArray()
 
         fun getSongsToPlaylist(songs: List<MiniPlayerServiceSong>): List<File> =

@@ -16,7 +16,7 @@ import velord.university.R
 import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
-import velord.university.repository.transaction.PlaylistDb
+import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.ui.backPressed.BackPressedHandlerSecond
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 import velord.university.ui.util.setupPopupMenuOnClick
@@ -89,7 +89,7 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(), BackPressedHandlerSecond {
     private fun setupAdapter() {
         scope.launch {
             val playlist = Playlist.otherAndFavourite(
-                PlaylistDb.getAllPlaylist()).toTypedArray()
+                PlaylistTransaction.getAllPlaylist()).toTypedArray()
 
             withContext(Dispatchers.Main) {
                 rv.adapter = PlaylistAdapter(playlist)
@@ -110,7 +110,7 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(), BackPressedHandlerSecond {
                 }
                 //update db
                 scope.launch {
-                    PlaylistDb.update(playlist)
+                    PlaylistTransaction.update(playlist)
                 }
                 //show user info
                 Toast.makeText(
@@ -142,7 +142,7 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(), BackPressedHandlerSecond {
                         }
                         R.id.playlist_item_delete -> {
                             scope.launch {
-                                PlaylistDb.delete(playlist.id)
+                                PlaylistTransaction.delete(playlist.id)
                                 withContext(Dispatchers.Main) {
                                     setupAdapter()
                                 }

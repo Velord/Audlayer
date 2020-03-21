@@ -96,47 +96,13 @@ class SongFragment : ActionBarFragment(), SongBroadcastReceiver {
                 val initActionMenuLayout = { R.menu.song_fragment_sort_by }
                 val initActionMenuItemClickListener: (MenuItem) -> Boolean = { menuItem ->
                     when (menuItem.itemId) {
-                        R.id.song_sort_by_name -> {
-                            SortByPreference.setSortBySongFragment(requireContext(), 0)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true
-                        }
-                        R.id.song_sort_by_artist -> {
-                            SortByPreference.setSortBySongFragment(requireContext(), 1)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true
-                        }
-                        R.id.song_sort_by_date_added -> {
-                            SortByPreference.setSortBySongFragment(requireContext(), 2)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true                        }
-                        R.id.song_sort_by_duration -> {
-                            SortByPreference.setSortBySongFragment(requireContext(), 3)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true
-                        }
-                        R.id.song_sort_by_size -> {
-                            SortByPreference.setSortBySongFragment(requireContext(), 4)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true
-                        }
-                        R.id.song_sort_by_ascending_order -> {
-                            SortByPreference.setAscDescSongFragment(requireContext(), 0)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true
-                        }
-                        R.id.song_sort_by_descending_order -> {
-                            SortByPreference.setAscDescSongFragment(requireContext(), 1)
-                            updateAdapterBySearchQuery(viewModel.currentQuery)
-                            super.rearwardActionButton()
-                            true
-                        }
+                        R.id.song_sort_by_name -> sortBy(0)
+                        R.id.song_sort_by_artist -> sortBy(1)
+                        R.id.song_sort_by_date_added -> sortBy(2)
+                        R.id.song_sort_by_duration -> sortBy(3)
+                        R.id.song_sort_by_size -> sortBy(4)
+                        R.id.song_sort_by_ascending_order -> sortByAscDesc(0)
+                        R.id.song_sort_by_descending_order -> sortByAscDesc(1)
                         else -> {
                             super.rearwardActionButton()
                             false
@@ -265,6 +231,20 @@ class SongFragment : ActionBarFragment(), SongBroadcastReceiver {
         }
         //controlling action bar frame visibility when recycler view is scrolling
         super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
+    }
+
+    private fun sortBy(index: Int): Boolean {
+        SortByPreference.setSortBySongFragment(requireContext(), index)
+        updateAdapterBySearchQuery(viewModel.currentQuery)
+        super.rearwardActionButton()
+        return true
+    }
+
+    private fun sortByAscDesc(index: Int): Boolean {
+        SortByPreference.setAscDescSongFragment(requireContext(), index)
+        updateAdapterBySearchQuery(viewModel.currentQuery)
+        super.rearwardActionButton()
+        return true
     }
 
     private fun setupAdapter() {

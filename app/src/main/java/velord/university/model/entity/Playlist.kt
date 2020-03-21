@@ -11,17 +11,15 @@ import java.util.*
 @Entity
 data class Playlist(
     @ColumnInfo(name = "name") val name: String,
-
     @ColumnInfo(name = "songs") var songs: List<String>,
 
-    @PrimaryKey
-    val id: String = UUID.randomUUID().toString()
+    @PrimaryKey(autoGenerate = true) val id: Long = 0
 ) {
 
     companion object {
         fun other(playlist: List<Playlist>): List<Playlist> =
             playlist.filter {
-                it.name != "Favourite" && it.name != "Played"
+                it.name != "Favourite" && it.name != "Played" && it.name != "Vk"
             }
 
         fun notPlayed(playlist: List<Playlist>): List<Playlist> =

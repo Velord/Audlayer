@@ -51,41 +51,12 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
 
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
-            R.id.album_sort_by_album -> {
-                SortByPreference.setSortByAlbumFragment(requireContext(), 0)
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                super.rearwardActionButton()
-                true
-            }
-            R.id.album_sort_by_artist -> {
-                SortByPreference.setSortByAlbumFragment(requireContext(), 1)
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                super.rearwardActionButton()
-                true
-            }
-            R.id.album_sort_by_year -> {
-                SortByPreference.setSortByAlbumFragment(requireContext(), 2)
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                super.rearwardActionButton()
-                true                        }
-            R.id.album_sort_by_number_of_tracks -> {
-                SortByPreference.setSortByAlbumFragment(requireContext(), 3)
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                super.rearwardActionButton()
-                true
-            }
-            R.id.album_sort_by_ascending_order -> {
-                SortByPreference.setAscDescAlbumFragment(requireContext(), 0)
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                super.rearwardActionButton()
-                true
-            }
-            R.id.album_sort_by_descending_order -> {
-                SortByPreference.setAscDescAlbumFragment(requireContext(), 1)
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                super.rearwardActionButton()
-                true
-            }
+            R.id.album_sort_by_album -> sortBy(0)
+            R.id.album_sort_by_artist -> sortBy(1)
+            R.id.album_sort_by_year -> sortBy(2)
+            R.id.album_sort_by_number_of_tracks -> sortBy(3)
+            R.id.album_sort_by_ascending_order -> sortByAscDesc(0)
+            R.id.album_sort_by_descending_order -> sortByAscDesc(1)
             else -> {
                 false
             }
@@ -204,7 +175,6 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
                 if (playlistRV.visibility == View.GONE) View.VISIBLE
                 else View.GONE
         }
-
         playlistRefresh.setOnClickListener {
             scope.launch {
                 withContext(Dispatchers.Main) {
@@ -219,13 +189,26 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
                 }
             }
         }
-
         playlistRV.apply {
             isNestedScrollingEnabled = false
             layoutManager = LinearLayoutManager(activity)
         }
         //controlling action bar frame visibility when recycler view is scrolling
         super.setScrollListenerByRecyclerViewScrolling(playlistRV, 50, -5)
+    }
+
+    private fun sortBy(index: Int): Boolean {
+        SortByPreference.setSortByAlbumFragment(requireContext(), index)
+        updateAdapterBySearchQuery(viewModel.currentQuery)
+        super.rearwardActionButton()
+        return true
+    }
+
+    private fun sortByAscDesc(index: Int): Boolean {
+        SortByPreference.setAscDescAlbumFragment(requireContext(), index)
+        updateAdapterBySearchQuery(viewModel.currentQuery)
+        super.rearwardActionButton()
+        return true
     }
 
     private fun updateAdapterBySearchQuery(searchQuery: String) {
@@ -399,7 +382,6 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
                 initActionMenuLayout,
                 initActionMenuItemClickListener
             )
-
             Unit
         }
 

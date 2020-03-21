@@ -13,8 +13,8 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.entity.Album
 import velord.university.model.entity.Playlist
-import velord.university.repository.transaction.AlbumDb
-import velord.university.repository.transaction.PlaylistDb
+import velord.university.repository.transaction.AlbumTransaction
+import velord.university.repository.transaction.PlaylistTransaction
 import java.io.File
 
 const val MAX_LAST_PLAYED: Int = 50
@@ -101,7 +101,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     suspend fun deletePlaylist(playlist: Playlist) = withContext(Dispatchers.IO) {
-        PlaylistDb.deletePlaylist(playlist)
+        PlaylistTransaction.deletePlaylist(playlist)
         //refresh playlist
         getDefaultAndUserPlaylist()
     }
@@ -112,18 +112,18 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     suspend fun retrieveAlbumFromDb() = withContext(Dispatchers.IO) {
-        albums = AlbumDb.getAlbums()
+        albums = AlbumTransaction.getAlbums()
         Log.d(TAG, "all albums collected")
     }
 
     suspend fun refreshAllAlbum() = withContext(Dispatchers.IO) {
         albums = getAlbumBasedOnAllSong()
-        scope.launch { AlbumDb.saveAlbum(albums) }
+        scope.launch { AlbumTransaction.saveAlbum(albums) }
         Log.d(TAG, "all album collected")
     }
 
     private suspend fun getDefaultAndUserPlaylist(): List<Playlist> {
-        val allPlaylist =  PlaylistDb.getAllPlaylist()
+        val allPlaylist =  PlaylistTransaction.getAllPlaylist()
         Log.d(TAG, "all playlist retrieved")
         //unique songs
         allSongRemovedDuplicate = Playlist.allSongFromPlaylist(allPlaylist)
@@ -134,7 +134,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
                 .map { it.path }
         Log.d(TAG, "last modified playlist retrieved")
         //lastPlayed
-        val played = PlaylistDb.getPlayedSongs()
+        val played = PlaylistTransaction.getPlayedSongs()
         //last 50
         lastPlayed = played.take(MAX_LAST_PLAYED)
         Log.d(TAG, "last play playlist retrieved")
@@ -142,7 +142,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         mostPlayed = Playlist.getMostPlayed(played)
         Log.d(TAG, "most played playlist retrieved")
         //favourite
-        favourite =  PlaylistDb.getFavouriteSongs()
+        favourite =  PlaylistTransaction.getFavouriteSongs()
         Log.d(TAG, "favourite playlist retrieved")
         //other
         other = Playlist.other(allPlaylist)
@@ -157,14 +157,6 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         )
     }
 
-//    private fun getAlbumImage(path: String): Bitmap? {
-//        val mmr = MediaMetadataRetriever()
-//        mmr.setDataSource(path)
-//        val data = mmr.embeddedPicture
-//        return if (data != null)
-//            BitmapFactory.decodeByteArray(data, 0, data.size)
-//        else null
-//    }
     //something wrong
     private suspend fun getAlbumBasedOnAllSong(): List<Album> {
         val metaRetriever = MediaMetadataRetriever()
