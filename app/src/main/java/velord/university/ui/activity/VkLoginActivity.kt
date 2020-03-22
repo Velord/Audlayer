@@ -22,6 +22,8 @@ class VkLoginActivity : AppCompatActivity(),
 
     private  val TAG ="VkLoginActivity"
 
+    private val vkLogin by lazy { VkLoginFragment() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.vk_login_activity)
@@ -46,7 +48,7 @@ class VkLoginActivity : AppCompatActivity(),
 
     override fun accessTokenConfirmed() {
         backPressedFirstLevel()
-        dsa.checkToken()
+        vkLogin.checkToken()
     }
 
     override fun accessTokenNotConfirmed() {
@@ -91,7 +93,6 @@ class VkLoginActivity : AppCompatActivity(),
         return handled
     }
 
-    val dsa = VkLoginFragment()
     override fun openGetAccessToken() {
 
         addFragment(sfm,
@@ -102,7 +103,7 @@ class VkLoginActivity : AppCompatActivity(),
 
     private fun initFragment() =
         initFragment(sfm,
-            dsa,
+            vkLogin,
             R.id.fragment_container_vk_login
         )
 

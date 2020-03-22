@@ -1,13 +1,17 @@
 package velord.university.ui.fragment.vk
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.*
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,11 +21,16 @@ import velord.university.R
 import velord.university.application.broadcast.*
 import velord.university.application.settings.SortByPreference
 import velord.university.application.settings.VkPreference
+import velord.university.interactor.SongPlaylistInteractor
+import velord.university.model.FileFilter
+import velord.university.model.FileNameParser
+import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.entity.vk.VkSong
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RecyclerViewSelectItemResolver
 import velord.university.ui.util.setupPopupMenuOnClick
+import java.io.File
 
 
 class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
@@ -46,6 +55,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
     private lateinit var rv: RecyclerView
     private lateinit var login: Button
     private lateinit var pb: ProgressBar
+    private lateinit var webView: WebView
 
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
@@ -148,7 +158,8 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
                 val extra = MiniPlayerBroadcastSongPath.extraValueUI
-                val songPath = getStringExtra(extra)
+                val songPath = FileNameParser
+                    .removeExtension(File(getStringExtra(extra)))
                 scope.launch {
                     changeRVItem(songPath)
                 }
@@ -194,7 +205,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
                 )
         }
 
-        checkToken()
+        scope.launch {  checkToken() }
     }
 
     override fun onStop() {
@@ -212,7 +223,6 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
     ): View {
         return inflater.inflate(R.layout.vk_fragment, container, false).apply {
             scope.launch {
-                viewModel
                 withContext(Dispatchers.Main) {
                     //init action bar
                     super.initActionBar(this@apply)
@@ -229,29 +239,28 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         }
     }
 
-    private fun checkToken() {
+    private suspend fun checkToken() {
         if (::login.isInitialized) {
-            scope.launch {
-                val token = VkPreference.getAccessToken(requireContext())
-                if (token.isBlank()) {
+            val token = VkPreference.getAccessToken(requireContext())
+            if (token.isBlank()) {
+                withContext(Dispatchers.Main) {
                     login.visibility = View.VISIBLE
-                    Toast.makeText(
-                        requireContext(),
-                        "Login to continue", Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    withContext(Dispatchers.Main) {
-                        login.visibility = View.GONE
-                        pb.visibility = View.VISIBLE
-                    }
-                    viewModel.refreshByToken()
-                    withContext(Dispatchers.Main) {
-                        pb.visibility = View.GONE
-                    }
-                    updateAdapterBySearchQuery(viewModel.currentQuery)
+                    Toast.makeText(requireContext(),
+                        "Login to continue", Toast.LENGTH_SHORT).show()
                 }
+            } else {
+                withContext(Dispatchers.Main) {
+                    login.visibility = View.GONE
+                    pb.visibility = View.VISIBLE
+                }
+                viewModel.refreshByToken()
+                withContext(Dispatchers.Main) {
+                    pb.visibility = View.GONE
+                }
+                updateAdapterBySearchQuery(viewModel.currentQuery)
             }
         }
+
     }
 
     private fun sortBy(index: Int): Boolean {
@@ -270,6 +279,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
 
     private fun initViews(view: View) {
         pb = view.findViewById(R.id.vk_pb)
+        webView = view.findViewById(R.id.web_view)
         initRV(view)
         initLogin(view)
     }
@@ -282,6 +292,64 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         }
         //controlling action bar frame visibility when recycler view is scrolling
         super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private suspend inline fun downloadDirectLink(
+        url: String,
+        crossinline ifSuccess: (String) -> Unit) = withContext(Dispatchers.Main) {
+        val fullUrl = "https:/sefon.pro$url"
+        webView.apply {
+            settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
+            webChromeClient = object : WebChromeClient() {
+                override fun onReceivedTitle(view: WebView?, title: String?) {
+                    (activity as AppCompatActivity).supportActionBar?.subtitle = title
+                }
+            }
+            val js = "javascript:(function(){" +
+                    "l=document.getElementsByClassName('b_btn download no-ajix')[0];" +
+                    "l.click();" +
+                    "})()"
+            webView.evaluateJavascript(js) {
+                    s -> val result = s
+            }
+            webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                    view!!.evaluateJavascript(js) {
+                            s -> val result = s
+                    }
+                }
+
+                override fun shouldOverrideUrlLoading(
+                    view: WebView?,
+                    request: WebResourceRequest?
+                ): Boolean {
+                    val url = request!!.url.toString()
+                    if (url.contains("sefon.pro/api/mp3_download/direct")) {
+                        Log.d(TAG, url)
+                    }
+                    return false
+                }
+
+                override fun shouldInterceptRequest(
+                    view: WebView?,
+                    request: WebResourceRequest?
+                ): WebResourceResponse? {
+                    val url = request!!.url.toString()
+                    if (url.contains("sefon.pro/api/mp3_download/direct")) {
+                        Log.d(TAG, url)
+                        scope.launch {
+                            ifSuccess(url)
+                        }
+                    }
+                    return super.shouldInterceptRequest(view, request)
+                }
+
+            }
+            loadUrl(fullUrl)
+        }
     }
 
     private fun initLogin(view: View) {
@@ -319,6 +387,29 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         }
     }
 
+    private fun playAll(vkSong: VkSong) {
+        scope.launch {
+            if (viewModel.needDownload(vkSong)) {
+                val searchLink =
+                    viewModel.searchResult(vkSong.artist, vkSong.title)
+                if (searchLink.isNotEmpty()) {
+                    val downloadLinkGot: (String) -> Unit = { url ->
+                        val index = viewModel.vkPlaylist.indexOf(vkSong)
+                        this.launch {
+                            viewModel.fetchSong(url, index)
+                        }
+                    }
+                    downloadDirectLink(searchLink[0], downloadLinkGot)
+                }
+                else withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(),
+                        "Sorry, download has not occurred", Toast.LENGTH_LONG).show()
+                }
+
+            } else viewModel.playAudioAndAllSong(vkSong)
+        }
+    }
+
     private inner class VkHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
@@ -333,10 +424,12 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
                     icon.setImageResource(R.drawable.song_item_playing)
                 },
                 {
+                    val size: Double =
+                        roundOfDecimalToUp((FileFilter.getSize(File(song.path)).toDouble() / 1024))
                     val album = viewModel.vkAlbums.find {
                         it.id == song.albumId
                     }?.title?.let { "Album: $it" } ?: ""
-                    text.text = "${song.artist} - ${song.title}\n$album"
+                    text.text = "${song.artist} - ${song.title}\n$album Mb: $size"
                 },
                 {
                     itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
@@ -367,15 +460,18 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                 when (it.itemId) {
                     R.id.folder_recyclerView_item_isAudio_play -> {
-                        viewModel.playAudioAndAllSong(song.path)
+                        viewModel.playAudioAndAllSong(song)
                         true
                     }
                     R.id.folder_recyclerView_item_isAudio_play_next -> {
-                        viewModel.playAudioNext(song.path)
+                        viewModel.playAudioNext(song)
                         true
                     }
                     R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
-                        viewModel.addToPlaylist(song.path)
+                        callbacks?.let { callback ->
+                            SongPlaylistInteractor.songs = arrayOf(File(song.path))
+                            callback.onAddToPlaylistFromVkFragment()
+                        }
                         true
                     }
                     R.id.folder_recyclerView_item_isAudio_set_as_ringtone -> {
@@ -403,12 +499,15 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         private fun setOnClickAndImageResource(song: VkSong, f: (Int) -> Unit) {
             itemView.setOnClickListener {
                 f(0)
+                playAll(song)
             }
             text.setOnClickListener {
                 f(1)
+                playAll(song)
             }
             icon.setOnClickListener {
                 f(2)
+                playAll(song)
             }
             action.setOnClickListener {
                 actionPopUpMenu(song)

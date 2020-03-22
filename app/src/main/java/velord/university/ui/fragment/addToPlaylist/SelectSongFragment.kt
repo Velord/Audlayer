@@ -218,7 +218,7 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
         }
 
         if (searchTerm.isNotEmpty()) {
-            val f = FileFilter.filterBySearchQuery
+            val f = FileFilter.filterFileBySearchQuery
             setupAdapter(f)
         }
         else setupAdapter()

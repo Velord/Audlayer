@@ -2,7 +2,6 @@ package velord.university.ui.fragment.vk
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,12 +11,16 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import velord.university.R
 import velord.university.application.settings.VkPreference
 import velord.university.ui.backPressed.BackPressedHandlerVkFirst
+import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 
-class VkAccessTokenFragment : Fragment(), BackPressedHandlerVkFirst {
+
+class VkAccessTokenFragment : LoggerSelfLifecycleFragment(),
+    BackPressedHandlerVkFirst {
+
+    override val TAG: String = "VkAccessTokenFragment"
 
     interface Callbacks {
 
@@ -29,10 +32,10 @@ class VkAccessTokenFragment : Fragment(), BackPressedHandlerVkFirst {
     private var callback: Callbacks? = null
 
     private val vkAdmin = 6121396
-    private val vkOAuth: Uri = Uri.parse(
+    private val vkOAuth =
         "https://oauth.vk.com/authorize?client_id=$vkAdmin&scope=1073737727&" +
                 "redirect_uri=https://oauth.vk.com/blank.html&display=page&response_type=token&revoke=1"
-    )
+
     private lateinit var webView: WebView
     private lateinit var pb: ProgressBar
 
@@ -72,6 +75,7 @@ class VkAccessTokenFragment : Fragment(), BackPressedHandlerVkFirst {
         webView = view.findViewById(R.id.web_view)
         webView.apply {
             settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
             webChromeClient = object : WebChromeClient() {
 
                 override fun onProgressChanged(view: WebView?, newProgress: Int) {
@@ -94,7 +98,7 @@ class VkAccessTokenFragment : Fragment(), BackPressedHandlerVkFirst {
                 }
 
             }
-            loadUrl(vkOAuth.toString())
+            loadUrl(vkOAuth)
         }
     }
 

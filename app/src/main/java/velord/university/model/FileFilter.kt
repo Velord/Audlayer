@@ -23,17 +23,21 @@ object FileFilter {
                     FileExtensionModifier.AUDIO
         }
 
-    val filterBySearchQuery: (File, String) -> Boolean = { file, query ->
+    val filterFileBySearchQuery: (File, String) -> Boolean = { file, query ->
         val extension =
             FileExtension.checkCompatibleFileExtension(file) !=
                     FileExtensionModifier.NOT_COMPATIBLE
-        val contQuery =
+        val nameTitle =
             FileNameParser.removeExtension(file)
                 .substringAfterLast('/')
-                .toUpperCase(Locale.ROOT)
-                .contains(query.toUpperCase(Locale.ROOT))
+        val contQuery = filterBySearchQuery(nameTitle, query)
 
         extension && contQuery
+    }
+
+    val filterBySearchQuery: (String, String) -> Boolean = { nameTitle, query ->
+        nameTitle.toUpperCase(Locale.ROOT)
+            .contains(query.toUpperCase(Locale.ROOT))
     }
 
     val filterByEmptySearchQuery: (File, String) -> Boolean = { file, _ ->

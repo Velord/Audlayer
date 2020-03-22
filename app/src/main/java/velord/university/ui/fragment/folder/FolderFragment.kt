@@ -272,14 +272,14 @@ class FolderFragment : ActionBarFragment(),
 
     private fun openAddToPlaylistFragmentByQuery() {
         val files = viewModel.filterAndSortFiles(
-            FileFilter.filterBySearchQuery, viewModel.currentQuery)
+            FileFilter.filterFileBySearchQuery, viewModel.currentQuery)
         val audio = FileFilter.filterOnlyAudio(files).toTypedArray()
         openAddToPlaylistFragment(audio)
     }
 
     private fun openCreatePlaylistFragmentByQuery() {
         val songs = viewModel.filterAndSortFiles(
-            FileFilter.filterBySearchQuery, viewModel.currentQuery)
+            FileFilter.filterFileBySearchQuery, viewModel.currentQuery)
         openCreatePlaylistFragment(songs)
     }
 
@@ -326,7 +326,7 @@ class FolderFragment : ActionBarFragment(),
         }
 
         if (searchQuery.isNotEmpty()) {
-            val f = FileFilter.filterBySearchQuery
+            val f = FileFilter.filterFileBySearchQuery
             setupAdapter(viewModel.currentFolder, f)
         }
         else setupAdapter(viewModel.currentFolder)

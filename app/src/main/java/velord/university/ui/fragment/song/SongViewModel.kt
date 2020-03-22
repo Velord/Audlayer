@@ -42,7 +42,7 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
 
     suspend fun filterByQuery(query: String): List<File> = withContext(Dispatchers.Default) {
         val filtered = songs.filter {
-            FileFilter.filterBySearchQuery(it, query)
+            FileFilter.filterFileBySearchQuery(it, query)
         }
         //sort by name or artist or date added or duration or size
         val sorted = when(SortByPreference.getSortBySongFragment(app)) {

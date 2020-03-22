@@ -92,6 +92,7 @@ class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero 
             setOnClickListener {
                 tokenIsInvalid()
                 scope.cancel()
+                scope = CoroutineScope(Job() + Dispatchers.Default)
                 callback?.openGetAccessToken()
             }
         }
@@ -112,8 +113,8 @@ class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero 
     }
 
     private fun tokenIsInvalid() {
-        VkPreference.setAccessToken(requireContext(), "")
         scope.launch {
+            VkPreference.setAccessToken(requireContext(), "")
             withContext(Dispatchers.Main) {
                 credentialsConfirmed.apply {
                     visibility = View.VISIBLE
@@ -135,13 +136,17 @@ class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero 
                 }
                 userEmail.apply {
                     visibility = View.VISIBLE
-                    text = getString(R.string.vk_login_email,
-                        VkPreference.getEmail(requireContext()))
+                    text = getString(
+                        R.string.vk_login_email,
+                        VkPreference.getEmail(requireContext())
+                    )
                 }
                 userPage.apply {
                     visibility = View.VISIBLE
-                    text = getString(R.string.vk_login_page,
-                        VkPreference.getPageId(requireContext()))
+                    text = getString(
+                        R.string.vk_login_page,
+                        VkPreference.getPageId(requireContext())
+                    )
 
                 }
                 userBirth.apply {
