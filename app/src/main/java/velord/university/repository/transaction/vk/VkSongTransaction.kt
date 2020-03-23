@@ -26,4 +26,10 @@ object VkSongTransaction {
             vkSongDao().insertAll(*song)
         }
     }
+
+    suspend fun update(vararg song: VkSong) = withContext(Dispatchers.IO) {
+        AudlayerApp.db?.run {
+            vkSongDao().update(*song)
+        }
+    }
 }

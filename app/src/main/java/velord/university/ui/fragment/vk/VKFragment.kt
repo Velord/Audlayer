@@ -1,17 +1,14 @@
 package velord.university.ui.fragment.vk
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.*
+import android.webkit.WebView
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,6 +23,7 @@ import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
 import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.entity.vk.VkSong
+import velord.university.repository.fetch.SefonFetch
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RecyclerViewSelectItemResolver
@@ -294,64 +292,6 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
-    private suspend inline fun downloadDirectLink(
-        url: String,
-        crossinline ifSuccess: (String) -> Unit) = withContext(Dispatchers.Main) {
-        val fullUrl = "https:/sefon.pro$url"
-        webView.apply {
-            settings.javaScriptEnabled = true
-            settings.domStorageEnabled = true
-            webChromeClient = object : WebChromeClient() {
-                override fun onReceivedTitle(view: WebView?, title: String?) {
-                    (activity as AppCompatActivity).supportActionBar?.subtitle = title
-                }
-            }
-            val js = "javascript:(function(){" +
-                    "l=document.getElementsByClassName('b_btn download no-ajix')[0];" +
-                    "l.click();" +
-                    "})()"
-            webView.evaluateJavascript(js) {
-                    s -> val result = s
-            }
-            webViewClient = object : WebViewClient() {
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    super.onPageFinished(view, url)
-                    view!!.evaluateJavascript(js) {
-                            s -> val result = s
-                    }
-                }
-
-                override fun shouldOverrideUrlLoading(
-                    view: WebView?,
-                    request: WebResourceRequest?
-                ): Boolean {
-                    val url = request!!.url.toString()
-                    if (url.contains("sefon.pro/api/mp3_download/direct")) {
-                        Log.d(TAG, url)
-                    }
-                    return false
-                }
-
-                override fun shouldInterceptRequest(
-                    view: WebView?,
-                    request: WebResourceRequest?
-                ): WebResourceResponse? {
-                    val url = request!!.url.toString()
-                    if (url.contains("sefon.pro/api/mp3_download/direct")) {
-                        Log.d(TAG, url)
-                        scope.launch {
-                            ifSuccess(url)
-                        }
-                    }
-                    return super.shouldInterceptRequest(view, request)
-                }
-
-            }
-            loadUrl(fullUrl)
-        }
-    }
-
     private fun initLogin(view: View) {
         login = view.findViewById(R.id.vk_login)
         login.setOnClickListener {
@@ -390,23 +330,16 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
     private fun playAll(vkSong: VkSong) {
         scope.launch {
             if (viewModel.needDownload(vkSong)) {
-                val searchLink =
-                    viewModel.searchResult(vkSong.artist, vkSong.title)
-                if (searchLink.isNotEmpty()) {
-                    val downloadLinkGot: (String) -> Unit = { url ->
+                val ifDownload: (File) -> Unit = {
+                    scope.launch {
                         val index = viewModel.vkPlaylist.indexOf(vkSong)
-                        this.launch {
-                            viewModel.fetchSong(url, index)
-                        }
+                        viewModel.applyNewPath(index, it)
+                        viewModel.playAudioAndAllSong(vkSong)
                     }
-                    downloadDirectLink(searchLink[0], downloadLinkGot)
                 }
-                else withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(),
-                        "Sorry, download has not occurred", Toast.LENGTH_LONG).show()
-                }
-
-            } else viewModel.playAudioAndAllSong(vkSong)
+                SefonFetch.download(requireContext(), webView, vkSong, ifDownload)
+            }
+            else viewModel.playAudioAndAllSong(vkSong)
         }
     }
 

@@ -29,31 +29,3 @@ data class VkSong(
     @Ignore var album: VkAlbum? = null
 }
 
-@Dao
-interface VkSongDao {
-
-    @Query("Select * From VkSong")
-    fun getAll(): List<VkSong>
-
-    @Query("Select * From VkSong Where title = :title")
-    fun getByTitle(title: String): VkSong
-
-    @Query("Select * From VkSong Where artist = :artist")
-    fun getByArtist(artist: String): VkSong
-
-    @Update
-    fun update(vararg song: VkSong)
-
-    @Insert
-    fun insertAll(vararg song: VkSong)
-
-    @Query("Delete From VkSong Where title = :title")
-    fun deleteByTitle(title: String)
-
-    @Query("Delete From VkSong Where vk_song_id = :songId")
-    fun deleteById(songId: Int)
-
-    @Query("Delete From VkSong")
-    fun nukeTable()
-}
-

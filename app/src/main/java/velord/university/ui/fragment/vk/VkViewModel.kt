@@ -3,14 +3,13 @@ package velord.university.ui.fragment.vk
 import android.app.Application
 import android.media.MediaMetadataRetriever
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.*
-import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
-import okio.buffer
-import okio.sink
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import org.apache.commons.text.similarity.LevenshteinDistance
 import org.json.JSONObject
 import velord.university.R
@@ -33,8 +32,6 @@ import velord.university.repository.transaction.vk.VkAlbumTransaction
 import velord.university.repository.transaction.vk.VkSongTransaction
 import velord.university.ui.util.RecyclerViewSelectItemResolver
 import java.io.File
-import java.io.IOException
-import java.util.*
 
 
 class VkViewModel(private val app: Application) : AndroidViewModel(app) {
@@ -191,94 +188,13 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     fun needDownload(vkSong: VkSong): Boolean =
         vkSong.path.isBlank()
 
-    suspend fun searchResult(artist: String,
-                             title: String): List<String> = withContext(Dispatchers.IO) {
-        val withoutRemix = title.substringBefore('(')
-        val titleTrans = transliterate(withoutRemix)
-        val artistTrans = transliterate(artist)
-        val url = "https://sefon.pro/search/?q=$artistTrans $titleTrans"
-        val client = OkHttpClient()
-        val request = Request.Builder()
-            .url(url)
-            .addHeader("Content-Type", "application/json")
-            .build()
-        val response = client.newCall(request).execute().body!!.string()
-        val regex = """[^>]+href=\"(.*?)\"[^>]*>(.*)?""".toRegex()
-        val matches = regex.findAll(response)
-        return@withContext matches.map { it.groupValues[1] }
-            .filter { it.contains(artistTrans.toLowerCase(Locale.ROOT)) }
-            .filter { it.contains(titleTrans.toLowerCase(Locale.ROOT)) }
-            .joinToString("@#$%")
-            .split("@#$%")
-            .filter { it.isNotBlank() }
-    }
-
-    private fun transliterate(message: String): String {
-        val abcCyr = charArrayOf(' ', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з',
-            'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х',
-            'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я', 'А', 'Б', 'В', 'Г',
-            'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р',
-            'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю',
-            'Я', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A',
-            'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-            'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
-        )
-        val abcLat = arrayOf(
-            " ", "a", "b", "v", "g", "d", "e", "e", "zh", "z", "i", "y", "k", "l",
-            "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "ts", "ch", "sh", "sch",
-            "", "i", "", "e", "ju", "ja", "A", "B", "V", "G", "D", "E", "E", "Zh", "Z",
-            "I", "Y", "K", "L", "M", "N", "O", "P", "R", "S", "T", "U", "F", "H", "Ts",
-            "Ch", "Sh", "Sch", "", "I", "", "E", "Ju", "Ja", "a", "b", "c", "d", "e",
-            "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
-            "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
-            "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
-        )
-        val builder = StringBuilder()
-        for (i in 0..message.lastIndex) {
-            for (x in abcCyr.indices) {
-                if (message[i] == abcCyr[x]) {
-                    builder.append(abcLat[x])
-                }
-            }
-        }
-        return builder.toString()
-    }
-
-    suspend fun fetchSong(url: String,
-                          refreshSongIndex: Int) = withContext(Dispatchers.IO) {
-        val client = OkHttpClient()
-        val request = Request.Builder()
-            .url(url)
-            .addHeader("Content-Type", "application/json")
-            .build()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Toast.makeText(app,
-                    "Something failure while downloading", Toast.LENGTH_LONG).show()
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val song = vkPlaylist[refreshSongIndex]
-                val artist = song.artist
-                val title = song.title
-                val downloadedFile = File(app.cacheDir, "$artist - $title")
-
-                val sink = downloadedFile.sink().buffer()
-                sink.writeAll(response.body!!.source())
-                sink.close()
-
-                applyNewPath(refreshSongIndex, downloadedFile)
-                playAudioAndAllSong(song)
-            }
-        })
-    }
-
-    private fun applyNewPath(index: Int, file: File) {
+    suspend fun applyNewPath(index: Int, file: File) {
         val song = vkPlaylist[index]
         vkPlaylist[index].path = file.path
         val orderedIndex = ordered.indexOf(song)
         ordered[orderedIndex].path = file.path
+
+        VkSongTransaction.update(song)
     }
 
     fun playAudioAndAllSong(song: VkSong) {
