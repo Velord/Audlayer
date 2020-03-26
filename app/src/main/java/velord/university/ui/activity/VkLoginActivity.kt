@@ -6,7 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
 import velord.university.R
+import velord.university.ui.backPressed.BackPressedHandler
 import velord.university.ui.backPressed.BackPressedHandlerVkFirst
 import velord.university.ui.backPressed.BackPressedHandlerVkZero
 import velord.university.ui.fragment.vk.VkAccessTokenFragment
@@ -18,7 +20,7 @@ class VkLoginActivity : AppCompatActivity(),
     VkAccessTokenFragment.Callbacks,
     VkLoginFragment.Callbacks{
 
-    private val sfm = supportFragmentManager
+    private val fm = supportFragmentManager
 
     private  val TAG ="VkLoginActivity"
 
@@ -60,49 +62,39 @@ class VkLoginActivity : AppCompatActivity(),
         onBackPressed()
     }
 
-    private fun backPressedFirstLevel(): Boolean {
-        val fragments = supportFragmentManager.fragments
-        var handled = false
+    private fun backPressedFirstLevel(): Boolean =
+        checkFragmentBackStack<BackPressedHandlerVkFirst> {
+            it.popBackStackImmediate()
+            true
+        }
 
-        for (fragment in fragments) {
-            if (fragment is BackPressedHandlerVkFirst) {
-                handled = fragment.onBackPressed()
-                if (handled) {
-                    sfm.popBackStackImmediate()
-                    return true
+    private fun backPressedZeroLevel(): Boolean =
+        checkFragmentBackStack<BackPressedHandlerVkZero> { true }
+
+    private inline fun <reified T: BackPressedHandler>
+            checkFragmentBackStack(f: (FragmentManager) -> Boolean): Boolean {
+        var handled = false
+        fm.apply {
+            fragments.forEach {
+                if (it is T) {
+                    handled = it.onBackPressed()
+                    return f(this)
                 }
             }
         }
-
-        return handled
-    }
-
-    private fun backPressedZeroLevel(): Boolean {
-        val fragments = supportFragmentManager.fragments
-        var handled = false
-
-        for (fragment in fragments) {
-            if (fragment is BackPressedHandlerVkZero) {
-                handled = fragment.onBackPressed()
-                if (handled) {
-                    return true
-                }
-            }
-        }
-
         return handled
     }
 
     override fun openGetAccessToken() {
 
-        addFragment(sfm,
+        addFragment(fm,
             VkAccessTokenFragment(),
             R.id.fragment_container_vk_login
         )
     }
 
     private fun initFragment() =
-        initFragment(sfm,
+        initFragment(fm,
             vkLogin,
             R.id.fragment_container_vk_login
         )

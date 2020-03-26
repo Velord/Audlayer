@@ -4,10 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProviders
 import velord.university.R
 import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
 import velord.university.application.settings.AppPreference
+import velord.university.ui.backPressed.BackPressedHandler
 import velord.university.ui.backPressed.BackPressedHandlerFirst
 import velord.university.ui.backPressed.BackPressedHandlerSecond
 import velord.university.ui.backPressed.BackPressedHandlerZero
@@ -29,7 +31,7 @@ class MainActivity : AppCompatActivity(),
     SongFragment.Callbacks,
     VKFragment.Callbacks{
 
-    private val TAG ="MainActivity"
+    private val TAG = "MainActivity"
 
     private val fm = supportFragmentManager
 
@@ -69,9 +71,8 @@ class MainActivity : AppCompatActivity(),
         if (backPressedFirstLevel())
             return
 
-        val handled = backPressedZeroLevel()
-
-        if (!handled) {
+        //not cause MainFragment control this
+        if (backPressedZeroLevel().not()) {
             //Because single activity architecture
             //When first invoke onBackPressed occurred we returned to MainActivity
             //But we need close app, for this goal we invoke onBackPressed again
@@ -145,53 +146,32 @@ class MainActivity : AppCompatActivity(),
         backPressedFirstLevel()
     }
 
-    private fun backPressedSecondLevel(): Boolean {
-        val fragments = supportFragmentManager.fragments
-        var handled = false
+    private fun backPressedSecondLevel(): Boolean =
+        checkFragmentBackStack<BackPressedHandlerSecond> {
+            it.popBackStackImmediate()
+            true
+        }
 
-        for (fragment in fragments) {
-            if (fragment is BackPressedHandlerSecond) {
-                handled = fragment.onBackPressed()
-                if (handled) {
-                    fm.popBackStackImmediate()
-                    return true
+    private fun backPressedFirstLevel(): Boolean =
+        checkFragmentBackStack<BackPressedHandlerFirst> {
+            it.popBackStackImmediate()
+            true
+        }
+
+    private fun backPressedZeroLevel(): Boolean =
+        checkFragmentBackStack<BackPressedHandlerZero> { true }
+
+    private inline fun <reified T: BackPressedHandler>
+            checkFragmentBackStack(f: (FragmentManager) -> Boolean): Boolean {
+        var handled = false
+        fm.apply {
+            fragments.forEach {
+                if (it is T) {
+                    handled = it.onBackPressed()
+                    return f(this)
                 }
             }
         }
-
-        return handled
-    }
-
-    private fun backPressedFirstLevel(): Boolean {
-        val fragments = supportFragmentManager.fragments
-        var handled = false
-
-        for (fragment in fragments) {
-            if (fragment is BackPressedHandlerFirst) {
-                handled = fragment.onBackPressed()
-                if (handled) {
-                    fm.popBackStackImmediate()
-                    return true
-                }
-            }
-        }
-
-        return handled
-    }
-
-    private fun backPressedZeroLevel(): Boolean {
-        val fragments = supportFragmentManager.fragments
-        var handled = false
-
-        for (fragment in fragments) {
-            if (fragment is BackPressedHandlerZero) {
-                handled = fragment.onBackPressed()
-                if (handled) {
-                    return true
-                }
-            }
-        }
-
         return handled
     }
 }

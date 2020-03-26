@@ -1,6 +1,6 @@
 package velord.university.ui.backPressed
 
-interface BackPressedHandlerVkZero {
+interface BackPressedHandlerVkZero: BackPressedHandler {
 
-    fun onBackPressed(): Boolean
+    override fun onBackPressed(): Boolean
 }
