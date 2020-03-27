@@ -24,7 +24,7 @@
 
     <TextView
         android:id="@+id/general_item_path"
-        android:layout_width="0dp"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
@@ -45,6 +45,7 @@
         layout="@layout/general_action_frame"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/general_item_path"
         app:layout_constraintTop_toTopOf="parent">
     </include>
 </androidx.constraintlayout.widget.ConstraintLayout>

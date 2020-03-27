@@ -25,7 +25,6 @@ import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
 import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.entity.vk.VkSong
-import velord.university.repository.fetch.SefonFetch
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RecyclerViewSelectItemResolver
@@ -328,22 +327,6 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         }
     }
 
-    private fun playAll(vkSong: VkSong) {
-        scope.launch {
-            if (viewModel.needDownload(vkSong)) {
-                val ifDownload: (File) -> Unit = {
-                    scope.launch {
-                        val index = viewModel.vkPlaylist.indexOf(vkSong)
-                        viewModel.applyNewPath(index, it)
-                        viewModel.playAudioAndAllSong(vkSong)
-                    }
-                }
-                SefonFetch.download(requireContext(), webView, vkSong, ifDownload)
-            }
-            else viewModel.playAudioAndAllSong(vkSong)
-        }
-    }
-
     private inner class VkHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
@@ -356,16 +339,12 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
             arrayOf(
                 {
                     icon.setImageResource(R.drawable.song_item_playing)
-                },
-                {
+                }, {
                     val size: Double =
                         roundOfDecimalToUp((FileFilter.getSize(File(song.path)).toDouble() / 1024))
-                    val album = viewModel.vkAlbums.find {
-                        it.id == song.albumId
-                    }?.title?.let { "Album: $it" } ?: ""
+                    val album = song.album?.title?.let { "Album: $it" } ?: ""
                     text.text = "${song.artist} - ${song.title}\n$album Mb: $size"
-                },
-                {
+                }, {
                     itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
                 }
             )
@@ -392,14 +371,10 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
                         }
                     }
                     Unit
-                },
-                {
-                    val album = viewModel.vkAlbums.find {
-                        it.id == song.albumId
-                    }?.title?.let { "Album: $it" } ?: ""
+                }, {
+                    val album = song.album?.title?.let { "Album: $it" } ?: ""
                     text.text = "${song.artist} - ${song.title}\n$album"
-                },
-                {
+                }, {
                     itemView.setBackgroundResource(R.color.opacity)
                 }
             )
@@ -407,29 +382,29 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
 
         private val actionPopUpMenu: (VkSong) -> Unit = { song ->
             val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
-            val initActionMenuLayout = { R.menu.folder_item_is_audio_pop_up }
+            val initActionMenuLayout = { R.menu.vk_item }
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                 when (it.itemId) {
-                    R.id.folder_recyclerView_item_isAudio_play -> {
-                        viewModel.playAudioAndAllSong(song)
-                        true
-                    }
-                    R.id.folder_recyclerView_item_isAudio_play_next -> {
+                    R.id.vk_rv_item_play_next -> {
                         viewModel.playAudioNext(song)
                         true
                     }
-                    R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
+                    R.id.vk_rv_item_add_to_playlist -> {
                         callbacks?.let { callback ->
                             SongPlaylistInteractor.songs = arrayOf(File(song.path))
                             callback.onAddToPlaylistFromVkFragment()
                         }
                         true
                     }
-                    R.id.folder_recyclerView_item_isAudio_set_as_ringtone -> {
+                    R.id.vk_rv_item_set_as_ringtone -> {
                         TODO()
                     }
-                    R.id.folder_recyclerView_item_isAudio_add_to_home_screen -> {
+                    R.id.vk_rv_item_add_to_home_screen -> {
                         TODO()
+                    }
+                    R.id.vk_rv_item_download -> {
+                        scope.launch { viewModel.download(song, webView) }
+                        true
                     }
                     else -> {
                         false
@@ -450,15 +425,15 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         private fun setOnClickAndImageResource(song: VkSong, f: (Int) -> Unit) {
             itemView.setOnClickListener {
                 f(0)
-                playAll(song)
+                viewModel.checkPathThenPlay(song, webView)
             }
             text.setOnClickListener {
                 f(1)
-                playAll(song)
+                viewModel.checkPathThenPlay(song, webView)
             }
             icon.setOnClickListener {
                 f(2)
-                playAll(song)
+                viewModel.checkPathThenPlay(song, webView)
             }
             action.setOnClickListener {
                 actionPopUpMenu(song)
@@ -510,19 +485,6 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         override fun getItemCount(): Int = items.size
 
         override fun getSectionName(position: Int): String =
-            when(SortByPreference.getAscDescVkFragment(requireContext())) {
-                0 -> "${items[position].title[0]}"
-                1 -> "${items[position].artist[0]}"
-                2 -> "${items[position].date}"
-                3 -> "${items[position].duration}"
-                4 -> {
-                    items[position].url.let { url ->
-                        url.isNotBlank().let {
-                            "${FileFilter.getSize(File(url))}"
-                        }
-                    }
-                }
-                else -> "${items[position].title[0]}"
-            }
+            "${items[position].artist[0]}"
     }
 }

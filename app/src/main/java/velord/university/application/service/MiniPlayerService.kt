@@ -344,21 +344,23 @@ abstract class MiniPlayerService : Service() {
              playlist.getNext()
         else
             playlist.getSongAndResetQuery(path)
-        createPlayer(song.path)
-        playSongAfterCreatedPlayer()
-        //update db
-        scope.launch {
-            PlaylistTransaction.updatePlayedSong(song.path)
+        createPlayer(song.path)?.let {
+            player = it
+            playSongAfterCreatedPlayer()
+            //update db
+            scope.launch {
+                PlaylistTransaction.updatePlayedSong(song.path)
+            }
+            //send info
+            sendInfoToUI(song)
+            //store pos
+            storeSongPositionInQueue()
         }
-        //send info
-        sendInfoToUI(song)
-        //store pos
-        storeSongPositionInQueue()
     }
 
-    private fun createPlayer(path: String) {
+    private fun createPlayer(path: String): MediaPlayer? {
         val uri = Uri.parse(path)
-        player = MediaPlayer.create(baseContext, uri)
+        return MediaPlayer.create(baseContext, uri)
     }
 
     private fun startSendRewind(player: MediaPlayer, startFrom: Int = 0) {

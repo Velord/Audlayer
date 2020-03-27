@@ -8,12 +8,12 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.buffer
 import okio.sink
-import org.apache.commons.text.similarity.LevenshteinDistance
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -93,11 +93,14 @@ object SefonFetch {
                     val directUrl = request!!.url.toString()
                     if (directUrl.contains("/search/?q=")) {
                         scope.launch {
-                            val links = withContext(Dispatchers.Main) {
-                                fetchSearchResult(directUrl)
-                            }
+                            val links = filterSearchResult(
+                                fetchSearchResult(directUrl), song.artist, song.title)
                             if (links.isNotEmpty())
                                 getDirectFileLink(context, webView, links[0], song, successF)
+                            else withContext(Dispatchers.Main) {
+                                Toast.makeText(context,
+                                    "Sorry we did not found any link", Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
                     return super.shouldInterceptRequest(view, request)
@@ -108,8 +111,10 @@ object SefonFetch {
         }
     }
 
-    suspend fun downloadSong(context: Context, url: String,
-                                     artist: String, title: String): File = withContext(Dispatchers.IO) {
+    suspend fun downloadSong(context: Context,
+                             url: String,
+                             artist: String,
+                             title: String): File = withContext(Dispatchers.IO) {
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(url)
@@ -117,7 +122,8 @@ object SefonFetch {
             .build()
         val response = client.newCall(request).execute()
 
-        val downloadedFile = File(context.cacheDir, "$artist - $title")
+        val downloadedFile = File(context.applicationInfo.dataDir,
+            "$artist - $title")
         val sink = downloadedFile.sink().buffer()
         sink.writeAll(response.body!!.source())
         sink.close()
@@ -135,23 +141,29 @@ object SefonFetch {
     suspend fun filterSearchResult(url: List<String>,
                                    artist: String,
                                    title: String): List<String> = withContext(Dispatchers.IO) {
-        val withoutRemix = title.substringBefore('(')
-        val titleTrans = withoutRemix.transliterate()
-        val artistTrans = artist.transliterate()
+        val onlyAlphabetAndDigit = Regex("[^a-z0-9]]")
+        val lowerTitle = title.transliterate().toLowerCase(Locale.ROOT)
+        val lowerArtist = artist.transliterate().toLowerCase(Locale.ROOT)
+        val alphaTitle = onlyAlphabetAndDigit
+            .replace(lowerTitle, "")
+            .split(' ')
+        val alphaArtist = onlyAlphabetAndDigit
+            .replace(lowerArtist, "")
+            .split(' ')
         return@withContext url
-            .filter {
-                val lower = artistTrans.toLowerCase(Locale.ROOT)
-                val artistHref = it.substringAfter('-').substringBefore('-')
-                val sdfds = artistHref
-                val sdfdsd = artistHref
-                val levenshtein = LevenshteinDistance().apply(lower, artistHref)
-                levenshtein in 0..2
+            .filter { url ->
+                var cont = false
+                alphaTitle.forEach {
+                    if (url.contains(it)) cont = true
+                }
+                cont
             }
-            .filter {
-                val lower = titleTrans.toLowerCase(Locale.ROOT)
-                val titleHref = it.substringAfterLast('-')
-                val levenshtein = LevenshteinDistance().apply(lower, titleHref)
-                levenshtein in 0..2
+            .filter { url ->
+                var cont = false
+                alphaArtist.forEach {
+                    if (url.contains(it)) cont = true
+                }
+                cont
             }
             .filter { it.isNotBlank() }
     }

@@ -84,5 +84,6 @@
     <string name="vk_login_go_back_at">Go back at: %1$d</string>
     <string name="vk_login_birth_date">Birth date: %1$s</string>
     <string name="vk_base_url">https://api.vk.com/method/</string>
+    <string name="download">Download</string>
     <integer name="com_vk_sdk_AppId">7360134</integer>
 </resources>
