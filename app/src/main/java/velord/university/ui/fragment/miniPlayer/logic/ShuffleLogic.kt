@@ -1,9 +1,7 @@
 package velord.university.ui.fragment.miniPlayer.logic
 
 import androidx.fragment.app.FragmentActivity
-import velord.university.application.broadcast.MiniPlayerBroadcastShuffle
-import velord.university.application.broadcast.MiniPlayerBroadcastUnShuffle
-import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
+import velord.university.application.broadcast.MiniPlayerBroadcastHub
 
 object ShuffleLogic: TwoStateLogic() {
 
@@ -11,15 +9,15 @@ object ShuffleLogic: TwoStateLogic() {
 
     override val firstCase: (context: FragmentActivity) -> Unit
         get() = { context ->
-            MiniPlayerBroadcastUnShuffle.apply {
-                context.sendBroadcastUnShuffle(PERM_PRIVATE_MINI_PLAYER)
+            MiniPlayerBroadcastHub.apply {
+                context.unShuffleService()
             }
         }
 
     override val secondCase: (context: FragmentActivity) -> Unit
         get() = { context ->
-            MiniPlayerBroadcastShuffle.apply {
-                context.sendBroadcastShuffle(PERM_PRIVATE_MINI_PLAYER)
+            MiniPlayerBroadcastHub.apply {
+                context.shuffleService()
             }
         }
 }

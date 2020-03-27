@@ -5,7 +5,7 @@ import android.app.Application
 import android.os.Environment
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import velord.university.application.broadcast.*
+import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.permission.PermissionChecker
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
@@ -37,38 +37,38 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun playAllInFolder(file: File) {
         //don't remember for SongPlaylistInteractor
-        MiniPlayerBroadcastPlayAllInFolder.apply {
-            app.sendBroadcastPlayAllInFolder(file.path)
+        MiniPlayerBroadcastHub.apply {
+            app.playAllInFolderService(file.path)
         }
-        MiniPlayerBroadcastLoopAll.apply {
-            app.sendBroadcastLoopAll()
+        MiniPlayerBroadcastHub.apply {
+            app.loopAllService()
         }
     }
 
     fun playAllInFolderNext(file: File) {
         //add to queue
-        MiniPlayerBroadcastPlayNextAllInFolder.apply {
-            app.sendBroadcastPlayNextAllInFolder(file.path)
+        MiniPlayerBroadcastHub.apply {
+            app.playNextAllInFolderService(file.path)
         }
     }
 
     fun shuffleAndPlayAllInFolder(file: File) {
-        MiniPlayerBroadcastShuffleAndPlayAllInFolder.apply {
-            app.sendBroadcastShuffleAndPlayAllInFolder(file.path)
+        MiniPlayerBroadcastHub.apply {
+            app.shuffleAndPlayAllInFolderService(file.path)
         }
-        MiniPlayerBroadcastLoopAll.apply {
-            app.sendBroadcastLoopAll()
+        MiniPlayerBroadcastHub.apply {
+            app.loopAllService()
         }
     }
 
     fun playAudio(file: File) {
         //don't remember for SongPlaylistInteractor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(file)
-        MiniPlayerBroadcastPlayByPath.apply {
-            app.sendBroadcastPlayByPath(file.path)
+        MiniPlayerBroadcastHub.apply {
+            app.playByPathService(file.path)
         }
-        MiniPlayerBroadcastLoop.apply {
-            app.sendBroadcastLoop()
+        MiniPlayerBroadcastHub.apply {
+            app.loopService()
         }
     }
 
@@ -76,8 +76,8 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
         //don't remember for SongQueryInteractor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(file)
         //add to queue one song
-        MiniPlayerBroadcastAddToQueue.apply {
-            app.sendBroadcastAddToQueue(file.path)
+        MiniPlayerBroadcastHub.apply {
+            app.addToQueueService(file.path)
         }
     }
 
@@ -90,9 +90,9 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     fun playAudioFile(file: File) {
-       MiniPlayerBroadcastPlayByPath.apply {
+        MiniPlayerBroadcastHub.apply {
            SongPlaylistInteractor.songs = fileList
-           app.sendBroadcastPlayByPath(file.path)
+           app.playByPathService(file.path)
        }
     }
 

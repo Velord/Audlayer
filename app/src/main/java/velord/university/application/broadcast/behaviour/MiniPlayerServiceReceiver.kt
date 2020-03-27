@@ -1,11 +1,11 @@
-package velord.university.application.broadcast
+package velord.university.application.broadcast.behaviour
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 
-interface MiniPlayerBroadcastReceiverService {
+interface MiniPlayerServiceReceiver {
 
     val TAG: String
 

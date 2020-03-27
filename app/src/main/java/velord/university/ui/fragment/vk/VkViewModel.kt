@@ -15,9 +15,7 @@ import okhttp3.RequestBody
 import org.apache.commons.text.similarity.LevenshteinDistance
 import org.json.JSONObject
 import velord.university.R
-import velord.university.application.broadcast.MiniPlayerBroadcastAddToQueue
-import velord.university.application.broadcast.MiniPlayerBroadcastLoopAll
-import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
+import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.application.settings.VkPreference
@@ -149,15 +147,15 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     private fun playAudioAndAllSong(song: VkSong) {
         scope.launch {
             val file = File(song.path)
-            MiniPlayerBroadcastPlayByPath.apply {
+            MiniPlayerBroadcastHub.apply {
                 SongPlaylistInteractor.songs = ordered
                     .filter { it.path.isNotBlank() }
                     .map { File(it.path) }
                     .toTypedArray()
-                app.sendBroadcastPlayByPath(file.path)
+                app.playByPathService(file.path)
             }
-            MiniPlayerBroadcastLoopAll.apply {
-                app.sendBroadcastLoopAll()
+            MiniPlayerBroadcastHub.apply {
+                app.loopAllService()
             }
         }
     }
@@ -277,8 +275,8 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         //don't remember for SongQuery Interactor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(file)
         //add to queue one song
-        MiniPlayerBroadcastAddToQueue.apply {
-            app.sendBroadcastAddToQueue(file.path)
+        MiniPlayerBroadcastHub.apply {
+            app.addToQueueService(file.path)
         }
     }
 

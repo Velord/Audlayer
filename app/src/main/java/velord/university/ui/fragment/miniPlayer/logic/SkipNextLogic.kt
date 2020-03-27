@@ -1,12 +1,13 @@
 package velord.university.ui.fragment.miniPlayer.logic
 
 import androidx.fragment.app.FragmentActivity
-import velord.university.application.broadcast.MiniPlayerBroadcastSkipNext
+import velord.university.application.broadcast.MiniPlayerBroadcastHub
+
 object SkipNextLogic: BaseLogic {
 
     override fun press(context: FragmentActivity) {
-        MiniPlayerBroadcastSkipNext.apply {
-            context.sendBroadcastSkipNext()
+        MiniPlayerBroadcastHub.apply {
+            context.skipNextService()
         }
     }
 }

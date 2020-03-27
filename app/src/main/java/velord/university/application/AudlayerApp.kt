@@ -3,8 +3,8 @@ package velord.university.application
 import android.app.Application
 import kotlinx.coroutines.*
 import velord.university.model.entity.Playlist
-import velord.university.repository.build.AppDatabase
-import velord.university.repository.build.buildAppDatabase
+import velord.university.repository.factory.AppDatabase
+import velord.university.repository.factory.buildAppDatabase
 import velord.university.repository.transaction.PlaylistTransaction
 
 

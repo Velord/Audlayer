@@ -2,6 +2,7 @@ package velord.university.ui.fragment.song
 
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -17,7 +18,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.broadcast.*
+import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
+import velord.university.application.broadcast.behaviour.SongReceiver
+import velord.university.application.broadcast.registerBroadcastReceiver
+import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
@@ -30,7 +35,8 @@ import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
 
-class SongFragment : ActionBarFragment(), SongBroadcastReceiver {
+class SongFragment : ActionBarFragment(),
+    SongReceiver {
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromSongFragment()
@@ -52,13 +58,13 @@ class SongFragment : ActionBarFragment(), SongBroadcastReceiver {
     private lateinit var rv: RecyclerView
 
     private val receivers = arrayOf(
-        Pair(songPath(), MiniPlayerBroadcastSongPath.filterUI)
+        Pair(songPath(), MiniPlayerBroadcastHub.Action.songPathUI)
     )
 
     override val songPathF: (Intent?) -> Unit =
         { nullableIntent ->
             nullableIntent?.apply {
-                val extra = MiniPlayerBroadcastSongPath.extraValueUI
+                val extra = MiniPlayerBroadcastHub.Extra.songPathUI
                 val songPath = getStringExtra(extra)
                 scope.launch {
                     changeRVItem(songPath)
@@ -186,7 +192,7 @@ class SongFragment : ActionBarFragment(), SongBroadcastReceiver {
         receivers.forEach {
             requireActivity()
                 .registerBroadcastReceiver(
-                    it.first, it.second, PERM_PRIVATE_MINI_PLAYER
+                    it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER
                 )
         }
     }

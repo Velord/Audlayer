@@ -2,6 +2,7 @@ package velord.university.ui.fragment.vk
 
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -17,7 +18,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.broadcast.*
+import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
+import velord.university.application.broadcast.behaviour.SongReceiver
+import velord.university.application.broadcast.registerBroadcastReceiver
+import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.application.settings.VkPreference
 import velord.university.interactor.SongPlaylistInteractor
@@ -32,7 +37,8 @@ import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
 
-class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
+class VKFragment : ActionBarFragment(),
+    SongReceiver {
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromVkFragment()
@@ -156,7 +162,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
 
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
-                val extra = MiniPlayerBroadcastSongPath.extraValueUI
+                val extra = MiniPlayerBroadcastHub.Extra.songPathUI
                 val songPath = FileNameParser
                     .removeExtension(File(getStringExtra(extra)))
                 scope.launch {
@@ -181,7 +187,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
     }
 
     private val receivers = arrayOf(
-        Pair(songPath(), MiniPlayerBroadcastSongPath.filterUI)
+        Pair(songPath(), MiniPlayerBroadcastHub.Action.songPathUI)
     )
 
     override fun onAttach(context: Context) {
@@ -200,7 +206,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         receivers.forEach {
             requireActivity()
                 .registerBroadcastReceiver(
-                    it.first, it.second, PERM_PRIVATE_MINI_PLAYER
+                    it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER
                 )
         }
 

@@ -6,10 +6,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import velord.university.application.broadcast.MiniPlayerBroadcastAddToQueue
-import velord.university.application.broadcast.MiniPlayerBroadcastLoop
-import velord.university.application.broadcast.MiniPlayerBroadcastLoopAll
-import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
+import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
@@ -100,23 +97,23 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
     fun getSearchQuery(): String = SearchQueryPreferences.getStoredQuerySong(app)
 
     fun playAudioAndAllSong(file: File) {
-        MiniPlayerBroadcastPlayByPath.apply {
+        MiniPlayerBroadcastHub.apply {
             SongPlaylistInteractor.songs = ordered.toTypedArray()
-            app.sendBroadcastPlayByPath(file.path)
+            app.playByPathService(file.path)
         }
-        MiniPlayerBroadcastLoopAll.apply {
-            app.sendBroadcastLoopAll()
+        MiniPlayerBroadcastHub.apply {
+            app.loopAllService()
         }
     }
 
     fun playAudio(file: File) {
         //don't remember for SongQuery Interactor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(file)
-        MiniPlayerBroadcastPlayByPath.apply {
-            app.sendBroadcastPlayByPath(file.path)
+        MiniPlayerBroadcastHub.apply {
+            app.playByPathService(file.path)
         }
-        MiniPlayerBroadcastLoop.apply {
-            app.sendBroadcastLoop()
+        MiniPlayerBroadcastHub.apply {
+            app.loopService()
         }
     }
 
@@ -124,8 +121,8 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
         //don't remember for SongQuery Interactor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(file)
         //add to queue one song
-        MiniPlayerBroadcastAddToQueue.apply {
-            app.sendBroadcastAddToQueue(file.path)
+        MiniPlayerBroadcastHub.apply {
+            app.addToQueueService(file.path)
         }
     }
 }

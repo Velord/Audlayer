@@ -9,17 +9,7 @@ import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.*
 import velord.university.application.AudlayerApp
-import velord.university.application.broadcast.*
-import velord.university.application.broadcast.MiniPlayerBroadcastLoop.sendBroadcastLoopUI
-import velord.university.application.broadcast.MiniPlayerBroadcastLoopAll.sendBroadcastLoopAllUI
-import velord.university.application.broadcast.MiniPlayerBroadcastNotLoop.sendBroadcastNotLoopUI
-import velord.university.application.broadcast.MiniPlayerBroadcastPlay.sendBroadcastPlayUI
-import velord.university.application.broadcast.MiniPlayerBroadcastRewind.sendBroadcastRewindUI
-import velord.university.application.broadcast.MiniPlayerBroadcastShuffle.sendBroadcastShuffleUI
-import velord.university.application.broadcast.MiniPlayerBroadcastSongArtist.sendBroadcastSongArtistUI
-import velord.university.application.broadcast.MiniPlayerBroadcastSongName.sendBroadcastSongNameUI
-import velord.university.application.broadcast.MiniPlayerBroadcastStop.sendBroadcastStopUI
-import velord.university.application.broadcast.MiniPlayerBroadcastUnShuffle.sendBroadcastUnShuffleUI
+import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.MiniPlayerServicePreferences
 import velord.university.interactor.SongPlaylistInteractor
@@ -116,7 +106,7 @@ abstract class MiniPlayerService : Service() {
         addToQueue(SongPlaylistInteractor.songs.toList())
         playNext(path)
         //showUI
-        MiniPlayerBroadcastShow.apply { sendBroadcastShow() }
+        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.showUI() }
     }
 
     protected fun getInfoFromServiceToUI() {
@@ -151,7 +141,7 @@ abstract class MiniPlayerService : Service() {
             }
         }
         //send command to change ui
-        sendBroadcastPlayUI()
+        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.playUI() }
     }
 
     protected fun skipSongAndPlayNext() {
@@ -184,7 +174,7 @@ abstract class MiniPlayerService : Service() {
             }
             storeCurrentDuration(milliseconds)
         }
-        sendBroadcastRewindUI(seconds)
+        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.rewindUI(seconds) }
     }
 
     protected fun shuffleOn() {
@@ -193,7 +183,7 @@ abstract class MiniPlayerService : Service() {
         playlist.shuffle()
         MiniPlayerServicePreferences
             .setIsShuffle(this, QueueResolver.shuffleState)
-        sendBroadcastShuffleUI()
+        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.shuffleUI() }
     }
 
     protected fun shuffleOff() {
@@ -201,7 +191,7 @@ abstract class MiniPlayerService : Service() {
         playlist.notShuffle()
         MiniPlayerServicePreferences
             .setIsShuffle(this, QueueResolver.shuffleState)
-        sendBroadcastUnShuffleUI()
+        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.unShuffleUI() }
     }
 
     protected fun addToQueueOneSong(path: String) {
@@ -235,21 +225,21 @@ abstract class MiniPlayerService : Service() {
         QueueResolver.loopState()
         MiniPlayerServicePreferences
             .setLoopState(this, 1)
-        sendBroadcastLoopUI()
+        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.loopUI() }
     }
 
     protected fun notLoopState() {
         QueueResolver.notLoopState()
         MiniPlayerServicePreferences
             .setLoopState(this, 0)
-        sendBroadcastNotLoopUI()
+        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.notLoopUI() }
     }
 
     protected fun loopAllState() {
         QueueResolver.loopAllState()
         MiniPlayerServicePreferences
             .setLoopState(this, 2)
-        sendBroadcastLoopAllUI()
+        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.loopAllUI() }
     }
 
     private fun restoreState() {
@@ -312,7 +302,7 @@ abstract class MiniPlayerService : Service() {
             f()
             stopSendRewind()
         }
-        sendBroadcastStopUI()
+        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.stopUI() }
     }
 
     private fun stopPlayer() {
@@ -355,7 +345,11 @@ abstract class MiniPlayerService : Service() {
             sendInfoToUI(song)
             //store pos
             storeSongPositionInQueue()
-        }
+        } ?: {
+            Toast.makeText(this,
+                "$path is incorrect", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "Path: $path is incorrect" )
+        }()
     }
 
     private fun createPlayer(path: String): MediaPlayer? {
@@ -372,8 +366,8 @@ abstract class MiniPlayerService : Service() {
         rewindJob = scope.launch {
             while (isActive) {
                 while (rewindValue <= durationInSeconds) {
-                    MiniPlayerBroadcastRewind.apply {
-                        sendBroadcastRewindUI(rewindValue++)
+                    MiniPlayerBroadcastHub.apply {
+                        this@MiniPlayerService.rewindUI(rewindValue++)
                     }
                     //store current duration cause onDestroy invoke only when view is destroy
                     storeCurrentDuration()
@@ -433,32 +427,29 @@ abstract class MiniPlayerService : Service() {
         }
     }
 
-    private fun sendLoopState() {
+    private fun sendLoopState() =
         when(MiniPlayerServicePreferences.getLoopState(this)) {
-            0 -> sendBroadcastNotLoopUI()
-            1 -> sendBroadcastLoopUI()
-            2 -> sendBroadcastLoopAllUI()
+            0 -> MiniPlayerBroadcastHub.apply { this@MiniPlayerService.notLoopUI() }
+            1 -> MiniPlayerBroadcastHub.apply { this@MiniPlayerService.loopUI() }
+            2 -> MiniPlayerBroadcastHub.apply { this@MiniPlayerService.loopAllUI() }
+            else -> Unit
         }
-    }
 
     private fun sendShuffleState() {
         if (MiniPlayerServicePreferences.getIsShuffle(this))
-            sendBroadcastShuffleUI()
-        else sendBroadcastUnShuffleUI()
+            MiniPlayerBroadcastHub.apply { this@MiniPlayerService.shuffleUI() }
+        else MiniPlayerBroadcastHub.apply { this@MiniPlayerService.unShuffleUI() }
     }
 
-    private fun sendPath(song: File) {
-        MiniPlayerBroadcastSongPath.apply {
-            sendBroadcastSongPathUI(song.path)
+    private fun sendPath(song: File) =
+        MiniPlayerBroadcastHub.apply {
+            this@MiniPlayerService.songPathUI(song.path)
         }
-    }
 
-    private fun sendDurationSong(player: MediaPlayer) {
-        val duration = player.duration
-        MiniPlayerBroadcastSongDuration.apply {
-            sendBroadcastSongDurationUI(duration)
+    private fun sendDurationSong(player: MediaPlayer) =
+        MiniPlayerBroadcastHub.apply {
+            this@MiniPlayerService.songDurationUI(player.duration)
         }
-    }
 
     private fun sendIsHQ(song: File) {
 
@@ -467,18 +458,18 @@ abstract class MiniPlayerService : Service() {
     private fun sendSongNameAndArtist(file: File) {
         val songArtist = FileNameParser.getSongArtist(file)
         val songName = FileNameParser.getSongName(file)
-        sendBroadcastSongArtistUI(songArtist)
-        sendBroadcastSongNameUI(songName)
+        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.songArtistUI(songArtist) }
+        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.songNameUI(songName) }
     }
 
     private suspend fun sendIsLoved(song: File) = withContext(Dispatchers.IO) {
         val favourite = PlaylistTransaction.getFavouriteSongs()
         if (favourite.contains(song.path))
-            MiniPlayerBroadcastLike.apply {
-                sendBroadcastLikeUI()
+            MiniPlayerBroadcastHub.apply {
+                this@MiniPlayerService.likeUI()
             }
-        else MiniPlayerBroadcastUnlike.apply {
-            sendBroadcastUnlikeUI()
+        else MiniPlayerBroadcastHub.apply {
+            this@MiniPlayerService.unlikeUI()
         }
     }
 }

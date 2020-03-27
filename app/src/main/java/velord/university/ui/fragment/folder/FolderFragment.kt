@@ -2,6 +2,7 @@ package velord.university.ui.fragment.folder
 
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -19,7 +20,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import velord.university.R
-import velord.university.application.broadcast.*
+import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
+import velord.university.application.broadcast.behaviour.SongReceiver
+import velord.university.application.broadcast.registerBroadcastReceiver
+import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileExtension
@@ -35,7 +40,7 @@ import java.io.File
 
 class FolderFragment : ActionBarFragment(),
     BackPressedHandlerZero,
-    SongBroadcastReceiver {
+    SongReceiver {
     //Required interface for hosting activities
     interface Callbacks {
         fun onCreatePlaylist()
@@ -155,13 +160,13 @@ class FolderFragment : ActionBarFragment(),
     override val actionBarPopUp: (ImageButton) -> Unit = { }
 
     private val receivers = arrayOf(
-        Pair(songPath(), MiniPlayerBroadcastSongPath.filterUI)
+        Pair(songPath(), MiniPlayerBroadcastHub.Action.songPathUI)
     )
 
     override val songPathF: (Intent?) -> Unit =
         { nullableIntent ->
             nullableIntent?.apply {
-                val extra = MiniPlayerBroadcastSongPath.extraValueUI
+                val extra = MiniPlayerBroadcastHub.Extra.songPathUI
                 val songPath = getStringExtra(extra)
                 scope.launch {
                     changeRVItem(songPath)
@@ -190,7 +195,7 @@ class FolderFragment : ActionBarFragment(),
         receivers.forEach {
             requireActivity()
                 .registerBroadcastReceiver(
-                    it.first, it.second, PERM_PRIVATE_MINI_PLAYER
+                    it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER
                 )
         }
     }

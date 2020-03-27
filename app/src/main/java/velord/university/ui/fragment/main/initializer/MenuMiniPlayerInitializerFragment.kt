@@ -1,6 +1,7 @@
 package velord.university.ui.fragment.main.initializer
 
 import android.content.Intent
+import android.content.IntentFilter
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -9,12 +10,17 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import velord.university.R
-import velord.university.application.broadcast.*
+import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
+import velord.university.application.broadcast.behaviour.MiniPlayerBroadcastReceiverShowAndHider
+import velord.university.application.broadcast.registerBroadcastReceiver
+import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.ui.fragment.miniPlayer.MiniPlayerFragment
 import velord.university.ui.fragment.miniPlayer.miniPlayerHide.MiniPlayerHideFragment
 import velord.university.ui.fragment.miniPlayer.miniPlayerStopAndHide.MiniPlayerStopAndHideFragment
 
-abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), MiniPlayerBroadcastReceiverShowAndHider {
+abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
+    MiniPlayerBroadcastReceiverShowAndHider {
 
     override val TAG: String
         get() = "MenuNowPlayingFragment"
@@ -23,8 +29,8 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), Mi
     private lateinit var miniPlayerViewPager: ViewPager
 
     private val receivers = arrayOf(
-        Pair(show(), MiniPlayerBroadcastShow.filterUI),
-        Pair(hide(), MiniPlayerBroadcastHide.filterUI))
+        Pair(show(), MiniPlayerBroadcastHub.Action.showUI),
+        Pair(hide(), MiniPlayerBroadcastHub.Action.hideUI))
 
     private val fm by lazy {
         activity!!.supportFragmentManager
@@ -35,7 +41,7 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), Mi
         receivers.forEach {
             requireActivity()
                 .registerBroadcastReceiver(
-                    it.first, it.second, PERM_PRIVATE_MINI_PLAYER)
+                    it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER)
         }
     }
 
@@ -93,23 +99,22 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(), Mi
     }
 
     private fun hideMiniPlayer() {
-        MiniPlayerBroadcastHide.apply {
-            requireContext().sendBroadcastHide()
+        MiniPlayerBroadcastHub.apply {
+            requireContext().hideUI()
         }
     }
 
     private fun stopAndHideMiniPLayer() {
-        MiniPlayerBroadcastStop.apply {
-            requireContext().sendBroadcastStop()
+        MiniPlayerBroadcastHub.apply {
+            requireContext().stopService()
         }
-        MiniPlayerBroadcastHide.apply {
-            requireContext().sendBroadcastHide()
+        MiniPlayerBroadcastHub.apply {
+            requireContext().hideUI()
         }
     }
 
     private inner class MiniPlayerPagerAdapter(
-        fm: FragmentManager
-    ) : FragmentPagerAdapter(fm) {
+        fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
         override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
             super.destroyItem(container, position, `object`)

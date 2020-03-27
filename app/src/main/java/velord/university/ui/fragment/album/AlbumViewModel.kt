@@ -5,8 +5,7 @@ import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.*
-import velord.university.application.broadcast.MiniPlayerBroadcastLoopAll
-import velord.university.application.broadcast.MiniPlayerBroadcastPlayByPath
+import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
@@ -83,11 +82,11 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         //don't remember for SongPlaylistInteractor
         SongPlaylistInteractor.songs =
             songs.map { File(it) }.toTypedArray()
-        MiniPlayerBroadcastPlayByPath.apply {
-            app.sendBroadcastPlayByPath(songs[0])
+        MiniPlayerBroadcastHub.apply {
+            app.playByPathService(songs[0])
         }
-        MiniPlayerBroadcastLoopAll.apply {
-            app.sendBroadcastLoopAll()
+        MiniPlayerBroadcastHub.apply {
+            app.loopAllService()
         }
     }
 
