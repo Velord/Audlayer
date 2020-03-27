@@ -12,6 +12,8 @@ import android.widget.*
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
@@ -319,8 +321,7 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
 
     private fun updateAdapterWithShuffled() {
         if (viewModel.vkPlaylistIsInitialized()) {
-            val shuffled = viewModel.vkPlaylist
-                .toList()
+            val shuffled = viewModel.ordered
                 .shuffled()
                 .toTypedArray()
             rv.adapter = SongAdapter(shuffled)
@@ -373,7 +374,24 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         val notSelected: (VkSong) -> Array<() -> Unit> = { song ->
             arrayOf(
                 {
-                    icon.setImageResource(R.drawable.song_item)
+                    scope.launch {
+                        song.album?.let {
+                            it.thumb?.let {
+                                it.photo_135?.let {
+                                    withContext(Dispatchers.Main) {
+                                        Glide.with(requireActivity())
+                                            .load(it)
+                                            .placeholder(R.drawable.song_item)
+                                            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                                            .into(icon)
+                                    }
+                                }
+                            }
+                        } ?: withContext(Dispatchers.Main) {
+                            icon.setImageResource(R.drawable.song_item)
+                        }
+                    }
+                    Unit
                 },
                 {
                     val album = viewModel.vkAlbums.find {
@@ -492,6 +510,19 @@ class VKFragment : ActionBarFragment(), SongBroadcastReceiver {
         override fun getItemCount(): Int = items.size
 
         override fun getSectionName(position: Int): String =
-            "${items[position].title[0]}"
+            when(SortByPreference.getAscDescVkFragment(requireContext())) {
+                0 -> "${items[position].title[0]}"
+                1 -> "${items[position].artist[0]}"
+                2 -> "${items[position].date}"
+                3 -> "${items[position].duration}"
+                4 -> {
+                    items[position].url.let { url ->
+                        url.isNotBlank().let {
+                            "${FileFilter.getSize(File(url))}"
+                        }
+                    }
+                }
+                else -> "${items[position].title[0]}"
+            }
     }
 }

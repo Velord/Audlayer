@@ -69,8 +69,18 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         VkAlbumTransaction.addAlbum(*notExistAlbum.toTypedArray())
         VkSongTransaction.addSong(*notExistSong.toTypedArray())
 
-        vkPlaylist = getSongsFromDb()
+
         vkAlbums = getAlbumsFromDb()
+
+        vkPlaylist = getSongsFromDb().map { song ->
+            song.albumId?.let { albumId ->
+                val indexAlbum = vkAlbums.find { it.id == albumId }
+                indexAlbum?.let {
+                    song.album = it
+                }
+            }
+            song
+        }
     }
 
     private fun getNoExistInDbAlbum(notExistInDbSong: List<VkSong>,
