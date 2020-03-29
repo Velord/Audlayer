@@ -37,8 +37,7 @@ import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
 
-class VKFragment : ActionBarFragment(),
-    SongReceiver {
+class VKFragment : ActionBarFragment(), SongReceiver {
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromVkFragment()
@@ -64,15 +63,15 @@ class VKFragment : ActionBarFragment(),
 
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
-            R.id.song_fragment_add_to_home_screen -> {
+            R.id.vk_fragment_add_to_home_screen -> {
                 TODO()
             }
-            R.id.song_fragment_shuffle -> {
+            R.id.vk_fragment_shuffle -> {
                 updateAdapterWithShuffled()
                 super.rearwardActionButton()
                 true
             }
-            R.id.action_folder_sort_by -> {
+            R.id.vk_fragment_sort_by -> {
                 val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
                 val initActionMenuLayout = { R.menu.song_fragment_sort_by }
                 val initActionMenuItemClickListener: (MenuItem) -> Boolean = { menuItem ->
@@ -130,6 +129,15 @@ class VKFragment : ActionBarFragment(),
                 super.actionButton.callOnClick()
                 true
             }
+            R.id.vk_fragment_refresh -> {
+                scope.launch { checkToken() }
+                true
+            }
+            R.id.vk_fragment_log_out -> {
+                VkPreference.setAccessToken(requireContext(), "")
+                scope.launch { checkToken() }
+                true
+            }
             else -> false
         }
     }
@@ -137,7 +145,7 @@ class VKFragment : ActionBarFragment(),
         it.text = getString(R.string.action_bar_hint_vk)
     }
     override val actionBarPopUpMenuLayout: () -> Int = {
-        R.menu.song_fragment_pop_up
+        R.menu.vk_fragment_pop_up
     }
     override val actionBarPopUpMenuStyle: () -> Int = {
         R.style.PopupMenuOverlapAnchorFolder
@@ -249,6 +257,7 @@ class VKFragment : ActionBarFragment(),
             val token = VkPreference.getAccessToken(requireContext())
             if (token.isBlank()) {
                 withContext(Dispatchers.Main) {
+                    rv.adapter = SongAdapter(arrayOf())
                     login.visibility = View.VISIBLE
                     Toast.makeText(requireContext(),
                         "Login to continue", Toast.LENGTH_SHORT).show()
@@ -302,10 +311,13 @@ class VKFragment : ActionBarFragment(),
     private fun initLogin(view: View) {
         login = view.findViewById(R.id.vk_login)
         login.setOnClickListener {
-            val intent = VkLoginActivity
-                .newIntent(requireContext())
-            startActivity(intent)
+            openLoginActivity()
         }
+    }
+
+    private fun openLoginActivity() {
+        val intent = VkLoginActivity.newIntent(requireContext())
+        startActivity(intent)
     }
 
     private fun setupAdapter() {
@@ -333,7 +345,7 @@ class VKFragment : ActionBarFragment(),
         }
     }
 
-    private inner class VkHolder(itemView: View):
+    private inner class SongHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
         private val text: TextView = itemView.findViewById(R.id.general_item_path)
@@ -457,7 +469,7 @@ class VKFragment : ActionBarFragment(),
     }
 
     private inner class SongAdapter(val items: Array<out VkSong>):
-        RecyclerView.Adapter<VkHolder>(),  FastScrollRecyclerView.SectionedAdapter{
+        RecyclerView.Adapter<SongHolder>(),  FastScrollRecyclerView.SectionedAdapter{
 
         private val rvSelectResolver =
             //just change old adapter to new
@@ -473,15 +485,15 @@ class VKFragment : ActionBarFragment(),
                 viewModel.rvResolver
             }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VkHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
                 R.layout.general_rv_item, parent, false
             )
-            return VkHolder(view)
+            return SongHolder(view)
         }
 
-        override fun onBindViewHolder(holder: VkHolder, position: Int) {
+        override fun onBindViewHolder(holder: SongHolder, position: Int) {
             items[position].apply {
                 val f = rvSelectResolver.resolver("${this.artist} - ${this.title}")
                 holder.bindItem(this, position, f)

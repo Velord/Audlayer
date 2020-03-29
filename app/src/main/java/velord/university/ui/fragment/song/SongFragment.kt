@@ -97,7 +97,7 @@ class SongFragment : ActionBarFragment(),
                 super.rearwardActionButton()
                 true
             }
-            R.id.action_folder_sort_by -> {
+            R.id.song_fragment_sort_by -> {
                 val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
                 val initActionMenuLayout = { R.menu.song_fragment_sort_by }
                 val initActionMenuItemClickListener: (MenuItem) -> Boolean = { menuItem ->

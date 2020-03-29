@@ -74,7 +74,7 @@ class FolderFragment : ActionBarFragment(),
             R.id.action_folder_show_incompatible_files -> {
                 TODO()
             }
-            R.id.action_folder_sort_by -> {
+            R.id.song_fragment_sort_by -> {
                 val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
                 val initActionMenuLayout = { R.menu.sort_by }
                 val initActionMenuItemClickListener: (MenuItem) -> Boolean = { menuItem ->

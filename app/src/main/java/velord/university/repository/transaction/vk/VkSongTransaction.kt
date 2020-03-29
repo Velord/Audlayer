@@ -32,4 +32,12 @@ object VkSongTransaction {
             vkSongDao().update(*song)
         }
     }
+
+    suspend fun delete(vararg song: VkSong) = withContext(Dispatchers.IO) {
+        AudlayerApp.db?.run {
+            song.forEach {
+                vkSongDao().deleteById(it.id)
+            }
+        }
+    }
 }

@@ -1,7 +1,6 @@
 package velord.university.ui.fragment.vk
 
 import android.app.Application
-import android.media.MediaMetadataRetriever
 import android.util.Log
 import android.webkit.WebView
 import android.widget.Toast
@@ -176,18 +175,9 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             }
             //date added
             2 -> filtered.sortedBy {
-                FileFilter.getLastDateModified(File(it.path))
+                it.date
             }
-            //duration TODO()
-            3 -> {
-                val mediaMetadataRetriever = MediaMetadataRetriever()
-                filtered.sortedBy {
-                    mediaMetadataRetriever.setDataSource(File(it.path).absolutePath)
-                    val durationStr = mediaMetadataRetriever
-                        .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                    durationStr.toLong()
-                }
-            }
+            3 -> filtered.sortedBy { it.duration }
             //file size
             4 -> filtered.sortedBy { FileFilter.getSize(File(it.path)) }
             else -> filtered
@@ -202,11 +192,8 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         return@withContext ordered
     }
 
-    suspend fun refreshByToken() {
-        //from vk
-        val byTokenSongs = getVkPlaylistByToken().items
-        //from db
-        val fromDbSongs = getSongsFromDb()
+    private suspend fun compareAndInsert(byTokenSongs: Array<VkSong>,
+                                         fromDbSongs: List<VkSong>) {
         val fromDbSongsId = fromDbSongs.map { it.id }
         val fromDbAlbums = getAlbumsFromDb()
         val fromDbAlbumsTitle = fromDbAlbums.map { it.title }
@@ -214,7 +201,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             .allSongFromPlaylist(PlaylistTransaction.getAllPlaylist())
         val allSongPath = allSongFromDb.map { it.path }
         val allSongName = allSongFromDb.map { FileNameParser.removeExtension(it) }
-        //compare with existed
         val notExistSong = getNoExistInDbSong(byTokenSongs,
             fromDbSongsId, allSongPath, allSongFromDb, allSongName)
         val notExistAlbum =
@@ -222,10 +208,20 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         //insert
         VkAlbumTransaction.addAlbum(*notExistAlbum.toTypedArray())
         VkSongTransaction.addSong(*notExistSong.toTypedArray())
+    }
 
+    private suspend fun compareAndDelete(byTokenSongs: Array<VkSong>,
+                                         fromDbSongs: List<VkSong>) {
+        val toDelete = mutableListOf<VkSong>()
+        fromDbSongs.forEach { fromDb ->
+            if (byTokenSongs.find { it.id == fromDb.id } == null)
+                toDelete.add(fromDb)
+        }
+        VkSongTransaction.delete(*toDelete.toTypedArray())
+    }
 
+    private suspend fun initVkPlaylist() {
         vkAlbums = getAlbumsFromDb()
-
         vkPlaylist = getSongsFromDb().map { song ->
             song.albumId?.let { albumId ->
                 val indexAlbum = vkAlbums.find { it.id == albumId }
@@ -235,6 +231,19 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             }
             song
         }
+    }
+
+    suspend fun refreshByToken() {
+        //from vk
+        val byTokenSongs = getVkPlaylistByToken().items
+        //from db
+        val fromDbSongs = getSongsFromDb()
+        //compare with existed and insert
+        compareAndInsert(byTokenSongs, fromDbSongs)
+        //compare with existed and delete
+        compareAndDelete(byTokenSongs, fromDbSongs)
+        //create vkPlaylist
+        initVkPlaylist()
     }
 
     suspend fun download(vkSong: VkSong, webView: WebView) {
