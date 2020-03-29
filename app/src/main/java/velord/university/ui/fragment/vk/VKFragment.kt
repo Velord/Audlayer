@@ -390,6 +390,17 @@ class VKFragment : ActionBarFragment(), SongReceiver {
                         song.artist, song.title, album)
                 }, {
                     itemView.setBackgroundResource(R.color.opacity)
+                }, {
+                    if (viewModel.needDownload(song)) {
+                        Glide.with(requireActivity())
+                            .load(R.drawable.download_200_gold)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .into(action)
+                    }
+                    else Glide.with(requireActivity())
+                        .load(R.drawable.action_item)
+                        .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                        .into(action)
                 }
             )
         }
@@ -418,6 +429,10 @@ class VKFragment : ActionBarFragment(), SongReceiver {
                     }
                     R.id.vk_rv_item_download -> {
                         scope.launch { viewModel.download(song, webView) }
+                        true
+                    }
+                    R.id.vk_rv_item_delete -> {
+                        scope.launch { viewModel.deleteSong(song) }
                         true
                     }
                     else -> {

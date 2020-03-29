@@ -1,7 +1,6 @@
 package velord.university.ui.fragment.vk
 
 import android.app.Application
-import android.util.Log
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
@@ -10,6 +9,7 @@ import kotlinx.coroutines.*
 import org.apache.commons.text.similarity.LevenshteinDistance
 import org.json.JSONObject
 import velord.university.R
+import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
@@ -48,9 +48,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         //store search term in shared preferences
         currentQuery = query
         SearchQueryPreferences.setStoredQueryVk(app, currentQuery)
-        val check = SearchQueryPreferences.getStoredQueryVk(app)
-        Log.d(TAG, "retrieved: $check")
-        Log.d(TAG, "stored: $currentQuery")
     }
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
@@ -76,6 +73,23 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
+    //path must be not blank and file can be created by that path
+    fun needDownload(vkSong: VkSong): Boolean =
+        (vkSong.path.isBlank()) and (File(vkSong.path).exists().not())
+
+    suspend fun deleteSong(vkSong: VkSong) {
+        AudlayerApp.getApplicationVkDir()
+            .listFiles()?.find { it.path == vkSong.path }.let {
+                if (it != null) {
+                    applyNewPath(vkSong, "")
+                    it.delete()
+                }
+                else withContext(Dispatchers.Main) {
+                    Toast.makeText(app, "Can't delete", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
     suspend fun refreshByToken() {
         //from vk
         val byTokenSongs = getVkPlaylistByToken().items
@@ -90,21 +104,28 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     suspend fun download(vkSong: VkSong, webView: WebView) {
-        //refresh path to blank
-        applyNewPath(vkSong, "")
-        //if download will be success
-        val ifDownload: (File) -> Unit = {
-            scope.launch {
-                applyNewPath(vkSong, it.path)
-                playAudioAndAllSong(vkSong)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(app,
-                        "Song success downloaded", Toast.LENGTH_LONG).show()
+        if (needDownload(vkSong)) {
+            //refresh path to blank
+            applyNewPath(vkSong, "")
+            //if download will be success
+            val ifDownload: (File) -> Unit = {
+                scope.launch {
+                    applyNewPath(vkSong, it.path)
+                    playAudioAndAllSong(vkSong)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            app,
+                            "Song success downloaded", Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
             }
+            //download
+            SefonFetch(app, webView, vkSong).download(ifDownload)
+        } else withContext(Dispatchers.Main) {
+            Toast.makeText(app,
+                "Download not needed", Toast.LENGTH_SHORT).show()
         }
-        //download
-        SefonFetch(app, webView, vkSong).download(ifDownload)
     }
 
     suspend fun filterByQuery(query: String): List<VkSong> = withContext(Dispatchers.Default) {
@@ -190,10 +211,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         }
         return index
     }
-
-    //path must be not blank and file can be created by that path
-    private fun needDownload(vkSong: VkSong): Boolean =
-        (vkSong.path.isNotBlank()) and (File(vkSong.path).exists().not())
 
     private fun playAudioAndAllSong(song: VkSong) {
         scope.launch {

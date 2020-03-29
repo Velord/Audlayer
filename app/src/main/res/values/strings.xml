@@ -89,5 +89,6 @@
     <string name="download">Download</string>
     <string name="vk_pop_up_refresh">Refresh</string>
     <string name="vk_popup_log_out">Log Out</string>
+    <string name="delete">Delete</string>
     <integer name="com_vk_sdk_AppId">7360134</integer>
 </resources>
