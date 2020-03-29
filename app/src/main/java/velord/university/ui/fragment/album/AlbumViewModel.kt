@@ -3,8 +3,10 @@ package velord.university.ui.fragment.album
 import android.app.Application
 import android.media.MediaMetadataRetriever
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.*
+import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
@@ -21,7 +23,7 @@ const val MAX_MOST_PLAYED: Int = 50
 
 class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
 
-    val TAG = "AlbumViewModel"
+    private val TAG = "AlbumViewModel"
 
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
 
@@ -32,6 +34,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
     private lateinit var lastPlayed: List<String>
     private lateinit var mostPlayed: List<String>
     private lateinit var favourite: List<String>
+    private lateinit var downloaded: List<String>
     private lateinit var other: List<Playlist>
 
     private lateinit var allSongRemovedDuplicate: List<File>
@@ -47,7 +50,6 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun filterByQueryPlaylist(query: String): List<Playlist> {
         val newOther = other.filter { it.name.contains(query) }
-
         // sort by album or artist or year or number of tracks
         val sortedPlaylist = when(SortByPreference.getSortByAlbumFragment(app)) {
             //album TODO()
@@ -69,25 +71,23 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
             else -> sortedPlaylist
         }
 
-        return Playlist.collect(
-            recentlyModified,
-            lastPlayed,
-            mostPlayed,
-            favourite,
-            orderedPlaylist
-        )
+        return collect(orderedPlaylist)
     }
 
     fun playSongs(songs: Array<String>) {
-        //don't remember for SongPlaylistInteractor
-        SongPlaylistInteractor.songs =
-            songs.map { File(it) }.toTypedArray()
-        MiniPlayerBroadcastHub.apply {
-            app.playByPathService(songs[0])
+        if (songs.isNotEmpty()) {
+            //don't remember for SongPlaylistInteractor
+            SongPlaylistInteractor.songs =
+                songs.map { File(it) }.toTypedArray()
+            MiniPlayerBroadcastHub.apply {
+                app.playByPathService(songs[0])
+            }
+            MiniPlayerBroadcastHub.apply {
+                app.loopAllService()
+            }
         }
-        MiniPlayerBroadcastHub.apply {
-            app.loopAllService()
-        }
+        else Toast.makeText(app,
+            "Playlist is empty", Toast.LENGTH_SHORT).show()
     }
 
     fun storeSearchQuery(query: String) {
@@ -121,6 +121,19 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         Log.d(TAG, "all album collected")
     }
 
+    private fun collect(otherPlaylist: List<Playlist>): List<Playlist> {
+        return listOf(
+            Playlist("Recently Modified", recentlyModified),
+            Playlist("Last Played", lastPlayed),
+            Playlist("Most Played", mostPlayed),
+            Playlist("Favourite", favourite),
+            Playlist("Downloaded", downloaded),
+            *otherPlaylist.map {
+                Playlist(it.name, it.songs)
+            }.toTypedArray()
+        )
+    }
+
     private suspend fun getDefaultAndUserPlaylist(): List<Playlist> {
         val allPlaylist =  PlaylistTransaction.getAllPlaylist()
         Log.d(TAG, "all playlist retrieved")
@@ -143,17 +156,17 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         //favourite
         favourite =  PlaylistTransaction.getFavouriteSongs()
         Log.d(TAG, "favourite playlist retrieved")
+        //downloaded
+        val filesAppDir = AudlayerApp.getApplicationDir().listFiles()
+        val filesVkDir = AudlayerApp.getApplicationVkDir().listFiles()
+        downloaded =  FileFilter.filterOnlyAudio(
+            filesAppDir + filesVkDir).map { it.path }
+        Log.d(TAG, "downloaded playlist retrieved")
         //other
         other = Playlist.other(allPlaylist)
         Log.d(TAG, "other playlist retrieved")
         //collect all to one list
-        return Playlist.collect(
-            recentlyModified,
-            lastPlayed,
-            mostPlayed,
-            favourite,
-            other
-        )
+        return collect(other)
     }
 
     //something wrong

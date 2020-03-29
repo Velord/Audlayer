@@ -84,6 +84,8 @@
     <string name="vk_login_go_back_at">Go back at: %1$d</string>
     <string name="vk_login_birth_date">Birth date: %1$s</string>
     <string name="vk_base_url">https://api.vk.com/method/</string>
+    <string name="vk_rv_item_selected">%1$s - %2$s\n%3$s Mb: %4$s</string>
+    <string name="vk_rv_item_not_selected">%1$s - %2$s\n%3$s</string>
     <string name="download">Download</string>
     <string name="vk_pop_up_refresh">Refresh</string>
     <string name="vk_popup_log_out">Log Out</string>

@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import velord.university.R
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 
@@ -18,7 +18,7 @@ class RadioFragment : LoggerSelfLifecycleFragment() {
     }
 
     private val viewModel by lazy {
-        ViewModelProviders.of(this).get(RadioViewModel::class.java)
+        ViewModelProvider(this).get(RadioViewModel::class.java)
     }
 
     override fun onCreateView(

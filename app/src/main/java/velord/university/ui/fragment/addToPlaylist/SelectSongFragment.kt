@@ -185,7 +185,7 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
     private fun initContinue(view: View) {
         continueButton = view.findViewById(R.id.add_song_continue)
         continueButton.setOnClickListener {
-            callbacks?.let {
+            callbacks?.let { it ->
                 if (viewModel.checked.isNotEmpty()) {
                     SongPlaylistInteractor.songs =
                         viewModel.checked.map { File(it) }.toTypedArray()

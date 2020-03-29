@@ -12,20 +12,20 @@ object FileFilter {
     fun filterOnlyAudio(file: File): List<File> {
         val filesInFolder = file.listFiles() ?: arrayOf()
         return filesInFolder.filter {
-            FileExtension.checkCompatibleFileExtension(it) ==
+            FileExtension.getFileExtension(it) ==
                     FileExtensionModifier.AUDIO
         }
     }
-
+    //only work if extension exist
     fun filterOnlyAudio(files: Array<File>): List<File> =
         files.filter {
-            FileExtension.checkCompatibleFileExtension(it) ==
+            FileExtension.getFileExtension(it) ==
                     FileExtensionModifier.AUDIO
         }
 
     val filterFileBySearchQuery: (File, String) -> Boolean = { file, query ->
         val extension =
-            FileExtension.checkCompatibleFileExtension(file) !=
+            FileExtension.getFileExtension(file) !=
                     FileExtensionModifier.NOT_COMPATIBLE
         val nameTitle =
             FileNameParser.removeExtension(file)
@@ -41,7 +41,7 @@ object FileFilter {
     }
 
     val filterByEmptySearchQuery: (File, String) -> Boolean = { file, _ ->
-        FileExtension.checkCompatibleFileExtension(file) !=
+        FileExtension.getFileExtension(file) !=
                 FileExtensionModifier.NOT_COMPATIBLE
     }
 

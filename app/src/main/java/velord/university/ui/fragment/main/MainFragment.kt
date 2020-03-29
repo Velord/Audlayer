@@ -5,7 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import velord.university.R
 import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.main.initializer.MenuMiniPlayerInitializerFragment
@@ -20,7 +20,7 @@ class MainFragment : MenuMiniPlayerInitializerFragment(),
     }
 
     private val viewModel by lazy {
-        ViewModelProviders.of(this).get(MainViewModel::class.java)
+        ViewModelProvider(this).get(MainViewModel::class.java)
     }
 
     override fun onCreateView(

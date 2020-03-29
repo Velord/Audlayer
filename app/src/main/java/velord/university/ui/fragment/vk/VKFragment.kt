@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.*
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -51,7 +51,7 @@ class VKFragment : ActionBarFragment(), SongReceiver {
     }
 
     private val viewModel by lazy {
-        ViewModelProviders.of(this).get(VkViewModel::class.java)
+        ViewModelProvider(this).get(VkViewModel::class.java)
     }
 
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
@@ -61,7 +61,7 @@ class VKFragment : ActionBarFragment(), SongReceiver {
     private lateinit var pb: ProgressBar
     private lateinit var webView: WebView
 
-    override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
+    override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = { it ->
         when (it.itemId) {
             R.id.vk_fragment_add_to_home_screen -> {
                 TODO()
@@ -361,7 +361,8 @@ class VKFragment : ActionBarFragment(), SongReceiver {
                     val size: Double =
                         roundOfDecimalToUp((FileFilter.getSize(File(song.path)).toDouble() / 1024))
                     val album = song.album?.title?.let { "Album: $it" } ?: ""
-                    text.text = "${song.artist} - ${song.title}\n$album Mb: $size"
+                    text.text = getString(R.string.vk_rv_item_selected,
+                        song.artist, song.title, album, size.toString())
                 }, {
                     itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
                 }
@@ -372,26 +373,21 @@ class VKFragment : ActionBarFragment(), SongReceiver {
             arrayOf(
                 {
                     scope.launch {
-                        song.album?.let {
-                            it.thumb?.let {
-                                it.photo_135?.let {
-                                    withContext(Dispatchers.Main) {
-                                        Glide.with(requireActivity())
-                                            .load(it)
-                                            .placeholder(R.drawable.song_item)
-                                            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                                            .into(icon)
-                                    }
-                                }
+                        song.album?.thumb?.photo_135?.let {
+                            withContext(Dispatchers.Main) {
+                                Glide.with(requireActivity())
+                                    .load(it)
+                                    .placeholder(R.drawable.song_item)
+                                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                                    .into(icon)
                             }
-                        } ?: withContext(Dispatchers.Main) {
-                            icon.setImageResource(R.drawable.song_item)
                         }
                     }
                     Unit
                 }, {
                     val album = song.album?.title?.let { "Album: $it" } ?: ""
-                    text.text = "${song.artist} - ${song.title}\n$album"
+                    text.text = getString(R.string.vk_rv_item_not_selected,
+                        song.artist, song.title, album)
                 }, {
                     itemView.setBackgroundResource(R.color.opacity)
                 }

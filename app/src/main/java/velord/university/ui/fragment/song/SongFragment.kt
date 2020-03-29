@@ -87,7 +87,7 @@ class SongFragment : ActionBarFragment(),
         } else changeRVItem(songPath)
     }
 
-    override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
+    override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = { it ->
         when (it.itemId) {
             R.id.song_fragment_add_to_home_screen -> {
                 TODO()

@@ -40,21 +40,21 @@ object PlaylistTransaction {
     } ?: Playlist("Favourite", listOf())
 
     suspend fun deletePlaylist(playlist: Playlist) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.let {
-            it.playlistDao().deletePlaylistByName(playlist.name)
+        AudlayerApp.db?.apply {
+            playlistDao().deletePlaylistByName(playlist.name)
         }
     }
 
     suspend fun createNewPlaylist(name: String, songs: List<String>) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.let {
+        AudlayerApp.db?.apply {
             val playlist = Playlist(name, songs)
-            it.playlistDao().insertAll(playlist)
+            playlistDao().insertAll(playlist)
         }
     }
 
     suspend fun update(playlist: Playlist) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.let {
-            it.playlistDao().update(playlist)
+        AudlayerApp.db?.apply {
+            playlistDao().update(playlist)
         }
     }
 
@@ -69,13 +69,10 @@ object PlaylistTransaction {
         val playedSongs = getPlayed()
         //add new path
         //secure from duplicate last
-        //secure from null
-        playedSongs?.let {
-            if (playedSongs.songs.last() != path)
-                playedSongs.songs += path
-            //update column
-            update(playedSongs)
-        }
+        if (playedSongs.songs.last() != path)
+            playedSongs.songs += path
+        //update column
+        update(playedSongs)
     }
 
     suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
@@ -90,5 +87,33 @@ object PlaylistTransaction {
                 return@withContext it.name
         }
         return@withContext ""
+    }
+
+    suspend fun checkDbTableColumn() = withContext(Dispatchers.IO) {
+        AudlayerApp.db?.apply {
+            val playlist = getAllPlaylist()
+
+            var favouriteExist = false
+            var playedSongExist = false
+            var downloadedExist = false
+
+            playlist.forEach {
+                if (it.name == "Favourite")
+                    favouriteExist = true
+                if (it.name == "Played")
+                    playedSongExist = true
+                if (it.name == "Downloaded")
+                    downloadedExist = true
+            }
+
+            if (favouriteExist.not())
+                playlistDao().insertAll(Playlist("Favourite", listOf()))
+
+            if (playedSongExist.not())
+                playlistDao().insertAll(Playlist("Played", listOf()))
+
+            if (downloadedExist.not())
+                playlistDao().insertAll(Playlist("Downloaded", listOf()))
+        }
     }
 }

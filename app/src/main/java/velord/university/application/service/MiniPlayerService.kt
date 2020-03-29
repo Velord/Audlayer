@@ -8,7 +8,6 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.*
-import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.MiniPlayerServicePreferences
@@ -43,7 +42,7 @@ abstract class MiniPlayerService : Service() {
         Log.d(TAG, "onCreate called")
         super.onCreate()
         scope.launch {
-            AudlayerApp.checkDbTableColumn()
+            PlaylistTransaction.checkDbTableColumn()
             restoreState()
         }
     }
@@ -215,7 +214,7 @@ abstract class MiniPlayerService : Service() {
     protected fun unlikeSong() {
         scope.launch {
             val songPath = playlist.getSongPath()
-            PlaylistTransaction.updateFavourite {
+            PlaylistTransaction.updateFavourite { it ->
                 it.filter { it != songPath }
             }
         }
@@ -346,8 +345,6 @@ abstract class MiniPlayerService : Service() {
             //store pos
             storeSongPositionInQueue()
         } ?: {
-            Toast.makeText(this,
-                "$path is incorrect", Toast.LENGTH_SHORT).show()
             Log.d(TAG, "Path: $path is incorrect" )
         }()
     }

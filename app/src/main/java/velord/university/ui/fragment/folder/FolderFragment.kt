@@ -11,7 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
@@ -58,7 +58,7 @@ class FolderFragment : ActionBarFragment(),
     }
 
     private val viewModel by lazy {
-        ViewModelProviders.of(this).get(FolderViewModel::class.java)
+        ViewModelProvider(this).get(FolderViewModel::class.java)
     }
 
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
@@ -66,7 +66,7 @@ class FolderFragment : ActionBarFragment(),
     private lateinit var rv: RecyclerView
     private lateinit var currentFolderTextView: TextView
 
-    override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
+    override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = { it ->
         when (it.itemId) {
             R.id.action_folder_add_to_home_screen -> {
                 TODO()
@@ -368,7 +368,7 @@ class FolderFragment : ActionBarFragment(),
         private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
 
         private fun setOnClickAndImageResource(file: File, fSelect: (Int) -> Unit) {
-            when(FileExtension.checkCompatibleFileExtension(file)) {
+            when(FileExtension.getFileExtension(file)) {
                 FileExtensionModifier.DIRECTORY -> {
                     val action = { setupAdapter(file) }
                     val popUpAction = {

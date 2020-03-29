@@ -1,11 +1,15 @@
 package velord.university.application
 
 import android.app.Application
-import kotlinx.coroutines.*
-import velord.university.model.entity.Playlist
+import android.os.Environment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import velord.university.repository.factory.AppDatabase
 import velord.university.repository.factory.buildAppDatabase
 import velord.university.repository.transaction.PlaylistTransaction
+import java.io.File
 
 
 //default playlist is Favourite, Played
@@ -18,42 +22,32 @@ class AudlayerApp : Application() {
     companion object {
         var db: AppDatabase? = null
 
-        suspend fun checkDbTableColumn() = withContext(Dispatchers.IO) {
-            db?.apply {
-                val playlist = PlaylistTransaction.getAllPlaylist()
+        fun getApplicationDir() =
+            File(Environment.getExternalStorageDirectory(), "Audlayer")
 
-                var favouriteExist = false
-                var playedSongExist = false
-                var vkExist = false
-
-                playlist.forEach {
-                    if (it.name == "Favourite")
-                        favouriteExist = true
-                    if (it.name == "Played")
-                        playedSongExist = true
-                    if (it.name == "Vk")
-                        vkExist = true
-                }
-
-                if (favouriteExist.not())
-                    playlistDao().insertAll(Playlist("Favourite", listOf()))
-
-                if (playedSongExist.not())
-                    playlistDao().insertAll(Playlist("Played", listOf()))
-
-                if (vkExist.not())
-                    playlistDao().insertAll(Playlist("Vk", listOf()))
-            }
-        }
+        fun getApplicationVkDir() =
+            File(getApplicationDir(), "Vk")
     }
 
 
+    private fun createFolder() {
+        val mainExist = getApplicationDir()
+        if (mainExist.exists().not()) {
+            mainExist.mkdirs()
+            val vkExist = getApplicationVkDir()
+            if (vkExist.exists().not())
+                vkExist.mkdirs()
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
+        //init working folder
+        createFolder()
         //init db and create tables if not exist
         db = buildAppDatabase(this)
         scope.launch {
-            checkDbTableColumn()
+            PlaylistTransaction.checkDbTableColumn()
         }
     }
 }

@@ -19,16 +19,15 @@ data class Playlist(
     companion object {
         fun other(playlist: List<Playlist>): List<Playlist> =
             playlist.filter {
-                it.name != "Favourite" && it.name != "Played" && it.name != "Vk"
+                it.name != "Favourite" && it.name != "Played" &&
+                        it.name != "Vk" && it.name != "Downloaded"
             }
 
-        fun notPlayed(playlist: List<Playlist>): List<Playlist> =
-            playlist.filter {
-                it.name != "Played"
-            }
+        fun favourite(playlist: List<Playlist>): Playlist =
+            playlist.find { it.name == "Favourite" }!!
 
         fun otherAndFavourite(playlist: List<Playlist>): List<Playlist> =
-            notPlayed(playlist).map {
+            (other(playlist) + favourite(playlist)).map { it ->
                 it.songs = it.songs.filter { it.isNotEmpty() }
                 it
             }
@@ -43,22 +42,6 @@ data class Playlist(
                 .distinct()
                 .map { File(it) }
                 .filter { it.path.isNotEmpty() }.toList()
-
-        fun collect(recentlyModified: List<String>,
-                    lastPlayed: List<String>,
-                    mostPlayed: List<String>,
-                    favourite: List<String>,
-                    otherPlaylist: List<Playlist>): List<Playlist> {
-            return listOf(
-                Playlist("Recently Modified", recentlyModified),
-                Playlist("Last Played", lastPlayed),
-                Playlist("Most Played", mostPlayed),
-                Playlist("Favourite", favourite),
-                *otherPlaylist.map {
-                    Playlist(it.name, it.songs)
-                }.toTypedArray()
-            )
-        }
 
         fun getMostPlayed(playlist: List<String>) =
             playlist

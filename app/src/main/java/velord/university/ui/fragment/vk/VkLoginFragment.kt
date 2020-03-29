@@ -11,6 +11,7 @@ import android.widget.TextView
 import kotlinx.coroutines.*
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import velord.university.R
 import velord.university.application.settings.VkPreference
@@ -38,8 +39,8 @@ class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero 
     private var callback: Callbacks? = null
 
     private lateinit var credentialsConfirmed: ImageButton
-    private lateinit var getAccesTokenTitle: TextView
-    private lateinit var getAccesToken: Button
+    private lateinit var getAccessTokenTitle: TextView
+    private lateinit var getAccessToken: Button
     private lateinit var userEmail: TextView
     private lateinit var userPage: TextView
     private lateinit var userBirth: TextView
@@ -87,8 +88,8 @@ class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero 
     }
 
     private fun initGetAccessToken(view: View) {
-        getAccesToken = view.findViewById(R.id.vk_login_get_access_token)
-        getAccesToken.apply {
+        getAccessToken = view.findViewById(R.id.vk_login_get_access_token)
+        getAccessToken.apply {
             setOnClickListener {
                 tokenIsInvalid()
                 scope.cancel()
@@ -96,12 +97,12 @@ class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero 
                 callback?.openGetAccessToken()
             }
         }
-        getAccesTokenTitle = view.findViewById(R.id.vk_login_get_access_token_title)
+        getAccessTokenTitle = view.findViewById(R.id.vk_login_get_access_token_title)
     }
 
     fun checkToken(
         token: String = VkPreference.getAccessToken(requireContext())) {
-        if (token.isBlank()) getAccesToken.visibility = View.VISIBLE
+        if (token.isBlank()) getAccessToken.visibility = View.VISIBLE
         else checkCredentials(token)
     }
 
@@ -179,7 +180,7 @@ class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero 
 
         val client = OkHttpClient()
         val mediaType = "application/json; charset=utf-8".toMediaType()
-        val requestBody = RequestBody.create(mediaType, "{}")
+        val requestBody = "{}".toRequestBody(mediaType)
         val request = Request.Builder()
             .url(url)
             .post(requestBody)

@@ -2,6 +2,7 @@ package velord.university.repository.fetch
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Environment
 import android.util.Log
 import android.view.View
 import android.webkit.WebResourceRequest
@@ -23,20 +24,17 @@ import java.io.File
 import java.util.*
 
 
-object SefonFetch {
+data class SefonFetch(private val context: Context,
+                      val webView: WebView,
+                      val song: VkSong) {
 
     val TAG = "SefonFetch"
 
     val scope = CoroutineScope(Job() + Dispatchers.IO)
 
     @SuppressLint("SetJavaScriptEnabled")
-    suspend inline fun getDirectFileLink(
-        context: Context,
-        webView: WebView,
-        url: String,
-        song: VkSong,
-        crossinline successF: (File) -> Unit
-    ) = withContext(Dispatchers.Main) {
+    suspend inline fun getDirectFileLink(url: String,
+        crossinline successF: (File) -> Unit) = withContext(Dispatchers.Main) {
         val fullUrl = "https:/sefon.pro$url"
         webView.apply {
             settings.javaScriptEnabled = true
@@ -61,7 +59,7 @@ object SefonFetch {
                     if (url.contains("sefon.pro/api/mp3_download/direct")) {
                         Log.d(TAG, url)
                         scope.launch {
-                            val file = downloadSong(context, url, song.artist, song.title)
+                            val file = downloadSong(url, song.artist, song.title)
                             successF(file)
                         }
                     }
@@ -75,9 +73,6 @@ object SefonFetch {
 
     @SuppressLint("SetJavaScriptEnabled")
     suspend inline fun getDirectSearchLink(
-        context: Context,
-        webView: WebView,
-        song: VkSong,
         crossinline successF: (File) -> Unit) = withContext(Dispatchers.Main) {
         val withoutRemix = song.title.substringBefore('(')
         val fullUrl = "https://sefon.pro/search/?q=${song.artist} $withoutRemix"
@@ -96,7 +91,7 @@ object SefonFetch {
                             val links = filterSearchResult(
                                 fetchSearchResult(directUrl), song.artist, song.title)
                             if (links.isNotEmpty())
-                                getDirectFileLink(context, webView, links[0], song, successF)
+                                getDirectFileLink(links[0], successF)
                             else withContext(Dispatchers.Main) {
                                 Toast.makeText(context,
                                     "Sorry we did not found any link", Toast.LENGTH_LONG).show()
@@ -111,8 +106,7 @@ object SefonFetch {
         }
     }
 
-    suspend fun downloadSong(context: Context,
-                             url: String,
+    suspend fun downloadSong(url: String,
                              artist: String,
                              title: String): File = withContext(Dispatchers.IO) {
         val client = OkHttpClient()
@@ -122,8 +116,9 @@ object SefonFetch {
             .build()
         val response = client.newCall(request).execute()
 
-        val downloadedFile = File(context.applicationInfo.dataDir,
-            "$artist - $title")
+        val ext = ".mp3"
+        val vkDir = "${Environment.getExternalStorageDirectory().path}/Audlayer/Vk"
+        val downloadedFile = File(vkDir, "$artist - $title$ext")
         val sink = downloadedFile.sink().buffer()
         sink.writeAll(response.body!!.source())
         sink.close()
@@ -131,11 +126,8 @@ object SefonFetch {
         return@withContext downloadedFile
     }
 
-    suspend inline fun download(context: Context,
-                                webView: WebView,
-                                song: VkSong,
-                                crossinline successF: (File) -> Unit) {
-        getDirectSearchLink(context, webView, song, successF)
+    suspend inline fun download(crossinline successF: (File) -> Unit) {
+        getDirectSearchLink(successF)
     }
 
     suspend fun filterSearchResult(url: List<String>,
