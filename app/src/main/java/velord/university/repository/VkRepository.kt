@@ -2,15 +2,17 @@ package velord.university.repository
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.webkit.WebView
 import androidx.core.app.NotificationCompat
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.json.JSONObject
 import velord.university.R
 import velord.university.application.settings.VkPreference
@@ -23,7 +25,16 @@ import velord.university.repository.transaction.vk.VkAlbumTransaction
 import velord.university.repository.transaction.vk.VkSongTransaction
 import java.io.File
 
+private const val channelId = "velord.audlayer.notification.vk"
+private const val notificationCancelExtra = "velord.audlayer.notification.vk_cancel_downloading"
+private const val notificationDownloadId = 1234
+private const val notificationCancelValue = notificationDownloadId
+
 object VkRepository {
+
+    private lateinit var downloadScope: CoroutineScope
+
+    private lateinit var notificationManager: NotificationManager
 
     suspend fun getAlbumsFromDb(): List<VkAlbum> =
         VkAlbumTransaction.getAlbums()
@@ -68,35 +79,42 @@ object VkRepository {
                             webView: WebView,
                             toDownload: List<VkSong>,
                             ifDownload: (VkSong, String) -> Unit) {
-        val notificationManager =
+        notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val builder = getNotificationBuilder(notificationManager, context)
-        val id = 1234
-        notificationManager.notify(id, builder.build())
+        notificationManager.notify(notificationDownloadId, builder.build())
 
         var downloadedCount = 0
         val songCount = toDownload.size
-        toDownload.forEachIndexed { index, song  ->
-            val file = downloadViaSefon(context, webView, song)
-            file?.let {
-                ifDownload(song, it.path)
-                ++downloadedCount
+        downloadScope = CoroutineScope(Job() + Dispatchers.Default)
+        downloadScope.launch {
+            toDownload.forEachIndexed { index, song ->
+                val file = downloadViaSefon(context, webView, song)
+                file?.let {
+                    ifDownload(song, it.path)
+                    ++downloadedCount
+                }
+                val howMany = "All: $songCount, " +
+                        "no link: ${index - downloadedCount + 1}, " +
+                        "downloaded: $downloadedCount, " +
+                        "handled: ${index + 1}"
+                builder.setContentText(howMany)
+                notificationManager.notify(notificationDownloadId, builder.build())
             }
-            val howMany = "All: $songCount, " +
-                    "no link: ${index - downloadedCount + 1}, " +
-                    "downloaded: $downloadedCount, " +
-                    "handled: ${index + 1}"
-            builder.setContentText(howMany)
-            notificationManager.notify(id, builder.build())
+            builder.setContentTitle("Audlayer Vk Downloaded!")
+            notificationManager.notify(notificationDownloadId, builder.build())
         }
-        builder.setContentTitle("Audlayer Vk Downloaded!")
-        notificationManager.notify(id, builder.build())
     }
 
     private fun getNotificationBuilder(notificationManager: NotificationManager,
                                        context: Context): NotificationCompat.Builder {
-        val channelId = "velord.audlayer.notification.vk"
         val description = "Downloading..."
+
+        val broadIntent = Intent(context, VkDownloadNotificationReceiver().javaClass)
+        broadIntent.putExtra(notificationCancelExtra, notificationCancelValue)
+        val pendIntent = PendingIntent.getBroadcast(context,
+            0, broadIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel =
                 NotificationChannel(channelId, description, NotificationManager.IMPORTANCE_HIGH)
@@ -109,21 +127,30 @@ object VkRepository {
 
             NotificationCompat.Builder(context, channelId)
                 .setContentTitle("Audlayer Vk Downloading...")
-                .setContentText("Downloading")
                 .setSmallIcon(R.drawable.album_gray)
-                .setLargeIcon(
-                    BitmapFactory.decodeResource(
+                .setLargeIcon(BitmapFactory.decodeResource(
                         context.resources, R.drawable.album_gray
                     )
                 )
+                .addAction(R.drawable.cancel, "Cancel", pendIntent)
         } else NotificationCompat.Builder(context)
             .setContentTitle("Audlayer Vk Downloading...")
-            .setContentText("Downloading")
             .setSmallIcon(R.drawable.album_gray)
-            .setLargeIcon(
-                BitmapFactory.decodeResource(
+            .setLargeIcon(BitmapFactory.decodeResource(
                     context.resources, R.drawable.album_gray
                 )
             )
+            .addAction(R.drawable.cancel, "Cancel", pendIntent)
+    }
+
+    class VkDownloadNotificationReceiver: BroadcastReceiver() {
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val message = intent!!.getIntExtra(notificationCancelExtra, -1)
+            if (message == notificationCancelValue) {
+                downloadScope.cancel()
+                notificationManager.cancel(notificationDownloadId)
+            }
+        }
     }
 }

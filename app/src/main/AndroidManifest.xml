@@ -44,6 +44,10 @@
             </intent-filter>
         </activity>
 
+        <receiver android:name=".repository.VkRepository$VkDownloadNotificationReceiver">
+
+        </receiver>
+
     </application>
 
 </manifest>
