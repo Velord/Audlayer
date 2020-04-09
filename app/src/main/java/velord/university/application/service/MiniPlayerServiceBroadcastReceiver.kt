@@ -1,6 +1,7 @@
 package velord.university.application.service
 
 import android.content.Intent
+import android.content.IntentFilter
 import android.util.Log
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.broadcast.MiniPlayerBroadcastHub.likeUI
@@ -20,8 +21,7 @@ class MiniPlayerServiceBroadcastReceiver :
 
     override val TAG: String = "MnPlyrSrvcBrdcstRcvrs"
 
-    private val receivers = MiniPlayerBroadcastHub
-        .miniPlayerReceiver(this as MiniPlayerServiceReceiver)
+    private val receivers = receiverList()
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy called")
@@ -37,7 +37,7 @@ class MiniPlayerServiceBroadcastReceiver :
 
         receivers.forEach {
             baseContext.registerBroadcastReceiver(
-                it.first, it.second, PERM_PRIVATE_MINI_PLAYER)
+                it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER)
         }
 
         return START_STICKY

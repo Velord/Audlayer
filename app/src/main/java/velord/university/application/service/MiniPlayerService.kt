@@ -345,7 +345,8 @@ abstract class MiniPlayerService : Service() {
             //store pos
             storeSongPositionInQueue()
         } ?: {
-            Log.d(TAG, "Path: $path is incorrect" )
+            Log.d(TAG, "Path: $path is incorrect")
+            sendPathIsWrong(song.path)
         }()
     }
 
@@ -426,27 +427,23 @@ abstract class MiniPlayerService : Service() {
 
     private fun sendLoopState() =
         when(MiniPlayerServicePreferences.getLoopState(this)) {
-            0 -> MiniPlayerBroadcastHub.apply { this@MiniPlayerService.notLoopUI() }
-            1 -> MiniPlayerBroadcastHub.apply { this@MiniPlayerService.loopUI() }
-            2 -> MiniPlayerBroadcastHub.apply { this@MiniPlayerService.loopAllUI() }
+            0 -> MiniPlayerBroadcastHub.run { notLoopUI() }
+            1 -> MiniPlayerBroadcastHub.run { loopUI() }
+            2 -> MiniPlayerBroadcastHub.run { loopAllUI() }
             else -> Unit
         }
 
     private fun sendShuffleState() {
         if (MiniPlayerServicePreferences.getIsShuffle(this))
-            MiniPlayerBroadcastHub.apply { this@MiniPlayerService.shuffleUI() }
-        else MiniPlayerBroadcastHub.apply { this@MiniPlayerService.unShuffleUI() }
+            MiniPlayerBroadcastHub.run { shuffleUI() }
+        else MiniPlayerBroadcastHub.run { unShuffleUI() }
     }
 
     private fun sendPath(song: File) =
-        MiniPlayerBroadcastHub.apply {
-            this@MiniPlayerService.songPathUI(song.path)
-        }
+        MiniPlayerBroadcastHub.run { songPathUI(song.path) }
 
     private fun sendDurationSong(player: MediaPlayer) =
-        MiniPlayerBroadcastHub.apply {
-            this@MiniPlayerService.songDurationUI(player.duration)
-        }
+        MiniPlayerBroadcastHub.run { songDurationUI(player.duration) }
 
     private fun sendIsHQ(song: File) {
 
@@ -455,18 +452,18 @@ abstract class MiniPlayerService : Service() {
     private fun sendSongNameAndArtist(file: File) {
         val songArtist = FileNameParser.getSongArtist(file)
         val songName = FileNameParser.getSongName(file)
-        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.songArtistUI(songArtist) }
-        MiniPlayerBroadcastHub.apply { this@MiniPlayerService.songNameUI(songName) }
+        MiniPlayerBroadcastHub.run { songArtistUI(songArtist) }
+        MiniPlayerBroadcastHub.run { songNameUI(songName) }
     }
 
     private suspend fun sendIsLoved(song: File) = withContext(Dispatchers.IO) {
         val favourite = PlaylistTransaction.getFavouriteSongs()
         if (favourite.contains(song.path))
-            MiniPlayerBroadcastHub.apply {
-                this@MiniPlayerService.likeUI()
-            }
-        else MiniPlayerBroadcastHub.apply {
-            this@MiniPlayerService.unlikeUI()
-        }
+            MiniPlayerBroadcastHub.run { likeUI() }
+        else
+            MiniPlayerBroadcastHub.run { unlikeUI() }
     }
+
+    private fun sendPathIsWrong(path: String) =
+        MiniPlayerBroadcastHub.run { pathIsWrongUI(path) }
 }

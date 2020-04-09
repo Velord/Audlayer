@@ -30,7 +30,8 @@ data class RecyclerViewSelectItemResolver<T>(var adapter: RecyclerView.Adapter<R
         changeClickedOn(pos, path)
     }
 
-    private fun scrollTo(index: Int, rv: RecyclerView) {
+    private fun scrollTo(index: Int,
+                         rv: RecyclerView) {
         if ((rvPosition + index < rvPosition + maxScroll) &&
             (rvPosition - index < rvPosition - maxScroll))
             rv.smoothScrollToPosition(index)
@@ -38,7 +39,9 @@ data class RecyclerViewSelectItemResolver<T>(var adapter: RecyclerView.Adapter<R
             rv.scrollToPosition(index)
     }
 
-    suspend fun applyToRvItem(items: List<T>, rv: RecyclerView, f: (T) -> Boolean) =
+    suspend fun applyToRvItem(items: List<T>,
+                              rv: RecyclerView,
+                              f: (T) -> Boolean) =
         withContext(Dispatchers.Main) {
             adapter.notifyDataSetChanged()
             items.forEachIndexed { index, value ->

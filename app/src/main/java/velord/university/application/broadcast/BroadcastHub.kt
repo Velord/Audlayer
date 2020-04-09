@@ -38,7 +38,6 @@ import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.unS
 import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.unlikeService
 import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.unlikeUI
 import velord.university.application.broadcast.MiniPlayerBroadcastHub.Extra.folderPathService
-import velord.university.application.broadcast.behaviour.MiniPlayerServiceReceiver
 
 const val PERM_PRIVATE_MINI_PLAYER = "velord.university.PERM_PRIVATE_MINI_PLAYER"
 
@@ -229,26 +228,10 @@ object MiniPlayerBroadcastHub {
             this@getInfoService.sendBroadcastGetInfo()
         }
 
-    fun miniPlayerReceiver(inter: MiniPlayerServiceReceiver) = arrayOf(
-        Pair(inter.playByPath(), MiniPlayerBroadcastPlayByPath.filterService),
-        Pair(inter.stop(), MiniPlayerBroadcastStop.filterService),
-        Pair(inter.play(), MiniPlayerBroadcastPlay.filterService),
-        Pair(inter.like(), MiniPlayerBroadcastLike.filterService),
-        Pair(inter.unlike(), MiniPlayerBroadcastUnlike.filterService),
-        Pair(inter.shuffle(), MiniPlayerBroadcastShuffle.filterService),
-        Pair(inter.unShuffle(), MiniPlayerBroadcastUnShuffle.filterService),
-        Pair(inter.skipNext(), MiniPlayerBroadcastSkipNext.filterService),
-        Pair(inter.skipPrev(), MiniPlayerBroadcastSkipPrev.filterService),
-        Pair(inter.rewind(), MiniPlayerBroadcastRewind.filterService),
-        Pair(inter.loop(), MiniPlayerBroadcastLoop.filterService),
-        Pair(inter.loopAll(), MiniPlayerBroadcastLoopAll.filterService),
-        Pair(inter.notLoop(), MiniPlayerBroadcastNotLoop.filterService),
-        Pair(inter.playAllInFolder(), MiniPlayerBroadcastPlayAllInFolder.filterService),
-        Pair(inter.playNextAllInFolder(), MiniPlayerBroadcastPlayNextAllInFolder.filterService),
-        Pair(inter.shuffleAndPlayAllInFolder(), MiniPlayerBroadcastShuffleAndPlayAllInFolder.filterService),
-        Pair(inter.addToQueue(), MiniPlayerBroadcastAddToQueue.filterService),
-        Pair(inter.getInfo(), MiniPlayerBroadcastGetInfo.filterService)
-    )
+    fun Context.pathIsWrongUI(path: String) =
+        MiniPlayerBroadcastPathWrong.run {
+            this@pathIsWrongUI.sendBroadcastPathIsWrongUI(path)
+        }
 
     object Action {
         const val stopService = "velord.university.STOP"
@@ -288,6 +271,7 @@ object MiniPlayerBroadcastHub {
         const val shuffleAndPlayAllInFolderService = "velord.university.SHUFFLE_AND_PLAY_ALL_IN_FOLDER"
         const val addToQueueService = "velord.university.ADD_TO_QUEUE"
         const val getInfoService = "velord.university.GET_INFO"
+        const val songPathIsWrongUI = "velord.university.SONG_PATH_IS_WRONG_UI"
     }
 
     object Extra {
@@ -556,8 +540,7 @@ object MiniPlayerBroadcastHub {
         fun Context.sendBroadcastSongPathUI(
             path: String,
             permission: String = PERM_PRIVATE_MINI_PLAYER
-        ) =
-            sendBroadcast(actionUI, permission, extraValueUI, path)
+        ) = sendBroadcast(actionUI, permission, extraValueUI, path)
     }
 
     private object MiniPlayerBroadcastSongArtist : MiniPlayerBroadcastBase() {
@@ -695,6 +678,19 @@ object MiniPlayerBroadcastHub {
 
         fun Context.sendBroadcastGetInfo(permission: String = PERM_PRIVATE_MINI_PLAYER) =
             sendBroadcast(actionService, permission)
+    }
+
+    private object MiniPlayerBroadcastPathWrong : MiniPlayerBroadcastBase() {
+        override val actionUI: String = Action.songPathIsWrongUI
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        override val extraValueUI: String = Extra.songPathUI
+
+        fun Context.sendBroadcastPathIsWrongUI(
+            path: String,
+            permission: String = PERM_PRIVATE_MINI_PLAYER
+        ) = sendBroadcast(actionUI, permission, extraValueUI, path)
     }
 }
 

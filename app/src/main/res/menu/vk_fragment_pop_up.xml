@@ -20,4 +20,8 @@
     <item android:id="@+id/vk_fragment_log_out"
         android:title="@string/vk_popup_log_out"
         app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/vk_fragment_download_all"
+        android:title="@string/download_all"
+        app:showAsAction="ifRoom"/>
 </menu>

@@ -159,9 +159,7 @@ class FolderFragment : ActionBarFragment(),
     }
     override val actionBarPopUp: (ImageButton) -> Unit = { }
 
-    private val receivers = arrayOf(
-        Pair(songPath(), MiniPlayerBroadcastHub.Action.songPathUI)
-    )
+    private val receivers = receiverList()
 
     override val songPathF: (Intent?) -> Unit =
         { nullableIntent ->

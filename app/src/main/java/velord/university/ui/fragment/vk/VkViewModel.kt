@@ -4,28 +4,20 @@ import android.app.Application
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
-import com.google.gson.Gson
 import kotlinx.coroutines.*
 import org.apache.commons.text.similarity.LevenshteinDistance
-import org.json.JSONObject
-import velord.university.R
 import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
-import velord.university.application.settings.VkPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
 import velord.university.model.entity.Playlist
 import velord.university.model.entity.vk.VkAlbum
-import velord.university.model.entity.vk.VkPlaylist
 import velord.university.model.entity.vk.VkSong
-import velord.university.repository.fetch.SefonFetch
-import velord.university.repository.fetch.makeRequestViaOkHttp
+import velord.university.repository.VkRepository
 import velord.university.repository.transaction.PlaylistTransaction
-import velord.university.repository.transaction.vk.VkAlbumTransaction
-import velord.university.repository.transaction.vk.VkSongTransaction
 import velord.university.ui.util.RecyclerViewSelectItemResolver
 import java.io.File
 
@@ -35,6 +27,8 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     private val TAG = "VkViewModel"
 
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
+
+    val repository = VkRepository
 
     lateinit var ordered: List<VkSong>
     private lateinit var vkPlaylist: List<VkSong>
@@ -68,7 +62,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun checkPathThenPlay(vkSong: VkSong, webView: WebView) {
         scope.launch {
-            if (needDownload(vkSong)) download(vkSong, webView)
+            if (needDownload(vkSong)) downloadInform(vkSong, webView)
             else playAudioAndAllSong(vkSong)
         }
     }
@@ -76,6 +70,26 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     //path must be not blank and file can be created by that path
     fun needDownload(vkSong: VkSong): Boolean =
         (vkSong.path.isBlank()) and (File(vkSong.path).exists().not())
+
+    suspend fun initVkPlaylist() {
+        vkAlbums = repository.getAlbumsFromDb()
+        vkPlaylist = repository.getSongsFromDb().map { song ->
+            song.albumId?.let { albumId ->
+                val indexAlbum = vkAlbums.find { it.id == albumId }
+                indexAlbum?.let {
+                    song.album = it
+                }
+            }
+            song
+        }
+    }
+
+    suspend fun pathIsWrong(path: String) {
+        val song = vkPlaylist.find {
+            it.path == path
+        }
+        applyNewPath(song!!, "")
+    }
 
     suspend fun deleteSong(vkSong: VkSong) {
         AudlayerApp.getApplicationVkDir()
@@ -92,9 +106,9 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     suspend fun refreshByToken() {
         //from vk
-        val byTokenSongs = getVkPlaylistByToken().items
+        val byTokenSongs = repository.getPlaylistByToken(app).items
         //from db
-        val fromDbSongs = getSongsFromDb()
+        val fromDbSongs = repository.getSongsFromDb()
         //compare with existed and insert
         compareAndInsert(byTokenSongs, fromDbSongs)
         //compare with existed and delete
@@ -103,30 +117,46 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         initVkPlaylist()
     }
 
-    suspend fun download(vkSong: VkSong, webView: WebView) {
-        if (needDownload(vkSong)) {
-            //refresh path to blank
-            applyNewPath(vkSong, "")
-            //if download will be success
-            val ifDownload: (File) -> Unit = {
-                scope.launch {
-                    applyNewPath(vkSong, it.path)
-                    playAudioAndAllSong(vkSong)
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            app,
-                            "Song success downloaded", Toast.LENGTH_LONG
-                        ).show()
-                    }
+    suspend fun downloadAll(webView: WebView) {
+        val toDownload = vkPlaylist
+            .filter {
+            needDownload(it)
+        }
+            .reversed()
+
+        val f: (VkSong, String) -> Unit = { song, path ->
+            scope.launch {
+                applyNewPath(song, path)
+                withContext(Dispatchers.Main) {
+                    rvResolver.adapter.notifyDataSetChanged()
                 }
             }
-            //download
-            SefonFetch(app, webView, vkSong).download(ifDownload)
-        } else withContext(Dispatchers.Main) {
-            Toast.makeText(app,
-                "Download not needed", Toast.LENGTH_SHORT).show()
         }
+
+        repository.downloadAll(app, webView, toDownload, f)
     }
+
+    suspend fun downloadInform(vkSong: VkSong, webView: WebView): Boolean =
+        if (needDownload(vkSong)) {
+            scope.launch {
+                val file = download(vkSong, webView)
+                //if download will be success ->  not null
+                if (file != null) {
+                    applyNewPath(vkSong, file.path)
+                    playAudioAndAllSong(vkSong)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(app,
+                            "Song success downloaded", Toast.LENGTH_LONG).show()
+                    }
+                }
+                else withContext(Dispatchers.Main) {
+                    Toast.makeText(app,
+                        "Sorry we did not found any link", Toast.LENGTH_LONG).show()
+                }
+            }
+            true
+        } else false
+
 
     suspend fun filterByQuery(query: String): List<VkSong> = withContext(Dispatchers.Default) {
         val filtered = vkPlaylist.filter {
@@ -161,6 +191,16 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         return@withContext ordered
     }
 
+    private suspend fun applyNewPath(vkSong: VkSong, path: String) {
+        val index = vkPlaylist.indexOf(vkSong)
+        val song = vkPlaylist[index]
+        vkPlaylist[index].path = path
+        val orderedIndex = ordered.indexOf(song)
+        ordered[orderedIndex].path = path
+
+        repository.updateSong(song)
+    }
+
     private fun getNoExistInDbAlbum(notExistInDbSong: List<VkSong>,
                                     fromDbAlbumsTitle: List<String>) =
         notExistInDbSong
@@ -175,6 +215,13 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             .map { it.component2() }
             .filter { it.id != 0 }
 
+
+    private suspend fun download(vkSong: VkSong, webView: WebView): File? {
+        //refresh path to blank
+        applyNewPath(vkSong, "")
+        //download
+        return repository.downloadViaSefon(app, webView, vkSong)
+    }
 
     private suspend fun getNoExistInDbSong(byTokenSongs: Array<VkSong>,
                                            fromDbSongs: List<VkSong>): List<VkSong> {
@@ -226,50 +273,20 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private suspend fun getAlbumsFromDb(): List<VkAlbum> =
-        VkAlbumTransaction.getAlbums()
-
-    private suspend fun getSongsFromDb(): List<VkSong> =
-        VkSongTransaction.getSongs()
-
-    private suspend fun getVkPlaylistByToken(): VkPlaylist {
-        val userId = VkPreference.getPageId(app)
-        val token = VkPreference.getAccessToken(app)
-        val baseUrl = app.getString(R.string.vk_base_url)
-        val music = "${baseUrl}audio.get?user_ids=$userId&access_token=$token&v=5.80"
-
-        return withContext(Dispatchers.IO) {
-            val gson = Gson()
-            val response = music.makeRequestViaOkHttp()
-            val json = JSONObject(response).getJSONObject("response")
-
-            return@withContext gson
-                .fromJson(json.toString(), VkPlaylist::class.java)
-        }
-    }
-
-    private suspend fun applyNewPath(vkSong: VkSong, path: String) {
-        val index = vkPlaylist.indexOf(vkSong)
-        val song = vkPlaylist[index]
-        vkPlaylist[index].path = path
-        val orderedIndex = ordered.indexOf(song)
-        ordered[orderedIndex].path = path
-
-        VkSongTransaction.update(song)
-    }
-
     private suspend fun compareAndInsert(byTokenSongs: Array<VkSong>,
                                          fromDbSongs: List<VkSong>) {
         //song
         val notExistSong = getNoExistInDbSong(byTokenSongs, fromDbSongs)
         //album
-        val fromDbAlbums = getAlbumsFromDb()
+        val fromDbAlbums = repository.getAlbumsFromDb()
         val fromDbAlbumsTitle = fromDbAlbums.map { it.title }
         val notExistAlbum =
             getNoExistInDbAlbum(notExistSong, fromDbAlbumsTitle)
         //insert
-        VkAlbumTransaction.addAlbum(*notExistAlbum.toTypedArray())
-        VkSongTransaction.addSong(*notExistSong.toTypedArray())
+        repository.insertAlbumAndSong(
+            notExistAlbum.toTypedArray(),
+            notExistSong.toTypedArray()
+        )
     }
 
     private suspend fun compareAndDelete(byTokenSongs: Array<VkSong>,
@@ -279,19 +296,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             if (byTokenSongs.find { it.id == fromDb.id } == null)
                 toDelete.add(fromDb)
         }
-        VkSongTransaction.delete(*toDelete.toTypedArray())
-    }
-
-    private suspend fun initVkPlaylist() {
-        vkAlbums = getAlbumsFromDb()
-        vkPlaylist = getSongsFromDb().map { song ->
-            song.albumId?.let { albumId ->
-                val indexAlbum = vkAlbums.find { it.id == albumId }
-                indexAlbum?.let {
-                    song.album = it
-                }
-            }
-            song
-        }
+        repository.deleteSong(toDelete.toTypedArray())
     }
 }

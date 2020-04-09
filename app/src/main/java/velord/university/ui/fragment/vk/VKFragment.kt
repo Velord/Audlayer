@@ -20,7 +20,7 @@ import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
-import velord.university.application.broadcast.behaviour.SongReceiver
+import velord.university.application.broadcast.behaviour.VkReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
@@ -37,7 +37,7 @@ import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
 
-class VKFragment : ActionBarFragment(), SongReceiver {
+class VKFragment : ActionBarFragment(), VkReceiver {
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromVkFragment()
@@ -138,6 +138,12 @@ class VKFragment : ActionBarFragment(), SongReceiver {
                 scope.launch { checkToken() }
                 true
             }
+            R.id.vk_fragment_download_all -> {
+                scope.launch {
+                    viewModel.downloadAll(webView)
+                }
+                true
+            }
             else -> false
         }
     }
@@ -168,6 +174,8 @@ class VKFragment : ActionBarFragment(), SongReceiver {
         updateAdapterBySearchQuery(correctQuery)
     }
 
+    private val receivers = receiverList()
+
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
                 val extra = MiniPlayerBroadcastHub.Extra.songPathUI
@@ -178,6 +186,19 @@ class VKFragment : ActionBarFragment(), SongReceiver {
                 }
             }
         }
+
+    override val songPathIsWrongF: (Intent?) -> Unit = { nullableIntent ->
+        nullableIntent?.apply {
+            val extra = MiniPlayerBroadcastHub.Extra.songPathUI
+            val songPath = getStringExtra(extra)
+            scope.launch {
+                viewModel.pathIsWrong(songPath)
+                withContext(Dispatchers.Main) {
+                    viewModel.rvResolver.adapter.notifyDataSetChanged()
+                }
+            }
+        }
+    }
 
     private tailrec suspend fun changeRVItem(songPath: String) {
         if (viewModel.rvResolverIsInitialized()) {
@@ -191,12 +212,11 @@ class VKFragment : ActionBarFragment(), SongReceiver {
                 applyToRvItem(files, rv, containF)
             }
             return
-        } else changeRVItem(songPath)
+        } else {
+            delay(500)
+            changeRVItem(songPath)
+        }
     }
-
-    private val receivers = arrayOf(
-        Pair(songPath(), MiniPlayerBroadcastHub.Action.songPathUI)
-    )
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -321,8 +341,13 @@ class VKFragment : ActionBarFragment(), SongReceiver {
     }
 
     private fun setupAdapter() {
-        val query = viewModel.getSearchQuery()
-        super.viewModelActionBar.setupSearchQuery(query)
+        scope.launch {
+            viewModel.initVkPlaylist()
+            val query = viewModel.getSearchQuery()
+            withContext(Dispatchers.Main) {
+                super.viewModelActionBar.setupSearchQuery(query)
+            }
+        }
     }
 
     private fun updateAdapterBySearchQuery(searchQuery: String) {
@@ -428,11 +453,22 @@ class VKFragment : ActionBarFragment(), SongReceiver {
                         TODO()
                     }
                     R.id.vk_rv_item_download -> {
-                        scope.launch { viewModel.download(song, webView) }
+                        scope.launch {
+                            if (viewModel.downloadInform(song, webView).not())
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(requireContext(),
+                                        "Download not needed", Toast.LENGTH_SHORT).show()
+                                }
+                        }
                         true
                     }
                     R.id.vk_rv_item_delete -> {
-                        scope.launch { viewModel.deleteSong(song) }
+                        scope.launch {
+                            viewModel.deleteSong(song)
+                            withContext(Dispatchers.Main) {
+                                viewModel.rvResolver.adapter.notifyDataSetChanged()
+                            }
+                        }
                         true
                     }
                     else -> {

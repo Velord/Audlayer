@@ -4,10 +4,32 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import velord.university.application.broadcast.MiniPlayerBroadcastHub
 
 interface MiniPlayerServiceReceiver {
 
     val TAG: String
+
+    fun receiverList() = arrayOf(
+        Pair(playByPath(), MiniPlayerBroadcastHub.Action.playByPathService),
+        Pair(stop(), MiniPlayerBroadcastHub.Action.stopService),
+        Pair(play(), MiniPlayerBroadcastHub.Action.playService),
+        Pair(like(), MiniPlayerBroadcastHub.Action.likeService),
+        Pair(unlike(), MiniPlayerBroadcastHub.Action.unlikeService),
+        Pair(shuffle(), MiniPlayerBroadcastHub.Action.shuffleService),
+        Pair(unShuffle(), MiniPlayerBroadcastHub.Action.unShuffleService),
+        Pair(skipNext(), MiniPlayerBroadcastHub.Action.skipNextService),
+        Pair(skipPrev(), MiniPlayerBroadcastHub.Action.skipPrevService),
+        Pair(rewind(), MiniPlayerBroadcastHub.Action.rewindService),
+        Pair(loop(), MiniPlayerBroadcastHub.Action.loopService),
+        Pair(loopAll(), MiniPlayerBroadcastHub.Action.loopAllService),
+        Pair(notLoop(), MiniPlayerBroadcastHub.Action.notLoopService),
+        Pair(playAllInFolder(), MiniPlayerBroadcastHub.Action.playAllInFolderService),
+        Pair(playNextAllInFolder(), MiniPlayerBroadcastHub.Action.playNextAllInFolderService),
+        Pair(shuffleAndPlayAllInFolder(), MiniPlayerBroadcastHub.Action.shuffleAndPlayAllInFolderService),
+        Pair(addToQueue(), MiniPlayerBroadcastHub.Action.addToQueueService),
+        Pair(getInfo(), MiniPlayerBroadcastHub.Action.getInfoService)
+    )
 
     val playByPathF: (Intent?) -> Unit
     fun playByPath() = object : BroadcastReceiver() {
