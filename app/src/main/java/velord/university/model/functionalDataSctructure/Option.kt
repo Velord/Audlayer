@@ -1,6 +1,8 @@
-package util.functionalFrogrammingType
+package velord.university.model.functionalDataSctructure
 
-import util.list.FList
+import velord.university.model.functionalDataSctructure.list.FList
+import java.util.*
+import kotlin.math.pow
 
 sealed class Option<out A> {
 
@@ -70,7 +72,7 @@ fun <A, B> lift(f: (A) -> B): (Option<A>) -> Option<B> = {
 }
 
 val upperOption: (Option<String>) -> Option<String> =
-    lift { it.toUpperCase() }
+    lift { it.toUpperCase(Locale.ROOT) }
 
 fun <A, B> hLift(f: (A) -> B): (A) -> Option<B> = {
     try {
@@ -145,7 +147,7 @@ val mean: (List<Double>) -> Option<Double> = { list ->
 val variance: (List<Double>) -> Option<Double> = { list ->
     mean(list).flatMap { m ->
         mean(list.map { x ->
-            Math.pow((x - m), 2.0)
+            (x - m).pow(2.0)
         })
     }
 }

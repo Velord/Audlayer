@@ -15,12 +15,12 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import util.functionalFrogrammingType.result.Result
 import velord.university.R
 import velord.university.application.settings.VkPreference
 import velord.university.model.entity.vk.VkAlbum
 import velord.university.model.entity.vk.VkPlaylist
 import velord.university.model.entity.vk.VkSong
+import velord.university.model.functionalDataSctructure.result.Result
 import velord.university.repository.fetch.SefonFetchSequential
 import velord.university.repository.fetch.makeRequestViaOkHttp
 import velord.university.repository.transaction.vk.VkAlbumTransaction

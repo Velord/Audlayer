@@ -22,15 +22,12 @@ import velord.university.ui.fragment.miniPlayer.miniPlayerStopAndHide.MiniPlayer
 abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
     MiniPlayerBroadcastReceiverShowAndHider {
 
-    override val TAG: String
-        get() = "MenuNowPlayingFragment"
+    override val TAG: String = "MenuNowPlayingFragment"
 
     private lateinit var viewFrame: View
     private lateinit var miniPlayerViewPager: ViewPager
 
-    private val receivers = arrayOf(
-        Pair(show(), MiniPlayerBroadcastHub.Action.showUI),
-        Pair(hide(), MiniPlayerBroadcastHub.Action.hideUI))
+    private val receivers = receiverList()
 
     private val fm by lazy {
         activity!!.supportFragmentManager

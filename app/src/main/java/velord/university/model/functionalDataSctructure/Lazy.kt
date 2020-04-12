@@ -1,14 +1,14 @@
-package util.functionalFrogrammingType
+package velord.university.model.functionalDataSctructure
 
-import util.functionalFrogrammingType.result.Result
-import util.functionalFrogrammingType.result.map2
-import util.list.FList
-import util.list.traverse
+import velord.university.model.functionalDataSctructure.list.FList
+import velord.university.model.functionalDataSctructure.list.traverse
+import velord.university.model.functionalDataSctructure.result.Result
+import velord.university.model.functionalDataSctructure.result.map2
 
 class Lazy<out A>(function: () -> A): () -> A {
     private val value: A by lazy(function)
 
-    operator override fun invoke(): A = value
+    override operator fun invoke(): A = value
 
     fun <B> map(f: (A) -> B): Lazy<B> = Lazy { f(value) }
 
@@ -58,7 +58,13 @@ class Lazy<out A>(function: () -> A): () -> A {
 }
 
 fun <A> sequenceResult(lst: FList<Lazy<A>>): Lazy<Result<FList<A>>> =
-    Lazy { util.list.sequence(lst.mapViaFoldLeft { Result.invoke(it()) }) }
+    Lazy {
+        velord.university.model.functionalDataSctructure.list.sequence(lst.mapViaFoldLeft {
+            Result.invoke(
+                it()
+            )
+        })
+    }
 
 fun <A> sequenceResult2(lst: FList<Lazy<A>>): Lazy<Result<FList<A>>> =
     Lazy { traverse(lst) { Result.invoke(it()) } }

@@ -265,7 +265,7 @@ data class SefonFetchSequential(private val context: Context,
 
 
         val downloadManager = context.getSystemService(DOWNLOAD_SERVICE) as DownloadManager
-        downloadManager!!.enqueue(req) // enqueue puts the download request in the queue.
+        downloadManager.enqueue(req) // enqueue puts the download request in the queue.
         return@withContext downloadedFile
     }
 

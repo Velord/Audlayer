@@ -1,13 +1,21 @@
 package velord.university.application.service
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
+import velord.university.R
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.MiniPlayerServicePreferences
@@ -22,6 +30,9 @@ import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.repository.transaction.ServiceTransaction
 import java.io.File
 
+private const val channelId = "velord.audlayer.notification.miniPlayerService"
+private const val notificationServiceId = 2345
+
 abstract class MiniPlayerService : Service() {
 
     abstract val TAG: String
@@ -32,6 +43,38 @@ abstract class MiniPlayerService : Service() {
 
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
     private lateinit var rewindJob: Job
+
+    private fun getNotificationBuilder(notificationManager: NotificationManager,
+                                       context: Context): NotificationCompat.Builder {
+        val description = "Downloading..."
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationChannel =
+                NotificationChannel(channelId, description, NotificationManager.IMPORTANCE_HIGH)
+            notificationChannel.apply {
+                enableLights(true)
+                enableVibration(false)
+                lightColor = Color.GREEN
+            }
+            notificationManager.createNotificationChannel(notificationChannel)
+
+            NotificationCompat.Builder(context, channelId)
+                .setContentTitle("Audlayer Vk Downloading...")
+                .setSmallIcon(R.drawable.album_gray)
+                .setLargeIcon(
+                    BitmapFactory.decodeResource(
+                        context.resources, R.drawable.album_gray
+                    )
+                )
+        } else NotificationCompat.Builder(context)
+            .setContentTitle("Audlayer Vk Downloading...")
+            .setSmallIcon(R.drawable.album_gray)
+            .setLargeIcon(
+                BitmapFactory.decodeResource(
+                    context.resources, R.drawable.album_gray
+                )
+            )
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         Log.d(TAG, "onBind called")

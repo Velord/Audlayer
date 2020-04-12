@@ -1,6 +1,6 @@
-package util.functionalFrogrammingType
+package velord.university.model.functionalDataSctructure
 
-import util.list.FList
+import velord.university.model.functionalDataSctructure.list.FList
 
 
 sealed class Either<E, out A> {

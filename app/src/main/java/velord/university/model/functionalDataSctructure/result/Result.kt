@@ -1,6 +1,6 @@
-package util.functionalFrogrammingType.result
+package velord.university.model.functionalDataSctructure.result
 
-import util.functionalFrogrammingType.Option
+import velord.university.model.functionalDataSctructure.Option
 import java.io.Serializable
 
 fun <A, B> lift(f: (A) -> B): (Result<A>) -> Result<B> = { it.map(f) }

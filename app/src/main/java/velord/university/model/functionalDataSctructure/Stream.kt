@@ -1,8 +1,8 @@
-package util.functionalFrogrammingType
+package velord.university.model.functionalDataSctructure
 
-import util.functionalFrogrammingType.Stream.Companion.drop
-import util.functionalFrogrammingType.result.Result
-import util.list.FList
+import velord.university.model.functionalDataSctructure.Stream.Companion.drop
+import velord.university.model.functionalDataSctructure.list.FList
+import velord.university.model.functionalDataSctructure.result.Result
 
 sealed class Stream<out A> {
 
@@ -28,24 +28,24 @@ sealed class Stream<out A> {
     fun exists(p: (A) -> Boolean) = exists(this, p)
 
     fun takeWhileViaFoldRight(p: (A) -> Boolean): Stream<A> =
-            foldRight(Lazy { Empty }, { a ->
+            foldRight(Lazy { Empty }) { a ->
                 { b: Lazy<Stream<A>> ->
                     if (p(a))
                         cons(Lazy { a }, b)
                     else
                         Empty
-                 }
-            } )
+                }
+            }
 
     fun headSafeViaFoldRight(): Result<A> =
-            foldRight(Lazy { Result<A>() }, { a -> { Result(a) } })
+            foldRight(Lazy { Result<A>() }) { a -> { Result(a) } }
 
     fun <B> map(f: (A) -> B): Stream<B> =
-            foldRight(Lazy { Empty }, { a ->
+            foldRight(Lazy { Empty }) { a ->
                 { b: Lazy<Stream<B>> ->
                     cons(Lazy { f(a) }, b)
                 }
-            } )
+            }
 
     fun filter(p: (A) -> Boolean): Stream<A> =
             dropWhile { x -> !p(x)}.let { stream ->
@@ -61,9 +61,9 @@ sealed class Stream<out A> {
             dropWhile { x -> !p(x) }.let { stream ->
                 when (stream) {
                     is Empty -> stream
-                    is Cons -> stream.head().map({ a ->
+                    is Cons -> stream.head().map { a ->
                         cons(Lazy { a }, Lazy { stream.tl().filter(p) })
-                    }).getOrElse(Empty)
+                    }.getOrElse(Empty)
                 }
             }
 
@@ -75,11 +75,11 @@ sealed class Stream<out A> {
             }
 
     fun <B> flatMap(f: (A) -> Stream<B>): Stream<B> =
-            foldRight(Lazy { Empty as Stream<B> }, { a ->
+            foldRight(Lazy { Empty as Stream<B> }) { a ->
                 { b: Lazy<Stream<B>> ->
                     f(a).append(b)
                 }
-            } )
+            }
 
     fun find(p: (A) -> Boolean): Result<A> = filter(p).head()
 
@@ -215,12 +215,12 @@ fun main() {
     val stream = Stream.from(1)
     stream.head().forEach( { println(it) } )
     stream.tail().flatMap { it.head() }.forEach( { println(it) } )
-    stream.tail().flatMap {
+    stream.tail().flatMap { it ->
         it.tail().flatMap { it.head() }
     }.forEach( { println(it) } )
-    stream.tail().flatMap {
-        it.tail().flatMap {
-        it.tail().flatMap {
+    stream.tail().flatMap { it ->
+        it.tail().flatMap { it ->
+            it.tail().flatMap {
             it.head() } }
     }.forEach( { println(it) } )
 

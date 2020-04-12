@@ -6,7 +6,6 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.*
 import org.apache.commons.text.similarity.LevenshteinDistance
-import util.functionalFrogrammingType.result.Result
 import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
@@ -17,6 +16,7 @@ import velord.university.model.FileNameParser
 import velord.university.model.entity.Playlist
 import velord.university.model.entity.vk.VkAlbum
 import velord.university.model.entity.vk.VkSong
+import velord.university.model.functionalDataSctructure.result.Result
 import velord.university.repository.VkRepository
 import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.ui.util.RecyclerViewSelectItemResolver

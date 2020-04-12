@@ -1,13 +1,14 @@
-package util.list
+package velord.university.model.functionalDataSctructure.list
 
-import util.functionalFrogrammingType.Option
-import util.functionalFrogrammingType.result.Result
-import util.functionalFrogrammingType.result.map2
-import util.list.FList.Companion.doubleToString
-import util.list.FList.Companion.flatten
-import util.list.FList.Companion.foldRight
-import util.list.FList.Companion.product
-import util.list.FList.Companion.triple
+import android.os.Build
+import velord.university.model.functionalDataSctructure.Option
+import velord.university.model.functionalDataSctructure.list.FList.Companion.doubleToString
+import velord.university.model.functionalDataSctructure.list.FList.Companion.flatten
+import velord.university.model.functionalDataSctructure.list.FList.Companion.foldRight
+import velord.university.model.functionalDataSctructure.list.FList.Companion.product
+import velord.university.model.functionalDataSctructure.list.FList.Companion.triple
+import velord.university.model.functionalDataSctructure.result.Result
+import velord.university.model.functionalDataSctructure.result.map2
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 
@@ -39,13 +40,11 @@ sealed class FList<out A>{
 
     fun lastSafeViaCoFoldRight(): Result<A> =
         this.reverse().coFoldRight(Result()) { x: A ->  { _: Result<A> ->
-                Result(
-                    x
-                )
-            } }
+                Result(x)
+            }
+        }
 
-    fun lastSafeOld(): Result<A> =
-            lastSafe(this)
+    fun lastSafeOld(): Result<A> = lastSafe(this)
 
     internal tailrec fun lastSafe(list: FList<@UnsafeVariance A>): Result<A> =
             when(list){
@@ -60,9 +59,7 @@ sealed class FList<out A>{
 
     fun setHeadSafeViaCoFoldRight(): Result<A> =
             coFoldRight(Result()) { x: A -> { _: Result<A> ->
-                Result(
-                    x
-                )
+                Result(x)
             } }
 
     fun setHead(a: @UnsafeVariance A): FList<A> =
@@ -213,9 +210,11 @@ sealed class FList<out A>{
     }
 
     fun splitAtViaFoldLeft(index: Int): Pair<FList<A>, FList<A>> {
-        val idxValid = if (index < 0) 0
-        else if (index >= lengthMemoized()) lengthMemoized()
-        else index
+        val idxValid = when {
+            index < 0 -> 0
+            index >= lengthMemoized() -> lengthMemoized()
+            else -> index
+        }
         val identity = Triple(Nil, Nil, idxValid)
         val result =
                 foldLeft(identity) { ta: Triple<FList<A>, FList<A>, Int> ->
@@ -288,13 +287,17 @@ sealed class FList<out A>{
             coFoldRight(mapOf()) { t ->
                 { mt: Map<B, FList<A>> ->
                     f(t).let {
-                        mt + (it to (mt.getOrDefault(it, Nil)).cons(t))
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            mt + (it to (mt.getOrDefault(it, Nil)).cons(t))
+                        } else {
+                            TODO("VERSION.SDK_INT < N")
+                        }
                     }
                 }
             }
 
     fun exists(p: (A) -> Boolean): Boolean =
-            foldLeft(false, true) { x -> { y: A -> x || p(y) } }.first
+            foldLeft(identity = false, zero = true) { x -> { y: A -> x || p(y) } }.first
 
     fun forAll(p: (A) -> Boolean): Boolean =
             !exists { !p(it) }
@@ -427,7 +430,7 @@ sealed class FList<out A>{
 
         override fun toString(): String = "[${toString("", this)}NIL]"
 
-        tailrec private fun toString(acc: String, list: FList<A>): String =
+        private tailrec fun toString(acc: String, list: FList<A>): String =
                 when (list) {
                     is Nil -> acc
                     is Cons -> toString("$acc${list.head}, ", list.tail)
@@ -668,8 +671,7 @@ fun <A, B> unzip(list: FList<Pair<A, B>>): Pair<FList<A>, FList<B>> =
 
 fun <A, S> unfold(z: S, getNext: (S) -> Option<Pair<A, S>>): FList<A> {
     tailrec fun unfold(acc: FList<A>, z: S): FList<A> {
-        val next = getNext(z)
-        return when(next) {
+        return when(val next = getNext(z)) {
             Option.None -> acc
             is Option.Some ->
                 unfold(acc.cons(next.value.first), next.value.second)
@@ -679,10 +681,10 @@ fun <A, S> unfold(z: S, getNext: (S) -> Option<Pair<A, S>>): FList<A> {
 }
 
 fun <A, S> unfoldSafe(z: S,
-                      getNext: (S) -> Result<Pair<A, S>>): Result<FList<A>> {
+                      getNext: (S) -> Result<Pair<A, S>>
+): Result<FList<A>> {
     tailrec fun unfold(acc: FList<A>, z: S): Result<FList<A>> {
-        val next = getNext(z)
-        return when (next) {
+        return when (val next = getNext(z)) {
             Result.Empty -> Result(acc)
             is Result.Failure -> Result.failure(next.exception)
             is Result.Success ->

@@ -1,7 +1,7 @@
-package util.functionalFrogrammingType
+package velord.university.model.functionalDataSctructure
 
-import util.functionalFrogrammingType.result.Result
-import util.list.FList
+import velord.university.model.functionalDataSctructure.list.FList
+import velord.university.model.functionalDataSctructure.result.Result
 
 sealed class LeftistHeap<out A> {
 
@@ -30,8 +30,7 @@ sealed class LeftistHeap<out A> {
                          identity: B,
                          f: (B) -> (A) -> B): B {
         tailrec fun unfold(acc: B, z: S): B {
-            val next = getNext(z)
-            return when (next) {
+            return when (val next = getNext(z)) {
                 is Option.None -> acc
                 is Option.Some ->
                     unfold(f(acc)(next.value.first), next.value.second)
@@ -40,8 +39,8 @@ sealed class LeftistHeap<out A> {
         return unfold(identity, z)
     }
 
-    fun <B> foldLeft(identity: B, f: (B) -> (A) -> B): B
-            = unfold(this, { it.pop() }, identity, f)
+    fun <B> foldLeft(identity: B, f: (B) -> (A) -> B): B =
+        unfold(this, { it.pop() }, identity, f)
 
 
     internal class Empty<out A>(
@@ -54,18 +53,18 @@ sealed class LeftistHeap<out A> {
 
         override val right: Result<LeftistHeap<A>> = Result(this)
 
-        override val head: Result<A>
-                = Result.failure("head() called on empty heap")
+        override val head: Result<A> =
+            Result.failure("head() called on empty heap")
 
         override val rank: Int = 0
 
         override val size: Int = 0
 
-        override fun tail(): Result<LeftistHeap<A>>
-                = Result.failure("tail() called on empty heap")
+        override fun tail(): Result<LeftistHeap<A>> =
+            Result.failure("tail() called on empty heap")
 
-        override fun get(index: Int): Result<A>
-                = Result.failure(NoSuchElementException("Index out of bounds"))
+        override fun get(index: Int): Result<A> =
+            Result.failure(NoSuchElementException("Index out of bounds"))
 
         override fun pop(): Option<Pair<A, LeftistHeap<A>>> = Option()
 
@@ -76,8 +75,8 @@ sealed class LeftistHeap<out A> {
         private val lft: LeftistHeap<A>,
         private val hd: A,
         private val rght: LeftistHeap<A>,
-        override val comparator: Result<Comparator<@UnsafeVariance A>>
-            = lft.comparator.orElse { rght.comparator }): LeftistHeap<A>() {
+        override val comparator: Result<Comparator<@UnsafeVariance A>> =
+            lft.comparator.orElse { rght.comparator }): LeftistHeap<A>() {
 
         override val isEmpty: Boolean = false
 
