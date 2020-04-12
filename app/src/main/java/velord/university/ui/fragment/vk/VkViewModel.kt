@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.*
 import org.apache.commons.text.similarity.LevenshteinDistance
+import util.functionalFrogrammingType.result.Result
 import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
@@ -118,28 +119,26 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     suspend fun downloadAll(webView: WebView) {
+        //which
         val toDownload = vkPlaylist
-            .filter {
-            needDownload(it)
-        }
+            .filter { needDownload(it) }
             .reversed()
-
-        val f: (VkSong, String) -> Unit = { song, path ->
-            scope.launch {
-                applyNewPath(song, path)
-                withContext(Dispatchers.Main) {
-                    rvResolver.adapter.notifyDataSetChanged()
-                }
-            }
+        //download
+        val downloaded = repository.downloadAll(app, webView, toDownload)
+        //save in db new info
+        downloaded.forEach {
+            applyNewPath(it, it.path)
         }
-
-        repository.downloadAll(app, webView, toDownload, f)
+        //refresh ui
+        withContext(Dispatchers.Main) {
+            rvResolver.adapter.notifyDataSetChanged()
+        }
     }
 
     suspend fun downloadInform(vkSong: VkSong, webView: WebView): Boolean =
         if (needDownload(vkSong)) {
             scope.launch {
-                val file = download(vkSong, webView)
+                val file = download(vkSong, webView).getOrElse(null)
                 //if download will be success ->  not null
                 if (file != null) {
                     applyNewPath(vkSong, file.path)
@@ -216,7 +215,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             .filter { it.id != 0 }
 
 
-    private suspend fun download(vkSong: VkSong, webView: WebView): File? {
+    private suspend fun download(vkSong: VkSong, webView: WebView): Result<File?> {
         //refresh path to blank
         applyNewPath(vkSong, "")
         //download

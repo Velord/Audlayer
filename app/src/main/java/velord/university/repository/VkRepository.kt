@@ -12,8 +12,10 @@ import android.os.Build
 import android.webkit.WebView
 import androidx.core.app.NotificationCompat
 import com.google.gson.Gson
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import util.functionalFrogrammingType.result.Result
 import velord.university.R
 import velord.university.application.settings.VkPreference
 import velord.university.model.entity.vk.VkAlbum
@@ -32,7 +34,7 @@ private const val notificationCancelValue = notificationDownloadId
 
 object VkRepository {
 
-    private lateinit var downloadScope: CoroutineScope
+    private var userCanceledDownload = false
 
     private lateinit var notificationManager: NotificationManager
 
@@ -60,8 +62,8 @@ object VkRepository {
 
     suspend fun downloadViaSefon(context: Context,
                                  webView: WebView,
-                                 vkSong: VkSong): File? =
-        SefonFetchSequential(context, webView, vkSong).download()
+                                 vkSong: VkSong): Result<File?> =
+        Result.ofAsync { SefonFetchSequential(context, webView, vkSong).download() }
 
     suspend fun updateSong(vkSong: VkSong) =
         VkSongTransaction.update(vkSong)
@@ -77,33 +79,40 @@ object VkRepository {
 
     suspend fun downloadAll(context: Context,
                             webView: WebView,
-                            toDownload: List<VkSong>,
-                            ifDownload: (VkSong, String) -> Unit) {
+                            toDownload: List<VkSong>): List<VkSong> {
+        //build notification
         notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val builder = getNotificationBuilder(notificationManager, context)
         notificationManager.notify(notificationDownloadId, builder.build())
-
+        //help variable
         var downloadedCount = 0
         val songCount = toDownload.size
-        downloadScope = CoroutineScope(Job() + Dispatchers.Default)
-        downloadScope.launch {
-            toDownload.forEachIndexed { index, song ->
-                val file = downloadViaSefon(context, webView, song)
-                file?.let {
-                    ifDownload(song, it.path)
-                    ++downloadedCount
-                }
-                val howMany = "All: $songCount, " +
-                        "no link: ${index - downloadedCount + 1}, " +
-                        "downloaded: $downloadedCount, " +
-                        "handled: ${index + 1}"
-                builder.setContentText(howMany)
-                notificationManager.notify(notificationDownloadId, builder.build())
+        val downloaded = mutableListOf<VkSong>()
+        toDownload.forEachIndexed { index, song ->
+            //if user cancel download
+            if (userCanceledDownload)
+                return downloaded
+            //download file
+            val file =
+                downloadViaSefon(context, webView, song).getOrElse(null)
+            file?.let {
+                song.path = it.path
+                downloaded.add(song)
+                ++downloadedCount
             }
-            builder.setContentTitle("Audlayer Vk Downloaded!")
+            //refresh notification
+            val progress = "All: $songCount, " +
+                    "no link: ${index - downloadedCount + 1}, " +
+                    "downloaded: $downloadedCount"
+            builder.setContentText(progress)
             notificationManager.notify(notificationDownloadId, builder.build())
         }
+        //finalize notification
+        builder.setContentTitle("Audlayer Vk Downloaded!")
+        notificationManager.notify(notificationDownloadId, builder.build())
+
+        return downloaded
     }
 
     private fun getNotificationBuilder(notificationManager: NotificationManager,
@@ -129,16 +138,16 @@ object VkRepository {
                 .setContentTitle("Audlayer Vk Downloading...")
                 .setSmallIcon(R.drawable.album_gray)
                 .setLargeIcon(BitmapFactory.decodeResource(
-                        context.resources, R.drawable.album_gray
-                    )
+                    context.resources, R.drawable.album_gray
+                )
                 )
                 .addAction(R.drawable.cancel, "Cancel", pendIntent)
         } else NotificationCompat.Builder(context)
             .setContentTitle("Audlayer Vk Downloading...")
             .setSmallIcon(R.drawable.album_gray)
             .setLargeIcon(BitmapFactory.decodeResource(
-                    context.resources, R.drawable.album_gray
-                )
+                context.resources, R.drawable.album_gray
+            )
             )
             .addAction(R.drawable.cancel, "Cancel", pendIntent)
     }
@@ -148,7 +157,7 @@ object VkRepository {
         override fun onReceive(context: Context?, intent: Intent?) {
             val message = intent!!.getIntExtra(notificationCancelExtra, -1)
             if (message == notificationCancelValue) {
-                downloadScope.cancel()
+                userCanceledDownload = true
                 notificationManager.cancel(notificationDownloadId)
             }
         }
