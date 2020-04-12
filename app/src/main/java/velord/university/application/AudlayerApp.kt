@@ -29,7 +29,6 @@ class AudlayerApp : Application() {
             File(getApplicationDir(), "Vk")
     }
 
-
     private fun createFolder() {
         val mainExist = getApplicationDir()
         if (mainExist.exists().not()) {

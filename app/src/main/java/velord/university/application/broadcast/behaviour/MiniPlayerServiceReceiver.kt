@@ -28,7 +28,8 @@ interface MiniPlayerServiceReceiver {
         Pair(playNextAllInFolder(), MiniPlayerBroadcastHub.Action.playNextAllInFolderService),
         Pair(shuffleAndPlayAllInFolder(), MiniPlayerBroadcastHub.Action.shuffleAndPlayAllInFolderService),
         Pair(addToQueue(), MiniPlayerBroadcastHub.Action.addToQueueService),
-        Pair(getInfo(), MiniPlayerBroadcastHub.Action.getInfoService)
+        Pair(getInfo(), MiniPlayerBroadcastHub.Action.getInfoService),
+        Pair(playOrStop(), MiniPlayerBroadcastHub.Action.playOrStopService)
     )
 
     val playByPathF: (Intent?) -> Unit
@@ -180,6 +181,14 @@ interface MiniPlayerServiceReceiver {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
             getInfoF(intent)
+        }
+    }
+
+    val playOrStopF: (Intent?) -> Unit
+    fun playOrStop() = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            playOrStopF(intent)
         }
     }
 }

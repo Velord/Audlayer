@@ -1,22 +1,17 @@
 package velord.university.application.service
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
-import velord.university.R
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.notification.PlayerServiceNotification
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.MiniPlayerServicePreferences
 import velord.university.interactor.SongPlaylistInteractor
@@ -30,9 +25,6 @@ import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.repository.transaction.ServiceTransaction
 import java.io.File
 
-private const val channelId = "velord.audlayer.notification.miniPlayerService"
-private const val notificationServiceId = 2345
-
 abstract class MiniPlayerService : Service() {
 
     abstract val TAG: String
@@ -44,37 +36,7 @@ abstract class MiniPlayerService : Service() {
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
     private lateinit var rewindJob: Job
 
-    private fun getNotificationBuilder(notificationManager: NotificationManager,
-                                       context: Context): NotificationCompat.Builder {
-        val description = "Downloading..."
-
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel =
-                NotificationChannel(channelId, description, NotificationManager.IMPORTANCE_HIGH)
-            notificationChannel.apply {
-                enableLights(true)
-                enableVibration(false)
-                lightColor = Color.GREEN
-            }
-            notificationManager.createNotificationChannel(notificationChannel)
-
-            NotificationCompat.Builder(context, channelId)
-                .setContentTitle("Audlayer Vk Downloading...")
-                .setSmallIcon(R.drawable.album_gray)
-                .setLargeIcon(
-                    BitmapFactory.decodeResource(
-                        context.resources, R.drawable.album_gray
-                    )
-                )
-        } else NotificationCompat.Builder(context)
-            .setContentTitle("Audlayer Vk Downloading...")
-            .setSmallIcon(R.drawable.album_gray)
-            .setLargeIcon(
-                BitmapFactory.decodeResource(
-                    context.resources, R.drawable.album_gray
-                )
-            )
-    }
+    private lateinit var notificationManager: NotificationManager
 
     override fun onBind(intent: Intent?): IBinder? {
         Log.d(TAG, "onBind called")
@@ -84,6 +46,7 @@ abstract class MiniPlayerService : Service() {
     override fun onCreate() {
         Log.d(TAG, "onCreate called")
         super.onCreate()
+        buildNotification()
         scope.launch {
             PlaylistTransaction.checkDbTableColumn()
             restoreState()
@@ -96,6 +59,7 @@ abstract class MiniPlayerService : Service() {
         //store player state
         storeIsPlayingState()
         stopPlayer()
+        destroyNotification()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -106,6 +70,11 @@ abstract class MiniPlayerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand called")
         return START_STICKY
+    }
+
+    protected fun playOrStopService() {
+        if (player.isPlaying) pausePlayer()
+        else playSongAfterCreatedPlayer()
     }
 
     protected fun playAllInFolder(pathFolder: String) {
@@ -184,6 +153,8 @@ abstract class MiniPlayerService : Service() {
         }
         //send command to change ui
         MiniPlayerBroadcastHub.apply { this@MiniPlayerService.playUI() }
+        //send command to change notification
+        changeNotificationPlayOrStop(true)
     }
 
     protected fun skipSongAndPlayNext() {
@@ -284,6 +255,30 @@ abstract class MiniPlayerService : Service() {
         MiniPlayerBroadcastHub.apply { this@MiniPlayerService.loopAllUI() }
     }
 
+    private fun buildNotification() {
+        //build notification
+        val builder = PlayerServiceNotification.getNotificationBuilder(this)
+        notificationManager = this.getSystemService(
+            Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(PlayerServiceNotification.id, builder.build())
+    }
+
+    private fun destroyNotification() {
+        PlayerServiceNotification.dismiss()
+    }
+
+    private fun changeNotificationInfo(file: File) {
+        val builder = PlayerServiceNotification.getNotificationBuilder(this)
+        PlayerServiceNotification.updateSongTitleAndArtist(file)
+        notificationManager.notify(PlayerServiceNotification.id, builder.build())
+    }
+
+    private fun changeNotificationPlayOrStop(isPlaying: Boolean) {
+        val builder = PlayerServiceNotification.getNotificationBuilder(this)
+        PlayerServiceNotification.updatePlayOrStop(isPlaying)
+        notificationManager.notify(PlayerServiceNotification.id, builder.build())
+    }
+
     private fun restoreState() {
         scope.launch {
             val songsFromDb = ServiceTransaction.getPlaylist()
@@ -344,7 +339,10 @@ abstract class MiniPlayerService : Service() {
             f()
             stopSendRewind()
         }
+        //send command to change ui
         MiniPlayerBroadcastHub.apply { this@MiniPlayerService.stopUI() }
+        //send command to change notification
+        changeNotificationPlayOrStop(false)
     }
 
     private fun stopPlayer() {
@@ -387,6 +385,8 @@ abstract class MiniPlayerService : Service() {
             sendInfoToUI(song)
             //store pos
             storeSongPositionInQueue()
+            //notification refresh
+            changeNotificationInfo(song)
         } ?: {
             Log.d(TAG, "Path: $path is incorrect")
             sendPathIsWrong(song.path)

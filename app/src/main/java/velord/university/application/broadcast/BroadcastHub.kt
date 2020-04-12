@@ -233,6 +233,11 @@ object MiniPlayerBroadcastHub {
             this@pathIsWrongUI.sendBroadcastPathIsWrongUI(path)
         }
 
+    fun Context.playOrStopService() =
+        MiniPlayerBroadcastPlayOrStop.run {
+            this@playOrStopService.sendBroadcastPlayOrStop()
+        }
+
     object Action {
         const val stopService = "velord.university.STOP"
         const val stopUI = "velord.university.STOP_UI"
@@ -272,6 +277,7 @@ object MiniPlayerBroadcastHub {
         const val addToQueueService = "velord.university.ADD_TO_QUEUE"
         const val getInfoService = "velord.university.GET_INFO"
         const val songPathIsWrongUI = "velord.university.SONG_PATH_IS_WRONG_UI"
+        const val playOrStopService = "velord.university.PLAY_OR_STOP"
     }
 
     object Extra {
@@ -691,6 +697,16 @@ object MiniPlayerBroadcastHub {
             path: String,
             permission: String = PERM_PRIVATE_MINI_PLAYER
         ) = sendBroadcast(actionUI, permission, extraValueUI, path)
+    }
+
+    private object MiniPlayerBroadcastPlayOrStop : MiniPlayerBroadcastBase() {
+        override val actionService: String = Action.playOrStopService
+
+        override val filterService: IntentFilter = IntentFilter(actionService)
+
+        fun Context.sendBroadcastPlayOrStop(
+            permission: String = PERM_PRIVATE_MINI_PLAYER
+        ) = sendBroadcast(actionService, permission)
     }
 }
 

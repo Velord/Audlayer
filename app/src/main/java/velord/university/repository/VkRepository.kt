@@ -1,13 +1,11 @@
 package velord.university.repository
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.os.Build
 import android.webkit.WebView
 import androidx.core.app.NotificationCompat
@@ -16,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import velord.university.R
+import velord.university.application.notification.createNotificationChannel
 import velord.university.application.settings.VkPreference
 import velord.university.model.entity.vk.VkAlbum
 import velord.university.model.entity.vk.VkPlaylist
@@ -81,14 +80,15 @@ object VkRepository {
                             webView: WebView,
                             toDownload: List<VkSong>): List<VkSong> {
         //build notification
-        notificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val builder = getNotificationBuilder(notificationManager, context)
+        notificationManager = context
+            .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val builder = getNotificationBuilder(context)
         notificationManager.notify(notificationDownloadId, builder.build())
         //help variable
         var downloadedCount = 0
         val songCount = toDownload.size
         val downloaded = mutableListOf<VkSong>()
+        userCanceledDownload = false
         toDownload.forEachIndexed { index, song ->
             //if user cancel download
             if (userCanceledDownload)
@@ -115,39 +115,26 @@ object VkRepository {
         return downloaded
     }
 
-    private fun getNotificationBuilder(notificationManager: NotificationManager,
-                                       context: Context): NotificationCompat.Builder {
-        val description = "Downloading..."
-
+    private fun getNotificationBuilder(context: Context): NotificationCompat.Builder {
         val broadIntent = Intent(context, VkDownloadNotificationReceiver().javaClass)
         broadIntent.putExtra(notificationCancelExtra, notificationCancelValue)
         val pendIntent = PendingIntent.getBroadcast(context,
             0, broadIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel =
-                NotificationChannel(channelId, description, NotificationManager.IMPORTANCE_HIGH)
-            notificationChannel.apply {
-                enableLights(true)
-                enableVibration(false)
-                lightColor = Color.GREEN
-            }
-            notificationManager.createNotificationChannel(notificationChannel)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val description = "Downloading..."
+            createNotificationChannel(
+                context,
+                channelId,
+                description
+            )
+        }
 
-            NotificationCompat.Builder(context, channelId)
-                .setContentTitle("Audlayer Vk Downloading...")
-                .setSmallIcon(R.drawable.album_gray)
-                .setLargeIcon(BitmapFactory.decodeResource(
-                    context.resources, R.drawable.album_gray
-                )
-                )
-                .addAction(R.drawable.cancel, "Cancel", pendIntent)
-        } else NotificationCompat.Builder(context)
+        return NotificationCompat.Builder(context, channelId)
             .setContentTitle("Audlayer Vk Downloading...")
             .setSmallIcon(R.drawable.album_gray)
             .setLargeIcon(BitmapFactory.decodeResource(
-                context.resources, R.drawable.album_gray
-            )
+                context.resources, R.drawable.album_gray)
             )
             .addAction(R.drawable.cancel, "Cancel", pendIntent)
     }

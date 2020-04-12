@@ -170,4 +170,11 @@ class MiniPlayerServiceBroadcastReceiver :
         get() = {
             super.getInfoFromServiceToUI()
         }
+
+    override val playOrStopF: (Intent?) -> Unit
+        get() = {
+            it?.let {
+                super.playOrStopService()
+            }
+        }
 }

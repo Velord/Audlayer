@@ -45,7 +45,9 @@
         </activity>
 
         <receiver android:name=".repository.VkRepository$VkDownloadNotificationReceiver">
+        </receiver>
 
+        <receiver android:name=".application.notification.PlayerServiceNotification$MiniPlayerNotificationBroadcastReceiver">
         </receiver>
 
     </application>
