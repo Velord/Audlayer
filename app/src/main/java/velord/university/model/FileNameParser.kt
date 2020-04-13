@@ -7,7 +7,7 @@ object FileNameParser {
     fun getSongArtist(file: File) =
         file.name.substringBefore(" - ")
 
-    fun getSongName(file: File) =
+    fun getSongTitle(file: File) =
         file.name
             .substringAfter(" - ")
             .substringBefore(".${file.extension}")

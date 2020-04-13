@@ -46,7 +46,7 @@ object FileFilter {
     }
 
     val getName: (File) -> String = {
-        FileNameParser.getSongName(it)
+        FileNameParser.getSongTitle(it)
     }
 
     val getArtist: (File) -> String = {

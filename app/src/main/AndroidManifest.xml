@@ -47,8 +47,11 @@
         <receiver android:name=".repository.VkRepository$VkDownloadNotificationReceiver">
         </receiver>
 
-        <receiver android:name=".application.notification.PlayerServiceNotification$MiniPlayerNotificationBroadcastReceiver">
+        <receiver android:name=".application.notification.MiniPlayerServiceNotification$MiniPlayerNotificationBroadcastReceiver">
         </receiver>
+
+        <service android:name=".application.service.KillNotificationsService">
+        </service>
 
     </application>
 

@@ -240,7 +240,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             if (index != -1) {
                 it.path = allSongPath[index]
                 it.artist = FileNameParser.getSongArtist(allSongFromDb[index])
-                it.title = FileNameParser.getSongName(allSongFromDb[index])
+                it.title = FileNameParser.getSongTitle(allSongFromDb[index])
             } else it.path = ""
             it
         }

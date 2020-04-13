@@ -5,6 +5,7 @@ import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import velord.university.R
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
+import velord.university.ui.util.setAutoScrollable
 
 abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
 
@@ -44,17 +45,11 @@ abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
 
     private fun initSongName(view: View) {
         miniPlayerSongNameTV = view.findViewById(R.id.mini_player_song_name)
-        miniPlayerSongNameTV.apply {
-            setSingleLine()
-            isSelected = false
-        }
+        miniPlayerSongNameTV.setAutoScrollable()
     }
 
     private fun initSongArtist(view: View) {
         miniPlayerSongArtistTV = view.findViewById(R.id.mini_player_song_artist)
-        miniPlayerSongArtistTV.apply {
-            setSingleLine()
-            isSelected = false
-        }
+        miniPlayerSongArtistTV.setAutoScrollable()
     }
 }

@@ -27,19 +27,13 @@
             <TextView
                 android:id="@+id/notification_artist"
                 android:textSize="16sp"
-                android:text="sfds"
-                android:textColor="@color/gold"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                style="@style/MiniPlayerNotificationArtistTitle">
             </TextView>
 
             <TextView
                 android:id="@+id/notification_title"
                 android:textSize="14sp"
-                android:text="sfds"
-                android:textColor="@color/gold"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                style="@style/MiniPlayerNotificationArtistTitle">
             </TextView>
 
         </LinearLayout>
@@ -52,36 +46,21 @@
 
                 <ImageView
                     android:id="@+id/notification_previous"
-                    android:paddingTop="5dp"
-                    android:paddingBottom="5dp"
                     android:src="@drawable/skip_prev"
-                    android:scaleType="fitCenter"
-                    android:layout_width="50dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent">
+                    style="@style/MiniPlayerNotificationControl">
 
                 </ImageView>
 
                 <ImageView
                     android:id="@+id/notification_play_or_stop"
-                    android:paddingTop="5dp"
-                    android:paddingBottom="5dp"
-                    android:src="@drawable/play_gray"
-                    android:layout_width="50dp"
-                    android:scaleType="fitCenter"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent">
+                    android:src="@drawable/play"
+                    style="@style/MiniPlayerNotificationControl">
                 </ImageView>
 
                 <ImageView
                     android:id="@+id/notification_next"
-                    android:paddingTop="5dp"
-                    android:paddingBottom="5dp"
                     android:src="@drawable/skip_next"
-                    android:layout_width="50dp"
-                    android:scaleType="fitCenter"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent">
+                    style="@style/MiniPlayerNotificationControl">
                 </ImageView>
 
             <ImageView
@@ -89,10 +68,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:src="@drawable/cancel_notification"
-                android:layout_width="50dp"
-                android:scaleType="fitCenter"
-                android:layout_weight="1"
-                android:layout_height="match_parent">
+                style="@style/MiniPlayerNotificationControl">
             </ImageView>
         </LinearLayout>
 

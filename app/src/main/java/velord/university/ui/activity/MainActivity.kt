@@ -6,7 +6,9 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProviders
+import kotlinx.coroutines.*
 import velord.university.R
+import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
 import velord.university.application.settings.AppPreference
 import velord.university.ui.backPressed.BackPressedHandler
@@ -23,6 +25,7 @@ import velord.university.ui.fragment.vk.VKFragment
 import velord.university.ui.util.addFragment
 import velord.university.ui.util.initFragment
 
+
 class MainActivity : AppCompatActivity(),
     FolderFragment.Callbacks,
     SelectSongFragment.Callbacks,
@@ -34,6 +37,8 @@ class MainActivity : AppCompatActivity(),
     private val TAG = "MainActivity"
 
     private val fm = supportFragmentManager
+
+    private var scope = CoroutineScope(Job() + Dispatchers.Default)
 
     private val viewModel by lazy {
         ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
@@ -59,8 +64,20 @@ class MainActivity : AppCompatActivity(),
         Log.d(TAG, "called onDestroy")
         super.onDestroy()
         stopService(Intent(this, MiniPlayerServiceBroadcastReceiver().javaClass))
-
         AppPreference.setAppIsDestroyed(this, false)
+    }
+
+    override fun onStart() {
+        scope.launch {
+            delay(1000)
+            MiniPlayerServiceNotification.dismiss()
+        }
+        super.onStart()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        MiniPlayerServiceNotification.initNotificationManager(this)
     }
 
     override fun onBackPressed() {
@@ -71,7 +88,7 @@ class MainActivity : AppCompatActivity(),
         if (backPressedFirstLevel())
             return
 
-        //not cause MainFragment control this
+        //not -> cause MainFragment control this
         if (backPressedZeroLevel().not()) {
             //Because single activity architecture
             //When first invoke onBackPressed occurred we returned to MainActivity

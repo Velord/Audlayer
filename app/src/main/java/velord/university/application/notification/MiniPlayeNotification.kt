@@ -11,9 +11,6 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import velord.university.R
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
-import velord.university.model.FileFilter
-import velord.university.model.FileNameParser
-import java.io.File
 
 private const val NOTIFICATION_ACTION_PREVIUOS = "actionPrevious"
 private const val NOTIFICATION_ACTION_PLAY_OR_STOP = "actionPlayOrStop"
@@ -21,13 +18,17 @@ private const val NOTIFICATION_ACTION_NEXT = "actionNext"
 private const val NOTIFICATION_ACTION_CANCEL = "actionCancel"
 private const val channelId = "velord.audlayer.notification.miniPlayerService"
 
-object PlayerServiceNotification {
+object MiniPlayerServiceNotification {
 
     const val id = 2345
 
     private lateinit var view: RemoteViews
 
     private lateinit var notificationManager: NotificationManager
+
+    private var title = ""
+    private var artist = ""
+    private var isPlaying = false
 
     private fun Context.intentPrevious(): PendingIntent {
         val intentPrevious = Intent(
@@ -69,13 +70,27 @@ object PlayerServiceNotification {
             intentCancel, PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
-
-    fun dismiss() {
-        notificationManager.cancel(id)
+    //must be invoked before all function
+    fun initNotificationManager(context: Context) {
+        notificationManager = context.getSystemService(
+            Context.NOTIFICATION_SERVICE) as NotificationManager
+        //build notification
+        updatePlayOrStop(context, isPlaying)
+        updateSongTitleAndArtist(context, title, artist)
     }
 
-    fun updatePlayOrStop(isPlaying: Boolean) =
-        when(isPlaying) {
+    fun dismiss() {
+        if (::notificationManager.isInitialized)
+            notificationManager.cancel(id)
+    }
+
+    fun updatePlayOrStop(context: Context,
+                         isPlaying: Boolean) {
+        this.isPlaying = isPlaying
+        //create builder
+        val builder = getNotificationBuilder(context)
+        //change view
+        when (this.isPlaying) {
             true -> {
                 view.setImageViewResource(R.id.notification_play_or_stop, R.drawable.pause)
             }
@@ -83,18 +98,27 @@ object PlayerServiceNotification {
                 view.setImageViewResource(R.id.notification_play_or_stop, R.drawable.play)
             }
         }
-
-    fun updateSongTitleAndArtist(file: File) {
-        val artist = FileNameParser.getSongArtist(file)
-        val title = FileFilter.getName(file)
-        view.setTextViewText(R.id.notification_artist, artist)
-        view.setTextViewText(R.id.notification_title, title)
+        //notify
+        if (::notificationManager.isInitialized)
+            notificationManager.notify(id, builder.build())
     }
 
-    fun getNotificationBuilder(context: Context): NotificationCompat.Builder {
-        notificationManager = context.getSystemService(
-            Context.NOTIFICATION_SERVICE) as NotificationManager
+    fun updateSongTitleAndArtist(context: Context,
+                                 title: String,
+                                 artist: String) {
+        //create builder
+        val builder = getNotificationBuilder(context)
+        //change view
+        this.artist = artist
+        this.title = title
+        view.setTextViewText(R.id.notification_artist, artist)
+        view.setTextViewText(R.id.notification_title, title)
+        //notify
+        if (::notificationManager.isInitialized)
+            notificationManager.notify(id, builder.build())
+    }
 
+    private fun getNotificationBuilder(context: Context): NotificationCompat.Builder {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val description = "Audlayer"
             createNotificationChannel(
@@ -105,7 +129,7 @@ object PlayerServiceNotification {
         }
         //create view
         view = RemoteViews(context.packageName, R.layout.mini_player_notification_control)
-        setListener(view, context)
+        view.setListener(context)
         //create builder
         return NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.album_gray)
@@ -118,12 +142,11 @@ object PlayerServiceNotification {
             .setCustomBigContentView(view)
     }
 
-    private fun setListener(views: RemoteViews,
-                            context: Context) {
-        views.setOnClickPendingIntent(R.id.notification_previous, context.intentPrevious())
-        views.setOnClickPendingIntent(R.id.notification_play_or_stop, context.intentPlayOrStop())
-        views.setOnClickPendingIntent(R.id.notification_next, context.intentNext())
-        views.setOnClickPendingIntent(R.id.notification_cancel, context.intentCancel())
+    private fun RemoteViews.setListener(context: Context) {
+        setOnClickPendingIntent(R.id.notification_previous, context.intentPrevious())
+        setOnClickPendingIntent(R.id.notification_play_or_stop, context.intentPlayOrStop())
+        setOnClickPendingIntent(R.id.notification_next, context.intentNext())
+        setOnClickPendingIntent(R.id.notification_cancel, context.intentCancel())
     }
 
     class MiniPlayerNotificationBroadcastReceiver : BroadcastReceiver() {

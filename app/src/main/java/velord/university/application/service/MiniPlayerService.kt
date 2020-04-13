@@ -1,8 +1,6 @@
 package velord.university.application.service
 
-import android.app.NotificationManager
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
@@ -11,7 +9,7 @@ import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
-import velord.university.application.notification.PlayerServiceNotification
+import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.MiniPlayerServicePreferences
 import velord.university.interactor.SongPlaylistInteractor
@@ -36,8 +34,6 @@ abstract class MiniPlayerService : Service() {
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
     private lateinit var rewindJob: Job
 
-    private lateinit var notificationManager: NotificationManager
-
     override fun onBind(intent: Intent?): IBinder? {
         Log.d(TAG, "onBind called")
         return  null
@@ -46,7 +42,6 @@ abstract class MiniPlayerService : Service() {
     override fun onCreate() {
         Log.d(TAG, "onCreate called")
         super.onCreate()
-        buildNotification()
         scope.launch {
             PlaylistTransaction.checkDbTableColumn()
             restoreState()
@@ -155,6 +150,7 @@ abstract class MiniPlayerService : Service() {
         MiniPlayerBroadcastHub.apply { this@MiniPlayerService.playUI() }
         //send command to change notification
         changeNotificationPlayOrStop(true)
+        changeNotificationInfo(playlist.getSong())
     }
 
     protected fun skipSongAndPlayNext() {
@@ -255,74 +251,61 @@ abstract class MiniPlayerService : Service() {
         MiniPlayerBroadcastHub.apply { this@MiniPlayerService.loopAllUI() }
     }
 
-    private fun buildNotification() {
-        //build notification
-        val builder = PlayerServiceNotification.getNotificationBuilder(this)
-        notificationManager = this.getSystemService(
-            Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(PlayerServiceNotification.id, builder.build())
-    }
-
     private fun destroyNotification() {
-        PlayerServiceNotification.dismiss()
+        MiniPlayerServiceNotification.dismiss()
     }
 
     private fun changeNotificationInfo(file: File) {
-        val builder = PlayerServiceNotification.getNotificationBuilder(this)
-        PlayerServiceNotification.updateSongTitleAndArtist(file)
-        notificationManager.notify(PlayerServiceNotification.id, builder.build())
+        val title = FileNameParser.getSongTitle(file)
+        val artist = FileNameParser.getSongArtist(file)
+        MiniPlayerServiceNotification.updateSongTitleAndArtist(this, title, artist)
     }
 
-    private fun changeNotificationPlayOrStop(isPlaying: Boolean) {
-        val builder = PlayerServiceNotification.getNotificationBuilder(this)
-        PlayerServiceNotification.updatePlayOrStop(isPlaying)
-        notificationManager.notify(PlayerServiceNotification.id, builder.build())
-    }
+    private fun changeNotificationPlayOrStop(isPlaying: Boolean) =
+        MiniPlayerServiceNotification.updatePlayOrStop(this, isPlaying)
 
-    private fun restoreState() {
-        scope.launch {
-            val songsFromDb = ServiceTransaction.getPlaylist()
-            val songsToPlaylist = MiniPlayerServiceSong.getSongsToPlaylist(songsFromDb)
+    private suspend fun restoreState() {
+        val songsFromDb = ServiceTransaction.getPlaylist()
+        val songsToPlaylist = MiniPlayerServiceSong.getSongsToPlaylist(songsFromDb)
 
-            if (songsToPlaylist.isNotEmpty()) {
-                playlist.addToQueue(*songsToPlaylist.toTypedArray())
-                //restore shuffle and loop state
-                val isShuffle = MiniPlayerServicePreferences
-                    .getIsShuffle(this@MiniPlayerService)
-                val loopState = MiniPlayerServicePreferences
-                    .getLoopState(this@MiniPlayerService)
-                //restore duration
-                val duration = MiniPlayerServicePreferences
-                        .getCurrentDuration(this@MiniPlayerService)
-                //what song should play
-                var posWasPlayedSong = MiniPlayerServicePreferences
-                        .getCurrentPos(this@MiniPlayerService)
-                if (posWasPlayedSong > songsToPlaylist.lastIndex)
-                    posWasPlayedSong = songsToPlaylist.lastIndex
-                val path = playlist.notShuffled[posWasPlayedSong].path
-                //restore isPlaying state
-                val isPlaying = MiniPlayerServicePreferences
-                        .getIsPlaying(this@MiniPlayerService)
-                val appWasDestroyed = AppPreference
-                    .getAppIsDestroyed(this@MiniPlayerService)
-                //apply shuffle state player
-                if (isShuffle) shuffleOn()
-                else shuffleOff()
-                //apply loop state player
-                when(loopState) {
-                    0 -> notLoopState()
-                    1 -> loopState()
-                    2 -> loopAllState()
-                }
-                //after all info got -> start player ->  set current time -> stop
-                playNext(path)
-                rewindPlayer(duration)
-                pausePlayer()
-                //this means ui have been destroyed with service after destroy main activity
-                //but app is still working -> after restoration we should play song
-                if (isPlaying && appWasDestroyed.not()) {
-                    playSongAfterCreatedPlayer()
-                }
+        if (songsToPlaylist.isNotEmpty()) {
+            playlist.addToQueue(*songsToPlaylist.toTypedArray())
+            //restore shuffle and loop state
+            val isShuffle = MiniPlayerServicePreferences
+                .getIsShuffle(this@MiniPlayerService)
+            val loopState = MiniPlayerServicePreferences
+                .getLoopState(this@MiniPlayerService)
+            //restore duration
+            val duration = MiniPlayerServicePreferences
+                .getCurrentDuration(this@MiniPlayerService)
+            //what song should play
+            var posWasPlayedSong = MiniPlayerServicePreferences
+                .getCurrentPos(this@MiniPlayerService)
+            if (posWasPlayedSong > songsToPlaylist.lastIndex)
+                posWasPlayedSong = songsToPlaylist.lastIndex
+            val path = playlist.notShuffled[posWasPlayedSong].path
+            //restore isPlaying state
+            val isPlaying = MiniPlayerServicePreferences
+                .getIsPlaying(this@MiniPlayerService)
+            val appWasDestroyed = AppPreference
+                .getAppIsDestroyed(this@MiniPlayerService)
+            //apply shuffle state player
+            if (isShuffle) shuffleOn()
+            else shuffleOff()
+            //apply loop state player
+            when(loopState) {
+                0 -> notLoopState()
+                1 -> loopState()
+                2 -> loopAllState()
+            }
+            //after all info got -> start player ->  set current time -> stop
+            playNext(path)
+            rewindPlayer(duration)
+            pausePlayer()
+            //this means ui have been destroyed with service after destroy main activity
+            //but app is still working -> after restoration we should play song
+            if (isPlaying && appWasDestroyed.not()) {
+                playSongAfterCreatedPlayer()
             }
         }
     }
@@ -494,7 +477,7 @@ abstract class MiniPlayerService : Service() {
 
     private fun sendSongNameAndArtist(file: File) {
         val songArtist = FileNameParser.getSongArtist(file)
-        val songName = FileNameParser.getSongName(file)
+        val songName = FileNameParser.getSongTitle(file)
         MiniPlayerBroadcastHub.run { songArtistUI(songArtist) }
         MiniPlayerBroadcastHub.run { songNameUI(songName) }
     }
