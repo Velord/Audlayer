@@ -317,9 +317,6 @@ class FolderFragment : ActionBarFragment(),
                             //default filter
                           filter: (File, String) -> Boolean = FileFilter.filterByEmptySearchQuery
         ) {
-            //while permission is not granted
-            if (viewModel.checkPermission(requireActivity()).not())
-                setupAdapter(file, filter)
             //now do everything to setup adapter
             changeCurrentTextView(file)
             //apply all filters to recycler view

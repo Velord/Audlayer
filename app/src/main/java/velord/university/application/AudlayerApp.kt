@@ -1,6 +1,7 @@
 package velord.university.application
 
 import android.app.Application
+import android.content.Context
 import android.os.Environment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,37 +17,36 @@ import java.io.File
 
 class AudlayerApp : Application() {
 
-    private val scope: CoroutineScope =
-        CoroutineScope(Job() + Dispatchers.Default)
-
     companion object {
         var db: AppDatabase? = null
+
+        private val scope: CoroutineScope =
+            CoroutineScope(Job() + Dispatchers.Default)
 
         fun getApplicationDir() =
             File(Environment.getExternalStorageDirectory(), "Audlayer")
 
         fun getApplicationVkDir() =
             File(getApplicationDir(), "Vk")
-    }
 
-    private fun createFolder() {
-        val mainExist = getApplicationDir()
-        if (mainExist.exists().not()) {
-            mainExist.mkdirs()
-            val vkExist = getApplicationVkDir()
-            if (vkExist.exists().not())
-                vkExist.mkdirs()
+        fun initApp(context: Context) {
+            //init working folder
+            createFolder()
+            //init db and create tables if not exist
+            db = buildAppDatabase(context)
+            scope.launch {
+                PlaylistTransaction.checkDbTableColumn()
+            }
         }
-    }
 
-    override fun onCreate() {
-        super.onCreate()
-        //init working folder
-        createFolder()
-        //init db and create tables if not exist
-        db = buildAppDatabase(this)
-        scope.launch {
-            PlaylistTransaction.checkDbTableColumn()
+        private fun createFolder() {
+            val mainExist = getApplicationDir()
+            if (mainExist.exists().not()) {
+                mainExist.mkdirs()
+                val vkExist = getApplicationVkDir()
+                if (vkExist.exists().not())
+                    vkExist.mkdirs()
+            }
         }
     }
 }

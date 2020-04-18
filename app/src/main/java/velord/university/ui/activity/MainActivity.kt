@@ -1,14 +1,18 @@
 package velord.university.ui.activity
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProviders
 import kotlinx.coroutines.*
 import velord.university.R
+import velord.university.application.AudlayerApp
 import velord.university.application.notification.MiniPlayerServiceNotification
+import velord.university.application.permission.PermissionChecker
 import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
 import velord.university.application.settings.AppPreference
 import velord.university.ui.backPressed.BackPressedHandler
@@ -47,6 +51,12 @@ class MainActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "called onCreate")
         super.onCreate(savedInstanceState)
+        PermissionChecker.checkReadWriteExternalStoragePermission(baseContext, this)
+    }
+
+    private fun startApp() {
+        //start app
+        AudlayerApp.initApp(baseContext)
         //service
         startService(Intent(this, MiniPlayerServiceBroadcastReceiver().javaClass))
         //self view
@@ -58,6 +68,22 @@ class MainActivity : AppCompatActivity(),
             R.id.main_container
         )
         viewModel
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (grantResults.isNotEmpty()
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(baseContext, "Permission granted", Toast.LENGTH_SHORT).show()
+            //start activity
+            startApp()
+        } else {
+            PermissionChecker.checkReadWriteExternalStoragePermission(baseContext, this)
+        }
     }
 
     override fun onDestroy() {

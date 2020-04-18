@@ -47,5 +47,5 @@ class SelectSongViewModel(private val app: Application) : AndroidViewModel(app) 
 
     fun checkPermission(activity: Activity): Boolean =
         PermissionChecker
-            .checkThenRequestReadWriteExternalStoragePermission(app, activity)
+            .checkReadWriteExternalStoragePermission(app, activity)
 }

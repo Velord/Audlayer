@@ -127,7 +127,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun checkPermission(activity: Activity): Boolean =
         PermissionChecker
-            .checkThenRequestReadWriteExternalStoragePermission(app, activity)
+            .checkReadWriteExternalStoragePermission(app, activity)
 
     private fun getFilesInCurrentFolder(): Array<File> {
         val path = currentFolder.path
