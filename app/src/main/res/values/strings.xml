@@ -43,6 +43,7 @@
     <string name="action_bar_hint_select_song">Choose Song</string>
     <string name="action_bar_hint_song">All Audio</string>
     <string name="action_bar_hint_vk">Vk Playlist</string>
+    <string name="action_bar_hint_radio">Radio</string>
     <string name="action_bar_hint_search_view">Type to find...</string>
     <string name="action_bar_settings">Settings Button</string>
     <string name="action_bar_action">Action Button</string>

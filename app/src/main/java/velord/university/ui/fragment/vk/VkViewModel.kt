@@ -49,7 +49,8 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun vkPlaylistIsInitialized() = ::vkPlaylist.isInitialized
 
-    fun getSearchQuery(): String = SearchQueryPreferences.getStoredQueryVk(app)
+    fun getSearchQuery(): String =
+        SearchQueryPreferences.getStoredQueryVk(app)
 
     fun playAudioNext(song: VkSong) {
         val file = File(song.path)

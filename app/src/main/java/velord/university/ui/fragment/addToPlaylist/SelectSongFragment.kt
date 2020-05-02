@@ -57,30 +57,30 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
     }
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
-            R.id.folder_sort_by_name -> {
+            R.id.sort_by_name -> {
                 SortByPreference.setSortBySelectSongFragment(requireContext(), 0)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
-            R.id.folder_sort_by_artist -> {
+            R.id.sort_by_artist -> {
                 SortByPreference.setSortBySelectSongFragment(requireContext(), 1)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
-            R.id.folder_sort_by_date_added -> {
+            R.id.sort_by_date_added -> {
                 SortByPreference.setSortBySelectSongFragment(requireContext(), 2)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true                        }
-            R.id.folder_sort_by_ascending_order -> {
+            R.id.sort_by_ascending_order -> {
                 SortByPreference.setAscDescSelectSongFragment(requireContext(), 0)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
-            R.id.folder_sort_by_descending_order -> {
+            R.id.sort_by_descending_order -> {
                 SortByPreference.setAscDescSelectSongFragment(requireContext(), 1)
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
@@ -92,7 +92,7 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
         }
     }
     override val actionBarPopUpMenuLayout: () -> Int = {
-        R.menu.sort_by
+        R.menu.general_sort_by
     }
     override val actionBarPopUpMenuStyle: () -> Int = {
         R.style.PopupMenuOverlapAnchorFolder

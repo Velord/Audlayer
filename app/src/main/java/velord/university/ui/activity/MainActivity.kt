@@ -51,7 +51,8 @@ class MainActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "called onCreate")
         super.onCreate(savedInstanceState)
-        PermissionChecker.checkReadWriteExternalStoragePermission(baseContext, this)
+        if(PermissionChecker.checkReadWriteExternalStoragePermission(baseContext, this))
+            startApp()
     }
 
     private fun startApp() {

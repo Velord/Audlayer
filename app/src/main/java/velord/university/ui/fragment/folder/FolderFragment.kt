@@ -76,14 +76,14 @@ class FolderFragment : ActionBarFragment(),
             }
             R.id.song_fragment_sort_by -> {
                 val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
-                val initActionMenuLayout = { R.menu.sort_by }
+                val initActionMenuLayout = { R.menu.general_sort_by }
                 val initActionMenuItemClickListener: (MenuItem) -> Boolean = { menuItem ->
                     when (menuItem.itemId) {
-                        R.id.folder_sort_by_name -> sortBy(0)
-                        R.id.folder_sort_by_artist -> sortBy(1)
-                        R.id.folder_sort_by_date_added -> sortBy(2)
-                        R.id.folder_sort_by_ascending_order -> sortByAscDesc(0)
-                        R.id.folder_sort_by_descending_order -> sortByAscDesc(1)
+                        R.id.sort_by_name -> sortBy(0)
+                        R.id.sort_by_artist -> sortBy(1)
+                        R.id.sort_by_date_added -> sortBy(2)
+                        R.id.sort_by_ascending_order -> sortByAscDesc(0)
+                        R.id.sort_by_descending_order -> sortByAscDesc(1)
                         else -> {
                             super.rearwardActionButton()
                             false

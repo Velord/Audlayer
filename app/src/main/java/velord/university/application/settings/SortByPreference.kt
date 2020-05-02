@@ -9,12 +9,14 @@ private const val ORDER_ASC_DEC_SELECT_SONG = "AscendingDescendingSelect"
 private const val ORDER_ASC_DEC_ALBUM = "AscendingDescendingAlbum"
 private const val ORDER_ASC_DEC_SONG = "AscendingDescendingSong"
 private const val ORDER_ASC_DEC_VK = "AscendingDescendingVK"
+private const val ORDER_ASC_DEC_RADIO = "AscendingDescendingRadio"
 
 private const val NAME_ARTIST_DATE_ADDED_FOLDER = "NameArtistDateAdded"
 private const val NAME_ARTIST_DATE_ADDED_SELECT = "NameArtistDateAdded"
 private const val ALBUM_ARTIST_YEAR_NUMBER_OF_TRACKS = "AlbumArtistYearNumberOfTracks"
 private const val NAME_ARTIST_DURATION_SIZE_DATE_ADDED_SONG = "NameArtistDurationSizeDateAddedSong"
 private const val NAME_ARTIST_DURATION_SIZE_DATE_ADDED_VK = "NameArtistDurationSizeDateAddedVk"
+private const val NAME_ARTIST_RADIO = "NameArtistRadio"
 
 
 object SortByPreference {
@@ -185,6 +187,40 @@ object SortByPreference {
     fun getAscDescVkFragment(
         context: Context,
         key: String = ORDER_ASC_DEC_VK
+    ) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .getInt(key, -1)
+
+    fun setSortByRadioFragment(
+        context: Context,
+        sortBy: Int,
+        key: String = NAME_ARTIST_RADIO
+    ) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .edit {
+                putInt(key, sortBy)
+            }
+
+    fun getSortByRadioFragment(
+        context: Context,
+        key: String = NAME_ARTIST_RADIO
+    ) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .getInt(key, -1)
+
+    fun setAscDescRadioFragment(
+        context: Context,
+        order: Int,
+        key: String = ORDER_ASC_DEC_RADIO
+    ) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .edit {
+                putInt(key, order)
+            }
+
+    fun getAscDescRadioFragment(
+        context: Context,
+        key: String = ORDER_ASC_DEC_RADIO
     ) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .getInt(key, -1)

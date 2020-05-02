@@ -7,6 +7,7 @@ import androidx.preference.PreferenceManager
 private const val PREF_SEARCH_QUERY_ALBUM = "searchQueryAlbum"
 private const val PREF_SEARCH_QUERY_SONG = "searchQuerySong"
 private const val PREF_SEARCH_QUERY_VK = "searchQueryVk"
+private const val PREF_SEARCH_QUERY_RADIO = "searchQueryRadio"
 
 object SearchQueryPreferences {
 
@@ -55,8 +56,21 @@ object SearchQueryPreferences {
             .getString(key, "-1")!!
 
     fun setStoredQueryVk(context: Context,
-                           query: String,
-                           key: String = PREF_SEARCH_QUERY_VK) =
+                       query: String,
+                       key: String = PREF_SEARCH_QUERY_VK) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .edit {
+                putString(key, query)
+            }
+
+    fun getStoredQueryRadio(context: Context,
+                         key: String = PREF_SEARCH_QUERY_RADIO): String  =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .getString(key, "-1")!!
+
+    fun setStoredQueryRadio(context: Context,
+                         query: String,
+                         key: String = PREF_SEARCH_QUERY_RADIO) =
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
                 putString(key, query)
