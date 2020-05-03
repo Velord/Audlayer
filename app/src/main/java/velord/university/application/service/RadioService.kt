@@ -54,10 +54,6 @@ abstract class RadioService : Service() {
         return START_STICKY
     }
 
-    protected fun stopPlayer() {
-
-    }
-
     protected fun playOrStopService() {
         if (player.isPlaying) pausePlayer()
         else playRadioAfterCreatedPlayer()
@@ -91,6 +87,10 @@ abstract class RadioService : Service() {
     }
 
     protected fun getInfoFromServiceToUI() {
+
+    }
+
+    private fun stopPlayer() {
 
     }
 

@@ -71,7 +71,7 @@ class MiniPlayerServiceBroadcastReceiver :
     override val unlikeF: (Intent?) -> Unit
         get() = {
             super.unlikeSong()
-           unlikeUI()
+            unlikeUI()
         }
 
     override val skipNextF: (Intent?) -> Unit
