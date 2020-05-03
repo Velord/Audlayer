@@ -1,0 +1,98 @@
+[
+  {
+    "name" : "RadioRecord",
+    "url" : "http://air.radiorecord.ru:805/rr_320"
+  },
+  {
+    "name" : "Record Megamix",
+    "url" : "http://air.radiorecord.ru:805/mix_320"
+  },
+  {
+    "name" : "Record Deep",
+    "url" : "http://air.radiorecord.ru:805/deep_320"
+  },
+  {
+    "name" : "Record Club",
+    "url" : "http://air.radiorecord.ru:805/club_320"
+  },
+  {
+    "name" : "Record Future House",
+    "url" : "http://air.radiorecord.ru:805/fut_320"
+  },
+  {
+    "name" : "Record Trancemission",
+    "url" : "http://air.radiorecord.ru:805/tm_320"
+  },
+  {
+    "name" : "Record Chill-Out",
+    "url" : "http://air.radiorecord.ru:805/chil_320"
+  },
+  {
+    "name" : "Record Minimal Tech",
+    "url" : "http://air.radiorecord.ru:805/mini_320"
+  },
+  {
+    "name" : "Record Pirate Station",
+    "url" : "http://air.radiorecord.ru:805/ps_320"
+  },
+  {
+    "name" : "Record Russian Mix",
+    "url" : "http://air.radiorecord.ru:805/rus_320"
+  },
+  {
+    "name" : "Record Vip House",
+    "url" : "http://air.radiorecord.ru:805/vip_320"
+  },
+  {
+    "name" : "Record Супердискотека 90-х",
+    "url" : "http://air.radiorecord.ru:805/sd90_320"
+  },
+  {
+    "name" : "Record Breaks",
+    "url" : "http://air.radiorecord.ru:805/brks_320"
+  },
+  {
+    "name" : "Record Dubstep",
+    "url" : "http://air.radiorecord.ru:805/dub_320"
+  },
+  {
+    "name" : "Record Dancecore",
+    "url" : "http://air.radiorecord.ru:805/dc_320"
+  },
+  {
+    "name" : "Record Techno",
+    "url" : "http://air.radiorecord.ru:805/techno320"
+  },
+  {
+    "name" : "Record Hardstyle",
+    "url" : "http://air.radiorecord.ru:805/teo_320"
+  },
+  {
+    "name" : "Record Trap",
+    "url" : "http://air.radiorecord.ru:805/trap_320"
+  },
+  {
+    "name" : "Record Pump",
+    "url" : "http://air.radiorecord.ru:805/pump_320"
+  },
+  {
+    "name" : "Record Rock",
+    "url" : "http://air.radiorecord.ru:805/rock_320"
+  },
+  {
+    "name" : "Record Медляк FM",
+    "url" : "http://air.radiorecord.ru:805/md1_320"
+  },
+  {
+    "name" : "Record Гоп FM",
+    "url" : "http://air.radiorecord.ru:805/gop_320"
+  },
+  {
+    "name" : "Record Yo! FM",
+    "url" : "http://air.radiorecord.ru:805/yo_320"
+  },
+  {
+    "name" : "Record Rave FM",
+    "url" : "http://air.radiorecord.ru:805/rave_320"
+  }
+]

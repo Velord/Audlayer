@@ -6,6 +6,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.*
+import velord.university.application.AudlayerApp
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.model.entity.RadioStation
@@ -19,34 +20,13 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
 
     lateinit var rvResolver: RecyclerViewSelectItemResolver<String>
 
-    lateinit var radioPlaylist: List<RadioStation>
+    private val radioPlaylist: List<RadioStation> by lazy {
+        AudlayerApp.db!!.run {
+            radioDao().getAll()
+        }
+    }
 
     lateinit var ordered: List<RadioStation>
-
-    init {
-        radioPlaylist = listOf(
-            RadioStation("Record",
-                "http://air.radiorecord.ru:805/rr_320",
-                null
-            ),
-            RadioStation("Record 2",
-                "http://air.radiorecord.ru:805/rr_320",
-                null
-            ),
-            RadioStation("Record 22",
-                "http://air.radiorecord.ru:805/rr_320",
-                null
-            ),
-            RadioStation("Record  232",
-                "http://air.radiorecord.ru:805/rr_320",
-                null
-            ),
-            RadioStation("Record 434324",
-                "http://air.radiorecord.ru:805/rr_320",
-                null
-            )
-        )
-    }
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 

@@ -3,10 +3,16 @@ package velord.university.application
 import android.app.Application
 import android.content.Context
 import android.os.Environment
+import android.util.Log
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import velord.university.model.entity.RadioStation
+import velord.university.model.util.getJsonDataFromAsset
 import velord.university.repository.factory.AppDatabase
 import velord.university.repository.factory.buildAppDatabase
 import velord.university.repository.transaction.PlaylistTransaction
@@ -16,6 +22,8 @@ import java.io.File
 //default playlist is Favourite, Played
 
 class AudlayerApp : Application() {
+
+    private val TAG = "AudlayerApp"
 
     companion object {
         var db: AppDatabase? = null
@@ -39,6 +47,29 @@ class AudlayerApp : Application() {
             db = buildAppDatabase(context)
             scope.launch {
                 PlaylistTransaction.checkDbTableColumn()
+                checkDefaultRadioStation(context)
+            }
+        }
+
+        private fun checkDefaultRadioStation(context: Context) {
+            db?.let {
+                val stations = it.radioDao().getAll()
+                if (stations.isEmpty())
+                    insertDefaultRadioStation(context)
+            }
+        }
+
+        private fun insertDefaultRadioStation(context: Context) {
+            val file = getJsonDataFromAsset(context, "DefaultRadioStation")
+            Log.i("AudlayerApp", file)
+
+            val moshi = Moshi.Builder().build()
+            val type = Types.newParameterizedType(List::class.java, RadioStation::class.java)
+            val adapter: JsonAdapter<List<RadioStation>> = moshi.adapter(type)
+            val stations = adapter.fromJson(file)
+
+            db?.let {
+                it.radioDao().insertAll(*stations!!.toTypedArray())
             }
         }
 
