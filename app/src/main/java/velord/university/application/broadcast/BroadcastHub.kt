@@ -40,6 +40,7 @@ import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.unl
 import velord.university.application.broadcast.MiniPlayerBroadcastHub.Extra.folderPathService
 
 const val PERM_PRIVATE_MINI_PLAYER = "velord.university.PERM_PRIVATE_MINI_PLAYER"
+const val PERM_PRIVATE_RADIO = "velord.university.PERM_PRIVATE_RADIO"
 
 object MiniPlayerBroadcastHub {
 
@@ -238,7 +239,74 @@ object MiniPlayerBroadcastHub {
             this@playOrStopService.sendBroadcastPlayOrStop()
         }
 
+    //radio
+    fun Context.stopRadioService() =
+        RadioBroadcastStop.run {
+            this@stopRadioService.sendBroadcastStop()
+        }
+
+    fun Context.stopRadioUI() =
+        RadioBroadcastStop.run {
+            this@stopRadioUI.sendBroadcastStopUI()
+        }
+
+    fun Context.playRadioService() =
+        RadioBroadcastPlay.run {
+            this@playRadioService.sendBroadcastPlay()
+        }
+
+    fun Context.playRadioI() =
+        RadioBroadcastPlay.run {
+            this@playRadioI.sendBroadcastPlayUI()
+        }
+
+    fun Context.likeRadioService() =
+        RadioBroadcastLike.run {
+            this@likeRadioService.sendBroadcastLike()
+        }
+
+    fun Context.likeRadioUI() =
+        RadioBroadcastLike.run {
+            this@likeRadioUI.sendBroadcastLikeUI()
+        }
+
+    fun Context.unlikeRadioService() =
+        RadioBroadcastUnlike.run {
+            this@unlikeRadioService.sendBroadcastUnlike()
+        }
+
+    fun Context.unlikeRadioUI() =
+        RadioBroadcastUnlike.run {
+            this@unlikeRadioUI.sendBroadcastUnlikeUI()
+        }
+
+    fun Context.songRadioNameUI(name: String) =
+        RadioBroadcastName.run {
+            this@songRadioNameUI.sendBroadcastRadioNameUI(name)
+        }
+
+    fun Context.songRadioArtistUI(artist: String) =
+        RadioBroadcastArtist.run {
+            this@songRadioArtistUI.sendBroadcastRadioArtistUI(artist)
+        }
+
+    fun Context.playOrStopRadioService() =
+        RadioBroadcastPlayOrStop.run {
+            this@playOrStopRadioService.sendBroadcastPlayOrStop()
+        }
+
+    fun Context.playByUrlRadioService(url: String) =
+        RadioBroadcastPlayByUrl.run {
+            this@playByUrlRadioService.sendBroadcastPlayByUrl(url)
+        }
+
+    fun Context.getInfoRadioService() =
+        RadioBroadcastGetInfo.run {
+            this@getInfoRadioService.sendBroadcastGetInfo()
+        }
+
     object Action {
+        //miniPlayer
         const val stopService = "velord.university.STOP"
         const val stopUI = "velord.university.STOP_UI"
         const val playService = "velord.university.PlAY"
@@ -278,6 +346,20 @@ object MiniPlayerBroadcastHub {
         const val getInfoService = "velord.university.GET_INFO"
         const val songPathIsWrongUI = "velord.university.SONG_PATH_IS_WRONG_UI"
         const val playOrStopService = "velord.university.PLAY_OR_STOP"
+        //radio
+        const val stopRadioService = "velord.university.STOP_RADIO"
+        const val stopRadioUI = "velord.university.STOP_RADIO_UI"
+        const val playRadioService = "velord.university.PlAY_RADIO"
+        const val playRadioUI ="velord.university.PlAY_RADIO_UI"
+        const val likeRadioService = "velord.university.LIKE_RADIO"
+        const val likeRadioUI = "velord.university.LIKE_RADIO_UI"
+        const val unlikeRadioService = "velord.university.UNLIKE_RADIO"
+        const val unlikeRadioUI = "velord.university.UNLIKE_RADIO_UI"
+        const val playOrStopRadioService = "velord.university.PLAY_OR_STOP_RADIO"
+        const val playByUrlRadioService = "velord.university.PLAY_BY_URL_RADIO"
+        const val getInfoRadioService = "velord.university.GET_INFO_RADIO"
+        const val radioArtistUI = "velord.university.RADIO_ARTIST_UI"
+        const val radioNameUI = "velord.university.RADIO_NAME_UI"
     }
 
     object Extra {
@@ -290,9 +372,13 @@ object MiniPlayerBroadcastHub {
         const val songHQUI = "SONG_HQ_UI"
         const val songDurationUI = "SONG_DURATION_UI"
         const val folderPathService = "AUDIO_FOLDER_PATH"
+        //radio
+        const val playByRadioStationUrlService= "RADIO_STATION_URL"
+        const val radioNameUI = "RADIO_STATION_NAME"
+        const val radioArtistUI = "RADIO_STATION_ARTIST"
     }
 
-    private abstract class MiniPlayerBroadcastBase {
+    private abstract class BroadcastBase {
         //what can receive service
         open val actionService: String = ""
         //what can receive ui
@@ -307,7 +393,7 @@ object MiniPlayerBroadcastHub {
         open val extraValueUI: Any = ""
     }
 
-    private object MiniPlayerBroadcastStop : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastStop : BroadcastBase() {
 
         override val actionService: String = Action.stopService
 
@@ -326,7 +412,7 @@ object MiniPlayerBroadcastHub {
 
     }
 
-    private object MiniPlayerBroadcastPlay : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastPlay : BroadcastBase() {
 
         override val actionService: String = playService
 
@@ -343,7 +429,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission)
     }
 
-    private object MiniPlayerBroadcastLike : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastLike : BroadcastBase() {
 
         override val actionService: String = likeService
 
@@ -360,7 +446,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission)
     }
 
-    private object MiniPlayerBroadcastUnlike : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastUnlike : BroadcastBase() {
 
         override val actionService: String = unlikeService
 
@@ -377,7 +463,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission)
     }
 
-    private object MiniPlayerBroadcastSkipNext : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastSkipNext : BroadcastBase() {
 
         override val actionService: String = skipNextService
 
@@ -394,7 +480,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission)
     }
 
-    private object MiniPlayerBroadcastSkipPrev : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastSkipPrev : BroadcastBase() {
 
         override val actionService: String = skipPrevService
 
@@ -411,7 +497,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission)
     }
 
-    private object MiniPlayerBroadcastRewind : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastRewind : BroadcastBase() {
 
         override val actionService: String = rewindService
 
@@ -436,7 +522,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission, extraValueUI, duration)
     }
 
-    private object MiniPlayerBroadcastShuffle : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastShuffle : BroadcastBase() {
 
         override val actionService: String = shuffleService
 
@@ -453,7 +539,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission)
     }
 
-    private object MiniPlayerBroadcastUnShuffle : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastUnShuffle : BroadcastBase() {
 
         override val actionService: String = unShuffleService
 
@@ -470,7 +556,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission)
     }
 
-    private object MiniPlayerBroadcastLoop : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastLoop : BroadcastBase() {
 
         override val actionService: String = loopService
 
@@ -487,7 +573,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission)
     }
 
-    private object MiniPlayerBroadcastLoopAll : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastLoopAll : BroadcastBase() {
 
         override val actionService: String = loopAllService
 
@@ -504,7 +590,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission)
     }
 
-    private object MiniPlayerBroadcastNotLoop : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastNotLoop : BroadcastBase() {
 
         override val actionService: String = notLoopService
 
@@ -521,7 +607,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission)
     }
 
-    private object MiniPlayerBroadcastPlayByPath : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastPlayByPath : BroadcastBase() {
 
         override val actionService: String = playByPathService
 
@@ -535,7 +621,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionService, permission, extraValueService, path)
     }
 
-    private object MiniPlayerBroadcastSongPath : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastSongPath : BroadcastBase() {
 
         override val actionUI: String = songPathUI
 
@@ -549,7 +635,7 @@ object MiniPlayerBroadcastHub {
         ) = sendBroadcast(actionUI, permission, extraValueUI, path)
     }
 
-    private object MiniPlayerBroadcastSongArtist : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastSongArtist : BroadcastBase() {
 
         override val actionUI: String = songArtistUI
 
@@ -560,11 +646,10 @@ object MiniPlayerBroadcastHub {
         fun Context.sendBroadcastSongArtistUI(
             artist: String,
             permission: String = PERM_PRIVATE_MINI_PLAYER
-        ) =
-            sendBroadcast(actionUI, permission, extraValueUI, artist)
+        ) = sendBroadcast(actionUI, permission, extraValueUI, artist)
     }
 
-    private object MiniPlayerBroadcastSongName : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastSongName : BroadcastBase() {
 
         override val actionUI: String = songNameUI
 
@@ -574,11 +659,11 @@ object MiniPlayerBroadcastHub {
 
         fun Context.sendBroadcastSongNameUI(
             name: String,
-            permission: String = PERM_PRIVATE_MINI_PLAYER) =
-            sendBroadcast(actionUI, permission, extraValueUI, name)
+            permission: String = PERM_PRIVATE_MINI_PLAYER
+        ) = sendBroadcast(actionUI, permission, extraValueUI, name)
     }
 
-    private object MiniPlayerBroadcastSongHQ : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastSongHQ : BroadcastBase() {
 
         override val actionUI: String = songHQUI
 
@@ -592,7 +677,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission, extraValueUI, isHQ)
     }
 
-    private object MiniPlayerBroadcastSongDuration : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastSongDuration : BroadcastBase() {
 
         override val actionUI: String = songDurationUI
 
@@ -606,7 +691,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission, extraValueUI, duration)
     }
 
-    private object MiniPlayerBroadcastShow : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastShow : BroadcastBase() {
         override val actionUI: String = showUI
 
         override val filterUI: IntentFilter = IntentFilter(actionUI)
@@ -615,7 +700,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission)
     }
 
-    private object MiniPlayerBroadcastHide : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastHide : BroadcastBase() {
         override val actionUI: String = hideUI
 
         override val filterUI: IntentFilter = IntentFilter(actionUI)
@@ -624,7 +709,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionUI, permission)
     }
 
-    private object MiniPlayerBroadcastPlayAllInFolder : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastPlayAllInFolder : BroadcastBase() {
 
         override val actionService: String = playAllInFolderService
 
@@ -637,7 +722,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionService, permission, extraValueService, folderPath)
     }
 
-    private object MiniPlayerBroadcastPlayNextAllInFolder : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastPlayNextAllInFolder : BroadcastBase() {
 
         override val actionService: String = playNextAllInFolderService
 
@@ -650,7 +735,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionService, permission, extraValueService, folderPath)
     }
 
-    private object MiniPlayerBroadcastShuffleAndPlayAllInFolder : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastShuffleAndPlayAllInFolder : BroadcastBase() {
 
         override val actionService: String = shuffleAndPlayAllInFolderService
 
@@ -663,7 +748,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionService, permission, extraValueService, folderPath)
     }
 
-    private object MiniPlayerBroadcastAddToQueue : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastAddToQueue : BroadcastBase() {
 
         override val actionService: String = addToQueueService
 
@@ -677,7 +762,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionService, permission, extraValueService, path)
     }
 
-    private object MiniPlayerBroadcastGetInfo : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastGetInfo : BroadcastBase() {
         override val actionService: String = getInfoService
 
         override val filterService: IntentFilter = IntentFilter(actionService)
@@ -686,7 +771,7 @@ object MiniPlayerBroadcastHub {
             sendBroadcast(actionService, permission)
     }
 
-    private object MiniPlayerBroadcastPathWrong : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastPathWrong : BroadcastBase() {
         override val actionUI: String = Action.songPathIsWrongUI
 
         override val filterUI: IntentFilter = IntentFilter(actionUI)
@@ -699,13 +784,145 @@ object MiniPlayerBroadcastHub {
         ) = sendBroadcast(actionUI, permission, extraValueUI, path)
     }
 
-    private object MiniPlayerBroadcastPlayOrStop : MiniPlayerBroadcastBase() {
+    private object MiniPlayerBroadcastPlayOrStop : BroadcastBase() {
         override val actionService: String = Action.playOrStopService
 
         override val filterService: IntentFilter = IntentFilter(actionService)
 
         fun Context.sendBroadcastPlayOrStop(
             permission: String = PERM_PRIVATE_MINI_PLAYER
+        ) = sendBroadcast(actionService, permission)
+    }
+
+    private object RadioBroadcastStop : BroadcastBase() {
+
+        override val actionService: String = Action.stopRadioService
+
+        override val actionUI: String = Action.stopRadioUI
+
+        override val filterService: IntentFilter = IntentFilter(actionService)
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+
+        fun Context.sendBroadcastStop(permission: String = PERM_PRIVATE_RADIO) =
+            sendBroadcast(actionService, permission)
+
+        fun Context.sendBroadcastStopUI(permission: String = PERM_PRIVATE_RADIO) =
+            sendBroadcast(actionUI, permission)
+
+    }
+
+    private object RadioBroadcastPlay : BroadcastBase() {
+
+        override val actionService: String = Action.playRadioService
+
+        override val actionUI: String = Action.playRadioUI
+
+        override val filterService: IntentFilter = IntentFilter(actionService)
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        fun Context.sendBroadcastPlay(permission: String = PERM_PRIVATE_RADIO) =
+            sendBroadcast(actionService, permission)
+
+        fun Context.sendBroadcastPlayUI(permission: String = PERM_PRIVATE_RADIO) =
+            sendBroadcast(actionUI, permission)
+    }
+
+    private object RadioBroadcastLike : BroadcastBase() {
+
+        override val actionService: String = Action.likeRadioService
+
+        override val actionUI: String = Action.likeRadioUI
+
+        override val filterService: IntentFilter = IntentFilter(actionService)
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        fun Context.sendBroadcastLike(permission: String = PERM_PRIVATE_RADIO) =
+            sendBroadcast(actionService, permission)
+
+        fun Context.sendBroadcastLikeUI(permission: String = PERM_PRIVATE_RADIO) =
+            sendBroadcast(actionUI, permission)
+    }
+
+    private object RadioBroadcastUnlike : BroadcastBase() {
+
+        override val actionService: String = Action.unlikeRadioService
+
+        override val actionUI: String = Action.unlikeRadioUI
+
+        override val filterService: IntentFilter = IntentFilter(actionService)
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        fun Context.sendBroadcastUnlike(permission: String = PERM_PRIVATE_RADIO) =
+            sendBroadcast(actionService, permission)
+
+        fun Context.sendBroadcastUnlikeUI(permission: String = PERM_PRIVATE_RADIO) =
+            sendBroadcast(actionUI, permission)
+    }
+
+    private object RadioBroadcastGetInfo : BroadcastBase() {
+
+        override val actionService: String = Action.getInfoRadioService
+
+        override val filterService: IntentFilter = IntentFilter(actionService)
+
+        fun Context.sendBroadcastGetInfo(permission: String = PERM_PRIVATE_RADIO) =
+            sendBroadcast(actionService, permission)
+    }
+
+    private object RadioBroadcastPlayByUrl : BroadcastBase() {
+
+        override val actionService: String = Action.playByUrlRadioService
+
+        override val filterService: IntentFilter = IntentFilter(actionService)
+
+        override val extraValueService: String = Extra.playByRadioStationUrlService
+
+        fun Context.sendBroadcastPlayByUrl(
+            url: String,
+            permission: String = PERM_PRIVATE_RADIO
+        ) = sendBroadcast(actionService, permission, extraValueService, url)
+    }
+
+    private object RadioBroadcastArtist : BroadcastBase() {
+
+        override val actionUI: String = Action.radioArtistUI
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        override val extraValueUI: String = Extra.songArtistUI
+
+        fun Context.sendBroadcastRadioArtistUI(
+            artist: String,
+            permission: String = PERM_PRIVATE_RADIO
+        ) = sendBroadcast(actionUI, permission, extraValueUI, artist)
+    }
+
+    private object RadioBroadcastName : BroadcastBase() {
+
+        override val actionUI: String = Action.radioNameUI
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        override val extraValueUI: String = Extra.songNameUI
+
+        fun Context.sendBroadcastRadioNameUI(
+            name: String,
+            permission: String = PERM_PRIVATE_RADIO
+        ) = sendBroadcast(actionUI, permission, extraValueUI, name)
+    }
+
+    private object RadioBroadcastPlayOrStop: BroadcastBase() {
+        override val actionService: String = Action.playOrStopRadioService
+
+        override val filterService: IntentFilter = IntentFilter(actionService)
+
+        fun Context.sendBroadcastPlayOrStop(
+            permission: String = PERM_PRIVATE_RADIO
         ) = sendBroadcast(actionService, permission)
     }
 }

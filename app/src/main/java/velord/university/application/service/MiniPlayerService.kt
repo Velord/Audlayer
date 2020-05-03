@@ -32,6 +32,7 @@ abstract class MiniPlayerService : Service() {
     private val playlist = ServicePlaylist()
 
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
+
     private lateinit var rewindJob: Job
 
     override fun onBind(intent: Intent?): IBinder? {

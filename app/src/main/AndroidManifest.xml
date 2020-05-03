@@ -5,6 +5,9 @@
     <permission android:name="velord.university.PERM_PRIVATE_MINI_PLAYER"
         android:protectionLevel="signature"/>
 
+    <permission android:name="velord.university.PERM_PRIVATE_RADIO"
+        android:protectionLevel="signature"/>
+
     <uses-permission android:name = "android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name = "android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET" />

@@ -12,14 +12,14 @@ import kotlinx.android.synthetic.main.mini_player.*
 import velord.university.R
 import velord.university.application.broadcast.MiniPlayerBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
-import velord.university.application.broadcast.behaviour.MiniPlayerReceiver
+import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.model.converter.SongTimeConverter
 import velord.university.ui.fragment.miniPlayer.logic.*
 
 class MiniPlayerFragment : MiniPlayerInitializerFragment(),
-    MiniPlayerReceiver {
+    MiniPlayerUIReceiver {
 
     override val TAG: String = "MiniPlayerFragment"
 

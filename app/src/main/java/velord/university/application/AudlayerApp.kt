@@ -29,6 +29,9 @@ class AudlayerApp : Application() {
         fun getApplicationVkDir() =
             File(getApplicationDir(), "Vk")
 
+        fun getApplicationRadioDir() =
+            File(getApplicationDir(), "Radio")
+
         fun initApp(context: Context) {
             //init working folder
             createFolder()
@@ -43,9 +46,14 @@ class AudlayerApp : Application() {
             val mainExist = getApplicationDir()
             if (mainExist.exists().not()) {
                 mainExist.mkdirs()
+
                 val vkExist = getApplicationVkDir()
                 if (vkExist.exists().not())
                     vkExist.mkdirs()
+
+                val radioExist = getApplicationRadioDir()
+                if (radioExist.exists().not())
+                    radioExist.mkdirs()
             }
         }
     }
