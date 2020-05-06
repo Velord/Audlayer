@@ -14,5 +14,6 @@
 
     <include
         android:id="@+id/mini_player_radio"
+        android:visibility="gone"
         layout="@layout/mini_player_radio" />
 </FrameLayout>

@@ -24,6 +24,8 @@ abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
     protected lateinit var miniPlayerSongTimeStartTV: TextView
     protected lateinit var miniPlayerSongTimeEndTV: TextView
     protected lateinit var miniPlayerSongTimeSeekBar: SeekBar
+    protected lateinit var miniPlayerGeneral: ConstraintLayout
+    protected lateinit var miniPlayerRadio: ConstraintLayout
 
     protected fun initMiniPlayerView(view: View) {
         miniPlayerIV = view.findViewById(R.id.mini_player_imageView)
@@ -41,6 +43,28 @@ abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
         miniPlayerSongTimeStartTV = view.findViewById(R.id.mini_player_song_time_start)
         miniPlayerSongTimeEndTV = view.findViewById(R.id.mini_player_song_time_end)
         miniPlayerSongTimeSeekBar = view.findViewById(R.id.mini_player_song_time_seekBar)
+        miniPlayerGeneral = view.findViewById(R.id.mini_player_general_CL)
+        miniPlayerRadio = view.findViewById(R.id.mini_player_radio_CL)
+    }
+
+    protected fun showMiniPlayerGeneral() {
+        miniPlayerGeneral.visibility = View.VISIBLE
+        miniPlayerRadio.visibility = View.GONE
+    }
+
+    protected fun showMiniPlayerRadio() {
+        miniPlayerGeneral.visibility = View.GONE
+        miniPlayerRadio.visibility = View.VISIBLE
+    }
+
+    protected fun startSongAndArtistNameScrolling() {
+        miniPlayerSongArtistTV.isSelected = true
+        miniPlayerSongNameTV.isSelected = true
+    }
+
+    protected fun stopSongAndArtistNameScrolling()  {
+        miniPlayerSongArtistTV.isSelected = false
+        miniPlayerSongNameTV.isSelected = false
     }
 
     private fun initSongName(view: View) {

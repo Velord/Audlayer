@@ -15,6 +15,7 @@ import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.model.converter.SongTimeConverter
+import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import velord.university.ui.fragment.miniPlayer.logic.general.*
 
 open class MiniPlayerGeneralFragment :
@@ -27,7 +28,7 @@ open class MiniPlayerGeneralFragment :
         fun newInstance() = MiniPlayerGeneralFragment()
     }
 
-    private val viewModel by lazy {
+    protected val viewModel by lazy {
         ViewModelProviders.of(this).get(MiniPlayerViewModel::class.java)
     }
 
@@ -68,16 +69,16 @@ open class MiniPlayerGeneralFragment :
 
     private fun initView() {
         miniPlayerSongLikedIB.setOnClickListener {
-            HeartLogic.press(requireActivity())
+            HeartLogic.press(requireActivity(), viewModel.getState())
         }
         miniPlayerSongRepeatIB.setOnClickListener {
             RepeatLogic.press(requireActivity())
         }
         miniPlayerSongPlayOrPauseIB.setOnClickListener {
-            PlayPauseLogic.press(requireActivity())
+            PlayPauseLogic.press(requireActivity(), viewModel.getState())
         }
         miniPlayerSongShuffleIB.setOnClickListener {
-            ShuffleLogic.press(requireActivity())
+            ShuffleLogic.press(requireActivity(), viewModel.getState())
         }
         miniPlayerSongSkipNextIB.setOnClickListener {
             SkipNextLogic.press(requireActivity())
@@ -109,6 +110,13 @@ open class MiniPlayerGeneralFragment :
             })
     }
 
+    override val showF: (Intent?) -> Unit = {
+        it?.apply {
+            viewModel.setState(MiniPlayerLayoutState.GENERAL)
+            showMiniPlayerGeneral()
+        }
+    }
+
     override val songArtistF: (Intent?) -> Unit
         get() = { intent ->
             intent?.apply {
@@ -120,28 +128,22 @@ open class MiniPlayerGeneralFragment :
 
     override val stopF: (Intent?) -> Unit
         get() = {
-            miniPlayerSongPlayOrPauseIB.setImageResource(R.drawable.play)
-            PlayPauseLogic.value = false
-            stopSongAndArtistNameScrolling()
+            stopButtonInvoke()
         }
 
     override val playF: (Intent?) -> Unit
         get() = {
-            miniPlayerSongPlayOrPauseIB.setImageResource(R.drawable.pause)
-            PlayPauseLogic.value = true
-            startSongAndArtistNameScrolling()
+            playButtonInvoke()
         }
 
     override val likeF: (Intent?) -> Unit
         get() = {
-            miniPlayerSongLikedIB.setImageResource(R.drawable.heart_pressed)
-            HeartLogic.value = true
+            likeButtonInvoke()
         }
 
     override val unlikeF: (Intent?) -> Unit
         get() = {
-            miniPlayerSongLikedIB.setImageResource(R.drawable.heart_gray)
-            HeartLogic.value = false
+            unlikeButtonInvoke()
         }
 
     override val skipNextF: (Intent?) -> Unit
@@ -226,14 +228,26 @@ open class MiniPlayerGeneralFragment :
             }
         }
 
-    private fun startSongAndArtistNameScrolling() {
-        miniPlayerSongArtistTV.isSelected = true
-        miniPlayerSongNameTV.isSelected = true
+    protected fun stopButtonInvoke() {
+        miniPlayerSongPlayOrPauseIB.setImageResource(R.drawable.play)
+        PlayPauseLogic.value = false
+        stopSongAndArtistNameScrolling()
     }
 
-    private fun stopSongAndArtistNameScrolling()  {
-        miniPlayerSongArtistTV.isSelected = false
-        miniPlayerSongNameTV.isSelected = false
+    protected fun playButtonInvoke() {
+        miniPlayerSongPlayOrPauseIB.setImageResource(R.drawable.pause)
+        PlayPauseLogic.value = true
+        startSongAndArtistNameScrolling()
+    }
+
+    protected fun likeButtonInvoke() {
+        miniPlayerSongLikedIB.setImageResource(R.drawable.heart_pressed)
+        HeartLogic.value = true
+    }
+
+    protected fun unlikeButtonInvoke() {
+        miniPlayerSongLikedIB.setImageResource(R.drawable.heart_gray)
+        HeartLogic.value = false
     }
 }
 

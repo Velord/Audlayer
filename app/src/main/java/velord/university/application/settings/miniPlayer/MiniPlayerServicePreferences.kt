@@ -1,4 +1,4 @@
-package velord.university.application.settings
+package velord.university.application.settings.miniPlayer
 
 import android.content.Context
 import android.preference.PreferenceManager

@@ -11,12 +11,13 @@ import velord.university.application.broadcast.PERM_PRIVATE_RADIO
 import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
+import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 
 class MiniPlayerRadioGeneralFragment :
     MiniPlayerGeneralFragment(),
     RadioUIReceiver {
 
-    override val TAG: String = "MiniPlayerFragment"
+    override val TAG: String = "MiniPlayerRadioGeneralFragment"
 
     private val receivers = getRadioReceiverList()
 
@@ -24,8 +25,9 @@ class MiniPlayerRadioGeneralFragment :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = super.onCreateView(inflater, container, savedInstanceState)
-
+    ): View? {
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
 
     override fun onStart() {
         super.onStart()
@@ -35,10 +37,6 @@ class MiniPlayerRadioGeneralFragment :
                 .registerBroadcastReceiver(
                     it.first, IntentFilter(it.second), PERM_PRIVATE_RADIO
                 )
-        }
-        //get info from service about song cause service was created earlier then this view
-        AppBroadcastHub.apply {
-            requireContext().getInfoService()
         }
     }
 
@@ -51,19 +49,42 @@ class MiniPlayerRadioGeneralFragment :
         }
     }
 
-    override val stopRadioF: (Intent?) -> Unit = {
+    override val nameRadioF: (Intent?) -> Unit = {
+        it?.apply {
+            val extra = AppBroadcastHub.Extra.radioNameUI
+            val value = getStringExtra(extra)
+            miniPlayerSongNameTV.text = value
+        }
+    }
 
+    override val artistRadioF: (Intent?) -> Unit = {
+        it?.apply {
+            val extra = AppBroadcastHub.Extra.radioArtistUI
+            val value = getStringExtra(extra)
+            miniPlayerSongArtistTV.text = value
+        }
+    }
+
+    override val showRadioF: (Intent?) -> Unit = {
+        it?.apply {
+            viewModel.setState(MiniPlayerLayoutState.RADIO)
+            showMiniPlayerRadio()
+        }
+    }
+
+    override val stopRadioF: (Intent?) -> Unit = {
+        stopButtonInvoke()
     }
 
     override val playRadioF: (Intent?) -> Unit = {
-
+        playButtonInvoke()
     }
 
     override val likeRadioF: (Intent?) -> Unit = {
-
+        likeButtonInvoke()
     }
 
     override val unlikeRadioF: (Intent?) -> Unit = {
-
+        unlikeButtonInvoke()
     }
 }

@@ -20,7 +20,7 @@ import velord.university.application.broadcast.AppBroadcastHub.Action.playServic
 import velord.university.application.broadcast.AppBroadcastHub.Action.playUI
 import velord.university.application.broadcast.AppBroadcastHub.Action.rewindService
 import velord.university.application.broadcast.AppBroadcastHub.Action.rewindUI
-import velord.university.application.broadcast.AppBroadcastHub.Action.showUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.showMiniPlayerGeneralUI
 import velord.university.application.broadcast.AppBroadcastHub.Action.shuffleAndPlayAllInFolderService
 import velord.university.application.broadcast.AppBroadcastHub.Action.shuffleService
 import velord.university.application.broadcast.AppBroadcastHub.Action.shuffleUI
@@ -194,9 +194,9 @@ object AppBroadcastHub {
             this@songDurationUI.sendBroadcastSongDurationUI(duration)
         }
 
-    fun Context.showUI() =
-        MiniPlayerBroadcastShow.run {
-            this@showUI.sendBroadcastShowUI()
+    fun Context.showGeneralUI() =
+        MiniPlayerBroadcastShowGeneral.run {
+            this@showGeneralUI.sendBroadcastShowUI()
         }
 
     fun Context.hideUI() =
@@ -305,6 +305,11 @@ object AppBroadcastHub {
             this@getInfoRadioService.sendBroadcastGetInfo()
         }
 
+    fun Context.showRadioUI() =
+        RadioBroadcastShow.run {
+            this@showRadioUI.sendBroadcastShowUI()
+        }
+
     object Action {
         //miniPlayer
         const val stopService = "velord.university.STOP"
@@ -337,7 +342,7 @@ object AppBroadcastHub {
         const val songNameUI = "velord.university.SONG_NAME_UI"
         const val songHQUI = "velord.university.SONG_HQ_UI"
         const val songDurationUI = "velord.university.SONG_DURATION_UI"
-        const val showUI = "velord.university.SHOW"
+        const val showMiniPlayerGeneralUI = "velord.university.SHOW_MINI_PLAYER_GENERAL_UI"
         const val hideUI = "velord.university.SONG_HIDE"
         const val playAllInFolderService = "velord.university.PLAY_ALL_IN_FOLDER"
         const val playNextAllInFolderService = "velord.university.PLAY_NEXT_ALL_IN_FOLDER"
@@ -360,6 +365,7 @@ object AppBroadcastHub {
         const val getInfoRadioService = "velord.university.GET_INFO_RADIO"
         const val radioArtistUI = "velord.university.RADIO_ARTIST_UI"
         const val radioNameUI = "velord.university.RADIO_NAME_UI"
+        const val showMiniPlayerRadioUI = "velord.university.RADIO_SHOW_UI"
     }
 
     object Extra {
@@ -691,8 +697,8 @@ object AppBroadcastHub {
             sendBroadcast(actionUI, permission, extraValueUI, duration)
     }
 
-    private object MiniPlayerBroadcastShow : BroadcastBase() {
-        override val actionUI: String = showUI
+    private object MiniPlayerBroadcastShowGeneral : BroadcastBase() {
+        override val actionUI: String = showMiniPlayerGeneralUI
 
         override val filterUI: IntentFilter = IntentFilter(actionUI)
 
@@ -924,6 +930,15 @@ object AppBroadcastHub {
         fun Context.sendBroadcastPlayOrStop(
             permission: String = PERM_PRIVATE_RADIO
         ) = sendBroadcast(actionService, permission)
+    }
+
+    private object RadioBroadcastShow : BroadcastBase() {
+        override val actionUI: String = Action.showMiniPlayerRadioUI
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        fun Context.sendBroadcastShowUI(permission: String = PERM_PRIVATE_RADIO) =
+            sendBroadcast(actionUI, permission)
     }
 }
 

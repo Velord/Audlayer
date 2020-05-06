@@ -11,7 +11,7 @@ import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.settings.AppPreference
-import velord.university.application.settings.MiniPlayerServicePreferences
+import velord.university.application.settings.miniPlayer.MiniPlayerServicePreferences
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
@@ -113,7 +113,7 @@ abstract class MiniPlayerService : Service() {
         addToQueue(SongPlaylistInteractor.songs.toList())
         playNext(path)
         //showUI
-        AppBroadcastHub.apply { this@MiniPlayerService.showUI() }
+        AppBroadcastHub.apply { this@MiniPlayerService.showGeneralUI() }
     }
 
     protected fun getInfoFromServiceToUI() {

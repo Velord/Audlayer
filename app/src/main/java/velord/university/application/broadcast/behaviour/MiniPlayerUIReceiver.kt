@@ -27,8 +27,17 @@ interface MiniPlayerUIReceiver {
         Pair(songName(), AppBroadcastHub.Action.songNameUI),
         Pair(songDuration(), AppBroadcastHub.Action.songDurationUI),
         Pair(songArtist(), AppBroadcastHub.Action.songArtistUI),
-        Pair(songHQ(), AppBroadcastHub.Action.songHQUI)
+        Pair(songHQ(), AppBroadcastHub.Action.songHQUI),
+        Pair(show(), AppBroadcastHub.Action.showMiniPlayerGeneralUI)
     )
+
+    val showF: (Intent?) -> Unit
+    fun show() = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            showF(intent)
+        }
+    }
 
     val stopF: (Intent?) -> Unit
     fun stop() = object : BroadcastReceiver() {
