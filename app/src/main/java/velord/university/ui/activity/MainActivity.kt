@@ -59,11 +59,11 @@ class MainActivity : AppCompatActivity(),
     private fun startApp() {
         //start app
         AudlayerApp.initApp(baseContext)
-        //service
+        //service mini player general
         startService(
             Intent(this,
             MiniPlayerServiceBroadcastReceiver().javaClass))
-
+        //service mini player radio
         startService(
             Intent(this,
             RadioServiceBroadcastReceiver().javaClass)

@@ -11,10 +11,10 @@ interface RadioUIReceiver {
     val TAG: String
 
     fun getRadioReceiverList() = arrayOf(
-        Pair(stopRadio(), AppBroadcastHub.Action.stopRadioService),
-        Pair(playRadio(), AppBroadcastHub.Action.playRadioService),
-        Pair(likeRadio(), AppBroadcastHub.Action.likeRadioService),
-        Pair(unlikeRadio(), AppBroadcastHub.Action.unlikeRadioService),
+        Pair(stopRadio(), AppBroadcastHub.Action.stopRadioUI),
+        Pair(playRadio(), AppBroadcastHub.Action.playRadioUI),
+        Pair(likeRadio(), AppBroadcastHub.Action.likeRadioUI),
+        Pair(unlikeRadio(), AppBroadcastHub.Action.unlikeRadioUI),
         Pair(nameRadio(), AppBroadcastHub.Action.radioNameUI),
         Pair(artistRadio(), AppBroadcastHub.Action.radioArtistUI),
         Pair(showRadio(), AppBroadcastHub.Action.showMiniPlayerRadioUI)

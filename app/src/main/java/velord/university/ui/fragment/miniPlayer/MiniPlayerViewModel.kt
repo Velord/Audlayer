@@ -16,7 +16,12 @@ class MiniPlayerViewModel(private val app: Application) : AndroidViewModel(app) 
 
     fun setState(state: MiniPlayerLayoutState) =
         when(state) {
-            MiniPlayerLayoutState.GENERAL -> MiniPlayerUIPreference.setState(app, 0)
-            MiniPlayerLayoutState.RADIO -> MiniPlayerUIPreference.setState(app, 1)
+            MiniPlayerLayoutState.GENERAL ->
+                MiniPlayerUIPreference.setState(app, 0)
+            MiniPlayerLayoutState.RADIO ->
+                MiniPlayerUIPreference.setState(app, 1)
         }
+
+    fun mayDoAction(state: MiniPlayerLayoutState) =
+        state == getState()
 }

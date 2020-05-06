@@ -8,12 +8,13 @@
     <permission android:name="velord.university.PERM_PRIVATE_RADIO"
         android:protectionLevel="signature"/>
 
-    <uses-permission android:name = "android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name = "android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 
     <uses-permission android:name="velord.university.PERM_PRIVATE_MINI_PLAYER"/>
+    <uses-permission android:name="velord.university.PERM_PRIVATE_RADIO"/>
 
     <application
         android:name=".application.AudlayerApp"
@@ -35,6 +36,21 @@
 
         </service>
 
+        <service
+            android:name="velord.university.application.service.RadioService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
+        <service android:name="velord.university.application.service.RadioServiceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+
+        </service>
+
+        <service android:name=".application.service.KillNotificationsService">
+        </service>
+
         <activity
             android:name=".ui.activity.VkLoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"/>
@@ -52,9 +68,6 @@
 
         <receiver android:name=".application.notification.MiniPlayerServiceNotification$MiniPlayerNotificationBroadcastReceiver">
         </receiver>
-
-        <service android:name=".application.service.KillNotificationsService">
-        </service>
 
     </application>
 

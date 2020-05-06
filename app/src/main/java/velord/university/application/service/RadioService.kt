@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.settings.miniPlayer.MiniPlayerUIPreference
 
 abstract class RadioService : Service() {
 
@@ -93,11 +94,14 @@ abstract class RadioService : Service() {
     }
 
     private fun stopMiniPlayerService() {
-
+        if (MiniPlayerUIPreference.getState(this) == 0)
+            AppBroadcastHub.apply {
+                this@RadioService.stopService()
+            }
     }
 
-    private fun stopPlayer() {
-
+    private fun stopPlayer() = stopOrPausePlayer {
+        player.stop()
     }
 
     private fun restoreState() {
@@ -106,14 +110,19 @@ abstract class RadioService : Service() {
 
     private fun sendInfoWhenPlay() {
         stopMiniPlayerService()
-        AppBroadcastHub.apply { this@RadioService.playRadioUI() }
+        AppBroadcastHub.apply {
+            this@RadioService.showRadioUI()
+            this@RadioService.playRadioUI()
+        }
         //send command to change notification
         //changeNotificationPlayOrStop(true)
         //changeNotificationInfo()
     }
 
     private fun sendInfoWhenStop() {
-        AppBroadcastHub.apply { this@RadioService.stopRadioUI() }
+        AppBroadcastHub.apply {
+            this@RadioService.stopRadioUI()
+        }
         //send command to change notification
         //changeNotificationPlayOrStop(false)
     }

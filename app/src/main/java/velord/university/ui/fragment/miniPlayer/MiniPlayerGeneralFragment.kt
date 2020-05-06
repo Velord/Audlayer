@@ -2,10 +2,8 @@ package velord.university.ui.fragment.miniPlayer
 
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.SeekBar
 import androidx.lifecycle.ViewModelProviders
 import velord.university.R
@@ -34,23 +32,14 @@ open class MiniPlayerGeneralFragment :
 
     private val receivers = receiver()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.mini_player_fragment, container, false).apply {
-            super.initMiniPlayerView(this)
-            initView()
-        }
-    }
-
     override fun onStart() {
         super.onStart()
 
         receivers.forEach {
             requireActivity()
                 .registerBroadcastReceiver(
-                    it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER)
+                    it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER
+                )
         }
         //get info from service about song cause service was created earlier then this view
         AppBroadcastHub.apply {
@@ -67,14 +56,17 @@ open class MiniPlayerGeneralFragment :
         }
     }
 
-    private fun initView() {
+    protected fun initMiniPlayerGeneralView(view: View) {
+        //init mini player initializer fragment
+        super.initMiniPlayerView(view)
+        //self
         miniPlayerSongLikedIB.setOnClickListener {
             HeartLogic.press(requireActivity(), viewModel.getState())
         }
         miniPlayerSongRepeatIB.setOnClickListener {
             RepeatLogic.press(requireActivity())
         }
-        miniPlayerSongPlayOrPauseIB.setOnClickListener {
+        miniPlayerPlayOrPauseIB.setOnClickListener {
             PlayPauseLogic.press(requireActivity(), viewModel.getState())
         }
         miniPlayerSongShuffleIB.setOnClickListener {
@@ -86,7 +78,7 @@ open class MiniPlayerGeneralFragment :
         miniPlayerSongSkipPrevIB.setOnClickListener {
             SkipPrevLogic.press(requireActivity())
         }
-        miniPlayerSongTimeSeekBar.setOnSeekBarChangeListener (
+        miniPlayerSongTimeSeekBar.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
 
                 override fun onProgressChanged(
@@ -104,9 +96,9 @@ open class MiniPlayerGeneralFragment :
                         }
                 }
 
-                override fun onStartTrackingTouch(seekBar: SeekBar) { }
+                override fun onStartTrackingTouch(seekBar: SeekBar) {}
 
-                override fun onStopTrackingTouch(seekBar: SeekBar) { }
+                override fun onStopTrackingTouch(seekBar: SeekBar) {}
             })
     }
 
@@ -122,30 +114,33 @@ open class MiniPlayerGeneralFragment :
             intent?.apply {
                 val extra = AppBroadcastHub.Extra.songArtistUI
                 val songArtist = getStringExtra(extra)
-                miniPlayerSongArtistTV.text = songArtist
+                miniPlayerArtistTV.text = songArtist
             }
         }
 
-    override val stopF: (Intent?) -> Unit
-        get() = {
+    override val stopF: (Intent?) -> Unit = {
+        if (viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL)) {
             stopButtonInvoke()
         }
+    }
 
-    override val playF: (Intent?) -> Unit
-        get() = {
+    override val playF: (Intent?) -> Unit = {
+        if (viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL)) {
             playButtonInvoke()
         }
+    }
 
-    override val likeF: (Intent?) -> Unit
-        get() = {
+    override val likeF: (Intent?) -> Unit = {
+        if (viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL)) {
             likeButtonInvoke()
         }
+    }
 
-    override val unlikeF: (Intent?) -> Unit
-        get() = {
+    override val unlikeF: (Intent?) -> Unit = {
+        if (viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL)) {
             unlikeButtonInvoke()
         }
-
+    }
     override val skipNextF: (Intent?) -> Unit
         get() = { }
 
@@ -203,7 +198,7 @@ open class MiniPlayerGeneralFragment :
             intent?.apply {
                 val extra = AppBroadcastHub.Extra.songNameUI
                 val value = getStringExtra(extra)
-                miniPlayerSongNameTV.text = value
+                miniPlayerNameTV.text = value
             }
         }
 
@@ -228,25 +223,25 @@ open class MiniPlayerGeneralFragment :
             }
         }
 
-    protected fun stopButtonInvoke() {
-        miniPlayerSongPlayOrPauseIB.setImageResource(R.drawable.play)
+    protected fun stopButtonInvoke(button: ImageButton = miniPlayerPlayOrPauseIB) {
+        button.setImageResource(R.drawable.play)
         PlayPauseLogic.value = false
         stopSongAndArtistNameScrolling()
     }
 
-    protected fun playButtonInvoke() {
-        miniPlayerSongPlayOrPauseIB.setImageResource(R.drawable.pause)
+    protected fun playButtonInvoke(button: ImageButton = miniPlayerPlayOrPauseIB) {
+        button.setImageResource(R.drawable.pause)
         PlayPauseLogic.value = true
         startSongAndArtistNameScrolling()
     }
 
-    protected fun likeButtonInvoke() {
-        miniPlayerSongLikedIB.setImageResource(R.drawable.heart_pressed)
+    protected fun likeButtonInvoke(button: ImageButton = miniPlayerSongLikedIB) {
+        button.setImageResource(R.drawable.heart_pressed)
         HeartLogic.value = true
     }
 
-    protected fun unlikeButtonInvoke() {
-        miniPlayerSongLikedIB.setImageResource(R.drawable.heart_gray)
+    protected fun unlikeButtonInvoke(button: ImageButton = miniPlayerSongLikedIB) {
+        button.setImageResource(R.drawable.heart_gray)
         HeartLogic.value = false
     }
 }

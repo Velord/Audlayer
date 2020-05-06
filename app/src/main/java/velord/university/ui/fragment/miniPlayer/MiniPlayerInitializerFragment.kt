@@ -10,22 +10,27 @@ import velord.university.ui.util.setAutoScrollable
 abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
 
     protected lateinit var miniPlayerIV: ImageView
-    protected lateinit var miniPlayerSongNameTV: TextView
-    protected lateinit var miniPlayerSongArtistTV: TextView
+    protected lateinit var miniPlayerNameTV: TextView
+    protected lateinit var miniPlayerArtistTV: TextView
     protected lateinit var miniPlayerSongQualityTV: TextView
     protected lateinit var miniPlayerSongShuffleIB: ImageButton
     protected lateinit var miniPlayerSongRepeatIB: ImageButton
     protected lateinit var miniPlayerSongLikedIB: ImageButton
     protected lateinit var miniPlayerSongManagerLL: LinearLayout
     protected lateinit var miniPlayerSongSkipPrevIB: ImageButton
-    protected lateinit var miniPlayerSongPlayOrPauseIB: ImageButton
+    protected lateinit var miniPlayerPlayOrPauseIB: ImageButton
     protected lateinit var miniPlayerSongSkipNextIB: ImageButton
     protected lateinit var miniPlayerSongTimeCS: ConstraintLayout
     protected lateinit var miniPlayerSongTimeStartTV: TextView
     protected lateinit var miniPlayerSongTimeEndTV: TextView
     protected lateinit var miniPlayerSongTimeSeekBar: SeekBar
-    protected lateinit var miniPlayerGeneral: ConstraintLayout
-    protected lateinit var miniPlayerRadio: ConstraintLayout
+    protected lateinit var miniPlayerGeneral: View
+    protected lateinit var miniPlayerRadio: View
+    protected lateinit var miniPlayerRadioNameTV: TextView
+    protected lateinit var miniPlayerRadioArtistTV: TextView
+    protected lateinit var miniPlayerRadioLikedIB: ImageButton
+    protected lateinit var miniPlayerRadioPlayOrPauseIB: ImageButton
+
 
     protected fun initMiniPlayerView(view: View) {
         miniPlayerIV = view.findViewById(R.id.mini_player_imageView)
@@ -37,14 +42,18 @@ abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
         miniPlayerSongLikedIB = view.findViewById(R.id.mini_player_song_liked)
         miniPlayerSongManagerLL = view.findViewById(R.id.mini_player_song_manager_LinearLayout)
         miniPlayerSongSkipPrevIB = view.findViewById(R.id.mini_player_song_skip_prev)
-        miniPlayerSongPlayOrPauseIB = view.findViewById(R.id.mini_player_song_play_or_pause)
+        miniPlayerPlayOrPauseIB = view.findViewById(R.id.mini_player_song_play_or_pause)
         miniPlayerSongSkipNextIB = view.findViewById(R.id.mini_player_song_skip_next)
         miniPlayerSongTimeCS = view.findViewById(R.id.mini_player_song_time_constraintLayout)
         miniPlayerSongTimeStartTV = view.findViewById(R.id.mini_player_song_time_start)
         miniPlayerSongTimeEndTV = view.findViewById(R.id.mini_player_song_time_end)
         miniPlayerSongTimeSeekBar = view.findViewById(R.id.mini_player_song_time_seekBar)
-        miniPlayerGeneral = view.findViewById(R.id.mini_player_general_CL)
-        miniPlayerRadio = view.findViewById(R.id.mini_player_radio_CL)
+        miniPlayerGeneral = view.findViewById(R.id.mini_player_general)
+        miniPlayerRadio = view.findViewById(R.id.mini_player_radio)
+        miniPlayerRadioNameTV = view.findViewById(R.id.mini_player_radio_name)
+        miniPlayerRadioArtistTV = view.findViewById(R.id.mini_player_radio_artist)
+        miniPlayerRadioLikedIB = view.findViewById(R.id.mini_player_radio_liked)
+        miniPlayerRadioPlayOrPauseIB = view.findViewById(R.id.mini_player_radio_play_or_pause)
     }
 
     protected fun showMiniPlayerGeneral() {
@@ -58,22 +67,22 @@ abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
     }
 
     protected fun startSongAndArtistNameScrolling() {
-        miniPlayerSongArtistTV.isSelected = true
-        miniPlayerSongNameTV.isSelected = true
+        miniPlayerArtistTV.isSelected = true
+        miniPlayerNameTV.isSelected = true
     }
 
     protected fun stopSongAndArtistNameScrolling()  {
-        miniPlayerSongArtistTV.isSelected = false
-        miniPlayerSongNameTV.isSelected = false
+        miniPlayerArtistTV.isSelected = false
+        miniPlayerNameTV.isSelected = false
     }
 
     private fun initSongName(view: View) {
-        miniPlayerSongNameTV = view.findViewById(R.id.mini_player_song_name)
-        miniPlayerSongNameTV.setAutoScrollable()
+        miniPlayerNameTV = view.findViewById(R.id.mini_player_song_name)
+        miniPlayerNameTV.setAutoScrollable()
     }
 
     private fun initSongArtist(view: View) {
-        miniPlayerSongArtistTV = view.findViewById(R.id.mini_player_song_artist)
-        miniPlayerSongArtistTV.setAutoScrollable()
+        miniPlayerArtistTV = view.findViewById(R.id.mini_player_song_artist)
+        miniPlayerArtistTV.setAutoScrollable()
     }
 }

@@ -6,12 +6,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_RADIO
 import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
+import velord.university.ui.fragment.miniPlayer.logic.general.HeartLogic
+import velord.university.ui.fragment.miniPlayer.logic.general.PlayPauseLogic
 
 class MiniPlayerRadioGeneralFragment :
     MiniPlayerGeneralFragment(),
@@ -20,14 +23,6 @@ class MiniPlayerRadioGeneralFragment :
     override val TAG: String = "MiniPlayerRadioGeneralFragment"
 
     private val receivers = getRadioReceiverList()
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
 
     override fun onStart() {
         super.onStart()
@@ -49,11 +44,30 @@ class MiniPlayerRadioGeneralFragment :
         }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.mini_player_fragment, container, false).apply {
+            super.initMiniPlayerGeneralView(this)
+            initView()
+        }
+    }
+
+    private fun initView() {
+        miniPlayerRadioPlayOrPauseIB.setOnClickListener {
+            PlayPauseLogic.press(requireActivity(), viewModel.getState())
+        }
+        miniPlayerRadioLikedIB.setOnClickListener {
+            HeartLogic.press(requireActivity(), viewModel.getState())
+        }
+    }
+
     override val nameRadioF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.radioNameUI
             val value = getStringExtra(extra)
-            miniPlayerSongNameTV.text = value
+            miniPlayerRadioNameTV.text = value
         }
     }
 
@@ -61,7 +75,7 @@ class MiniPlayerRadioGeneralFragment :
         it?.apply {
             val extra = AppBroadcastHub.Extra.radioArtistUI
             val value = getStringExtra(extra)
-            miniPlayerSongArtistTV.text = value
+            miniPlayerRadioArtistTV.text = value
         }
     }
 
@@ -73,18 +87,26 @@ class MiniPlayerRadioGeneralFragment :
     }
 
     override val stopRadioF: (Intent?) -> Unit = {
-        stopButtonInvoke()
+        if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
+            stopButtonInvoke(miniPlayerRadioPlayOrPauseIB)
+        }
     }
 
     override val playRadioF: (Intent?) -> Unit = {
-        playButtonInvoke()
+        if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
+            playButtonInvoke(miniPlayerRadioPlayOrPauseIB)
+        }
     }
 
     override val likeRadioF: (Intent?) -> Unit = {
-        likeButtonInvoke()
+        if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
+            likeButtonInvoke(miniPlayerRadioLikedIB)
+        }
     }
 
     override val unlikeRadioF: (Intent?) -> Unit = {
-        unlikeButtonInvoke()
+        if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
+            unlikeButtonInvoke(miniPlayerRadioLikedIB)
+        }
     }
 }

@@ -12,6 +12,7 @@ import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.miniPlayer.MiniPlayerServicePreferences
+import velord.university.application.settings.miniPlayer.MiniPlayerUIPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
@@ -148,7 +149,10 @@ abstract class MiniPlayerService : Service() {
             }
         }
         //send command to change ui
-        AppBroadcastHub.apply { this@MiniPlayerService.playUI() }
+        stopElseService()
+        AppBroadcastHub.apply {
+            this@MiniPlayerService.playUI()
+        }
         //send command to change notification
         changeNotificationPlayOrStop(true)
         changeNotificationInfo(playlist.getSong())
@@ -250,6 +254,13 @@ abstract class MiniPlayerService : Service() {
         MiniPlayerServicePreferences
             .setLoopState(this, 2)
         AppBroadcastHub.apply { this@MiniPlayerService.loopAllUI() }
+    }
+
+    private fun stopElseService() {
+        if (MiniPlayerUIPreference.getState(this) == 1)
+            AppBroadcastHub.apply {
+                this@MiniPlayerService.stopRadioService()
+            }
     }
 
     private fun destroyNotification() {
@@ -442,6 +453,9 @@ abstract class MiniPlayerService : Service() {
     private fun sendInfoToUI(song: File = playlist.getSong()) {
         //send info
         scope.launch {
+            AppBroadcastHub.apply {
+                this@MiniPlayerService.showGeneralUI()
+            }
             sendLoopState()
             sendShuffleState()
             sendPath(song)
