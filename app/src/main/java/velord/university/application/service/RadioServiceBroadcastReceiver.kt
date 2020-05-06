@@ -40,7 +40,7 @@ class RadioServiceBroadcastReceiver :
         return START_STICKY
     }
 
-    override val playByUrlF: (Intent?) -> Unit = {
+    override val playByUrlRadioF: (Intent?) -> Unit = {
         it?.let {
             val extra = AppBroadcastHub.Extra.playByRadioStationUrlService
             val path = it.getStringExtra(extra)
@@ -48,39 +48,39 @@ class RadioServiceBroadcastReceiver :
         }
     }
 
-    override val stopF: (Intent?) -> Unit = {
+    override val stopRadioF: (Intent?) -> Unit = {
         it?.let {
             super.pausePlayer()
         }
     }
 
-    override val playF: (Intent?) -> Unit = {
+    override val playRadioF: (Intent?) -> Unit = {
         it?.let {
             super.playRadioAfterCreatedPlayer()
         }
     }
 
-    override val likeF: (Intent?) -> Unit = {
+    override val likeRadioF: (Intent?) -> Unit = {
         it?.let {
             super.likeRadio()
             this.likeRadioUI()
         }
     }
 
-    override val unlikeF: (Intent?) -> Unit = {
+    override val unlikeRadioF: (Intent?) -> Unit = {
         it?.let {
             super.unlikeRadio()
             this.unlikeRadioUI()
         }
     }
 
-    override val getInfoF: (Intent?) -> Unit = {
+    override val getInfoRadioF: (Intent?) -> Unit = {
         it?.let {
             super.getInfoFromServiceToUI()
         }
     }
 
-    override val playOrStopF: (Intent?) -> Unit = {
+    override val playOrStopRadioF: (Intent?) -> Unit = {
         it?.let {
             super.playOrStopService()
         }

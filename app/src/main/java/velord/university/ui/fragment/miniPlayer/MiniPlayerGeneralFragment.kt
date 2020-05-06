@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.lifecycle.ViewModelProviders
-import kotlinx.android.synthetic.main.mini_player.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
@@ -16,39 +15,23 @@ import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.model.converter.SongTimeConverter
-import velord.university.ui.fragment.miniPlayer.logic.*
+import velord.university.ui.fragment.miniPlayer.logic.general.*
 
-class MiniPlayerFragment : MiniPlayerInitializerFragment(),
+open class MiniPlayerGeneralFragment :
+    MiniPlayerInitializerFragment(),
     MiniPlayerUIReceiver {
 
-    override val TAG: String = "MiniPlayerFragment"
+    override val TAG: String = "MiniPlayerGeneralFragment"
 
     companion object {
-        fun newInstance() = MiniPlayerFragment()
+        fun newInstance() = MiniPlayerGeneralFragment()
     }
 
     private val viewModel by lazy {
         ViewModelProviders.of(this).get(MiniPlayerViewModel::class.java)
     }
 
-    private val receivers = arrayOf(
-        Pair(stop(), AppBroadcastHub.Action.stopUI),
-        Pair(play(), AppBroadcastHub.Action.playUI),
-        Pair(like(), AppBroadcastHub.Action.likeUI),
-        Pair(unlike(), AppBroadcastHub.Action.unlikeUI),
-        Pair(shuffle(), AppBroadcastHub.Action.shuffleUI),
-        Pair(unShuffle(), AppBroadcastHub.Action.unShuffleUI),
-        Pair(skipNext(), AppBroadcastHub.Action.skipNextUI),
-        Pair(skipPrev(), AppBroadcastHub.Action.skipPrevUI),
-        Pair(rewind(), AppBroadcastHub.Action.rewindUI),
-        Pair(loop(), AppBroadcastHub.Action.loopUI),
-        Pair(loopAll(), AppBroadcastHub.Action.loopAllUI),
-        Pair(notLoop(), AppBroadcastHub.Action.notLoopUI),
-        Pair(songName(), AppBroadcastHub.Action.songNameUI),
-        Pair(songDuration(), AppBroadcastHub.Action.songDurationUI),
-        Pair(songArtist(), AppBroadcastHub.Action.songArtistUI),
-        Pair(songHQ(), AppBroadcastHub.Action.songHQUI)
-    )
+    private val receivers = receiver()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -56,7 +39,7 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
     ): View? {
         return inflater.inflate(R.layout.mini_player_fragment, container, false).apply {
             super.initMiniPlayerView(this)
-            initView(this)
+            initView()
         }
     }
 
@@ -83,7 +66,7 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
         }
     }
 
-    private fun initView(view: View) {
+    private fun initView() {
         miniPlayerSongLikedIB.setOnClickListener {
             HeartLogic.press(requireActivity())
         }
@@ -131,33 +114,33 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
             intent?.apply {
                 val extra = AppBroadcastHub.Extra.songArtistUI
                 val songArtist = getStringExtra(extra)
-                mini_player_song_artist.text = songArtist
+                miniPlayerSongArtistTV.text = songArtist
             }
         }
 
     override val stopF: (Intent?) -> Unit
         get() = {
-            mini_player_song_play_or_pause.setImageResource(R.drawable.play)
+            miniPlayerSongPlayOrPauseIB.setImageResource(R.drawable.play)
             PlayPauseLogic.value = false
             stopSongAndArtistNameScrolling()
         }
 
     override val playF: (Intent?) -> Unit
         get() = {
-            mini_player_song_play_or_pause.setImageResource(R.drawable.pause)
+            miniPlayerSongPlayOrPauseIB.setImageResource(R.drawable.pause)
             PlayPauseLogic.value = true
             startSongAndArtistNameScrolling()
         }
 
     override val likeF: (Intent?) -> Unit
         get() = {
-            mini_player_song_liked.setImageResource(R.drawable.heart_pressed)
+            miniPlayerSongLikedIB.setImageResource(R.drawable.heart_pressed)
             HeartLogic.value = true
         }
 
     override val unlikeF: (Intent?) -> Unit
         get() = {
-            mini_player_song_liked.setImageResource(R.drawable.heart_gray)
+            miniPlayerSongLikedIB.setImageResource(R.drawable.heart_gray)
             HeartLogic.value = false
         }
 
@@ -187,29 +170,29 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
 
     override val shuffleF: (Intent?) -> Unit
         get() = {
-            mini_player_song_shuffle.setImageResource(R.drawable.shuffle)
+            miniPlayerSongShuffleIB.setImageResource(R.drawable.shuffle)
             ShuffleLogic.value = true
         }
 
     override val unShuffleF: (Intent?) -> Unit
         get() = {
-            mini_player_song_shuffle.setImageResource(R.drawable.shuffle_gray)
+            miniPlayerSongShuffleIB.setImageResource(R.drawable.shuffle_gray)
             ShuffleLogic.value = false
         }
 
     override val loopF: (Intent?) -> Unit
         get() = {
-            mini_player_song_repeat.setImageResource(R.drawable.repeat_one)
+            miniPlayerSongRepeatIB.setImageResource(R.drawable.repeat_one)
         }
 
     override val loopAllF: (Intent?) -> Unit
         get() = {
-            mini_player_song_repeat.setImageResource(R.drawable.repeat_all)
+            miniPlayerSongRepeatIB.setImageResource(R.drawable.repeat_all)
         }
 
     override val notLoopF: (Intent?) -> Unit
         get() = {
-            mini_player_song_repeat.setImageResource(R.drawable.repeat_gray)
+            miniPlayerSongRepeatIB.setImageResource(R.drawable.repeat_gray)
         }
 
 
@@ -218,7 +201,7 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
             intent?.apply {
                 val extra = AppBroadcastHub.Extra.songNameUI
                 val value = getStringExtra(extra)
-                mini_player_song_name.text = value
+                miniPlayerSongNameTV.text = value
             }
         }
 
@@ -227,8 +210,8 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
             intent?.apply {
                 val extra = AppBroadcastHub.Extra.songHQUI
                 val value = getBooleanExtra(extra, true)
-                if (value) mini_player_song_quality.visibility = View.VISIBLE
-                else mini_player_song_quality.visibility = View.GONE
+                if (value) miniPlayerSongQualityTV.visibility = View.VISIBLE
+                else miniPlayerSongQualityTV.visibility = View.GONE
             }
         }
 
@@ -252,6 +235,5 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
         miniPlayerSongArtistTV.isSelected = false
         miniPlayerSongNameTV.isSelected = false
     }
-
 }
 

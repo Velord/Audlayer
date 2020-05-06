@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.miniPlayer.logic
+package velord.university.ui.fragment.miniPlayer.logic.general
 
 import androidx.fragment.app.FragmentActivity
 

@@ -4,11 +4,31 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import velord.university.application.broadcast.AppBroadcastHub
 
 
 interface MiniPlayerUIReceiver {
 
     val TAG: String
+
+    fun receiver() = arrayOf(
+        Pair(stop(), AppBroadcastHub.Action.stopUI),
+        Pair(play(), AppBroadcastHub.Action.playUI),
+        Pair(like(), AppBroadcastHub.Action.likeUI),
+        Pair(unlike(), AppBroadcastHub.Action.unlikeUI),
+        Pair(shuffle(), AppBroadcastHub.Action.shuffleUI),
+        Pair(unShuffle(), AppBroadcastHub.Action.unShuffleUI),
+        Pair(skipNext(), AppBroadcastHub.Action.skipNextUI),
+        Pair(skipPrev(), AppBroadcastHub.Action.skipPrevUI),
+        Pair(rewind(), AppBroadcastHub.Action.rewindUI),
+        Pair(loop(), AppBroadcastHub.Action.loopUI),
+        Pair(loopAll(), AppBroadcastHub.Action.loopAllUI),
+        Pair(notLoop(), AppBroadcastHub.Action.notLoopUI),
+        Pair(songName(), AppBroadcastHub.Action.songNameUI),
+        Pair(songDuration(), AppBroadcastHub.Action.songDurationUI),
+        Pair(songArtist(), AppBroadcastHub.Action.songArtistUI),
+        Pair(songHQ(), AppBroadcastHub.Action.songHQUI)
+    )
 
     val stopF: (Intent?) -> Unit
     fun stop() = object : BroadcastReceiver() {

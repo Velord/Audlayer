@@ -20,59 +20,59 @@ interface RadioServiceReceiver {
         Pair(playOrStop(), AppBroadcastHub.Action.playOrStopRadioService)
     )
 
-    val playByUrlF: (Intent?) -> Unit
+    val playByUrlRadioF: (Intent?) -> Unit
     fun playByUrl() = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
-            playByUrlF(intent)
+            playByUrlRadioF(intent)
         }
     }
 
-    val stopF: (Intent?) -> Unit
+    val stopRadioF: (Intent?) -> Unit
     fun stop() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
-            stopF(intent)
+            stopRadioF(intent)
         }
     }
 
-    val playF: (Intent?) -> Unit
+    val playRadioF: (Intent?) -> Unit
     fun play() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
-            playF(intent)
+            playRadioF(intent)
         }
     }
 
-    val likeF: (Intent?) -> Unit
+    val likeRadioF: (Intent?) -> Unit
     fun like() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
-            likeF(intent)
+            likeRadioF(intent)
         }
     }
 
-    val unlikeF: (Intent?) -> Unit
+    val unlikeRadioF: (Intent?) -> Unit
     fun unlike() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
-            unlikeF(intent)
+            unlikeRadioF(intent)
         }
     }
 
-    val getInfoF: (Intent?) -> Unit
+    val getInfoRadioF: (Intent?) -> Unit
     fun getInfo() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
-            getInfoF(intent)
+            getInfoRadioF(intent)
         }
     }
 
-    val playOrStopF: (Intent?) -> Unit
+    val playOrStopRadioF: (Intent?) -> Unit
     fun playOrStop() = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
-            playOrStopF(intent)
+            playOrStopRadioF(intent)
         }
     }
 }

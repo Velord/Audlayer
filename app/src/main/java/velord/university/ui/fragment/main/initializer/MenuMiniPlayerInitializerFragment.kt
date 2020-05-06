@@ -15,7 +15,7 @@ import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.MiniPlayerBroadcastReceiverShowAndHider
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
-import velord.university.ui.fragment.miniPlayer.MiniPlayerFragment
+import velord.university.ui.fragment.miniPlayer.MiniPlayerRadioGeneralFragment
 import velord.university.ui.fragment.miniPlayer.miniPlayerHide.MiniPlayerHideFragment
 import velord.university.ui.fragment.miniPlayer.miniPlayerStopAndHide.MiniPlayerStopAndHideFragment
 import velord.university.ui.util.viewPager.LiquidSwipeDynamicHeightViewPager
@@ -144,7 +144,7 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
                 }
                 1 -> {
                     Log.d(TAG, "create MiniPlayerFragment")
-                    MiniPlayerFragment()
+                    MiniPlayerRadioGeneralFragment()
                 }
                 2 -> {
                     Log.d(TAG, "create MiniPlayerStopAndHideFragment")
@@ -152,7 +152,7 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
                 }
                 else -> {
                     Log.d(TAG, "create MiniPlayerFragment")
-                    MiniPlayerFragment()
+                    MiniPlayerRadioGeneralFragment()
                 }
             }
 
