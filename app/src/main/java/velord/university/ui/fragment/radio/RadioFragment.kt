@@ -190,6 +190,9 @@ class RadioFragment : ActionBarFragment() {
         }
     }
 
+    private fun playRadio(radio: RadioStation) =
+        viewModel.playRadio(radio)
+
     private inner class RadioHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
@@ -230,7 +233,7 @@ class RadioFragment : ActionBarFragment() {
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                 when (it.itemId) {
                     R.id.radio_rv_item_play_next -> {
-                        viewModel.playRadioNext(radio)
+                        playRadio(radio)
                         true
                     }
                     R.id.radio_rv_item_add_to_home_screen -> {
@@ -255,15 +258,15 @@ class RadioFragment : ActionBarFragment() {
         private fun setOnClickAndImageResource(radio: RadioStation, f: (Int) -> Unit) {
             itemView.setOnClickListener {
                 f(0)
-                viewModel.playRadioNext(radio)
+                playRadio(radio)
             }
             text.setOnClickListener {
                 f(1)
-                viewModel.playRadioNext(radio)
+                playRadio(radio)
             }
             icon.setOnClickListener {
                 f(2)
-                viewModel.playRadioNext(radio)
+                playRadio(radio)
             }
             action.setOnClickListener {
                 actionPopUpMenu(radio)

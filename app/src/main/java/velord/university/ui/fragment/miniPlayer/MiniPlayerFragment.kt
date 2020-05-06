@@ -10,7 +10,7 @@ import android.widget.SeekBar
 import androidx.lifecycle.ViewModelProviders
 import kotlinx.android.synthetic.main.mini_player.*
 import velord.university.R
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
@@ -32,22 +32,22 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
     }
 
     private val receivers = arrayOf(
-        Pair(stop(), MiniPlayerBroadcastHub.Action.stopUI),
-        Pair(play(), MiniPlayerBroadcastHub.Action.playUI),
-        Pair(like(), MiniPlayerBroadcastHub.Action.likeUI),
-        Pair(unlike(), MiniPlayerBroadcastHub.Action.unlikeUI),
-        Pair(shuffle(), MiniPlayerBroadcastHub.Action.shuffleUI),
-        Pair(unShuffle(), MiniPlayerBroadcastHub.Action.unShuffleUI),
-        Pair(skipNext(), MiniPlayerBroadcastHub.Action.skipNextUI),
-        Pair(skipPrev(), MiniPlayerBroadcastHub.Action.skipPrevUI),
-        Pair(rewind(), MiniPlayerBroadcastHub.Action.rewindUI),
-        Pair(loop(), MiniPlayerBroadcastHub.Action.loopUI),
-        Pair(loopAll(), MiniPlayerBroadcastHub.Action.loopAllUI),
-        Pair(notLoop(), MiniPlayerBroadcastHub.Action.notLoopUI),
-        Pair(songName(), MiniPlayerBroadcastHub.Action.songNameUI),
-        Pair(songDuration(), MiniPlayerBroadcastHub.Action.songDurationUI),
-        Pair(songArtist(), MiniPlayerBroadcastHub.Action.songArtistUI),
-        Pair(songHQ(), MiniPlayerBroadcastHub.Action.songHQUI)
+        Pair(stop(), AppBroadcastHub.Action.stopUI),
+        Pair(play(), AppBroadcastHub.Action.playUI),
+        Pair(like(), AppBroadcastHub.Action.likeUI),
+        Pair(unlike(), AppBroadcastHub.Action.unlikeUI),
+        Pair(shuffle(), AppBroadcastHub.Action.shuffleUI),
+        Pair(unShuffle(), AppBroadcastHub.Action.unShuffleUI),
+        Pair(skipNext(), AppBroadcastHub.Action.skipNextUI),
+        Pair(skipPrev(), AppBroadcastHub.Action.skipPrevUI),
+        Pair(rewind(), AppBroadcastHub.Action.rewindUI),
+        Pair(loop(), AppBroadcastHub.Action.loopUI),
+        Pair(loopAll(), AppBroadcastHub.Action.loopAllUI),
+        Pair(notLoop(), AppBroadcastHub.Action.notLoopUI),
+        Pair(songName(), AppBroadcastHub.Action.songNameUI),
+        Pair(songDuration(), AppBroadcastHub.Action.songDurationUI),
+        Pair(songArtist(), AppBroadcastHub.Action.songArtistUI),
+        Pair(songHQ(), AppBroadcastHub.Action.songHQUI)
     )
 
     override fun onCreateView(
@@ -69,7 +69,7 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
                     it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER)
         }
         //get info from service about song cause service was created earlier then this view
-        MiniPlayerBroadcastHub.apply {
+        AppBroadcastHub.apply {
             requireContext().getInfoService()
         }
     }
@@ -111,7 +111,7 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
                     fromUser: Boolean
                 ) {
                     if (fromUser)
-                        MiniPlayerBroadcastHub.apply {
+                        AppBroadcastHub.apply {
                             val allSeconds =
                                 SongTimeConverter.textToSeconds(miniPlayerSongTimeEndTV)
                             val seconds =
@@ -129,7 +129,7 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
     override val songArtistF: (Intent?) -> Unit
         get() = { intent ->
             intent?.apply {
-                val extra = MiniPlayerBroadcastHub.Extra.songArtistUI
+                val extra = AppBroadcastHub.Extra.songArtistUI
                 val songArtist = getStringExtra(extra)
                 mini_player_song_artist.text = songArtist
             }
@@ -170,7 +170,7 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
     override val rewindF: (Intent?) -> Unit
         get() = { intent ->
             intent?.apply {
-                val extra = MiniPlayerBroadcastHub.Extra.rewindUI
+                val extra = AppBroadcastHub.Extra.rewindUI
                 val second = intent.getIntExtra(extra, 0)
 
                 val allSeconds =
@@ -216,7 +216,7 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
     override val songNameF: (Intent?) -> Unit
         get() = { intent ->
             intent?.apply {
-                val extra = MiniPlayerBroadcastHub.Extra.songNameUI
+                val extra = AppBroadcastHub.Extra.songNameUI
                 val value = getStringExtra(extra)
                 mini_player_song_name.text = value
             }
@@ -225,7 +225,7 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
     override val songHQF: (Intent?) -> Unit
         get() = { intent ->
             intent?.apply {
-                val extra = MiniPlayerBroadcastHub.Extra.songHQUI
+                val extra = AppBroadcastHub.Extra.songHQUI
                 val value = getBooleanExtra(extra, true)
                 if (value) mini_player_song_quality.visibility = View.VISIBLE
                 else mini_player_song_quality.visibility = View.GONE
@@ -235,7 +235,7 @@ class MiniPlayerFragment : MiniPlayerInitializerFragment(),
     override val songDurationF: (Intent?) -> Unit
         get() = { intent ->
             intent?.apply {
-                val extra = MiniPlayerBroadcastHub.Extra.songDurationUI
+                val extra = AppBroadcastHub.Extra.songDurationUI
                 val seconds = getIntExtra(extra, 0)
                 val inMinutes = SongTimeConverter.millisecondsToSeconds(seconds)
                 miniPlayerSongTimeEndTV.text =

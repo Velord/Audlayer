@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
@@ -97,11 +97,11 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
     fun getSearchQuery(): String = SearchQueryPreferences.getStoredQuerySong(app)
 
     fun playAudioAndAllSong(file: File) {
-        MiniPlayerBroadcastHub.apply {
+        AppBroadcastHub.apply {
             SongPlaylistInteractor.songs = ordered.toTypedArray()
             app.playByPathService(file.path)
         }
-        MiniPlayerBroadcastHub.apply {
+        AppBroadcastHub.apply {
             app.loopAllService()
         }
     }
@@ -109,10 +109,10 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
     fun playAudio(file: File) {
         //don't remember for SongQuery Interactor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(file)
-        MiniPlayerBroadcastHub.apply {
+        AppBroadcastHub.apply {
             app.playByPathService(file.path)
         }
-        MiniPlayerBroadcastHub.apply {
+        AppBroadcastHub.apply {
             app.loopService()
         }
     }
@@ -121,7 +121,7 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
         //don't remember for SongQuery Interactor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(file)
         //add to queue one song
-        MiniPlayerBroadcastHub.apply {
+        AppBroadcastHub.apply {
             app.addToQueueService(file.path)
         }
     }

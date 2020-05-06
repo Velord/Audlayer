@@ -3,9 +3,9 @@ package velord.university.application.service
 import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.likeRadioUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.unlikeRadioUI
+import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub.likeRadioUI
+import velord.university.application.broadcast.AppBroadcastHub.unlikeRadioUI
 import velord.university.application.broadcast.PERM_PRIVATE_RADIO
 import velord.university.application.broadcast.behaviour.RadioServiceReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
@@ -42,32 +42,42 @@ class RadioServiceBroadcastReceiver :
 
     override val playByUrlF: (Intent?) -> Unit = {
         it?.let {
-            val extra = MiniPlayerBroadcastHub.Extra.playByRadioStationUrlService
+            val extra = AppBroadcastHub.Extra.playByRadioStationUrlService
             val path = it.getStringExtra(extra)
             super<RadioService>.playByUrl(path)
         }
     }
 
     override val stopF: (Intent?) -> Unit = {
-        super.pausePlayer()
+        it?.let {
+            super.pausePlayer()
+        }
     }
 
     override val playF: (Intent?) -> Unit = {
-        super.playRadioAfterCreatedPlayer()
+        it?.let {
+            super.playRadioAfterCreatedPlayer()
+        }
     }
 
     override val likeF: (Intent?) -> Unit = {
-        super.likeRadio()
-        this.likeRadioUI()
+        it?.let {
+            super.likeRadio()
+            this.likeRadioUI()
+        }
     }
 
     override val unlikeF: (Intent?) -> Unit = {
-        super.unlikeRadio()
-        this.unlikeRadioUI()
+        it?.let {
+            super.unlikeRadio()
+            this.unlikeRadioUI()
+        }
     }
 
     override val getInfoF: (Intent?) -> Unit = {
-        super.getInfoFromServiceToUI()
+        it?.let {
+            super.getInfoFromServiceToUI()
+        }
     }
 
     override val playOrStopF: (Intent?) -> Unit = {

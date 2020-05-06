@@ -1,7 +1,7 @@
 package velord.university.ui.fragment.miniPlayer.logic
 
 import androidx.fragment.app.FragmentActivity
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub
 
 object PlayPauseLogic: TwoStateLogic() {
 
@@ -9,14 +9,14 @@ object PlayPauseLogic: TwoStateLogic() {
 
     override val firstCase: (context: FragmentActivity) -> Unit
         get() = { context ->
-            MiniPlayerBroadcastHub.apply {
+            AppBroadcastHub.apply {
                 context.stopService()
             }
         }
 
     override val secondCase: (context: FragmentActivity) -> Unit
         get() = { context ->
-            MiniPlayerBroadcastHub.apply {
+            AppBroadcastHub.apply {
                 context.playService()
             }
         }

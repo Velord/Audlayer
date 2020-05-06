@@ -7,7 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.*
 import org.apache.commons.text.similarity.LevenshteinDistance
 import velord.university.application.AudlayerApp
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
@@ -57,7 +57,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         //don't remember for SongQuery Interactor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(file)
         //add to queue one song
-        MiniPlayerBroadcastHub.apply {
+        AppBroadcastHub.apply {
             app.addToQueueService(file.path)
         }
     }
@@ -262,7 +262,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     private fun playAudioAndAllSong(song: VkSong) {
         scope.launch {
             val file = File(song.path)
-            MiniPlayerBroadcastHub.apply {
+            AppBroadcastHub.apply {
                 SongPlaylistInteractor.songs = ordered
                     .filter { it.path.isNotBlank() }
                     .map { File(it.path) }

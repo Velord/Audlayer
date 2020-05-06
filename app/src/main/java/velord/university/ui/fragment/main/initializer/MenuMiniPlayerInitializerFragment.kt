@@ -10,7 +10,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import velord.university.R
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.MiniPlayerBroadcastReceiverShowAndHider
 import velord.university.application.broadcast.registerBroadcastReceiver
@@ -18,6 +18,8 @@ import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.ui.fragment.miniPlayer.MiniPlayerFragment
 import velord.university.ui.fragment.miniPlayer.miniPlayerHide.MiniPlayerHideFragment
 import velord.university.ui.fragment.miniPlayer.miniPlayerStopAndHide.MiniPlayerStopAndHideFragment
+import velord.university.ui.util.viewPager.LiquidSwipeDynamicHeightViewPager
+
 
 abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
     MiniPlayerBroadcastReceiverShowAndHider {
@@ -96,22 +98,24 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
     }
 
     private fun hideMiniPlayer() {
-        MiniPlayerBroadcastHub.apply {
+        AppBroadcastHub.apply {
             requireContext().hideUI()
         }
     }
 
     private fun stopAndHideMiniPLayer() {
-        MiniPlayerBroadcastHub.apply {
+        AppBroadcastHub.apply {
             requireContext().stopService()
         }
-        MiniPlayerBroadcastHub.apply {
+        AppBroadcastHub.apply {
             requireContext().hideUI()
         }
     }
 
     private inner class MiniPlayerPagerAdapter(
         fm: FragmentManager) : FragmentPagerAdapter(fm) {
+
+        private var currentPosition = -1
 
         override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
             super.destroyItem(container, position, `object`)
@@ -153,6 +157,19 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
             }
 
         override fun getCount(): Int = 3
+
+        override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
+            super.setPrimaryItem(container, position, `object`!!)
+
+            if (position != currentPosition && container is LiquidSwipeDynamicHeightViewPager) {
+                val fragment = `object` as Fragment?
+                if (fragment != null && fragment.view != null) {
+                    currentPosition = position
+                    val view = fragment.view!!
+                    container.measureCurrentView(view)
+                }
+            }
+        }
     }
 
     override val showF: (Intent?) -> Unit

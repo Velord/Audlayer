@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
 import velord.university.repository.transaction.PlaylistTransaction
@@ -131,7 +131,7 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(), BackPressedHandlerSecond {
                             //don't remember for SongPlaylist Interactor
                             SongPlaylistInteractor.songs =
                                 playlist.songs.map { File(it) }.toTypedArray()
-                            MiniPlayerBroadcastHub.apply {
+                            AppBroadcastHub.apply {
                                 requireContext().playByPathService(playlist.songs[0])
                             }
                             true

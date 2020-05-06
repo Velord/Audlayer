@@ -20,7 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import velord.university.R
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.SongReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
@@ -164,7 +164,7 @@ class FolderFragment : ActionBarFragment(),
     override val songPathF: (Intent?) -> Unit =
         { nullableIntent ->
             nullableIntent?.apply {
-                val extra = MiniPlayerBroadcastHub.Extra.songPathUI
+                val extra = AppBroadcastHub.Extra.songPathUI
                 val songPath = getStringExtra(extra)
                 scope.launch {
                     changeRVItem(songPath)

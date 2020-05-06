@@ -18,7 +18,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.VkReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
@@ -178,7 +178,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
 
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
-                val extra = MiniPlayerBroadcastHub.Extra.songPathUI
+                val extra = AppBroadcastHub.Extra.songPathUI
                 val songPath = FileNameParser
                     .removeExtension(File(getStringExtra(extra)))
                 scope.launch {
@@ -189,7 +189,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
 
     override val songPathIsWrongF: (Intent?) -> Unit = { nullableIntent ->
         nullableIntent?.apply {
-            val extra = MiniPlayerBroadcastHub.Extra.songPathUI
+            val extra = AppBroadcastHub.Extra.songPathUI
             val songPath = getStringExtra(extra)
             scope.launch {
                 viewModel.pathIsWrong(songPath)

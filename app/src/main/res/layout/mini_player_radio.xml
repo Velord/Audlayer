@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mini_player_ConstraintLayout"
+    android:layout_width="match_parent"
+    android:background="@null"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/mini_player_imageView"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:contentDescription="@string/mini_player_song_image"
+        android:src="@drawable/repair_tools"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/mini_player_song_name"
+        android:layout_width="wrap_content"
+        android:layout_height="18dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:ellipsize="marquee"
+        android:maxWidth="220dp"
+        android:maxHeight="18dp"
+        android:text="@string/mini_player_song_no_information"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/mini_player_imageView"
+        app:layout_constraintTop_toBottomOf="@+id/mini_player_song_artist" />
+
+    <TextView
+        android:id="@+id/mini_player_song_artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:ellipsize="marquee"
+        android:maxWidth="220dp"
+        android:maxHeight="15dp"
+        android:text="@string/mini_player_song_no_information"
+        android:textColor="@color/gray"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/mini_player_imageView"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/mini_player_song_liked"
+        style="@style/MiniPlayerShuffleRepeatLikedImageButtons"
+
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="@string/mini_player_song_liked"
+        android:src="@drawable/heart_gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/mini_player_song_manager_LinearLayout"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/mini_player_song_manager_LinearLayout"
+        android:layout_width="0dp"
+        android:layout_height="35dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="@+id/mini_player_imageView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <ImageButton
+            android:id="@+id/mini_player_song_play_or_pause"
+            style="@style/MiniPlayerTrackNextImageButtons"
+            android:contentDescription="@string/mini_player_song_play_or_pause"
+            android:src="@drawable/play" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

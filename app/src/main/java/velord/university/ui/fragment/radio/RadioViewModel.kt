@@ -1,12 +1,13 @@
 package velord.university.ui.fragment.radio
 
 import android.app.Application
-import android.media.AudioManager
-import android.media.MediaPlayer
-import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import velord.university.application.AudlayerApp
+import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.model.entity.RadioStation
@@ -30,22 +31,14 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 
-    private fun playRadio(url: String) {
-        scope.launch {
-            val mediaPlayer = MediaPlayer.create(
-                app,
-                Uri.parse(url)
-            )
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-            mediaPlayer.start()
+    fun playRadio(radio: RadioStation) {
+        AppBroadcastHub.apply {
+            app.playByUrlRadioService(radio.url)
         }
     }
 
     fun getSearchQuery(): String =
         SearchQueryPreferences.getStoredQueryRadio(app)
-
-    fun playRadioNext(radio: RadioStation) =
-        playRadio(radio.url)
 
     fun storeSearchQuery(query: String) {
         //store search term in shared preferences

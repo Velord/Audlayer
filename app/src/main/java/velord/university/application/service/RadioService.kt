@@ -2,23 +2,22 @@ package velord.university.application.service
 
 import android.app.Service
 import android.content.Intent
+import android.media.AudioManager
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.IBinder
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
-import velord.university.application.notification.MiniPlayerServiceNotification
+import velord.university.application.broadcast.AppBroadcastHub
 
 abstract class RadioService : Service() {
 
     abstract val TAG: String
 
     private lateinit var player: MediaPlayer
-
-    private lateinit var radioStation: Array<String>
 
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
 
@@ -32,7 +31,7 @@ abstract class RadioService : Service() {
         super.onCreate()
         //restore state
         scope.launch {
-
+            restoreState()
         }
     }
 
@@ -41,7 +40,7 @@ abstract class RadioService : Service() {
         super.onDestroy()
         //store player state
         stopPlayer()
-        destroyNotification()
+        //destroyNotification()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -61,13 +60,10 @@ abstract class RadioService : Service() {
 
     protected fun playRadioAfterCreatedPlayer() {
         if (::player.isInitialized) {
-                player.start()
+            player.start()
+            //send command to change ui
+            sendInfoWhenPlay()
         }
-        //send command to change ui
-        MiniPlayerBroadcastHub.apply { this@RadioService.playUI() }
-        //send command to change notification
-        changeNotificationPlayOrStop(true)
-        changeNotificationInfo()
     }
 
     protected fun pausePlayer() = stopOrPausePlayer {
@@ -75,7 +71,13 @@ abstract class RadioService : Service() {
     }
 
     protected fun playByUrl(url: String) {
-
+        stopOrPausePlayer { pausePlayer() }
+        player = MediaPlayer.create(
+            this,
+            Uri.parse(url)
+        )
+        player.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        playRadioAfterCreatedPlayer()
     }
 
     protected fun likeRadio() {
@@ -90,30 +92,37 @@ abstract class RadioService : Service() {
 
     }
 
+    private fun stopMiniPlayerService() {
+
+    }
+
     private fun stopPlayer() {
 
     }
 
-    private fun changeNotificationInfo() {
-        val title = ""
-        val artist = ""
-        MiniPlayerServiceNotification.updateSongTitleAndArtist(this, title, artist)
+    private fun restoreState() {
+
     }
 
-    private fun changeNotificationPlayOrStop(isPlaying: Boolean) =
-        MiniPlayerServiceNotification.updatePlayOrStop(this, isPlaying)
+    private fun sendInfoWhenPlay() {
+        stopMiniPlayerService()
+        AppBroadcastHub.apply { this@RadioService.playRadioUI() }
+        //send command to change notification
+        //changeNotificationPlayOrStop(true)
+        //changeNotificationInfo()
+    }
+
+    private fun sendInfoWhenStop() {
+        AppBroadcastHub.apply { this@RadioService.stopRadioUI() }
+        //send command to change notification
+        //changeNotificationPlayOrStop(false)
+    }
 
     private fun stopOrPausePlayer(f: () -> Unit) {
         if (::player.isInitialized) {
             f()
         }
         //send command to change ui
-        MiniPlayerBroadcastHub.apply { this@RadioService.stopUI() }
-        //send command to change notification
-        changeNotificationPlayOrStop(false)
-    }
-
-    private fun destroyNotification() {
-        MiniPlayerServiceNotification.dismiss()
+        sendInfoWhenStop()
     }
 }

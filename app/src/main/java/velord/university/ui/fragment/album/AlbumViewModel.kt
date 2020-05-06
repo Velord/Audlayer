@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.*
 import velord.university.application.AudlayerApp
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
@@ -79,10 +79,10 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
             //don't remember for SongPlaylistInteractor
             SongPlaylistInteractor.songs =
                 songs.map { File(it) }.toTypedArray()
-            MiniPlayerBroadcastHub.apply {
+            AppBroadcastHub.apply {
                 app.playByPathService(songs[0])
             }
-            MiniPlayerBroadcastHub.apply {
+            AppBroadcastHub.apply {
                 app.loopAllService()
             }
         }

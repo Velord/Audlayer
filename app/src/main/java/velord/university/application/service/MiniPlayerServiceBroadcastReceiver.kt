@@ -3,12 +3,12 @@ package velord.university.application.service
 import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.likeUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.skipNextUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.skipPrevUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.songDurationUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.unlikeUI
+import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub.likeUI
+import velord.university.application.broadcast.AppBroadcastHub.skipNextUI
+import velord.university.application.broadcast.AppBroadcastHub.skipPrevUI
+import velord.university.application.broadcast.AppBroadcastHub.songDurationUI
+import velord.university.application.broadcast.AppBroadcastHub.unlikeUI
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.MiniPlayerServiceReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
@@ -46,7 +46,7 @@ class MiniPlayerServiceBroadcastReceiver :
     override val playByPathF: (Intent?) -> Unit
         get() = {
             it?.let {
-                val extra = MiniPlayerBroadcastHub.Extra.playByPathService
+                val extra = AppBroadcastHub.Extra.playByPathService
                 val path = it.getStringExtra(extra)
                 super<MiniPlayerService>.playByPath(path)
             }
@@ -89,7 +89,7 @@ class MiniPlayerServiceBroadcastReceiver :
     override val rewindF: (Intent?) -> Unit
         get() = {
             it?.let {
-                val extra =MiniPlayerBroadcastHub.Extra.rewindService
+                val extra =AppBroadcastHub.Extra.rewindService
                 val value = it.getIntExtra(extra, 0)
                 val milliseconds = SongTimeConverter.secondsToMilliseconds(value)
                 super.rewindPlayer(milliseconds)
@@ -130,7 +130,7 @@ class MiniPlayerServiceBroadcastReceiver :
         get() = {
             it?.let {
                 val extra =
-                    MiniPlayerBroadcastHub.Extra.folderPathService
+                    AppBroadcastHub.Extra.folderPathService
                 val path = it.getStringExtra(extra)
                 super<MiniPlayerService>.playAllInFolder(path)
             }
@@ -140,7 +140,7 @@ class MiniPlayerServiceBroadcastReceiver :
         get() = {
             it?.let {
                 val extra =
-                    MiniPlayerBroadcastHub.Extra.folderPathService
+                    AppBroadcastHub.Extra.folderPathService
                 val path = it.getStringExtra(extra)
                 super<MiniPlayerService>.playNextAllInFolder(path)
             }
@@ -150,7 +150,7 @@ class MiniPlayerServiceBroadcastReceiver :
         get() = {
             it?.let {
                 val extra =
-                    MiniPlayerBroadcastHub.Extra.folderPathService
+                    AppBroadcastHub.Extra.folderPathService
                 val path = it.getStringExtra(extra)
                 super<MiniPlayerService>.shuffleAndPlayAllInFolder(path)
             }
@@ -160,7 +160,7 @@ class MiniPlayerServiceBroadcastReceiver :
         get() = {
             it?.let {
                 val extra =
-                    MiniPlayerBroadcastHub.Extra.folderPathService
+                    AppBroadcastHub.Extra.folderPathService
                 val path = it.getStringExtra(extra)
                 super.addToQueueOneSong(path)
             }

@@ -2,47 +2,47 @@ package velord.university.application.broadcast
 
 import android.content.Context
 import android.content.IntentFilter
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.addToQueueService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.getInfoService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.hideUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.likeService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.likeUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.loopAllService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.loopAllUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.loopService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.loopUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.notLoopService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.notLoopUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.playAllInFolderService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.playByPathService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.playNextAllInFolderService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.playService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.playUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.rewindService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.rewindUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.showUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.shuffleAndPlayAllInFolderService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.shuffleService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.shuffleUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.skipNextService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.skipNextUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.skipPrevService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.skipPrevUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.songArtistUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.songDurationUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.songHQUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.songNameUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.songPathUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.unShuffleService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.unShuffleUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.unlikeService
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Action.unlikeUI
-import velord.university.application.broadcast.MiniPlayerBroadcastHub.Extra.folderPathService
+import velord.university.application.broadcast.AppBroadcastHub.Action.addToQueueService
+import velord.university.application.broadcast.AppBroadcastHub.Action.getInfoService
+import velord.university.application.broadcast.AppBroadcastHub.Action.hideUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.likeService
+import velord.university.application.broadcast.AppBroadcastHub.Action.likeUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.loopAllService
+import velord.university.application.broadcast.AppBroadcastHub.Action.loopAllUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.loopService
+import velord.university.application.broadcast.AppBroadcastHub.Action.loopUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.notLoopService
+import velord.university.application.broadcast.AppBroadcastHub.Action.notLoopUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.playAllInFolderService
+import velord.university.application.broadcast.AppBroadcastHub.Action.playByPathService
+import velord.university.application.broadcast.AppBroadcastHub.Action.playNextAllInFolderService
+import velord.university.application.broadcast.AppBroadcastHub.Action.playService
+import velord.university.application.broadcast.AppBroadcastHub.Action.playUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.rewindService
+import velord.university.application.broadcast.AppBroadcastHub.Action.rewindUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.showUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.shuffleAndPlayAllInFolderService
+import velord.university.application.broadcast.AppBroadcastHub.Action.shuffleService
+import velord.university.application.broadcast.AppBroadcastHub.Action.shuffleUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.skipNextService
+import velord.university.application.broadcast.AppBroadcastHub.Action.skipNextUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.skipPrevService
+import velord.university.application.broadcast.AppBroadcastHub.Action.skipPrevUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.songArtistUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.songDurationUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.songHQUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.songNameUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.songPathUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.unShuffleService
+import velord.university.application.broadcast.AppBroadcastHub.Action.unShuffleUI
+import velord.university.application.broadcast.AppBroadcastHub.Action.unlikeService
+import velord.university.application.broadcast.AppBroadcastHub.Action.unlikeUI
+import velord.university.application.broadcast.AppBroadcastHub.Extra.folderPathService
 
 const val PERM_PRIVATE_MINI_PLAYER = "velord.university.PERM_PRIVATE_MINI_PLAYER"
 const val PERM_PRIVATE_RADIO = "velord.university.PERM_PRIVATE_RADIO"
 
-object MiniPlayerBroadcastHub {
+object AppBroadcastHub {
 
     fun Context.stopService() =
         MiniPlayerBroadcastStop.run {
@@ -255,9 +255,9 @@ object MiniPlayerBroadcastHub {
             this@playRadioService.sendBroadcastPlay()
         }
 
-    fun Context.playRadioI() =
+    fun Context.playRadioUI() =
         RadioBroadcastPlay.run {
-            this@playRadioI.sendBroadcastPlayUI()
+            this@playRadioUI.sendBroadcastPlayUI()
         }
 
     fun Context.likeRadioService() =

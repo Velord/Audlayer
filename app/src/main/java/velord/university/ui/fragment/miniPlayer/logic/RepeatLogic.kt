@@ -1,7 +1,7 @@
 package velord.university.ui.fragment.miniPlayer.logic
 
 import androidx.fragment.app.FragmentActivity
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub
 
 object RepeatLogic {
 
@@ -11,19 +11,19 @@ object RepeatLogic {
         when(repeat) {
             RepeatState.NotRepeat -> {
                 repeat = RepeatState.RepeatAll
-                MiniPlayerBroadcastHub.apply {
+                AppBroadcastHub.apply {
                     context.loopAllService()
                 }
             }
             RepeatState.RepeatAll -> {
                 repeat = RepeatState.Repeat
-                MiniPlayerBroadcastHub.apply {
+                AppBroadcastHub.apply {
                     context.loopService()
                 }
             }
             RepeatState.Repeat -> {
                 repeat = RepeatState.NotRepeat
-                MiniPlayerBroadcastHub.apply {
+                AppBroadcastHub.apply {
                     context.notLoopService()
                 }
             }

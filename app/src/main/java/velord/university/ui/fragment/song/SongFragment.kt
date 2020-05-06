@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.broadcast.MiniPlayerBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.SongReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
@@ -62,7 +62,7 @@ class SongFragment : ActionBarFragment(),
     override val songPathF: (Intent?) -> Unit =
         { nullableIntent ->
             nullableIntent?.apply {
-                val extra = MiniPlayerBroadcastHub.Extra.songPathUI
+                val extra = AppBroadcastHub.Extra.songPathUI
                 val songPath = getStringExtra(extra)
                 scope.launch {
                     changeRVItem(songPath)
