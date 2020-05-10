@@ -17,7 +17,7 @@ data class RadioStation(
     @ColumnInfo(name = "url")
     val url: String,
 
-    @ColumnInfo(name = "icon") val icon: Int? = null,
+    @ColumnInfo(name = "icon") val icon: String? = null,
 
     @PrimaryKey(autoGenerate = true) val id: Long = 0
 )

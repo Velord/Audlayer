@@ -23,7 +23,7 @@ import velord.university.repository.dao.vk.VkSongDao
         Album::class, VkAlbum::class,
         VkSong::class, RadioStation::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = true
 )
 @TypeConverters(StringListConverter::class)

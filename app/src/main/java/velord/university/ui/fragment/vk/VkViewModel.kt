@@ -6,7 +6,6 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.*
 import org.apache.commons.text.similarity.LevenshteinDistance
-import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
@@ -17,6 +16,7 @@ import velord.university.model.entity.Playlist
 import velord.university.model.entity.vk.VkAlbum
 import velord.university.model.entity.vk.VkSong
 import velord.university.model.functionalDataSctructure.result.Result
+import velord.university.repository.FolderRepository
 import velord.university.repository.VkRepository
 import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.ui.util.RecyclerViewSelectItemResolver
@@ -94,7 +94,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     suspend fun deleteSong(vkSong: VkSong) {
-        AudlayerApp.getApplicationVkDir()
+        FolderRepository.getApplicationVkDir()
             .listFiles()?.find { it.path == vkSong.path }.let {
                 if (it != null) {
                     applyNewPath(vkSong, "")

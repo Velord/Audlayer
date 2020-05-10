@@ -5,13 +5,12 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.ImageButton
-import android.widget.PopupMenu
-import android.widget.TextView
+import android.widget.*
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
@@ -193,6 +192,19 @@ class RadioFragment : ActionBarFragment() {
     private fun playRadio(radio: RadioStation) =
         viewModel.playRadio(radio)
 
+    private fun loadRadioStationIcon(radio: RadioStation, view: ImageView) {
+        radio.icon?.let {
+            val imageName = resources.getIdentifier(
+                it, "drawable", requireContext().packageName)
+
+            Glide.with(requireActivity())
+                .load(imageName)
+                .placeholder(R.drawable.radio_record)
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                .into(view)
+        }
+    }
+
     private inner class RadioHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
@@ -209,6 +221,8 @@ class RadioFragment : ActionBarFragment() {
                     itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
                 }, {
                     text.text = radio.name
+                }, {
+                    loadRadioStationIcon(radio, icon)
                 }
             )
         }
@@ -220,9 +234,7 @@ class RadioFragment : ActionBarFragment() {
                 }, {
                     text.text = radio.name
                 }, {
-                    radio.icon?.let {
-                        icon.setImageResource(it)
-                    }
+                    loadRadioStationIcon(radio, icon)
                 }
             )
         }

@@ -206,3 +206,22 @@ val MIGRATION_9_10: Migration = object : Migration(9, 10) {
         )
     }
 }
+
+val MIGRATION_10_11: Migration = object : Migration(10, 11) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        //change radio station icon to string
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `RadioStation_New` (`name` TEXT NOT NULL, `url` TEXT NOT NULL, `icon` TEXT, `id` INTEGER NOT NULL, PRIMARY KEY(`id`))"
+        )
+        database.execSQL(
+            "DROP TABLE RadioStation"
+        )
+        database.execSQL(
+            "ALTER TABLE RadioStation_New RENAME TO RadioStation"
+        )
+        //create indices
+        database.execSQL(
+            "CREATE INDEX index_RadioStation_name_url ON RadioStation(name, url)"
+        )
+    }
+}

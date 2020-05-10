@@ -1,15 +1,18 @@
 [
   {
     "name" : "RadioRecord",
-    "url" : "http://air.radiorecord.ru:805/rr_320"
+    "url" : "http://air.radiorecord.ru:805/rr_320",
+    "icon" : "radio_record"
   },
   {
     "name" : "Record Megamix",
-    "url" : "http://air.radiorecord.ru:805/mix_320"
+    "url" : "http://air.radiorecord.ru:805/mix_320",
+    "icon" : "megamix"
   },
   {
     "name" : "Record Deep",
-    "url" : "http://air.radiorecord.ru:805/deep_320"
+    "url" : "http://air.radiorecord.ru:805/deep_320",
+    "icon" : "deep"
   },
   {
     "name" : "Record Club",
@@ -17,59 +20,73 @@
   },
   {
     "name" : "Record Future House",
-    "url" : "http://air.radiorecord.ru:805/fut_320"
+    "url" : "http://air.radiorecord.ru:805/fut_320",
+    "icon" : "future_house"
   },
   {
     "name" : "Record Trancemission",
-    "url" : "http://air.radiorecord.ru:805/tm_320"
+    "url" : "http://air.radiorecord.ru:805/tm_320",
+    "icon" : "trancemission"
   },
   {
     "name" : "Record Chill-Out",
-    "url" : "http://air.radiorecord.ru:805/chil_320"
+    "url" : "http://air.radiorecord.ru:805/chil_320",
+    "icon" : "chill_out"
   },
   {
     "name" : "Record Minimal Tech",
-    "url" : "http://air.radiorecord.ru:805/mini_320"
+    "url" : "http://air.radiorecord.ru:805/mini_320",
+    "icon" : "minimal_tech"
   },
   {
     "name" : "Record Pirate Station",
-    "url" : "http://air.radiorecord.ru:805/ps_320"
+    "url" : "http://air.radiorecord.ru:805/ps_320",
+    "icon" : "pirate_station"
   },
   {
     "name" : "Record Russian Mix",
-    "url" : "http://air.radiorecord.ru:805/rus_320"
+    "url" : "http://air.radiorecord.ru:805/rus_320",
+    "icon" : "russian_mix"
   },
   {
     "name" : "Record Vip House",
-    "url" : "http://air.radiorecord.ru:805/vip_320"
+    "url" : "http://air.radiorecord.ru:805/vip_320",
+    "icon" : "vip_house"
   },
   {
     "name" : "Record Супердискотека 90-х",
-    "url" : "http://air.radiorecord.ru:805/sd90_320"
+    "url" : "http://air.radiorecord.ru:805/sd90_320",
+    "icon" : "superdiscoteka_90_x"
   },
   {
     "name" : "Record Breaks",
-    "url" : "http://air.radiorecord.ru:805/brks_320"
+    "url" : "http://air.radiorecord.ru:805/brks_320",
+    "icon" : "breaks"
   },
   {
     "name" : "Record Dubstep",
-    "url" : "http://air.radiorecord.ru:805/dub_320"
+    "url" : "http://air.radiorecord.ru:805/dub_320",
+    "icon" : "dubstep"
   },
   {
     "name" : "Record Dancecore",
-    "url" : "http://air.radiorecord.ru:805/dc_320"
+    "url" : "http://air.radiorecord.ru:805/dc_320",
+    "icon" : "dancecore"
   },
   {
     "name" : "Record Techno",
-    "url" : "http://air.radiorecord.ru:805/techno320"
+    "url" : "http://air.radiorecord.ru:805/techno320",
+    "icon" : "techno"
   },
   {
     "name" : "Record Hardstyle",
-    "url" : "http://air.radiorecord.ru:805/teo_320"
+    "url" : "http://air.radiorecord.ru:805/teo_320",
+    "icon" : "hardstyle"
   },
   {
     "name" : "Record Trap",
-    "url" : "http://air.radiorecord.ru:805/trap_320"
+    "url" : "http://air.radiorecord.ru:805/trap_320",
+    "icon" : "trap"
   },
   {
     "name" : "Record Pump",
@@ -77,15 +94,18 @@
   },
   {
     "name" : "Record Rock",
-    "url" : "http://air.radiorecord.ru:805/rock_320"
+    "url" : "http://air.radiorecord.ru:805/rock_320",
+    "icon" : "rock"
   },
   {
     "name" : "Record Медляк FM",
-    "url" : "http://air.radiorecord.ru:805/md1_320"
+    "url" : "http://air.radiorecord.ru:805/md1_320",
+    "icon" : "medlyak_fm"
   },
   {
     "name" : "Record Гоп FM",
-    "url" : "http://air.radiorecord.ru:805/gop_320"
+    "url" : "http://air.radiorecord.ru:805/gop_320",
+    "icon" : "gop_fm"
   },
   {
     "name" : "Record Yo! FM",

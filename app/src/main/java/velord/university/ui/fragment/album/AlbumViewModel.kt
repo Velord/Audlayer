@@ -6,7 +6,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.*
-import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
@@ -14,6 +13,7 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.entity.Album
 import velord.university.model.entity.Playlist
+import velord.university.repository.FolderRepository
 import velord.university.repository.transaction.AlbumTransaction
 import velord.university.repository.transaction.PlaylistTransaction
 import java.io.File
@@ -157,8 +157,8 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         favourite =  PlaylistTransaction.getFavouriteSongs()
         Log.d(TAG, "favourite playlist retrieved")
         //downloaded
-        val filesAppDir = AudlayerApp.getApplicationDir().listFiles()
-        val filesVkDir = AudlayerApp.getApplicationVkDir().listFiles()
+        val filesAppDir = FolderRepository.getApplicationDir().listFiles()
+        val filesVkDir = FolderRepository.getApplicationVkDir().listFiles()
         downloaded =  FileFilter.filterOnlyAudio(
             filesAppDir + filesVkDir).map { it.path }
         Log.d(TAG, "downloaded playlist retrieved")
