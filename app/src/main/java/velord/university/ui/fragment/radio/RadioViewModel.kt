@@ -2,15 +2,12 @@ package velord.university.ui.fragment.radio
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.withContext
-import velord.university.application.AudlayerApp
+import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.model.entity.RadioStation
+import velord.university.repository.RadioRepository
 import velord.university.ui.util.RecyclerViewSelectItemResolver
 
 class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
@@ -19,21 +16,31 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
 
     lateinit var currentQuery: String
 
+    private lateinit var currentRadio: RadioStation
+
     lateinit var rvResolver: RecyclerViewSelectItemResolver<String>
 
-    private val radioPlaylist: List<RadioStation> by lazy {
-        AudlayerApp.db!!.run {
-            radioDao().getAll()
-        }
-    }
+    private lateinit var radioPlaylist: List<RadioStation>
 
     lateinit var ordered: List<RadioStation>
+
+    init {
+        scope.launch {
+            reassignmentRadioPlaylist()
+        }
+    }
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 
     fun playRadio(radio: RadioStation) {
-        AppBroadcastHub.apply {
-            app.playByUrlRadioService(radio.url)
+        scope.launch {
+            currentRadio = radio
+
+            AppBroadcastHub.apply {
+                app.showRadioUI()
+                app.playByUrlRadioService(radio.url)
+                app.radioNameUI(radio.name)
+            }
         }
     }
 
@@ -46,6 +53,13 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
         SearchQueryPreferences.setStoredQueryRadio(app, currentQuery)
     }
 
+    fun changeLike(isLike: Boolean) {
+        scope.launch {
+            changeLikeInDB(isLike)
+            reassignmentRadioPlaylist()
+        }
+    }
+
     suspend fun filterByQuery(query: String): List<RadioStation> =
         withContext(Dispatchers.Default) {
             val filtered = radioPlaylist.filter {
@@ -55,11 +69,11 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
             val sorted = when(SortByPreference.getSortByRadioFragment(app)) {
                 //name
                 0 -> filtered.sortedBy {
-                    TODO()
+                    it.name
                 }
-                //artist
+                //like
                 1 -> filtered.sortedBy {
-                    TODO()
+                    it.liked
                 }
                 else -> filtered
             }
@@ -72,4 +86,12 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
 
             return@withContext ordered
         }
+
+    private suspend fun reassignmentRadioPlaylist() {
+        radioPlaylist = RadioRepository.getAll()
+    }
+
+    private suspend fun changeLikeInDB(isLike: Boolean) =
+        if (isLike) RadioRepository.likeByUrl(currentRadio.url)
+        else RadioRepository.unlikeByUrl(currentRadio.url)
 }

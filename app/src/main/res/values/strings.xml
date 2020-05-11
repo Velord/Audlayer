@@ -92,5 +92,7 @@
     <string name="vk_popup_log_out">Log Out</string>
     <string name="delete">Delete</string>
     <string name="download_all">Download All</string>
+    <string name="like">Like</string>
+    <string name="no_artist">No Artist</string>
     <integer name="com_vk_sdk_AppId">7360134</integer>
 </resources>

@@ -8,8 +8,8 @@
             android:checkable="true"
             app:showAsAction="ifRoom"/>
 
-        <item android:id="@+id/radio_sort_by_artist"
-            android:title="@string/pop_up_menu_item_sort_by_artist"
+        <item android:id="@+id/radio_sort_by_like"
+            android:title="@string/like"
             android:checkable="true"
             app:showAsAction="ifRoom"/>
 

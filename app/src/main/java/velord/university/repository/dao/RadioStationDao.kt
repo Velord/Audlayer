@@ -14,9 +14,12 @@ interface RadioStationDao {
 
     @Query("Select * From RadioStation Where name = :name")
     fun getByName(name: String): RadioStation
-    //don't work
-    @Query("UPDATE RadioStation SET url =:url WHERE name =:nameValue")
-    fun updateUrlByName(nameValue: String, url: String)
+
+    @Query("Select * From RadioStation Where url =:url")
+    fun getByUrl(url: String): RadioStation
+
+    @Query("UPDATE RadioStation SET liked =:liked WHERE url =:url")
+    fun updateLikeByUrl(url: String, liked: Boolean)
 
     @Update
     fun update(vararg radio: RadioStation)

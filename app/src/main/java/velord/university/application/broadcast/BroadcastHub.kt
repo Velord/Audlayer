@@ -280,14 +280,14 @@ object AppBroadcastHub {
             this@unlikeRadioUI.sendBroadcastUnlikeUI()
         }
 
-    fun Context.songRadioNameUI(name: String) =
+    fun Context.radioNameUI(name: String) =
         RadioBroadcastName.run {
-            this@songRadioNameUI.sendBroadcastRadioNameUI(name)
+            this@radioNameUI.sendBroadcastRadioNameUI(name)
         }
 
-    fun Context.songRadioArtistUI(artist: String) =
+    fun Context.radioArtistUI(artist: String) =
         RadioBroadcastArtist.run {
-            this@songRadioArtistUI.sendBroadcastRadioArtistUI(artist)
+            this@radioArtistUI.sendBroadcastRadioArtistUI(artist)
         }
 
     fun Context.playOrStopRadioService() =
@@ -900,7 +900,7 @@ object AppBroadcastHub {
 
         override val filterUI: IntentFilter = IntentFilter(actionUI)
 
-        override val extraValueUI: String = Extra.songArtistUI
+        override val extraValueUI: String = Extra.radioArtistUI
 
         fun Context.sendBroadcastRadioArtistUI(
             artist: String,
@@ -914,7 +914,7 @@ object AppBroadcastHub {
 
         override val filterUI: IntentFilter = IntentFilter(actionUI)
 
-        override val extraValueUI: String = Extra.songNameUI
+        override val extraValueUI: String = Extra.radioNameUI
 
         fun Context.sendBroadcastRadioNameUI(
             name: String,

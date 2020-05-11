@@ -13,6 +13,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.miniPlayer.MiniPlayerUIPreference
+import velord.university.repository.RadioRepository
 
 abstract class RadioService : Service() {
 
@@ -21,6 +22,8 @@ abstract class RadioService : Service() {
     private lateinit var player: MediaPlayer
 
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
+
+    private lateinit var currentStationUrl: String
 
     override fun onBind(intent: Intent?): IBinder? {
         Log.d(TAG, "onBind called")
@@ -72,22 +75,26 @@ abstract class RadioService : Service() {
     }
 
     protected fun playByUrl(url: String) {
-        stopOrPausePlayer { pausePlayer() }
-        player = MediaPlayer.create(
-            this,
-            Uri.parse(url)
-        )
-        player.setAudioStreamType(AudioManager.STREAM_MUSIC)
-        playRadioAfterCreatedPlayer()
+        scope.launch {
+            //assignment
+            currentStationUrl = url
+            //action
+            stopOrPausePlayer { pausePlayer() }
+            //create
+            player = MediaPlayer.create(
+                this@RadioService,
+                Uri.parse(url)
+            )
+            player.setAudioStreamType(AudioManager.STREAM_MUSIC)
+            //play
+            playRadioAfterCreatedPlayer()
+        }
     }
 
-    protected fun likeRadio() {
-
-    }
-
-    protected fun unlikeRadio() {
-
-    }
+    //ignore cause radioFragment handle this
+    protected fun likeRadio() {}
+    //ignore cause radioFragment handle this
+    protected fun unlikeRadio() {}
 
     protected fun getInfoFromServiceToUI() {
 
@@ -113,11 +120,24 @@ abstract class RadioService : Service() {
         AppBroadcastHub.apply {
             this@RadioService.showRadioUI()
             this@RadioService.playRadioUI()
+            sendIsLiked()
         }
         //send command to change notification
         //changeNotificationPlayOrStop(true)
         //changeNotificationInfo()
     }
+
+    private fun sendIsLiked() =
+        scope.launch {
+            when (RadioRepository.isLike(currentStationUrl)) {
+                true -> AppBroadcastHub.apply {
+                    this@RadioService.likeRadioUI()
+                }
+                false -> AppBroadcastHub.apply {
+                    this@RadioService.unlikeRadioUI()
+                }
+            }
+        }
 
     private fun sendInfoWhenStop() {
         AppBroadcastHub.apply {

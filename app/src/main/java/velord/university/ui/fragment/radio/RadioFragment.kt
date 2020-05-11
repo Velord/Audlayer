@@ -1,5 +1,7 @@
 package velord.university.ui.fragment.radio
 
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -14,13 +16,18 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
+import velord.university.application.broadcast.PERM_PRIVATE_RADIO
+import velord.university.application.broadcast.behaviour.RadioServiceReceiver
+import velord.university.application.broadcast.registerBroadcastReceiver
+import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.model.entity.RadioStation
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RecyclerViewSelectItemResolver
 import velord.university.ui.util.setupPopupMenuOnClick
 
-class RadioFragment : ActionBarFragment() {
+class RadioFragment : ActionBarFragment(),
+    RadioServiceReceiver {
 
     override val TAG: String = "RadioFragment"
 
@@ -47,13 +54,12 @@ class RadioFragment : ActionBarFragment() {
                 val initActionMenuItemClickListener: (MenuItem) -> Boolean = { menuItem ->
                     when (menuItem.itemId) {
                         R.id.radio_sort_by_name -> sortBy(0)
-                        R.id.radio_sort_by_artist -> sortBy(1)
-                        R.id.song_sort_by_ascending_order -> {
+                        R.id.radio_sort_by_like -> sortBy(1)
+
+                        R.id.radio_sort_by_ascending_order ->
                             sortByAscDesc(0)
-                        }
-                        R.id.song_sort_by_descending_order -> {
+                        R.id.radio_sort_by_descending_order ->
                             sortByAscDesc(1)
-                        }
                         else -> {
                             super.rearwardActionButton()
                             false
@@ -74,8 +80,8 @@ class RadioFragment : ActionBarFragment() {
                     val ascDescOrder =
                         SortByPreference.getAscDescRadioFragment(requireContext())
                     when(ascDescOrder) {
-                        0 -> { menuItem.getItem(5).isChecked = true }
-                        1 -> { menuItem.getItem(6).isChecked = true }
+                        0 -> { menuItem.getItem(2).isChecked = true }
+                        1 -> { menuItem.getItem(3).isChecked = true }
                     }
                 }
 
@@ -122,12 +128,53 @@ class RadioFragment : ActionBarFragment() {
         updateAdapterBySearchQuery(correctQuery)
     }
 
+    private val receivers = receiverList()
+
+    override val likeRadioF: (Intent?) -> Unit = {
+        viewModel.changeLike(true)
+    }
+
+    override val unlikeRadioF: (Intent?) -> Unit = {
+        viewModel.changeLike(false)
+    }
+
+    override val playByUrlRadioF: (Intent?) -> Unit = {}
+
+    override val stopRadioF: (Intent?) -> Unit = {}
+
+    override val playRadioF: (Intent?) -> Unit = {}
+
+    override val getInfoRadioF: (Intent?) -> Unit = {}
+
+    override val playOrStopRadioF: (Intent?) -> Unit = {}
+
+    override fun onStart() {
+        super.onStart()
+
+        receivers.forEach {
+            requireActivity()
+                .registerBroadcastReceiver(
+                    it.first, IntentFilter(it.second), PERM_PRIVATE_RADIO
+                )
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        receivers.forEach {
+            requireActivity()
+                .unregisterBroadcastReceiver(it.first)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.radio_fragment, container, false).apply {
             scope.launch {
+                viewModel
                 withContext(Dispatchers.Main) {
                     //init action bar
                     super.initActionBar(this@apply)
@@ -205,6 +252,10 @@ class RadioFragment : ActionBarFragment() {
         }
     }
 
+    private fun setName(radio: RadioStation, view: TextView) {
+        view.text = radio.name
+    }
+
     private inner class RadioHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
@@ -220,7 +271,7 @@ class RadioFragment : ActionBarFragment() {
                 }, {
                     itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
                 }, {
-                    text.text = radio.name
+                    setName(radio, text)
                 }, {
                     loadRadioStationIcon(radio, icon)
                 }
@@ -232,7 +283,7 @@ class RadioFragment : ActionBarFragment() {
                 {
                     itemView.setBackgroundResource(R.color.opacity)
                 }, {
-                    text.text = radio.name
+                    setName(radio, text)
                 }, {
                     loadRadioStationIcon(radio, icon)
                 }
