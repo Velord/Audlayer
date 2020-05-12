@@ -73,7 +73,7 @@ class SongFragment : ActionBarFragment(),
     private tailrec suspend fun changeRVItem(songPath: String) {
         if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.apply {
-                userChangeSong(songPath)
+                userChangeItem(songPath)
                 //apply to ui
                 val files = viewModel.ordered.map { it.path }
                 val containF: (String) -> Boolean = {

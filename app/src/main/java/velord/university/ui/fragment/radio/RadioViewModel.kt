@@ -8,7 +8,7 @@ import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.model.entity.RadioStation
 import velord.university.repository.RadioRepository
-import velord.university.ui.util.RecyclerViewSelectItemResolver
+import velord.university.ui.util.RVSelection
 
 class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
 
@@ -16,9 +16,9 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
 
     lateinit var currentQuery: String
 
-    private lateinit var currentRadio: RadioStation
+    lateinit var currentRadio: RadioStation
 
-    lateinit var rvResolver: RecyclerViewSelectItemResolver<String>
+    lateinit var rvResolver: RVSelection<RadioStation>
 
     private lateinit var radioPlaylist: List<RadioStation>
 

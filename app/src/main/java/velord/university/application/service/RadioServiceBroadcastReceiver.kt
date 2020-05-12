@@ -17,7 +17,7 @@ class RadioServiceBroadcastReceiver :
 
     override val TAG: String = "RadioServiceBrdcstRcvr"
 
-    private val receivers = receiverList()
+    private val receivers = receiverServiceList()
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy called")

@@ -22,7 +22,7 @@ class MiniPlayerRadioGeneralFragment :
 
     override val TAG: String = "MiniPlayerRadioGeneralFragment"
 
-    private val receivers = getRadioReceiverList()
+    private val receivers = getRadioUIReceiverList()
 
     override fun onStart() {
         super.onStart()
@@ -63,7 +63,7 @@ class MiniPlayerRadioGeneralFragment :
         }
     }
 
-    override val nameRadioF: (Intent?) -> Unit = {
+    override val nameRadioUIF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.radioNameUI
             val value = getStringExtra(extra)
@@ -71,7 +71,7 @@ class MiniPlayerRadioGeneralFragment :
         }
     }
 
-    override val artistRadioF: (Intent?) -> Unit = {
+    override val artistRadioUIF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.radioArtistUI
             val value = getStringExtra(extra)
@@ -79,32 +79,32 @@ class MiniPlayerRadioGeneralFragment :
         }
     }
 
-    override val showRadioF: (Intent?) -> Unit = {
+    override val showRadioUIF: (Intent?) -> Unit = {
         it?.apply {
             viewModel.setState(MiniPlayerLayoutState.RADIO)
             showMiniPlayerRadio()
         }
     }
 
-    override val stopRadioF: (Intent?) -> Unit = {
+    override val stopRadioUIF: (Intent?) -> Unit = {
         if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
             stopButtonInvoke(miniPlayerRadioPlayOrPauseIB)
         }
     }
 
-    override val playRadioF: (Intent?) -> Unit = {
+    override val playRadioUIF: (Intent?) -> Unit = {
         if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
             playButtonInvoke(miniPlayerRadioPlayOrPauseIB)
         }
     }
 
-    override val likeRadioF: (Intent?) -> Unit = {
+    override val likeRadioUIF: (Intent?) -> Unit = {
         if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
             likeButtonInvoke(miniPlayerRadioLikedIB)
         }
     }
 
-    override val unlikeRadioF: (Intent?) -> Unit = {
+    override val unlikeRadioUIF: (Intent?) -> Unit = {
         if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
             unlikeButtonInvoke(miniPlayerRadioLikedIB)
         }

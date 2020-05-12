@@ -3,6 +3,7 @@ package velord.university.ui.fragment.radio
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -16,18 +17,21 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
+import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_RADIO
 import velord.university.application.broadcast.behaviour.RadioServiceReceiver
+import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.model.entity.RadioStation
 import velord.university.ui.fragment.actionBar.ActionBarFragment
-import velord.university.ui.util.RecyclerViewSelectItemResolver
+import velord.university.ui.util.RVSelection
 import velord.university.ui.util.setupPopupMenuOnClick
 
 class RadioFragment : ActionBarFragment(),
-    RadioServiceReceiver {
+    RadioServiceReceiver,
+    RadioUIReceiver{
 
     override val TAG: String = "RadioFragment"
 
@@ -128,25 +132,68 @@ class RadioFragment : ActionBarFragment(),
         updateAdapterBySearchQuery(correctQuery)
     }
 
-    private val receivers = receiverList()
+    private val receivers = receiverServiceList() + getRadioUIReceiverList()
 
-    override val likeRadioF: (Intent?) -> Unit = {
+    override val likeRadioUIF: (Intent?) -> Unit = {
         viewModel.changeLike(true)
     }
 
-    override val unlikeRadioF: (Intent?) -> Unit = {
+    override val unlikeRadioUIF: (Intent?) -> Unit = {
         viewModel.changeLike(false)
     }
 
     override val playByUrlRadioF: (Intent?) -> Unit = {}
 
-    override val stopRadioF: (Intent?) -> Unit = {}
+    override val stopRadioUIF: (Intent?) -> Unit = {}
 
-    override val playRadioF: (Intent?) -> Unit = {}
+    override val playRadioUIF: (Intent?) -> Unit = {
+        scope.launch {
+            viewModel.rvResolver.state = 1
+            withContext(Dispatchers.Main) {
+                viewModel.rvResolver.adapter.notifyDataSetChanged()
+            }
+        }
+    }
 
     override val getInfoRadioF: (Intent?) -> Unit = {}
 
     override val playOrStopRadioF: (Intent?) -> Unit = {}
+
+    override val nameRadioUIF: (Intent?) -> Unit = {
+        it?.apply {
+            val extra = AppBroadcastHub.Extra.radioNameUI
+            val value = getStringExtra(extra)
+        }
+    }
+
+    override val artistRadioUIF: (Intent?) -> Unit = {
+        it?.apply {
+            val extra = AppBroadcastHub.Extra.radioArtistUI
+            val value = getStringExtra(extra)
+        }
+    }
+
+    override val showRadioUIF: (Intent?) -> Unit = {
+        it?.apply {
+
+        }
+    }
+
+    override val stopRadioF: (Intent?) -> Unit = {
+
+    }
+
+    override val playRadioF: (Intent?) -> Unit = {
+
+    }
+
+    override val likeRadioF: (Intent?) -> Unit = {
+
+    }
+
+    override val unlikeRadioF: (Intent?) -> Unit = {
+
+    }
 
     override fun onStart() {
         super.onStart()
@@ -236,8 +283,9 @@ class RadioFragment : ActionBarFragment(),
         }
     }
 
-    private fun playRadio(radio: RadioStation) =
+    private fun playRadio(radio: RadioStation) {
         viewModel.playRadio(radio)
+    }
 
     private fun loadRadioStationIcon(radio: RadioStation, view: ImageView) {
         radio.icon?.let {
@@ -256,17 +304,33 @@ class RadioFragment : ActionBarFragment(),
         view.text = radio.name
     }
 
+    private fun getRecyclerViewResolver(
+        adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
+    ): RVSelection<RadioStation> {
+        return if (viewModel.rvResolverIsInitialized()) {
+            viewModel.rvResolver.adapter = adapter
+            viewModel.rvResolver
+        }
+        //new
+        else {
+            viewModel.rvResolver = RVSelection(adapter, 0)
+            viewModel.rvResolver
+        }
+    }
+
     private inner class RadioHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val text: TextView = itemView.findViewById(R.id.general_item_path)
+        private val text: TextView = itemView.findViewById(R.id.radio_item_name)
         private val action: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
         private val frame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
-        private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
+        private val icon: ImageButton = itemView.findViewById(R.id.radio_item_icon)
+        private val pb: ProgressBar = itemView.findViewById(R.id.radio_item_pb)
 
-        val selected: (RadioStation) -> Array<() -> Unit> = { radio ->
+        private val selectedGeneral: (RadioStation) -> Array<() -> Unit> = { radio ->
             arrayOf(
                 {
+                    Log.d(TAG, "selectedGeneral")
                     icon.setImageResource(R.drawable.song_item_playing)
                 }, {
                     itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
@@ -278,14 +342,33 @@ class RadioFragment : ActionBarFragment(),
             )
         }
 
-        val notSelected: (RadioStation) -> Array<() -> Unit> = { radio ->
+        private val selectedFirst: (RadioStation) -> Array<() -> Unit> = { radio ->
+            selectedGeneral(radio) + arrayOf(
+                {
+                    pb.visibility = View.VISIBLE
+                }
+            )
+        }
+
+        private val notSelectedFirst: (RadioStation) -> Array<() -> Unit> = { radio ->
             arrayOf(
                 {
+                    Log.d(TAG, "notSelectedFirst")
                     itemView.setBackgroundResource(R.color.opacity)
                 }, {
                     setName(radio, text)
                 }, {
                     loadRadioStationIcon(radio, icon)
+                }, {
+                    pb.visibility = View.GONE
+                }
+            )
+        }
+
+        private val selectedSecond: (RadioStation) -> Array<() -> Unit> = { radio ->
+            selectedGeneral(radio) + arrayOf(
+                {
+                    pb.visibility = View.GONE
                 }
             )
         }
@@ -296,8 +379,7 @@ class RadioFragment : ActionBarFragment(),
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                 when (it.itemId) {
                     R.id.radio_rv_item_play_next -> {
-                        playRadio(radio)
-                        true
+                        TODO()
                     }
                     R.id.radio_rv_item_add_to_home_screen -> {
                         TODO()
@@ -318,18 +400,25 @@ class RadioFragment : ActionBarFragment(),
             Unit
         }
 
-        private fun setOnClickAndImageResource(radio: RadioStation, f: (Int) -> Unit) {
+        private fun setOnClickAndImageResource(radio: RadioStation,
+                                               rvSelectResolver: RVSelection<RadioStation>) {
             itemView.setOnClickListener {
-                f(0)
-                playRadio(radio)
+                scope.launch {
+                    rvSelectResolver.singleSelectionPrinciple(radio)
+                    playRadio(radio)
+                }
             }
             text.setOnClickListener {
-                f(1)
-                playRadio(radio)
+                scope.launch {
+                    rvSelectResolver.singleSelectionPrinciple(radio)
+                    playRadio(radio)
+                }
             }
             icon.setOnClickListener {
-                f(2)
-                playRadio(radio)
+                scope.launch {
+                    rvSelectResolver.singleSelectionPrinciple(radio)
+                    playRadio(radio)
+                }
             }
             action.setOnClickListener {
                 actionPopUpMenu(radio)
@@ -339,11 +428,33 @@ class RadioFragment : ActionBarFragment(),
             }
         }
 
+        private fun applyState(radio: RadioStation,
+                               rvSelectResolver: RVSelection<RadioStation>) {
+            when(rvSelectResolver.state) {
+                0 -> isContains(rvSelectResolver, radio,
+                    selectedFirst,
+                    notSelectedFirst
+                )
+                1 -> isContains(rvSelectResolver, radio,
+                        selectedSecond,
+                        notSelectedFirst
+                )
+            }
+        }
+
+        private fun isContains(rvSelectResolver: RVSelection<RadioStation>,
+                               radio: RadioStation,
+                               isContains: (RadioStation) -> Array<() -> Unit>,
+                               isNotContains: (RadioStation) -> Array<() -> Unit>) {
+            if (rvSelectResolver.selected.contains(radio)) isContains(radio).forEach { it() }
+            else isNotContains(radio).forEach { it() }
+        }
+
         fun bindItem(radio: RadioStation,
                      position: Int,
-                     f: (Array<() -> Unit>) -> (Array<() -> Unit>) -> (Int) -> Unit) {
-            val setBackground = f(selected(radio))(notSelected(radio))
-            setOnClickAndImageResource(radio, setBackground)
+                     rvSelectResolver: RVSelection<RadioStation>) {
+            applyState(radio, rvSelectResolver)
+            setOnClickAndImageResource(radio, rvSelectResolver)
         }
     }
 
@@ -351,31 +462,19 @@ class RadioFragment : ActionBarFragment(),
         RecyclerView.Adapter<RadioHolder>(),  FastScrollRecyclerView.SectionedAdapter {
 
         private val rvSelectResolver =
-            //just change old adapter to new
-            if (viewModel.rvResolverIsInitialized()) {
-                viewModel.rvResolver.adapter = this as RecyclerView.Adapter<RecyclerView.ViewHolder>
-                viewModel.rvResolver
-            }
-            //new
-            else {
-                viewModel.rvResolver = RecyclerViewSelectItemResolver(
-                    this as RecyclerView.Adapter<RecyclerView.ViewHolder>, 3, ""
-                )
-                viewModel.rvResolver
-            }
+            getRecyclerViewResolver(this as RecyclerView.Adapter<RecyclerView.ViewHolder>)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RadioHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
-                R.layout.general_rv_item, parent, false
+                R.layout.radio_rv_item, parent, false
             )
             return RadioHolder(view)
         }
 
         override fun onBindViewHolder(holder: RadioHolder, position: Int) {
             items[position].apply {
-                val f = rvSelectResolver.resolver(this.name)
-                holder.bindItem(this, position, f)
+                holder.bindItem(this, position, rvSelectResolver)
             }
         }
 
@@ -385,3 +484,4 @@ class RadioFragment : ActionBarFragment(),
             "${items[position].name[0]}"
     }
 }
+

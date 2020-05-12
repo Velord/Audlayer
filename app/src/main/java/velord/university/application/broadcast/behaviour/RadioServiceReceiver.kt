@@ -10,7 +10,7 @@ interface RadioServiceReceiver {
 
     val TAG: String
 
-    fun receiverList() = arrayOf(
+    fun receiverServiceList() = arrayOf(
         Pair(playByUrl(), AppBroadcastHub.Action.playByUrlRadioService),
         Pair(stop(), AppBroadcastHub.Action.stopRadioService),
         Pair(play(), AppBroadcastHub.Action.playRadioService),

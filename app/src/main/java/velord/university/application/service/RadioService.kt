@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import velord.university.application.broadcast.AppBroadcastHub
-import velord.university.application.settings.miniPlayer.MiniPlayerUIPreference
 import velord.university.repository.RadioRepository
 
 abstract class RadioService : Service() {
@@ -79,7 +78,7 @@ abstract class RadioService : Service() {
             //assignment
             currentStationUrl = url
             //action
-            stopOrPausePlayer { pausePlayer() }
+            stopOrPausePlayer { stopPlayer() }
             //create
             player = MediaPlayer.create(
                 this@RadioService,
@@ -101,7 +100,7 @@ abstract class RadioService : Service() {
     }
 
     private fun stopMiniPlayerService() {
-        if (MiniPlayerUIPreference.getState(this) == 0)
+        //if (MiniPlayerUIPreference.getState(this) == 0)
             AppBroadcastHub.apply {
                 this@RadioService.stopService()
             }
