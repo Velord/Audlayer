@@ -19,7 +19,7 @@ import velord.university.model.functionalDataSctructure.result.Result
 import velord.university.repository.FolderRepository
 import velord.university.repository.VkRepository
 import velord.university.repository.transaction.PlaylistTransaction
-import velord.university.ui.util.RecyclerViewSelectItemResolver
+import velord.university.ui.util.RvSelectionOld
 import java.io.File
 
 
@@ -37,7 +37,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     lateinit var currentQuery: String
 
-    lateinit var rvResolver: RecyclerViewSelectItemResolver<String>
+    lateinit var rvResolver: RvSelectionOld<String>
 
     fun storeSearchQuery(query: String) {
         //store search term in shared preferences

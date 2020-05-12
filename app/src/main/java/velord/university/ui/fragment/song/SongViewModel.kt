@@ -13,7 +13,7 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.entity.Playlist
 import velord.university.repository.transaction.PlaylistTransaction
-import velord.university.ui.util.RecyclerViewSelectItemResolver
+import velord.university.ui.util.RvSelectionOld
 import java.io.File
 
 
@@ -27,7 +27,7 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
 
     lateinit var currentQuery: String
 
-    lateinit var rvResolver: RecyclerViewSelectItemResolver<String>
+    lateinit var rvResolver: RvSelectionOld<String>
 
     suspend fun retrieveSongsFromDb() = withContext(Dispatchers.IO) {
         allPlaylist = PlaylistTransaction.getAllPlaylist()

@@ -149,9 +149,11 @@ class RadioFragment : ActionBarFragment(),
     override val playRadioUIF: (Intent?) -> Unit = {
         scope.launch {
             viewModel.rvResolver.state = 1
-            withContext(Dispatchers.Main) {
-                viewModel.rvResolver.adapter.notifyDataSetChanged()
+            val stations = viewModel.ordered
+            val f: (RadioStation) ->  Boolean = { radio ->
+                viewModel.rvResolver.selected.contains(radio)
             }
+            viewModel.rvResolver.refreshAndScroll(stations, rv, f)
         }
     }
 
@@ -450,8 +452,7 @@ class RadioFragment : ActionBarFragment(),
             else isNotContains(radio).forEach { it() }
         }
 
-        fun bindItem(radio: RadioStation,
-                     position: Int,
+        fun bindItem(radio: RadioStation, position: Int,
                      rvSelectResolver: RVSelection<RadioStation>) {
             applyState(radio, rvSelectResolver)
             setOnClickAndImageResource(radio, rvSelectResolver)

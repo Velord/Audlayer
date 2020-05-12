@@ -30,7 +30,7 @@ import velord.university.model.FileNameParser
 import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.entity.Playlist
 import velord.university.ui.fragment.actionBar.ActionBarFragment
-import velord.university.ui.util.RecyclerViewSelectItemResolver
+import velord.university.ui.util.RvSelectionOld
 import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
@@ -79,7 +79,7 @@ class SongFragment : ActionBarFragment(),
                 val containF: (String) -> Boolean = {
                     it == songPath
                 }
-                applyToRvItem(files, rv, containF)
+                refreshAndScroll(files, rv, containF)
             }
             return
         } else changeRVItem(songPath)
@@ -402,7 +402,7 @@ class SongFragment : ActionBarFragment(),
             }
             //new
             else {
-                viewModel.rvResolver = RecyclerViewSelectItemResolver(
+                viewModel.rvResolver = RvSelectionOld(
                     this as RecyclerView.Adapter<RecyclerView.ViewHolder>, 3, ""
                 )
                 viewModel.rvResolver

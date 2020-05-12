@@ -15,10 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
@@ -34,7 +31,7 @@ import velord.university.model.FileNameParser
 import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarFragment
-import velord.university.ui.util.RecyclerViewSelectItemResolver
+import velord.university.ui.util.RVSelection
 import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
@@ -175,13 +172,13 @@ class FolderFragment : ActionBarFragment(),
     private tailrec suspend fun changeRVItem(songPath: String) {
         if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.apply {
-                userChangeItem(songPath)
                 //apply to ui
-                val files = viewModel.ordered.map { it.path }
-                val containF: (String) -> Boolean = {
-                    it == songPath
+                clearAndChangeSelectedItem(File(songPath))
+                val files = viewModel.ordered
+                val containF: (File) -> Boolean = {
+                    it.absolutePath == songPath
                 }
-                applyToRvItem(files, rv, containF)
+                refreshAndScroll(files, rv, containF)
             }
             return
         } else changeRVItem(songPath)
@@ -354,6 +351,20 @@ class FolderFragment : ActionBarFragment(),
         }
     }
 
+    private fun getRecyclerViewResolver(
+        adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
+    ): RVSelection<File> {
+        return if (viewModel.rvResolverIsInitialized()) {
+            viewModel.rvResolver.adapter = adapter
+            viewModel.rvResolver
+        }
+        //new
+        else {
+            viewModel.rvResolver = RVSelection(adapter, 0)
+            viewModel.rvResolver
+        }
+    }
+
     private inner class FileHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
@@ -362,7 +373,8 @@ class FolderFragment : ActionBarFragment(),
         private val actionImageButton: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
         private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
 
-        private fun setOnClickAndImageResource(file: File, fSelect: (Int) -> Unit) {
+        private fun setOnClickAndImageResource(file: File,
+                                               rvSelectResolver: RVSelection<File>) {
             when(FileExtension.getFileExtension(file)) {
                 FileExtensionModifier.DIRECTORY -> {
                     val action = { setupAdapter(file) }
@@ -410,7 +422,7 @@ class FolderFragment : ActionBarFragment(),
 
                         Unit
                     }
-                    setOnClick(action, popUpAction) {  }
+                    setOnClick(file, rvSelectResolver, action, popUpAction)
                     icon.setImageResource(R.drawable.extension_file_folder)
                 }
                 FileExtensionModifier.AUDIO -> {
@@ -457,7 +469,7 @@ class FolderFragment : ActionBarFragment(),
 
                         Unit
                     }
-                    setOnClick(action, popUpAction, fSelect)
+                    setOnClick(file, rvSelectResolver, action, popUpAction)
                 }
                 FileExtensionModifier.NOT_COMPATIBLE -> {
                     icon.setImageResource(R.drawable.extension_file_not_important)
@@ -465,18 +477,33 @@ class FolderFragment : ActionBarFragment(),
             }
         }
 
-        private fun setOnClick(f: () -> Unit, popUpF: () -> Unit, fSelect: (Int) -> Unit) {
+        private inline fun setOnClick(file: File,
+                                      rvSelectResolver: RVSelection<File>,
+                                      crossinline f: () -> Unit,
+                                      crossinline popUpF: () -> Unit) {
             itemView.setOnClickListener {
-                f()
-                fSelect(0)
+                scope.launch {
+                    withContext(Dispatchers.Main) {
+                        rvSelectResolver.singleSelectionPrinciple(file)
+                        f()
+                    }
+                }
             }
             icon.setOnClickListener {
-                f()
-                fSelect(2)
+                scope.launch {
+                    withContext(Dispatchers.Main) {
+                        rvSelectResolver.singleSelectionPrinciple(file)
+                        f()
+                    }
+                }
             }
             path.setOnClickListener {
-                f()
-                fSelect(1)
+                scope.launch {
+                    withContext(Dispatchers.Main) {
+                        rvSelectResolver.singleSelectionPrinciple(file)
+                        f()
+                    }
+                }
             }
             actionImageButton.setOnClickListener {
                 popUpF()
@@ -486,7 +513,7 @@ class FolderFragment : ActionBarFragment(),
             }
         }
 
-        private val selected:  (File) -> Array<() -> Unit> = { file ->
+        private val selected: (File) -> Array<() -> Unit> = { file ->
             arrayOf(
                 {
                     val size: Double =
@@ -507,7 +534,7 @@ class FolderFragment : ActionBarFragment(),
             )
         }
 
-        private val notSelected:  (File) -> Array<() -> Unit> = { file ->
+        private val notSelected: (File) -> Array<() -> Unit> = { file ->
             arrayOf(
                 {
                     path.text = FileNameParser.removeExtension(file)
@@ -522,29 +549,30 @@ class FolderFragment : ActionBarFragment(),
             )
         }
 
+        private fun applyState(value: File,
+                               rvSelectResolver: RVSelection<File>) {
+            when(rvSelectResolver.state) {
+                0 -> rvSelectResolver.isContains(
+                    value,
+                    selected,
+                    notSelected
+                )
+            }
+        }
+
         fun bindItem(file: File, position: Int,
-                     f: (Array<() -> Unit>) -> (Array<() -> Unit>) -> (Int) -> Unit) {
-            val setBackground = f(selected(file))(notSelected(file))
-            setOnClickAndImageResource(file, setBackground)
+                     rvSelectResolver: RVSelection<File>) {
+            applyState(file, rvSelectResolver)
+            setOnClickAndImageResource(file, rvSelectResolver)
         }
     }
 
     private inner class FileAdapter(val items: Array<out File>):
         RecyclerView.Adapter<FileHolder>(),  FastScrollRecyclerView.SectionedAdapter {
 
-        private val rvSelectResolver =
-            //just change old adapter to new
-            if (viewModel.rvResolverIsInitialized()) {
-                viewModel.rvResolver.adapter = this as RecyclerView.Adapter<RecyclerView.ViewHolder>
-                viewModel.rvResolver
-            }
-            //new
-            else {
-                viewModel.rvResolver = RecyclerViewSelectItemResolver(
-                    this as RecyclerView.Adapter<RecyclerView.ViewHolder>, 3, ""
-                )
-                viewModel.rvResolver
-            }
+        private val rvSelectResolver = getRecyclerViewResolver(
+            this as RecyclerView.Adapter<RecyclerView.ViewHolder>
+        )
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
@@ -557,8 +585,7 @@ class FolderFragment : ActionBarFragment(),
 
         override fun onBindViewHolder(holder: FileHolder, position: Int) {
             items[position].apply {
-                val f = rvSelectResolver.resolver(this.path)
-                holder.bindItem(this, position, f)
+                holder.bindItem(this, position, rvSelectResolver)
             }
         }
 
