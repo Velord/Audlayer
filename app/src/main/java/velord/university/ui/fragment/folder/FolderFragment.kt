@@ -181,7 +181,10 @@ class FolderFragment : ActionBarFragment(),
                 refreshAndScroll(files, rv, containF)
             }
             return
-        } else changeRVItem(songPath)
+        } else {
+            delay(500)
+            changeRVItem(songPath)
+        }
     }
 
     override fun onStart() {
