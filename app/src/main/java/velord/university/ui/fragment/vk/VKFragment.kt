@@ -32,10 +32,9 @@ import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.entity.vk.VkSong
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarFragment
-import velord.university.ui.util.RvSelectionOld
+import velord.university.ui.util.RVSelection
 import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
-
 
 class VKFragment : ActionBarFragment(), VkReceiver {
     //Required interface for hosting activities
@@ -200,21 +199,23 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         }
     }
 
-    private tailrec suspend fun changeRVItem(songPath: String) {
-        if (viewModel.rvResolverIsInitialized()) {
+    private tailrec suspend fun changeRVItem(songName: String) {
+        if (viewModel.rvResolverIsInitialized() &&
+            viewModel.orderedIsInitialized()) {
             viewModel.rvResolver.apply {
-                userChangeItem(songPath)
-                //apply to ui
-                val files = viewModel.ordered.map { it.path }
-                val containF: (String) -> Boolean = {
-                    it == songPath
+                val containF: (VkSong) -> Boolean = {
+                    "${it.artist} - ${it.title}" == songName
                 }
+                val song = viewModel.ordered.find { containF(it) }
+                clearAndChangeSelectedItem(song!!)
+                //apply to ui
+                val files = viewModel.ordered
                 refreshAndScroll(files, rv, containF)
             }
             return
         } else {
             delay(500)
-            changeRVItem(songPath)
+            changeRVItem(songName)
         }
     }
 
@@ -370,6 +371,20 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         }
     }
 
+    private fun getRecyclerViewResolver(
+        adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
+    ): RVSelection<VkSong> {
+        return if (viewModel.rvResolverIsInitialized()) {
+            viewModel.rvResolver.adapter = adapter
+            viewModel.rvResolver
+        }
+        //new
+        else {
+            viewModel.rvResolver = RVSelection(adapter, 0)
+            viewModel.rvResolver
+        }
+    }
+
     private inner class SongHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
@@ -487,18 +502,31 @@ class VKFragment : ActionBarFragment(), VkReceiver {
             Unit
         }
 
-        private fun setOnClickAndImageResource(song: VkSong, f: (Int) -> Unit) {
+        private fun setOnClickAndImageResource(song: VkSong,
+                                               rvSelectResolver: RVSelection<VkSong>) {
             itemView.setOnClickListener {
-                f(0)
-                viewModel.checkPathThenPlay(song, webView)
+                scope.launch {
+                    withContext(Dispatchers.Main) {
+                        rvSelectResolver.singleSelectionPrinciple(song)
+                        viewModel.checkPathThenPlay(song, webView)
+                    }
+                }
             }
             text.setOnClickListener {
-                f(1)
-                viewModel.checkPathThenPlay(song, webView)
+                scope.launch {
+                    withContext(Dispatchers.Main) {
+                        rvSelectResolver.singleSelectionPrinciple(song)
+                        viewModel.checkPathThenPlay(song, webView)
+                    }
+                }
             }
             icon.setOnClickListener {
-                f(2)
-                viewModel.checkPathThenPlay(song, webView)
+                scope.launch {
+                    withContext(Dispatchers.Main) {
+                        rvSelectResolver.singleSelectionPrinciple(song)
+                        viewModel.checkPathThenPlay(song, webView)
+                    }
+                }
             }
             action.setOnClickListener {
                 actionPopUpMenu(song)
@@ -508,29 +536,30 @@ class VKFragment : ActionBarFragment(), VkReceiver {
             }
         }
 
+        private fun applyState(value: VkSong,
+                               rvSelectResolver: RVSelection<VkSong>) {
+            when(rvSelectResolver.state) {
+                0 -> rvSelectResolver.isContains(
+                    value,
+                    selected,
+                    notSelected
+                )
+            }
+        }
+
         fun bindItem(song: VkSong, position: Int,
-                     f: (Array<() -> Unit>) -> (Array<() -> Unit>) -> (Int) -> Unit) {
-            val setBackground = f(selected(song))(notSelected(song))
-            setOnClickAndImageResource(song, setBackground)
+                     rvSelectResolver: RVSelection<VkSong>) {
+            applyState(song, rvSelectResolver)
+            setOnClickAndImageResource(song, rvSelectResolver)
         }
     }
 
     private inner class SongAdapter(val items: Array<out VkSong>):
         RecyclerView.Adapter<SongHolder>(),  FastScrollRecyclerView.SectionedAdapter{
 
-        private val rvSelectResolver =
-            //just change old adapter to new
-            if (viewModel.rvResolverIsInitialized()) {
-                viewModel.rvResolver.adapter = this as RecyclerView.Adapter<RecyclerView.ViewHolder>
-                viewModel.rvResolver
-            }
-            //new
-            else {
-                viewModel.rvResolver = RvSelectionOld(
-                    this as RecyclerView.Adapter<RecyclerView.ViewHolder>, 3, ""
-                )
-                viewModel.rvResolver
-            }
+        private val rvSelectResolver = getRecyclerViewResolver(
+            this as RecyclerView.Adapter<RecyclerView.ViewHolder>
+        )
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
@@ -542,8 +571,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
 
         override fun onBindViewHolder(holder: SongHolder, position: Int) {
             items[position].apply {
-                val f = rvSelectResolver.resolver("${this.artist} - ${this.title}")
-                holder.bindItem(this, position, f)
+                holder.bindItem(this, position, rvSelectResolver)
             }
         }
 

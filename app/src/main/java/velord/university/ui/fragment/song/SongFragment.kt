@@ -34,7 +34,6 @@ import velord.university.ui.util.RVSelection
 import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
-
 class SongFragment : ActionBarFragment(),
     SongReceiver {
     //Required interface for hosting activities
