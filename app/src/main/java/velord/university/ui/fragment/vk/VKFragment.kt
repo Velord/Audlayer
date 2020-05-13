@@ -393,8 +393,29 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         private val frame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
         private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
 
-        val selected: (VkSong) -> Array<() -> Unit> = { song ->
+        private fun needDownload(song: VkSong) {
+            if (viewModel.needDownload(song)) {
+                Glide.with(requireActivity())
+                    .load(R.drawable.download_200_gold)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(action)
+            }
+            else Glide.with(requireActivity())
+                .load(R.drawable.action_item)
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                .into(action)
+        }
+
+        val general: (VkSong) -> Array<() -> Unit> = { song ->
             arrayOf(
+                {
+                    needDownload(song)
+                }
+            )
+        }
+
+        val selected: (VkSong) -> Array<() -> Unit> = { song ->
+            general(song) + arrayOf(
                 {
                     icon.setImageResource(R.drawable.song_item_playing)
                 }, {
@@ -410,7 +431,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         }
 
         val notSelected: (VkSong) -> Array<() -> Unit> = { song ->
-            arrayOf(
+            general(song) + arrayOf(
                 {
                     scope.launch {
                         song.album?.thumb?.photo_135?.let {
@@ -430,17 +451,6 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                         song.artist, song.title, album)
                 }, {
                     itemView.setBackgroundResource(R.color.opacity)
-                }, {
-                    if (viewModel.needDownload(song)) {
-                        Glide.with(requireActivity())
-                            .load(R.drawable.download_200_gold)
-                            .diskCacheStrategy(DiskCacheStrategy.ALL)
-                            .into(action)
-                    }
-                    else Glide.with(requireActivity())
-                        .load(R.drawable.action_item)
-                        .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                        .into(action)
                 }
             )
         }
