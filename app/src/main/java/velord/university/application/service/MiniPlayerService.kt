@@ -114,9 +114,7 @@ abstract class MiniPlayerService : Service() {
         addToQueue(SongPlaylistInteractor.songs.toList())
         playNext(path)
         //showUI
-        invokeUI {
-            AppBroadcastHub.run { showGeneralUI() }
-        }
+        sendShowGeneralUI()
     }
 
     protected fun getInfoFromServiceToUI() {
@@ -372,7 +370,6 @@ abstract class MiniPlayerService : Service() {
         if (::player.isInitialized) {
             when {
                 QueueResolver.loop -> playNext(playlist.getSongPath())
-
                 QueueResolver.loopAll -> playNext()
                 //reset current song ui
                 else -> {
@@ -474,16 +471,22 @@ abstract class MiniPlayerService : Service() {
         //send info
         scope.launch {
             invokeUI {
-                AppBroadcastHub.run { showGeneralUI() }
+                sendShowGeneralUI()
+                sendLoopState()
+                sendShuffleState()
+                sendPath(song)
+                sendSongNameAndArtist(song)
+                sendDurationSong(player)
+                sendIsHQ(song)
+                scope.launch {
+                    sendIsLoved(song)
+                }
             }
-            sendLoopState()
-            sendShuffleState()
-            sendPath(song)
-            sendSongNameAndArtist(song)
-            sendDurationSong(player)
-            sendIsHQ(song)
-            sendIsLoved(song)
         }
+    }
+
+    private fun sendShowGeneralUI() {
+        AppBroadcastHub.run { showGeneralUI() }
     }
 
     private fun sendLoopState() =
@@ -507,7 +510,7 @@ abstract class MiniPlayerService : Service() {
         AppBroadcastHub.run { songDurationUI(player.duration) }
 
     private fun sendIsHQ(song: File) {
-
+        invokeUI {  }
     }
 
     private fun sendSongNameAndArtist(file: File) {
@@ -523,14 +526,15 @@ abstract class MiniPlayerService : Service() {
         val favourite = PlaylistTransaction.getFavouriteSongs()
         if (favourite.contains(song.path))
             invokeUI { AppBroadcastHub.run { likeUI() } }
-        else invokeUI { AppBroadcastHub.run { unlikeUI() } }
+        else
+            invokeUI { AppBroadcastHub.run { unlikeUI() } }
     }
 
     private fun sendPathIsWrong(path: String) =
         AppBroadcastHub.run { pathIsWrongUI(path) }
 
     private fun invokeUI(f: () -> Unit) {
-        //when mini player is radio no need start playing
+        //when mini player is radio no need send info
         if(MiniPlayerUIPreference.getState(this) == 0) {
             f()
         }

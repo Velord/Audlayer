@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.settings.miniPlayer.MiniPlayerUIPreference
 import velord.university.repository.RadioRepository
 
 abstract class RadioService : Service() {
@@ -100,10 +101,7 @@ abstract class RadioService : Service() {
     }
 
     private fun stopMiniPlayerService() {
-        //if (MiniPlayerUIPreference.getState(this) == 0)
-            AppBroadcastHub.apply {
-                this@RadioService.stopService()
-            }
+        AppBroadcastHub.apply { stopService() }
     }
 
     private fun stopPlayer() = stopOrPausePlayer {
@@ -120,10 +118,12 @@ abstract class RadioService : Service() {
 
     private fun sendInfoWhenPlay() {
         stopMiniPlayerService()
-        AppBroadcastHub.apply {
-            this@RadioService.showRadioUI()
-            this@RadioService.playRadioUI()
-            sendIsLiked()
+        invokeUI {
+            AppBroadcastHub.apply {
+                showRadioUI()
+                playRadioUI()
+                sendIsLiked()
+            }
         }
         //send command to change notification
         //changeNotificationPlayOrStop(true)
@@ -133,18 +133,18 @@ abstract class RadioService : Service() {
     private fun sendIsLiked() =
         scope.launch {
             when (RadioRepository.isLike(currentStationUrl)) {
-                true -> AppBroadcastHub.apply {
-                    this@RadioService.likeRadioUI()
+                true -> invokeUI {
+                    AppBroadcastHub.apply { likeRadioUI() }
                 }
-                false -> AppBroadcastHub.apply {
-                    this@RadioService.unlikeRadioUI()
+                false -> invokeUI {
+                    AppBroadcastHub.apply { unlikeRadioUI() }
                 }
             }
         }
 
     private fun sendInfoWhenStop() {
-        AppBroadcastHub.apply {
-            this@RadioService.stopRadioUI()
+        invokeUI {
+            AppBroadcastHub.apply { stopRadioUI() }
         }
         //send command to change notification
         //changeNotificationPlayOrStop(false)
@@ -156,5 +156,12 @@ abstract class RadioService : Service() {
         }
         //send command to change ui
         sendInfoWhenStop()
+    }
+
+    private fun invokeUI(f: () -> Unit) {
+        //when mini player is general no need send info
+        if(MiniPlayerUIPreference.getState(this) == 1) {
+            f()
+        }
     }
 }
