@@ -135,11 +135,13 @@ class RadioFragment : ActionBarFragment(),
     private val receivers = receiverServiceList() + getRadioUIReceiverList()
 
     override val likeRadioUIF: (Intent?) -> Unit = {
-        viewModel.changeLike(true)
+        if (viewModel.currentRadioIsInitialized())
+            viewModel.changeLike(true)
     }
 
     override val unlikeRadioUIF: (Intent?) -> Unit = {
-        viewModel.changeLike(false)
+        if (viewModel.currentRadioIsInitialized())
+            viewModel.changeLike(false)
     }
 
     override val playByUrlRadioF: (Intent?) -> Unit = {}
@@ -147,13 +149,15 @@ class RadioFragment : ActionBarFragment(),
     override val stopRadioUIF: (Intent?) -> Unit = {}
 
     override val playRadioUIF: (Intent?) -> Unit = {
-        scope.launch {
-            viewModel.rvResolver.state = 1
-            val stations = viewModel.ordered
-            val f: (RadioStation) ->  Boolean = { radio ->
-                viewModel.rvResolver.selected.contains(radio)
+        if (viewModel.rvResolverIsInitialized()) {
+            scope.launch {
+                viewModel.rvResolver.state = 1
+                val stations = viewModel.ordered
+                val f: (RadioStation) -> Boolean = { radio ->
+                    viewModel.rvResolver.selected.contains(radio)
+                }
+                viewModel.rvResolver.refreshAndScroll(stations, rv, f)
             }
-            viewModel.rvResolver.refreshAndScroll(stations, rv, f)
         }
     }
 

@@ -43,138 +43,118 @@ class MiniPlayerServiceBroadcastReceiver :
         return START_STICKY
     }
 
-    override val playByPathF: (Intent?) -> Unit
-        get() = {
-            it?.let {
-                val extra = AppBroadcastHub.Extra.playByPathService
-                val path = it.getStringExtra(extra)
-                super<MiniPlayerService>.playByPath(path)
-            }
+    override val playByPathF: (Intent?) -> Unit = {
+        it?.let {
+            val extra = AppBroadcastHub.Extra.playByPathService
+            val path = it.getStringExtra(extra)
+            super<MiniPlayerService>.playByPath(path)
         }
+    }
 
-    override val stopF: (Intent?) -> Unit
-        get() = {
-            super.pausePlayer()
-        }
+    override val stopF: (Intent?) -> Unit = {
+        super.pausePlayer()
+    }
 
-    override val playF: (Intent?) -> Unit
-        get() = {
-            super.playSongAfterCreatedPlayer()
-        }
+    override val playF: (Intent?) -> Unit = {
+        super.playSongAfterCreatedPlayer()
+    }
 
-    override val likeF: (Intent?) -> Unit
-        get() = {
-            super.likeSong()
-            likeUI()
-        }
+    override val likeF: (Intent?) -> Unit = {
+        super.likeSong()
+        likeUI()
+    }
 
-    override val unlikeF: (Intent?) -> Unit
-        get() = {
-            super.unlikeSong()
-            unlikeUI()
-        }
+    override val unlikeF: (Intent?) -> Unit = {
+        super.unlikeSong()
+        unlikeUI()
+    }
 
-    override val skipNextF: (Intent?) -> Unit
-        get() = {
-            super.skipSongAndPlayNext()
-           skipNextUI()
-        }
+    override val skipNextF: (Intent?) -> Unit = {
+        super.skipSongAndPlayNext()
+        skipNextUI()
+    }
 
-    override val skipPrevF: (Intent?) -> Unit
-        get() = {
-            super.skipSongAndPlayPrevious()
-            skipPrevUI()
-        }
+    override val skipPrevF: (Intent?) -> Unit = {
+        super.skipSongAndPlayPrevious()
+        skipPrevUI()
+    }
     //get in seconds cause view does not operate at milliseconds
-    override val rewindF: (Intent?) -> Unit
-        get() = {
-            it?.let {
-                val extra =AppBroadcastHub.Extra.rewindService
-                val value = it.getIntExtra(extra, 0)
-                val milliseconds = SongTimeConverter.secondsToMilliseconds(value)
-                super.rewindPlayer(milliseconds)
-            }
+    override val rewindF: (Intent?) -> Unit = {
+        it?.let {
+            val extra =AppBroadcastHub.Extra.rewindService
+            val value = it.getIntExtra(extra, 0)
+            val milliseconds = SongTimeConverter.secondsToMilliseconds(value)
+            super.rewindPlayer(milliseconds)
         }
+    }
 
-    override val shuffleF: (Intent?) -> Unit
-        get() = {
-            super.shuffleOn()
-        }
+    override val shuffleF: (Intent?) -> Unit = {
+        super.shuffleOn()
+    }
 
-    override val unShuffleF: (Intent?) -> Unit
-        get() = {
-            super.shuffleOff()
-        }
+    override val unShuffleF: (Intent?) -> Unit = {
+        super.shuffleOff()
+    }
 
-    override val loopF: (Intent?) -> Unit
-        get() = {
-            super.loopState()
-        }
-    override val loopAllF: (Intent?) -> Unit
-        get() = {
-            super.loopAllState()
-        }
+    override val loopF: (Intent?) -> Unit = {
+        super.loopState()
+    }
+    override val loopAllF: (Intent?) -> Unit = {
+        super.loopAllState()
+    }
 
-    override val notLoopF: (Intent?) -> Unit
-        get() = {
-            super.notLoopState()
-        }
+    override val notLoopF: (Intent?) -> Unit = {
+        super.notLoopState()
+    }
 
-    override val songDurationF: (Intent?) -> Unit
-        get() = {
-            songDurationUI(127)
+    override val songDurationF: (Intent?) -> Unit = {
+        songDurationUI(127)
 
-        }
+    }
 
-    override val playAllInFolderF: (Intent?) -> Unit
-        get() = {
-            it?.let {
-                val extra =
-                    AppBroadcastHub.Extra.folderPathService
-                val path = it.getStringExtra(extra)
-                super<MiniPlayerService>.playAllInFolder(path)
-            }
+    override val playAllInFolderF: (Intent?) -> Unit = {
+        it?.let {
+            val extra =
+                AppBroadcastHub.Extra.folderPathService
+            val path = it.getStringExtra(extra)
+            super<MiniPlayerService>.playAllInFolder(path)
         }
+    }
 
-    override val playNextAllInFolderF: (Intent?) -> Unit
-        get() = {
-            it?.let {
-                val extra =
-                    AppBroadcastHub.Extra.folderPathService
-                val path = it.getStringExtra(extra)
-                super<MiniPlayerService>.playNextAllInFolder(path)
-            }
+    override val playNextAllInFolderF: (Intent?) -> Unit = {
+        it?.let {
+            val extra =
+                AppBroadcastHub.Extra.folderPathService
+            val path = it.getStringExtra(extra)
+            super<MiniPlayerService>.playNextAllInFolder(path)
         }
+    }
 
-    override val shuffleAndPlayAllInFolderF: (Intent?) -> Unit
-        get() = {
-            it?.let {
-                val extra =
-                    AppBroadcastHub.Extra.folderPathService
-                val path = it.getStringExtra(extra)
-                super<MiniPlayerService>.shuffleAndPlayAllInFolder(path)
-            }
+    override val shuffleAndPlayAllInFolderF: (Intent?) -> Unit = {
+        it?.let {
+            val extra =
+                AppBroadcastHub.Extra.folderPathService
+            val path = it.getStringExtra(extra)
+            super<MiniPlayerService>.shuffleAndPlayAllInFolder(path)
         }
+    }
 
-    override val addToQueueF: (Intent?) -> Unit
-        get() = {
-            it?.let {
-                val extra =
-                    AppBroadcastHub.Extra.folderPathService
-                val path = it.getStringExtra(extra)
-                super.addToQueueOneSong(path)
-            }
+    override val addToQueueF: (Intent?) -> Unit = {
+        it?.let {
+            val extra =
+                AppBroadcastHub.Extra.folderPathService
+            val path = it.getStringExtra(extra)
+            super.addToQueueOneSong(path)
         }
+    }
 
-    override val getInfoF: (Intent?) -> Unit
-        get() = {
-            super.getInfoFromServiceToUI()
-        }
+    override val getInfoF: (Intent?) -> Unit = {
+        super.getInfoFromServiceToUI()
+    }
 
-    override val playOrStopF: (Intent?) -> Unit
-        get() = {
-            it?.let {
-                super.playOrStopService()
-            }
+    override val playOrStopF: (Intent?) -> Unit = {
+        it?.let {
+            super.playOrStopService()
         }
+    }
 }

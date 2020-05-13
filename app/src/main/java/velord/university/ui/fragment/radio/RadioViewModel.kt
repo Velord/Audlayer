@@ -6,6 +6,7 @@ import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
+import velord.university.interactor.RadioInteractor
 import velord.university.model.entity.RadioStation
 import velord.university.repository.RadioRepository
 import velord.university.ui.util.RVSelection
@@ -32,14 +33,15 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 
+    fun currentRadioIsInitialized(): Boolean = ::currentRadio.isInitialized
+
     fun playRadio(radio: RadioStation) {
         scope.launch {
             currentRadio = radio
-
+            //first of all reassignment interactor
+            RadioInteractor.radioStation = radio
             AppBroadcastHub.apply {
-                app.showRadioUI()
                 app.playByUrlRadioService(radio.url)
-                app.radioNameUI(radio.name)
             }
         }
     }

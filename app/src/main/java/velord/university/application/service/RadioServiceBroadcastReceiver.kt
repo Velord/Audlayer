@@ -56,7 +56,7 @@ class RadioServiceBroadcastReceiver :
 
     override val playRadioF: (Intent?) -> Unit = {
         it?.let {
-            super.playRadioAfterCreatedPlayer()
+            super.playRadioIfCan()
         }
     }
 

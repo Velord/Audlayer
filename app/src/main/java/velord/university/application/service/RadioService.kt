@@ -7,12 +7,12 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.IBinder
 import android.util.Log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.miniPlayer.MiniPlayerUIPreference
+import velord.university.application.settings.miniPlayer.RadioServicePreference
+import velord.university.interactor.RadioInteractor
+import velord.university.model.entity.RadioStation
 import velord.university.repository.RadioRepository
 
 abstract class RadioService : Service() {
@@ -23,7 +23,7 @@ abstract class RadioService : Service() {
 
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
 
-    private lateinit var currentStationUrl: String
+    private lateinit var currentStation: RadioStation
 
     override fun onBind(intent: Intent?): IBinder? {
         Log.d(TAG, "onBind called")
@@ -44,6 +44,7 @@ abstract class RadioService : Service() {
         super.onDestroy()
         //store player state
         stopPlayer()
+        saveState()
         //destroyNotification()
     }
 
@@ -52,7 +53,9 @@ abstract class RadioService : Service() {
         return super.onUnbind(intent)
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?,
+                                flags: Int,
+                                startId: Int): Int {
         Log.d(TAG, "onStartCommand called")
         return START_STICKY
     }
@@ -62,42 +65,48 @@ abstract class RadioService : Service() {
         else playRadioAfterCreatedPlayer()
     }
 
-    protected fun playRadioAfterCreatedPlayer() {
-        if (::player.isInitialized) {
-            player.start()
-            //send command to change ui
-            sendInfoWhenPlay()
-        }
-    }
-
     protected fun pausePlayer() = stopOrPausePlayer {
         player.pause()
     }
 
     protected fun playByUrl(url: String) {
         scope.launch {
-            //assignment
-            currentStationUrl = url
-            //action
-            stopOrPausePlayer { stopPlayer() }
-            //create
-            player = MediaPlayer.create(
-                this@RadioService,
-                Uri.parse(url)
-            )
-            player.setAudioStreamType(AudioManager.STREAM_MUSIC)
-            //play
-            playRadioAfterCreatedPlayer()
+            //check correct radioStation
+            val radioStation = RadioInteractor.radioStation
+            if (url == radioStation.url) {
+                //assignment
+                currentStation = radioStation
+                //action
+                stopOrPausePlayer { stopPlayer() }
+                //create
+                player = MediaPlayer.create(
+                    this@RadioService,
+                    Uri.parse(url)
+                )
+                player.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                //save
+                saveState()
+                //play
+                mayInvoke { radioIsCached() }
+            }
         }
     }
 
-    //ignore cause radioFragment handle this
-    protected fun likeRadio() {}
-    //ignore cause radioFragment handle this
-    protected fun unlikeRadio() {}
+    protected fun playRadioIfCan() {
+        if (::player.isInitialized) {
+            playRadioAfterCreatedPlayer()
+        }
+        else {
+            playByUrl(currentStation.url)
+        }
+    }
 
-    protected fun getInfoFromServiceToUI() {
-
+    private fun playRadioAfterCreatedPlayer() {
+        if (::player.isInitialized) {
+            player.start()
+            //send command to change ui
+            sendInfoWhenPlay()
+        }
     }
 
     private fun stopMiniPlayerService() {
@@ -108,48 +117,6 @@ abstract class RadioService : Service() {
         player.stop()
     }
 
-    private fun restoreState() {
-
-    }
-
-    private fun saveState() {
-
-    }
-
-    private fun sendInfoWhenPlay() {
-        stopMiniPlayerService()
-        invokeUI {
-            AppBroadcastHub.apply {
-                showRadioUI()
-                playRadioUI()
-                sendIsLiked()
-            }
-        }
-        //send command to change notification
-        //changeNotificationPlayOrStop(true)
-        //changeNotificationInfo()
-    }
-
-    private fun sendIsLiked() =
-        scope.launch {
-            when (RadioRepository.isLike(currentStationUrl)) {
-                true -> invokeUI {
-                    AppBroadcastHub.apply { likeRadioUI() }
-                }
-                false -> invokeUI {
-                    AppBroadcastHub.apply { unlikeRadioUI() }
-                }
-            }
-        }
-
-    private fun sendInfoWhenStop() {
-        invokeUI {
-            AppBroadcastHub.apply { stopRadioUI() }
-        }
-        //send command to change notification
-        //changeNotificationPlayOrStop(false)
-    }
-
     private fun stopOrPausePlayer(f: () -> Unit) {
         if (::player.isInitialized) {
             f()
@@ -157,8 +124,95 @@ abstract class RadioService : Service() {
         //send command to change ui
         sendInfoWhenStop()
     }
+    //ignore cause radioFragment handle this
+    protected fun likeRadio() {}
+    //ignore cause radioFragment handle this
+    protected fun unlikeRadio() {}
 
-    private fun invokeUI(f: () -> Unit) {
+    protected fun getInfoFromServiceToUI() {
+        scope.launch {
+            if (stationIsInitialized().not())
+                restoreState()
+            if (stationIsInitialized()) {
+                sendIsPlayed()
+                sendRadioName()
+                sendIsLiked()
+            }
+        }
+    }
+
+    private fun radioIsCached() {
+        stopMiniPlayerService()
+        sendShowRadioUI()
+        playRadioAfterCreatedPlayer()
+    }
+
+    private suspend fun restoreState() = withContext(Dispatchers.IO) {
+        val id = RadioServicePreference.getCurrentRadioId(this@RadioService)
+        currentStation = RadioRepository.getById(id)
+        RadioInteractor.radioStation = currentStation
+    }
+
+    private fun saveState() {
+        RadioServicePreference
+            .setCurrentRadioId(this, currentStation.id.toInt())
+    }
+
+    private fun sendRadioName() {
+        mayInvoke {
+            AppBroadcastHub.apply {
+                radioNameUI(currentStation.name)
+            }
+        }
+    }
+
+    private fun sendIsPlayed() {
+        mayInvoke {
+            if (::player.isInitialized && player.isPlaying) {
+                AppBroadcastHub.apply {
+                    playRadioUI()
+                }
+            }
+        }
+    }
+
+    private fun sendShowRadioUI() =
+        AppBroadcastHub.apply {
+            showRadioUI()
+        }
+
+    private fun sendInfoWhenPlay() {
+        mayInvoke {
+            getInfoFromServiceToUI()
+        }
+        //send command to change notification
+        //changeNotificationPlayOrStop(true)
+        //changeNotificationInfo()
+    }
+
+    private suspend fun sendIsLiked() = withContext(Dispatchers.IO) {
+        when (RadioRepository.isLike(currentStation.url)) {
+            true -> mayInvoke {
+                AppBroadcastHub.apply { likeRadioUI() }
+            }
+            false -> mayInvoke {
+                AppBroadcastHub.apply { unlikeRadioUI() }
+            }
+        }
+    }
+
+    private fun sendInfoWhenStop() {
+        mayInvoke {
+            AppBroadcastHub.apply { stopRadioUI() }
+        }
+        //send command to change notification
+        //changeNotificationPlayOrStop(false)
+    }
+
+    private fun stationIsInitialized(): Boolean =
+        ::currentStation.isInitialized
+
+    private fun mayInvoke(f: () -> Unit) {
         //when mini player is general no need send info
         if(MiniPlayerUIPreference.getState(this) == 1) {
             f()

@@ -33,6 +33,8 @@ class MiniPlayerRadioGeneralFragment :
                     it.first, IntentFilter(it.second), PERM_PRIVATE_RADIO
                 )
         }
+
+        getInfoFromServiceWhenStart()
     }
 
     override fun onStop() {
@@ -108,5 +110,16 @@ class MiniPlayerRadioGeneralFragment :
         if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
             unlikeButtonInvoke(miniPlayerRadioLikedIB)
         }
+    }
+
+    private fun getInfoFromServiceWhenStart() {
+        val f: () -> Unit = {
+            AppBroadcastHub.apply {
+                showMiniPlayerRadio()
+                requireContext().getInfoRadioService()
+            }
+        }
+        val state = MiniPlayerLayoutState.RADIO
+        getInfoFromService(f, state)
     }
 }

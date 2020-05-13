@@ -18,6 +18,9 @@ interface RadioStationDao {
     @Query("Select * From RadioStation Where url =:url")
     fun getByUrl(url: String): RadioStation
 
+    @Query("Select * From RadioStation Where id =:id")
+    fun getById(id: Int): RadioStation
+
     @Query("UPDATE RadioStation SET liked =:liked WHERE url =:url")
     fun updateLikeByUrl(url: String, liked: Boolean)
 

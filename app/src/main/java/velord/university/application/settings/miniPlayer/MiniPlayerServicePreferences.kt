@@ -16,8 +16,7 @@ object MiniPlayerServicePreferences {
         context: Context,
         pos: Int,
         key: String = PREF_MINI_PLAYER_SERVICE_CURRENT_POS
-    ) =
-        PreferenceManager.getDefaultSharedPreferences(context)
+    ) = PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
                 putInt(key, pos)
             }
@@ -25,16 +24,14 @@ object MiniPlayerServicePreferences {
     fun getCurrentPos(
         context: Context,
         key: String = PREF_MINI_PLAYER_SERVICE_CURRENT_POS
-    ) =
-        PreferenceManager.getDefaultSharedPreferences(context)
+    ) = PreferenceManager.getDefaultSharedPreferences(context)
             .getInt(key, -1)
 
     fun setCurrentDuration(
         context: Context,
         duration: Int,
         key: String = PREF_MINI_PLAYER_SERVICE_CURRENT_DURATION
-    ) =
-        PreferenceManager.getDefaultSharedPreferences(context)
+    ) = PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
                 putInt(key, duration)
             }
@@ -42,16 +39,14 @@ object MiniPlayerServicePreferences {
     fun getCurrentDuration(
         context: Context,
         key: String = PREF_MINI_PLAYER_SERVICE_CURRENT_DURATION
-    ) =
-        PreferenceManager.getDefaultSharedPreferences(context)
+    ) = PreferenceManager.getDefaultSharedPreferences(context)
             .getInt(key, -1)
 
     fun setIsPlaying(
         context: Context,
         isPlaying: Boolean,
         key: String = PREF_MINI_PLAYER_SERVICE_IS_PLAYING
-    ) =
-        PreferenceManager.getDefaultSharedPreferences(context)
+    ) = PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
                 putBoolean(key, isPlaying)
             }
@@ -59,16 +54,14 @@ object MiniPlayerServicePreferences {
     fun getIsPlaying(
         context: Context,
         key: String = PREF_MINI_PLAYER_SERVICE_IS_PLAYING
-    ) =
-        PreferenceManager.getDefaultSharedPreferences(context)
+    ) = PreferenceManager.getDefaultSharedPreferences(context)
             .getBoolean(key, false)
 
     fun setIsShuffle(
         context: Context,
         isShuffle: Boolean,
         key: String = PREF_MINI_PLAYER_SERVICE_IS_SHUFFLE
-    ) =
-        PreferenceManager.getDefaultSharedPreferences(context)
+    ) = PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
                 putBoolean(key, isShuffle)
             }
@@ -76,16 +69,14 @@ object MiniPlayerServicePreferences {
     fun getIsShuffle(
         context: Context,
         key: String = PREF_MINI_PLAYER_SERVICE_IS_SHUFFLE
-    ) =
-        PreferenceManager.getDefaultSharedPreferences(context)
+    ) = PreferenceManager.getDefaultSharedPreferences(context)
             .getBoolean(key, false)
 
     fun setLoopState(
         context: Context,
         loopState: Int,
         key: String = PREF_MINI_PLAYER_SERVICE_IS_LOOP
-    ) =
-        PreferenceManager.getDefaultSharedPreferences(context)
+    ) = PreferenceManager.getDefaultSharedPreferences(context)
             .edit {
                 putInt(key, loopState)
             }
@@ -93,7 +84,6 @@ object MiniPlayerServicePreferences {
     fun getLoopState(
         context: Context,
         key: String = PREF_MINI_PLAYER_SERVICE_IS_LOOP
-    ) =
-        PreferenceManager.getDefaultSharedPreferences(context)
+    ) = PreferenceManager.getDefaultSharedPreferences(context)
             .getInt(key, -1)
 }

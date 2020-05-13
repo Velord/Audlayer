@@ -37,6 +37,11 @@ object RadioRepository {
             db.radioDao().updateLikeByUrl(url, false)
         }
 
+    suspend fun getById(id: Int): RadioStation =
+        withContext(Dispatchers.IO) {
+            db.radioDao().getById(id)
+        }
+
     suspend fun isLike(url: String): Boolean =
         withContext(Dispatchers.IO) {
             db.radioDao().getByUrl(url).liked

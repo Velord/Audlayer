@@ -42,9 +42,7 @@ open class MiniPlayerGeneralFragment :
                 )
         }
         //get info from service about song cause service was created earlier then this view
-        AppBroadcastHub.apply {
-            requireContext().getInfoService()
-        }
+        getInfoFromServiceWhenStart()
     }
 
     override fun onStop() {
@@ -109,14 +107,13 @@ open class MiniPlayerGeneralFragment :
         }
     }
 
-    override val songArtistF: (Intent?) -> Unit
-        get() = { intent ->
-            intent?.apply {
-                val extra = AppBroadcastHub.Extra.songArtistUI
-                val songArtist = getStringExtra(extra)
-                miniPlayerArtistTV.text = songArtist
-            }
+    override val songArtistF: (Intent?) -> Unit = { intent ->
+        intent?.apply {
+            val extra = AppBroadcastHub.Extra.songArtistUI
+            val songArtist = getStringExtra(extra)
+            miniPlayerArtistTV.text = songArtist
         }
+    }
 
     override val stopF: (Intent?) -> Unit = {
         if (viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL)) {
@@ -141,87 +138,76 @@ open class MiniPlayerGeneralFragment :
             unlikeButtonInvoke()
         }
     }
-    override val skipNextF: (Intent?) -> Unit
-        get() = { }
 
-    override val skipPrevF: (Intent?) -> Unit
-        get() = { }
+    override val skipNextF: (Intent?) -> Unit = { }
 
-    override val rewindF: (Intent?) -> Unit
-        get() = { intent ->
-            intent?.apply {
-                val extra = AppBroadcastHub.Extra.rewindUI
-                val second = intent.getIntExtra(extra, 0)
+    override val skipPrevF: (Intent?) -> Unit = { }
 
-                val allSeconds =
-                    SongTimeConverter.textToSeconds(miniPlayerSongTimeEndTV)
-                val progress =
-                    SongTimeConverter.secondsToPercent(second, allSeconds)
+    override val rewindF: (Intent?) -> Unit = { intent ->
+        intent?.apply {
+            val extra = AppBroadcastHub.Extra.rewindUI
+            val second = intent.getIntExtra(extra, 0)
 
-                //change UI
-                miniPlayerSongTimeSeekBar.progress = progress
-                miniPlayerSongTimeStartTV.text =
-                    SongTimeConverter.secondsToTimeText(second)
-            }
+            val allSeconds =
+                SongTimeConverter.textToSeconds(miniPlayerSongTimeEndTV)
+            val progress =
+                SongTimeConverter.secondsToPercent(second, allSeconds)
+
+            //change UI
+            miniPlayerSongTimeSeekBar.progress = progress
+            miniPlayerSongTimeStartTV.text =
+                SongTimeConverter.secondsToTimeText(second)
         }
+    }
 
-    override val shuffleF: (Intent?) -> Unit
-        get() = {
-            miniPlayerSongShuffleIB.setImageResource(R.drawable.shuffle)
-            ShuffleLogic.value = true
+    override val shuffleF: (Intent?) -> Unit = {
+        miniPlayerSongShuffleIB.setImageResource(R.drawable.shuffle)
+        ShuffleLogic.value = true
+    }
+
+    override val unShuffleF: (Intent?) -> Unit = {
+        miniPlayerSongShuffleIB.setImageResource(R.drawable.shuffle_gray)
+        ShuffleLogic.value = false
+    }
+
+    override val loopF: (Intent?) -> Unit = {
+        miniPlayerSongRepeatIB.setImageResource(R.drawable.repeat_one)
+    }
+
+    override val loopAllF: (Intent?) -> Unit = {
+        miniPlayerSongRepeatIB.setImageResource(R.drawable.repeat_all)
+    }
+
+    override val notLoopF: (Intent?) -> Unit = {
+        miniPlayerSongRepeatIB.setImageResource(R.drawable.repeat_gray)
+    }
+
+    override val songNameF: (Intent?) -> Unit = { intent ->
+        intent?.apply {
+            val extra = AppBroadcastHub.Extra.songNameUI
+            val value = getStringExtra(extra)
+            miniPlayerNameTV.text = value
         }
+    }
 
-    override val unShuffleF: (Intent?) -> Unit
-        get() = {
-            miniPlayerSongShuffleIB.setImageResource(R.drawable.shuffle_gray)
-            ShuffleLogic.value = false
+    override val songHQF: (Intent?) -> Unit = { intent ->
+        intent?.apply {
+            val extra = AppBroadcastHub.Extra.songHQUI
+            val value = getBooleanExtra(extra, true)
+            if (value) miniPlayerSongQualityTV.visibility = View.VISIBLE
+            else miniPlayerSongQualityTV.visibility = View.GONE
         }
+    }
 
-    override val loopF: (Intent?) -> Unit
-        get() = {
-            miniPlayerSongRepeatIB.setImageResource(R.drawable.repeat_one)
+    override val songDurationF: (Intent?) -> Unit = { intent ->
+        intent?.apply {
+            val extra = AppBroadcastHub.Extra.songDurationUI
+            val seconds = getIntExtra(extra, 0)
+            val inMinutes = SongTimeConverter.millisecondsToSeconds(seconds)
+            miniPlayerSongTimeEndTV.text =
+                SongTimeConverter.secondsToTimeText(inMinutes)
         }
-
-    override val loopAllF: (Intent?) -> Unit
-        get() = {
-            miniPlayerSongRepeatIB.setImageResource(R.drawable.repeat_all)
-        }
-
-    override val notLoopF: (Intent?) -> Unit
-        get() = {
-            miniPlayerSongRepeatIB.setImageResource(R.drawable.repeat_gray)
-        }
-
-
-    override val songNameF: (Intent?) -> Unit
-        get() = { intent ->
-            intent?.apply {
-                val extra = AppBroadcastHub.Extra.songNameUI
-                val value = getStringExtra(extra)
-                miniPlayerNameTV.text = value
-            }
-        }
-
-    override val songHQF: (Intent?) -> Unit
-        get() = { intent ->
-            intent?.apply {
-                val extra = AppBroadcastHub.Extra.songHQUI
-                val value = getBooleanExtra(extra, true)
-                if (value) miniPlayerSongQualityTV.visibility = View.VISIBLE
-                else miniPlayerSongQualityTV.visibility = View.GONE
-            }
-        }
-
-    override val songDurationF: (Intent?) -> Unit
-        get() = { intent ->
-            intent?.apply {
-                val extra = AppBroadcastHub.Extra.songDurationUI
-                val seconds = getIntExtra(extra, 0)
-                val inMinutes = SongTimeConverter.millisecondsToSeconds(seconds)
-                miniPlayerSongTimeEndTV.text =
-                    SongTimeConverter.secondsToTimeText(inMinutes)
-            }
-        }
+    }
 
     protected fun stopButtonInvoke(button: ImageButton = miniPlayerPlayOrPauseIB) {
         button.setImageResource(R.drawable.play)
@@ -243,6 +229,22 @@ open class MiniPlayerGeneralFragment :
     protected fun unlikeButtonInvoke(button: ImageButton = miniPlayerSongLikedIB) {
         button.setImageResource(R.drawable.heart_gray)
         HeartLogic.value = false
+    }
+
+    protected fun getInfoFromService(f: () -> Unit,
+                                     state: MiniPlayerLayoutState) {
+        if (viewModel.getState() == state) f()
+    }
+
+    private fun getInfoFromServiceWhenStart() {
+        val f: () -> Unit = {
+            AppBroadcastHub.apply {
+                showMiniPlayerGeneral()
+                requireContext().getInfoService()
+            }
+        }
+        val state = MiniPlayerLayoutState.GENERAL
+        getInfoFromService(f, state)
     }
 }
 

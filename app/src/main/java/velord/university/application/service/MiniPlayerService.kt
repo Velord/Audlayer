@@ -79,6 +79,7 @@ abstract class MiniPlayerService : Service() {
         val songs = FileFilter.filterOnlyAudio(File(pathFolder))
         val info = if (songs.isNotEmpty()) {
             addToQueue(songs)
+            stopElseService()
             playNext(playlist.firstInQueue().path)
             "will play: ${songs.size}\n" +
                     "first: ${songs[0].name}"
@@ -102,6 +103,7 @@ abstract class MiniPlayerService : Service() {
             addToQueue(songs)
             playlist.shuffle()
             val firstInQueue = playlist.firstInQueue()
+            stopElseService()
             playNext(firstInQueue.path)
             "will play: ${songs.size}\n" + "first: ${firstInQueue.name}"
         } else { "no one song" }
@@ -114,7 +116,7 @@ abstract class MiniPlayerService : Service() {
         addToQueue(SongPlaylistInteractor.songs.toList())
         playNext(path)
         //showUI
-        sendShowGeneralUI()
+        stopElseService()
     }
 
     protected fun getInfoFromServiceToUI() {
@@ -139,7 +141,7 @@ abstract class MiniPlayerService : Service() {
                 player.start()
                 val seconds = SongTimeConverter
                     .millisecondsToSeconds(player.currentPosition)
-                startSendRewind(player, seconds)
+                startSendRewind(seconds)
             }
             //store player state
             storeIsPlayingState()
@@ -149,7 +151,6 @@ abstract class MiniPlayerService : Service() {
             }
         }
         //send command to change ui
-        stopElseService()
         invokeUI {
             AppBroadcastHub.run { playUI() }
         }
@@ -269,10 +270,8 @@ abstract class MiniPlayerService : Service() {
     }
 
     private fun stopElseService() {
-        if (MiniPlayerUIPreference.getState(this) == 1)
-            invokeUI {
-                AppBroadcastHub.run { stopRadioService() }
-            }
+        AppBroadcastHub.run { stopRadioService() }
+        sendShowGeneralUI()
     }
 
     private fun destroyNotification() {
@@ -326,12 +325,6 @@ abstract class MiniPlayerService : Service() {
             playNext(path)
             rewindPlayer(duration)
             pausePlayer()
-            //when mini player is radio no need start playing
-            if(MiniPlayerUIPreference.getState(this) != 0) {
-                AppBroadcastHub.run {
-                    showRadioUI()
-                }
-            }
             //this means ui have been destroyed with service after destroy main activity
             //but app is still working -> after restoration we should play song
             if (isPlaying && appWasDestroyed.not()) {
@@ -354,7 +347,7 @@ abstract class MiniPlayerService : Service() {
         }
         //send command to change ui
         invokeUI {
-            AppBroadcastHub.apply { this@MiniPlayerService.stopUI() }
+            AppBroadcastHub.apply { stopUI() }
         }
         //send command to change notification
         changeNotificationPlayOrStop(false)
@@ -412,23 +405,25 @@ abstract class MiniPlayerService : Service() {
         return MediaPlayer.create(baseContext, uri)
     }
 
-    private fun startSendRewind(player: MediaPlayer, startFrom: Int = 0) {
-        //this is how much we must change ui
-        val durationInSeconds =
-            SongTimeConverter.millisecondsToSeconds(player.duration)
+    private fun startSendRewind(startFrom: Int = 0) {
+        if (::player.isInitialized) {
+            //this is how much we must change ui
+            val durationInSeconds =
+                SongTimeConverter.millisecondsToSeconds(player.duration)
 
-        var rewindValue = startFrom
-        rewindJob = scope.launch {
-            while (isActive) {
-                while (rewindValue <= durationInSeconds) {
-                    invokeUI {
-                        AppBroadcastHub.run { rewindUI(rewindValue++) }
+            var rewindValue = startFrom
+            rewindJob = scope.launch {
+                while (isActive) {
+                    while (rewindValue <= durationInSeconds) {
+                        invokeUI {
+                            AppBroadcastHub.run { rewindUI(rewindValue++) }
+                        }
+                        //store current duration cause onDestroy invoke only when view is destroy
+                        storeCurrentDuration()
+                        delay(1000)
                     }
-                    //store current duration cause onDestroy invoke only when view is destroy
-                    storeCurrentDuration()
-                    delay(1000)
+                    songIsOver()
                 }
-                songIsOver()
             }
         }
     }
@@ -438,10 +433,12 @@ abstract class MiniPlayerService : Service() {
     }
 
     private fun storeIsPlayingState() {
-        if (player.isPlaying) MiniPlayerServicePreferences
+        if (::player.isInitialized) {
+            if (player.isPlaying) MiniPlayerServicePreferences
                 .setIsPlaying(this@MiniPlayerService, true)
-        else MiniPlayerServicePreferences
+            else MiniPlayerServicePreferences
                 .setIsPlaying(this, false)
+        }
     }
 
     private fun storeSongPositionInQueue() {
