@@ -114,6 +114,10 @@ abstract class RadioService : Service() {
 
     }
 
+    private fun saveState() {
+
+    }
+
     private fun sendInfoWhenPlay() {
         stopMiniPlayerService()
         AppBroadcastHub.apply {
