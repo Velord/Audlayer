@@ -68,7 +68,7 @@ data class RvSelectionOld<T>(var adapter: RecyclerView.Adapter<RecyclerView.View
         isClickedHub.map { defaultValue }.toMutableList()
     }
 
-    private suspend fun changeClickedOn(posInHub: Int, value: T): Unit {
+    private suspend fun changeClickedOn(posInHub: Int, value: T) {
         isClickedHub[posInHub] = value
         withContext(Dispatchers.Main) {
             adapter.notifyDataSetChanged()

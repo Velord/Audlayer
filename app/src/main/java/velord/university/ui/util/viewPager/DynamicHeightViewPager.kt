@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import androidx.viewpager.widget.ViewPager
+import kotlin.math.max
 
 open class DynamicHeightViewPager : ViewPager {
     constructor(context: Context) : super(context)
@@ -20,7 +21,7 @@ open class DynamicHeightViewPager : ViewPager {
                 widthMeasureSpec,
                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             )
-            val height = Math.max(0, currentView.getMeasuredHeight())
+            val height = max(0, currentView.measuredHeight)
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         }

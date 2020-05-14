@@ -159,7 +159,7 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
         override fun getCount(): Int = 3
 
         override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
-            super.setPrimaryItem(container, position, `object`!!)
+            super.setPrimaryItem(container, position, `object`)
 
             if (position != currentPosition && container is LiquidSwipeDynamicHeightViewPager) {
                 val fragment = `object` as Fragment?

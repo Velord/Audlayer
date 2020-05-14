@@ -55,7 +55,7 @@ class LiquidSwipeDynamicHeightViewPager : DynamicHeightViewPager {
      * Sets the fixed scroller duration for the [LiquidSwipeViewPager].
      * @param duration Duration taken for viewpager to settle into position.
      */
-    public fun setDuration(duration: Int) {
+    fun setDuration(duration: Int) {
         val mScroller = ViewPager::class.java.getDeclaredField("mScroller")
         mScroller.isAccessible = true
         val scroller = FixedSpeedScroller(
@@ -73,7 +73,7 @@ class LiquidSwipeDynamicHeightViewPager : DynamicHeightViewPager {
     /**
      * `LiquidSwipePageTransformer` is a custom [ViewPager.PageTransformer] that is used for LiquidSwipe reveal.
      */
-    class LiquidSwipePageTransformer : ViewPager.PageTransformer {
+    class LiquidSwipePageTransformer : PageTransformer {
         override fun transformPage(page: View, position: Float) {
             if (page is LiquidSwipeLayout) {
                 when {

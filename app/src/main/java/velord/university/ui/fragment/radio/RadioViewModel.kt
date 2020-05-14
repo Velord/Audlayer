@@ -17,7 +17,7 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
 
     lateinit var currentQuery: String
 
-    lateinit var currentRadio: RadioStation
+    private lateinit var currentRadio: RadioStation
 
     lateinit var rvResolver: RVSelection<RadioStation>
 
