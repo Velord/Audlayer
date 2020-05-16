@@ -45,6 +45,8 @@ class MainActivity : AppCompatActivity(),
 
     private var scope = CoroutineScope(Job() + Dispatchers.Default)
 
+    private var scopeNotification = CoroutineScope(Job() + Dispatchers.Default)
+
     private val viewModel by lazy {
         ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
     }
@@ -52,6 +54,7 @@ class MainActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "called onCreate")
         super.onCreate(savedInstanceState)
+
         if(PermissionChecker.checkReadWriteExternalStoragePermission(baseContext, this))
             startApp()
     }
@@ -103,16 +106,15 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onStart() {
-        scope.launch {
-            delay(1000)
-            MiniPlayerServiceNotification.dismiss()
+        scopeNotification.launch {
+            dismissNotification()
         }
         super.onStart()
     }
 
     override fun onPause() {
         super.onPause()
-        MiniPlayerServiceNotification.initNotificationManager(this)
+        initNotification()
     }
 
     override fun onBackPressed() {
@@ -178,6 +180,18 @@ class MainActivity : AppCompatActivity(),
 
     override fun onAddToPlaylistFromSongFragment() {
         toZeroAndOpenAddToPlaylist()
+    }
+
+    private fun initNotification() {
+        scopeNotification.cancel()
+        scopeNotification = CoroutineScope(Job() + Dispatchers.Default)
+        MiniPlayerServiceNotification.initNotificationManager(this)
+    }
+
+    private tailrec suspend fun dismissNotification() {
+        MiniPlayerServiceNotification.dismiss()
+        delay(1000)
+        dismissNotification()
     }
 
     private fun toZeroAndOpenAddToPlaylist() {

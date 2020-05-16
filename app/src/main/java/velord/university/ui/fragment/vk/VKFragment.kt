@@ -434,7 +434,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
             general(song) + arrayOf(
                 {
                     scope.launch {
-                        song.album?.thumb?.photo_135?.let {
+                        song.getAlbumIcon()?.let {
                             withContext(Dispatchers.Main) {
                                 Glide.with(requireActivity())
                                     .load(it)

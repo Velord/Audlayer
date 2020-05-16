@@ -12,7 +12,6 @@ import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.miniPlayer.MiniPlayerServicePreferences
-import velord.university.application.settings.miniPlayer.MiniPlayerUIPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.FileFilter
 import velord.university.model.FileNameParser
@@ -20,8 +19,10 @@ import velord.university.model.QueueResolver
 import velord.university.model.ServicePlaylist
 import velord.university.model.converter.SongTimeConverter
 import velord.university.model.entity.MiniPlayerServiceSong
+import velord.university.repository.MiniPlayerRepository
 import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.repository.transaction.ServiceTransaction
+import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import java.io.File
 
 abstract class MiniPlayerService : Service() {
@@ -151,7 +152,7 @@ abstract class MiniPlayerService : Service() {
             }
         }
         //send command to change ui
-        invokeUI {
+        mayInvoke {
             AppBroadcastHub.run { playUI() }
         }
         //send command to change notification
@@ -189,7 +190,7 @@ abstract class MiniPlayerService : Service() {
             }
             storeCurrentDuration(milliseconds)
         }
-        invokeUI {
+        mayInvoke {
             AppBroadcastHub.run { rewindUI(seconds) }
         }
     }
@@ -200,7 +201,7 @@ abstract class MiniPlayerService : Service() {
         playlist.shuffle()
         MiniPlayerServicePreferences
             .setIsShuffle(this, QueueResolver.shuffleState)
-        invokeUI {
+        mayInvoke {
             AppBroadcastHub.run { shuffleUI() }
         }
     }
@@ -210,7 +211,7 @@ abstract class MiniPlayerService : Service() {
         playlist.notShuffle()
         MiniPlayerServicePreferences
             .setIsShuffle(this, QueueResolver.shuffleState)
-        invokeUI {
+        mayInvoke {
             AppBroadcastHub.run { unShuffleUI() }
         }
     }
@@ -246,7 +247,7 @@ abstract class MiniPlayerService : Service() {
         QueueResolver.loopState()
         MiniPlayerServicePreferences
             .setLoopState(this, 1)
-        invokeUI {
+        mayInvoke {
             AppBroadcastHub.apply { this@MiniPlayerService.loopUI() }
         }
     }
@@ -255,7 +256,7 @@ abstract class MiniPlayerService : Service() {
         QueueResolver.notLoopState()
         MiniPlayerServicePreferences
             .setLoopState(this, 0)
-        invokeUI {
+        mayInvoke {
             AppBroadcastHub.apply { this@MiniPlayerService.notLoopUI() }
         }
     }
@@ -264,7 +265,7 @@ abstract class MiniPlayerService : Service() {
         QueueResolver.loopAllState()
         MiniPlayerServicePreferences
             .setLoopState(this, 2)
-        invokeUI {
+        mayInvoke {
             AppBroadcastHub.apply { this@MiniPlayerService.loopAllUI() }
         }
     }
@@ -346,7 +347,7 @@ abstract class MiniPlayerService : Service() {
             stopSendRewind()
         }
         //send command to change ui
-        invokeUI {
+        mayInvoke {
             AppBroadcastHub.apply { stopUI() }
         }
         //send command to change notification
@@ -415,7 +416,7 @@ abstract class MiniPlayerService : Service() {
             rewindJob = scope.launch {
                 while (isActive) {
                     while (rewindValue <= durationInSeconds) {
-                        invokeUI {
+                        mayInvoke {
                             AppBroadcastHub.run { rewindUI(rewindValue++) }
                         }
                         //store current duration cause onDestroy invoke only when view is destroy
@@ -467,7 +468,7 @@ abstract class MiniPlayerService : Service() {
     private fun sendInfoToUI(song: File = playlist.getSong()) {
         //send info
         scope.launch {
-            invokeUI {
+            mayInvoke {
                 sendShowGeneralUI()
                 sendLoopState()
                 sendShuffleState()
@@ -488,16 +489,16 @@ abstract class MiniPlayerService : Service() {
 
     private fun sendLoopState() =
         when(MiniPlayerServicePreferences.getLoopState(this)) {
-            0 -> invokeUI { AppBroadcastHub.run { notLoopUI() } }
-            1 -> invokeUI { AppBroadcastHub.run { loopUI() } }
-            2 -> invokeUI { AppBroadcastHub.run { loopAllUI() } }
+            0 -> mayInvoke { AppBroadcastHub.run { notLoopUI() } }
+            1 -> mayInvoke { AppBroadcastHub.run { loopUI() } }
+            2 -> mayInvoke { AppBroadcastHub.run { loopAllUI() } }
             else -> Unit
         }
 
     private fun sendShuffleState() {
         if (MiniPlayerServicePreferences.getIsShuffle(this))
-            invokeUI { AppBroadcastHub.run { shuffleUI() } }
-        else invokeUI { AppBroadcastHub.run { unShuffleUI() } }
+            mayInvoke { AppBroadcastHub.run { shuffleUI() } }
+        else mayInvoke { AppBroadcastHub.run { unShuffleUI() } }
     }
 
     private fun sendPath(song: File) =
@@ -507,13 +508,13 @@ abstract class MiniPlayerService : Service() {
         AppBroadcastHub.run { songDurationUI(player.duration) }
 
     private fun sendIsHQ(song: File) {
-        invokeUI {  }
+        mayInvoke {  }
     }
 
     private fun sendSongNameAndArtist(file: File) {
         val songArtist = FileNameParser.getSongArtist(file)
         val songName = FileNameParser.getSongTitle(file)
-        invokeUI {
+        mayInvoke {
             AppBroadcastHub.run { songArtistUI(songArtist) }
             AppBroadcastHub.run { songNameUI(songName) }
         }
@@ -522,18 +523,15 @@ abstract class MiniPlayerService : Service() {
     private suspend fun sendIsLoved(song: File) = withContext(Dispatchers.IO) {
         val favourite = PlaylistTransaction.getFavouriteSongs()
         if (favourite.contains(song.path))
-            invokeUI { AppBroadcastHub.run { likeUI() } }
+            mayInvoke { AppBroadcastHub.run { likeUI() } }
         else
-            invokeUI { AppBroadcastHub.run { unlikeUI() } }
+            mayInvoke { AppBroadcastHub.run { unlikeUI() } }
     }
 
     private fun sendPathIsWrong(path: String) =
         AppBroadcastHub.run { pathIsWrongUI(path) }
-
-    private fun invokeUI(f: () -> Unit) {
-        //when mini player is radio no need send info
-        if(MiniPlayerUIPreference.getState(this) == 0) {
-            f()
-        }
-    }
+    //when mini player is radio no need send info
+    private fun mayInvoke(f: () -> Unit) =
+        MiniPlayerRepository.mayDoAction(
+            this, MiniPlayerLayoutState.GENERAL, f)
 }

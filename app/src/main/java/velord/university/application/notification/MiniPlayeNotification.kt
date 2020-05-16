@@ -11,6 +11,8 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.repository.MiniPlayerRepository
+import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 
 private const val NOTIFICATION_ACTION_PREVIUOS = "actionPrevious"
 private const val NOTIFICATION_ACTION_PLAY_OR_STOP = "actionPlayOrStop"
@@ -154,11 +156,23 @@ object MiniPlayerServiceNotification {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent!!.action) {
                 NOTIFICATION_ACTION_PLAY_OR_STOP ->
-                    AppBroadcastHub.run { context!!.playOrStopService() }
+                    when(MiniPlayerRepository.getState(context!!)) {
+                        MiniPlayerLayoutState.GENERAL ->
+                            AppBroadcastHub.run { context!!.playOrStopService() }
+                        MiniPlayerLayoutState.RADIO ->
+                            AppBroadcastHub.run { context!!.playOrStopRadioService() }
+                    }
                 NOTIFICATION_ACTION_NEXT ->
-                    AppBroadcastHub.run { context!!.skipNextService() }
+                    when(MiniPlayerRepository.getState(context!!)) {
+                        MiniPlayerLayoutState.GENERAL ->
+                            AppBroadcastHub.run { context!!.skipNextService() }
+                    }
+
                 NOTIFICATION_ACTION_PREVIUOS ->
-                    AppBroadcastHub.run { context!!.skipPrevService() }
+                    when(MiniPlayerRepository.getState(context!!)) {
+                        MiniPlayerLayoutState.GENERAL ->
+                            AppBroadcastHub.run { context!!.skipPrevService() }
+                    }
                 NOTIFICATION_ACTION_CANCEL -> dismiss()
             }
         }

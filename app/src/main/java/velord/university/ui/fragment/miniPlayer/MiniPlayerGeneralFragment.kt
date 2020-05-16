@@ -116,25 +116,25 @@ open class MiniPlayerGeneralFragment :
     }
 
     override val stopF: (Intent?) -> Unit = {
-        if (viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL)) {
+        viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL) {
             stopButtonInvoke()
         }
     }
 
     override val playF: (Intent?) -> Unit = {
-        if (viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL)) {
+        viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL) {
             playButtonInvoke()
         }
     }
 
     override val likeF: (Intent?) -> Unit = {
-        if (viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL)) {
+        viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL) {
             likeButtonInvoke()
         }
     }
 
     override val unlikeF: (Intent?) -> Unit = {
-        if (viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL)) {
+        viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL) {
             unlikeButtonInvoke()
         }
     }
@@ -231,11 +231,6 @@ open class MiniPlayerGeneralFragment :
         HeartLogic.value = false
     }
 
-    protected fun getInfoFromService(f: () -> Unit,
-                                     state: MiniPlayerLayoutState) {
-        if (viewModel.getState() == state) f()
-    }
-
     private fun getInfoFromServiceWhenStart() {
         val f: () -> Unit = {
             AppBroadcastHub.apply {
@@ -244,7 +239,7 @@ open class MiniPlayerGeneralFragment :
             }
         }
         val state = MiniPlayerLayoutState.GENERAL
-        getInfoFromService(f, state)
+        viewModel.mayDoAction(state, f)
     }
 }
 

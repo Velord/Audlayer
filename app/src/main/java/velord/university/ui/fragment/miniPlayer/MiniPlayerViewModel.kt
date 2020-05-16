@@ -2,26 +2,18 @@ package velord.university.ui.fragment.miniPlayer
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import velord.university.application.settings.miniPlayer.MiniPlayerUIPreference
+import velord.university.repository.MiniPlayerRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
-
 class MiniPlayerViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun getState(): MiniPlayerLayoutState =
-        when(MiniPlayerUIPreference.getState(app)) {
-            0 -> MiniPlayerLayoutState.GENERAL
-            1 -> MiniPlayerLayoutState.RADIO
-            else -> MiniPlayerLayoutState.GENERAL
-        }
+       MiniPlayerRepository.getState(app)
 
     fun setState(state: MiniPlayerLayoutState) =
-        when(state) {
-            MiniPlayerLayoutState.GENERAL ->
-                MiniPlayerUIPreference.setState(app, 0)
-            MiniPlayerLayoutState.RADIO ->
-                MiniPlayerUIPreference.setState(app, 1)
-        }
+        MiniPlayerRepository.setState(app, state)
 
-    fun mayDoAction(state: MiniPlayerLayoutState) =
-        state == getState()
+    fun mayDoAction(state: MiniPlayerLayoutState,
+                    f: () ->  Unit) =
+        MiniPlayerRepository.mayDoAction(app, state, f)
 }
+

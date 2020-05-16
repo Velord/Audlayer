@@ -63,7 +63,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".repository.VkRepository$VkDownloadNotificationReceiver">
+        <receiver android:name=".application.notification.VkDownloadNotification$VkDownloadNotificationReceiver">
         </receiver>
 
         <receiver android:name=".application.notification.MiniPlayerServiceNotification$MiniPlayerNotificationBroadcastReceiver">

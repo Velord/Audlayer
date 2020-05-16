@@ -89,25 +89,25 @@ class MiniPlayerRadioGeneralFragment :
     }
 
     override val stopRadioUIF: (Intent?) -> Unit = {
-        if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
+        viewModel.mayDoAction(MiniPlayerLayoutState.RADIO) {
             stopButtonInvoke(miniPlayerRadioPlayOrPauseIB)
         }
     }
 
     override val playRadioUIF: (Intent?) -> Unit = {
-        if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
+        viewModel.mayDoAction(MiniPlayerLayoutState.RADIO) {
             playButtonInvoke(miniPlayerRadioPlayOrPauseIB)
         }
     }
 
     override val likeRadioUIF: (Intent?) -> Unit = {
-        if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
+        viewModel.mayDoAction(MiniPlayerLayoutState.RADIO) {
             likeButtonInvoke(miniPlayerRadioLikedIB)
         }
     }
 
     override val unlikeRadioUIF: (Intent?) -> Unit = {
-        if (viewModel.mayDoAction(MiniPlayerLayoutState.RADIO)) {
+        viewModel.mayDoAction(MiniPlayerLayoutState.RADIO) {
             unlikeButtonInvoke(miniPlayerRadioLikedIB)
         }
     }
@@ -120,6 +120,6 @@ class MiniPlayerRadioGeneralFragment :
             }
         }
         val state = MiniPlayerLayoutState.RADIO
-        getInfoFromService(f, state)
+        viewModel.mayDoAction(state, f)
     }
 }

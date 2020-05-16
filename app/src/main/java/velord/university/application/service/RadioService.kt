@@ -9,11 +9,13 @@ import android.os.IBinder
 import android.util.Log
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
-import velord.university.application.settings.miniPlayer.MiniPlayerUIPreference
+import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.settings.miniPlayer.RadioServicePreference
 import velord.university.interactor.RadioInteractor
 import velord.university.model.entity.RadioStation
+import velord.university.repository.MiniPlayerRepository
 import velord.university.repository.RadioRepository
+import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 
 abstract class RadioService : Service() {
 
@@ -87,18 +89,15 @@ abstract class RadioService : Service() {
                 //save
                 saveState()
                 //play
-                mayInvoke { radioIsCached() }
+                radioIsCached()
             }
         }
     }
 
     protected fun playRadioIfCan() {
-        if (::player.isInitialized) {
+        if (::player.isInitialized)
             playRadioAfterCreatedPlayer()
-        }
-        else {
-            playByUrl(currentStation.url)
-        }
+        else playByUrl(currentStation.url)
     }
 
     private fun playRadioAfterCreatedPlayer() {
@@ -186,8 +185,8 @@ abstract class RadioService : Service() {
             getInfoFromServiceToUI()
         }
         //send command to change notification
-        //changeNotificationPlayOrStop(true)
-        //changeNotificationInfo()
+        changeNotificationPlayOrStop(true)
+        changeNotificationInfo()
     }
 
     private suspend fun sendIsLiked() = withContext(Dispatchers.IO) {
@@ -206,16 +205,23 @@ abstract class RadioService : Service() {
             AppBroadcastHub.apply { stopRadioUI() }
         }
         //send command to change notification
-        //changeNotificationPlayOrStop(false)
+        changeNotificationPlayOrStop(false)
     }
+
+    private fun changeNotificationInfo() {
+        val title = currentStation.name
+        val artist = ""
+        MiniPlayerServiceNotification
+            .updateSongTitleAndArtist(this, title, artist)
+    }
+
+    private fun changeNotificationPlayOrStop(isPlaying: Boolean) =
+        MiniPlayerServiceNotification.updatePlayOrStop(this, isPlaying)
 
     private fun stationIsInitialized(): Boolean =
         ::currentStation.isInitialized
 
-    private fun mayInvoke(f: () -> Unit) {
-        //when mini player is general no need send info
-        if(MiniPlayerUIPreference.getState(this) == 1) {
-            f()
-        }
-    }
+    private fun mayInvoke(f: () -> Unit) =
+        MiniPlayerRepository.mayDoAction(
+            this, MiniPlayerLayoutState.RADIO, f)
 }

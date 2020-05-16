@@ -27,5 +27,13 @@ data class VkSong(
     var path: String = ""
 ) {
     @Ignore var album: VkAlbum? = null
+
+    fun getAlbumIcon(): String? {
+        this.album?.thumb?.apply {
+            return photo_135 ?: photo_270 ?: photo_300 ?:
+            photo_600 ?: photo_68 ?: photo_34 ?: photo_1200
+        }
+        return null
+    }
 }
 
