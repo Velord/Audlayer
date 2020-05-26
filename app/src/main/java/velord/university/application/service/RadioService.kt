@@ -1,6 +1,5 @@
 package velord.university.application.service
 
-import android.app.Service
 import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -10,6 +9,7 @@ import android.util.Log
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.notification.MiniPlayerServiceNotification
+import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.miniPlayer.RadioServicePreference
 import velord.university.interactor.RadioInteractor
 import velord.university.model.entity.RadioStation
@@ -17,11 +17,7 @@ import velord.university.repository.MiniPlayerRepository
 import velord.university.repository.RadioRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 
-abstract class RadioService : Service() {
-
-    abstract val TAG: String
-
-    private lateinit var player: MediaPlayer
+abstract class RadioService : AudioFocusListenerService() {
 
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
 
@@ -86,6 +82,8 @@ abstract class RadioService : Service() {
                     Uri.parse(url)
                 )
                 player.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                //focus
+                setAudioFocusMusicListener()
                 //save
                 saveState()
                 //play
@@ -95,13 +93,13 @@ abstract class RadioService : Service() {
     }
 
     protected fun playRadioIfCan() {
-        if (::player.isInitialized)
+        if (playerIsInitialized())
             playRadioAfterCreatedPlayer()
         else playByUrl(currentStation.url)
     }
 
     private fun playRadioAfterCreatedPlayer() {
-        if (::player.isInitialized) {
+        if (playerIsInitialized()) {
             player.start()
             //send command to change ui
             sendInfoWhenPlay()
@@ -117,9 +115,7 @@ abstract class RadioService : Service() {
     }
 
     private fun stopOrPausePlayer(f: () -> Unit) {
-        if (::player.isInitialized) {
-            f()
-        }
+        if (playerIsInitialized()) f()
         //send command to change ui
         sendInfoWhenStop()
     }
@@ -167,7 +163,7 @@ abstract class RadioService : Service() {
 
     private fun sendIsPlayed() {
         mayInvoke {
-            if (::player.isInitialized && player.isPlaying) {
+            if (playerIsInitialized() && player.isPlaying) {
                 AppBroadcastHub.apply {
                     playRadioUI()
                 }

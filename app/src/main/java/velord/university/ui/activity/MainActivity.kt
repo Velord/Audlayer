@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity(),
     AddToPlaylist.Callbacks,
     CreateNewPlaylistDialogFragment.Callbacks,
     SongFragment.Callbacks,
-    VKFragment.Callbacks{
+    VKFragment.Callbacks {
 
     private val TAG = "MainActivity"
 
@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity(),
             MainFragment(),
             R.id.main_container
         )
+        //
         viewModel
     }
 

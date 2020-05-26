@@ -1,6 +1,5 @@
 package velord.university.application.service
 
-import android.app.Service
 import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
@@ -10,6 +9,7 @@ import android.widget.Toast
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.notification.MiniPlayerServiceNotification
+import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.miniPlayer.MiniPlayerServicePreferences
 import velord.university.interactor.SongPlaylistInteractor
@@ -25,11 +25,8 @@ import velord.university.repository.transaction.ServiceTransaction
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import java.io.File
 
-abstract class MiniPlayerService : Service() {
 
-    abstract val TAG: String
-
-    private lateinit var player: MediaPlayer
+abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private val playlist = ServicePlaylist()
 
@@ -45,6 +42,7 @@ abstract class MiniPlayerService : Service() {
     override fun onCreate() {
         Log.d(TAG, "onCreate called")
         super.onCreate()
+        //init
         scope.launch {
             PlaylistTransaction.checkDbTableColumn()
             restoreState()
@@ -121,7 +119,7 @@ abstract class MiniPlayerService : Service() {
     }
 
     protected fun getInfoFromServiceToUI() {
-        if (::player.isInitialized) {
+        if (playerIsInitialized()) {
             val restoreStatePlayer: () -> Unit =
                 if (player.isPlaying) { {} }
                 else { { pausePlayer() } }
@@ -137,7 +135,7 @@ abstract class MiniPlayerService : Service() {
         }
 
     protected fun playSongAfterCreatedPlayer() {
-        if (::player.isInitialized) {
+        if (playerIsInitialized()) {
             if (player.currentPosition != player.duration) {
                 player.start()
                 val seconds = SongTimeConverter
@@ -161,13 +159,13 @@ abstract class MiniPlayerService : Service() {
     }
 
     protected fun skipSongAndPlayNext() {
-        if (::player.isInitialized) {
+        if (playerIsInitialized()) {
             playNext()
         }
     }
 
     protected fun skipSongAndPlayPrevious() {
-        if (::player.isInitialized) {
+        if (playerIsInitialized()) {
             val currentPos = playlist.getSongPos()
             //current position minus 1 else first from end
             val newSong = if (currentPos != 0)
@@ -181,7 +179,7 @@ abstract class MiniPlayerService : Service() {
 
     protected fun rewindPlayer(milliseconds: Int) {
         val seconds = SongTimeConverter.millisecondsToSeconds(milliseconds)
-        if (::player.isInitialized) {
+        if (playerIsInitialized()) {
             player.seekTo(milliseconds)
             //to apply current duration
             if (player.isPlaying) {
@@ -342,7 +340,7 @@ abstract class MiniPlayerService : Service() {
     }
 
     private fun stopOrPausePlayer(f: () -> Unit) {
-        if (::player.isInitialized) {
+        if (playerIsInitialized()) {
             f()
             stopSendRewind()
         }
@@ -361,7 +359,7 @@ abstract class MiniPlayerService : Service() {
     }
 
     private fun songIsOver() {
-        if (::player.isInitialized) {
+        if (playerIsInitialized()) {
             when {
                 QueueResolver.loop -> playNext(playlist.getSongPath())
                 QueueResolver.loopAll -> playNext()
@@ -378,12 +376,13 @@ abstract class MiniPlayerService : Service() {
         //check if song now is playing
         stopPlayer()
         //start playing
-        val song = if (path == null)
-             playlist.getNext()
-        else
-            playlist.getSongAndResetQuery(path)
+        val song = if (path == null) playlist.getNext()
+        else playlist.getSongAndResetQuery(path)
         createPlayer(song.path)?.let {
             player = it
+            //focus listener
+            setAudioFocusMusicListener()
+            //play
             playSongAfterCreatedPlayer()
             //update db
             scope.launch {
@@ -407,7 +406,7 @@ abstract class MiniPlayerService : Service() {
     }
 
     private fun startSendRewind(startFrom: Int = 0) {
-        if (::player.isInitialized) {
+        if (playerIsInitialized()) {
             //this is how much we must change ui
             val durationInSeconds =
                 SongTimeConverter.millisecondsToSeconds(player.duration)
@@ -434,7 +433,7 @@ abstract class MiniPlayerService : Service() {
     }
 
     private fun storeIsPlayingState() {
-        if (::player.isInitialized) {
+        if (playerIsInitialized()) {
             if (player.isPlaying) MiniPlayerServicePreferences
                 .setIsPlaying(this@MiniPlayerService, true)
             else MiniPlayerServicePreferences
