@@ -63,7 +63,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         return super.onUnbind(intent)
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?,
+                                flags: Int,
+                                startId: Int): Int {
         Log.d(TAG, "onStartCommand called")
         return START_STICKY
     }
@@ -123,6 +125,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             val restoreStatePlayer: () -> Unit =
                 if (player.isPlaying) { {} }
                 else { { pausePlayer() } }
+            //TODO() does need this lines ?
             pausePlayer()
             sendInfoToUI()
             playSongAfterCreatedPlayer()
@@ -149,13 +152,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
                 playNext()
             }
         }
-        //send command to change ui
-        mayInvoke {
-            AppBroadcastHub.run { playUI() }
-        }
-        //send command to change notification
-        changeNotificationPlayOrStop(true)
-        changeNotificationInfo(playlist.getSong())
+        sendInfoWhenPlay()
     }
 
     protected fun skipSongAndPlayNext() {
@@ -266,6 +263,16 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         mayInvoke {
             AppBroadcastHub.apply { this@MiniPlayerService.loopAllUI() }
         }
+    }
+
+    private fun sendInfoWhenPlay() {
+        //send command to change ui
+        mayInvoke {
+            AppBroadcastHub.run { playUI() }
+        }
+        //send command to change notification
+        changeNotificationPlayOrStop(true)
+        changeNotificationInfo(playlist.getSong())
     }
 
     private fun stopElseService() {

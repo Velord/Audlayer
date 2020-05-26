@@ -24,7 +24,7 @@ abstract class AudioFocusListenerService : Service(),
 
     override fun onCompletion(mp: MediaPlayer?) {
         if (mp == player) {
-            Log.d(TAG, "Music: abandon focus")
+            Log.d(TAG, "Abandon focus")
             audioManager.abandonAudioFocus(afListenerMusic)
         }
     }
@@ -38,7 +38,8 @@ abstract class AudioFocusListenerService : Service(),
     override fun onDestroy() {
         super.onDestroy()
         //audioManager
-        audioManager.abandonAudioFocus(afListenerMusic)
+        if (player.isPlaying.not())
+            audioManager.abandonAudioFocus(afListenerMusic)
     }
 
     protected fun playerIsInitialized(): Boolean = ::player.isInitialized

@@ -10,6 +10,7 @@ import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.service.audioFocus.AudioFocusListenerService
+import velord.university.application.settings.AppPreference
 import velord.university.application.settings.miniPlayer.RadioServicePreference
 import velord.university.interactor.RadioInteractor
 import velord.university.model.entity.RadioStation
@@ -31,16 +32,13 @@ abstract class RadioService : AudioFocusListenerService() {
     override fun onCreate() {
         Log.d(TAG, "onCreate called")
         super.onCreate()
-        //restore state
-        scope.launch {
-            restoreState()
-        }
     }
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy called")
         super.onDestroy()
         //store player state
+        storeIsPlayingState()
         stopPlayer()
         saveState()
         //destroyNotification()
@@ -55,6 +53,9 @@ abstract class RadioService : AudioFocusListenerService() {
                                 flags: Int,
                                 startId: Int): Int {
         Log.d(TAG, "onStartCommand called")
+        scope.launch {
+            restoreState()
+        }
         return START_STICKY
     }
 
@@ -97,10 +98,52 @@ abstract class RadioService : AudioFocusListenerService() {
             playRadioAfterCreatedPlayer()
         else playByUrl(currentStation.url)
     }
+    //ignore cause radioFragment handle this
+    protected fun likeRadio() {}
+    //ignore cause radioFragment handle this
+    protected fun unlikeRadio() {}
+
+    protected fun getInfoFromServiceToUI() {
+        scope.launch {
+            if (stationIsInitialized().not())
+                restoreState()
+            if (stationIsInitialized()) {
+                //audio focus loss protection
+                //if this will be invoke before focus loss
+                //player will pause
+                launch {
+                    delay(500)
+                    userRotateDeviceProtection()
+                    delay(500)
+                }
+                //send info
+                sendIsPlayed()
+                sendRadioName()
+                sendIsLiked()
+            }
+        }
+    }
+
+    private suspend fun restoreState() = withContext(Dispatchers.IO) {
+        Log.d(TAG, "restoreState")
+        val id = RadioServicePreference.getCurrentRadioId(this@RadioService)
+        currentStation = RadioRepository.getById(id)
+        RadioInteractor.radioStation = currentStation
+
+        userRotateDeviceProtection()
+    }
+
+    private fun radioIsCached() {
+        stopMiniPlayerService()
+        sendShowRadioUI()
+        playRadioAfterCreatedPlayer()
+    }
 
     private fun playRadioAfterCreatedPlayer() {
         if (playerIsInitialized()) {
             player.start()
+            //store player state
+            storeIsPlayingState()
             //send command to change ui
             sendInfoWhenPlay()
         }
@@ -119,33 +162,28 @@ abstract class RadioService : AudioFocusListenerService() {
         //send command to change ui
         sendInfoWhenStop()
     }
-    //ignore cause radioFragment handle this
-    protected fun likeRadio() {}
-    //ignore cause radioFragment handle this
-    protected fun unlikeRadio() {}
 
-    protected fun getInfoFromServiceToUI() {
-        scope.launch {
-            if (stationIsInitialized().not())
-                restoreState()
-            if (stationIsInitialized()) {
-                sendIsPlayed()
-                sendRadioName()
-                sendIsLiked()
-            }
+    private fun storeIsPlayingState() {
+        if (playerIsInitialized()) {
+            if (player.isPlaying) RadioServicePreference
+                .setIsPlaying(this, true)
+            else RadioServicePreference
+                .setIsPlaying(this, false)
         }
     }
 
-    private fun radioIsCached() {
-        stopMiniPlayerService()
-        sendShowRadioUI()
-        playRadioAfterCreatedPlayer()
-    }
-
-    private suspend fun restoreState() = withContext(Dispatchers.IO) {
-        val id = RadioServicePreference.getCurrentRadioId(this@RadioService)
-        currentStation = RadioRepository.getById(id)
-        RadioInteractor.radioStation = currentStation
+    private fun userRotateDeviceProtection() {
+        Log.d(TAG, "userRotateDeviceProtection")
+        //restore isPlaying state
+        val isPlaying = RadioServicePreference
+            .getIsPlaying(this@RadioService)
+        val appWasDestroyed = AppPreference
+            .getAppIsDestroyed(this@RadioService)
+        //this means ui have been destroyed after destroy main activity
+        //but app is still working -> after restoration we should play radio
+        if (isPlaying && appWasDestroyed.not()) {
+            player.start()
+        }
     }
 
     private fun saveState() {
