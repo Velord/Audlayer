@@ -47,6 +47,14 @@ object VkRepository {
         }
     }
 
+    suspend fun getVkPlaylist() =
+        VkSongTransaction.getPlaylist()
+
+    suspend fun deleteAllTables() {
+        VkAlbumTransaction.deleteAll()
+        VkSongTransaction.deleteAll()
+    }
+
     suspend fun downloadViaSefon(context: Context,
                                  webView: WebView,
                                  vkSong: VkSong): Result<File?> =

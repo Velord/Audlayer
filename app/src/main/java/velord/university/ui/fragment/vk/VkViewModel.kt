@@ -76,14 +76,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     fun needDownload(vkSong: VkSong): Boolean =
         (vkSong.path.isBlank()) and (File(vkSong.path).exists().not())
 
-    fun sendSongIcon(song: VkSong) {
-        song.getAlbumIcon()?.let {
-            AppBroadcastHub.apply {
-                app.iconUI(it)
-            }
-        }
-    }
-
     suspend fun initVkPlaylist() {
         vkAlbums = repository.getAlbumsFromDb()
         vkPlaylist = repository.getSongsFromDb().map { song ->
@@ -171,6 +163,12 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             true
         } else false
 
+    suspend fun deleteAll() {
+        VkRepository.deleteAllTables()
+        vkAlbums = repository.getAlbumsFromDb()
+        vkPlaylist = repository.getSongsFromDb()
+    }
+
 
     suspend fun filterByQuery(query: String): List<VkSong> = withContext(Dispatchers.Default) {
         val filtered = vkPlaylist.filter {
@@ -203,6 +201,26 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         }
 
         return@withContext ordered
+    }
+
+    fun sendSongIcon(path: String) {
+        val song = ordered.find { it.path == path }
+        if (song == null) sendDefaultSongIcon()
+        else sendSongIcon(song)
+    }
+
+    private fun sendSongIcon(song: VkSong) {
+        song.getAlbumIcon()?.let {
+            AppBroadcastHub.apply {
+                app.iconUI(it)
+            }
+        }
+    }
+
+    private fun sendDefaultSongIcon() {
+        AppBroadcastHub.apply {
+            app.iconUI("")
+        }
     }
 
     private suspend fun applyNewPath(vkSong: VkSong, path: String) {
@@ -307,6 +325,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     private suspend fun compareAndDelete(byTokenSongs: Array<VkSong>,
                                          fromDbSongs: List<VkSong>) {
         if (byTokenSongs.isEmpty()) return
+
         val toDelete = mutableListOf<VkSong>()
         fromDbSongs.forEach { fromDb ->
             if (byTokenSongs.find { it.id == fromDb.id } == null)

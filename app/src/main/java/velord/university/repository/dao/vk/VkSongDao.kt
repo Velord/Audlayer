@@ -30,6 +30,9 @@ interface VkSongDao {
     @Query("Delete From VkSong Where vk_song_id = :songId")
     fun deleteById(songId: Int)
 
+    @Query("Select * From VkSong Left Join VkAlbum On VkSong.album_id = VkAlbum.vk_album_id")
+    fun getVkPlaylist(): List<VkSong>
+
     @Query("Delete From VkSong")
     fun nukeTable()
 }

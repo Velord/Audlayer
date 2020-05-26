@@ -32,4 +32,16 @@ object VkSongTransaction {
             }
         }
     }
+
+    suspend fun deleteAll() = withContext(Dispatchers.IO) {
+        AudlayerApp.db?.run {
+            vkSongDao().nukeTable()
+        }
+    }
+
+    suspend fun getPlaylist() = withContext(Dispatchers.IO) {
+        AudlayerApp.db?.run {
+            vkSongDao().getVkPlaylist()
+        }
+    }
 }

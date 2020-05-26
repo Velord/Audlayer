@@ -143,6 +143,13 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                 }
                 true
             }
+            R.id.vk_fragment_delete_all -> {
+                scope.launch {
+                    viewModel.deleteAll()
+                    updateAdapterBySearchQuery()
+                }
+                true
+            }
             else -> false
         }
     }
@@ -178,10 +185,12 @@ class VKFragment : ActionBarFragment(), VkReceiver {
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
                 val extra = AppBroadcastHub.Extra.songPathUI
+                val path = getStringExtra(extra)
                 val songPath = FileNameParser
-                    .removeExtension(File(getStringExtra(extra)))
+                    .removeExtension(File(path))
                 scope.launch {
                     changeRVItem(songPath)
+                    viewModel.sendSongIcon(path)
                 }
             }
         }
@@ -292,7 +301,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                 withContext(Dispatchers.Main) {
                     pb.visibility = View.GONE
                 }
-                updateAdapterBySearchQuery(viewModel.currentQuery)
+                updateAdapterBySearchQuery()
             }
         }
 
@@ -300,14 +309,14 @@ class VKFragment : ActionBarFragment(), VkReceiver {
 
     private fun sortBy(index: Int): Boolean {
         SortByPreference.setSortByVkFragment(requireContext(), index)
-        updateAdapterBySearchQuery(viewModel.currentQuery)
+        updateAdapterBySearchQuery()
         super.rearwardActionButton()
         return true
     }
 
     private fun sortByAscDesc(index: Int): Boolean {
         SortByPreference.setAscDescVkFragment(requireContext(), index)
-        updateAdapterBySearchQuery(viewModel.currentQuery)
+        updateAdapterBySearchQuery()
         super.rearwardActionButton()
         return true
     }
@@ -351,7 +360,8 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         }
     }
 
-    private fun updateAdapterBySearchQuery(searchQuery: String) {
+    private fun updateAdapterBySearchQuery(
+        searchQuery: String = viewModel.currentQuery) {
         if (viewModel.vkPlaylistIsInitialized()) {
             scope.launch {
                 val songsFiltered = viewModel.filterByQuery(searchQuery)
@@ -410,7 +420,6 @@ class VKFragment : ActionBarFragment(), VkReceiver {
             arrayOf(
                 {
                     needDownload(song)
-                    viewModel.sendSongIcon(song)
                 }, {
                     scope.launch {
                         song.getAlbumIcon()?.let {
@@ -510,31 +519,26 @@ class VKFragment : ActionBarFragment(), VkReceiver {
             Unit
         }
 
+        private fun play(song: VkSong,
+                         rvSelectResolver: RVSelection<VkSong>) {
+            scope.launch {
+                withContext(Dispatchers.Main) {
+                    rvSelectResolver.singleSelectionPrinciple(song)
+                    viewModel.checkPathThenPlay(song, webView)
+                }
+            }
+        }
+
         private fun setOnClickAndImageResource(song: VkSong,
                                                rvSelectResolver: RVSelection<VkSong>) {
             itemView.setOnClickListener {
-                scope.launch {
-                    withContext(Dispatchers.Main) {
-                        rvSelectResolver.singleSelectionPrinciple(song)
-                        viewModel.checkPathThenPlay(song, webView)
-                    }
-                }
+                play(song, rvSelectResolver)
             }
             text.setOnClickListener {
-                scope.launch {
-                    withContext(Dispatchers.Main) {
-                        rvSelectResolver.singleSelectionPrinciple(song)
-                        viewModel.checkPathThenPlay(song, webView)
-                    }
-                }
+                play(song, rvSelectResolver)
             }
             icon.setOnClickListener {
-                scope.launch {
-                    withContext(Dispatchers.Main) {
-                        rvSelectResolver.singleSelectionPrinciple(song)
-                        viewModel.checkPathThenPlay(song, webView)
-                    }
-                }
+                play(song, rvSelectResolver)
             }
             action.setOnClickListener {
                 actionPopUpMenu(song)

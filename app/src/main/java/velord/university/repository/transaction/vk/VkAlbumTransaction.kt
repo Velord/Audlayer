@@ -19,9 +19,11 @@ object VkAlbumTransaction {
         }
     }
 
-    suspend fun clear() = withContext(Dispatchers.IO) {
+    suspend fun deleteAll() = withContext(Dispatchers.IO) {
         AudlayerApp.db?.run {
             vkAlbumDao().nukeTable()
         }
     }
+
+
 }
