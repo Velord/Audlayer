@@ -27,19 +27,23 @@ object VkRepository {
     suspend fun getSongsFromDb(): List<VkSong> =
         VkSongTransaction.getSongs()
 
-    suspend fun getPlaylistByToken(context: Context): VkPlaylist {
+    suspend fun getPlaylistByToken(context: Context): Result<VkPlaylist> {
         val userId = VkPreference.getPageId(context)
         val token = VkPreference.getAccessToken(context)
         val baseUrl = context.getString(R.string.vk_base_url)
+        //v=5.80 in 5.26.2020 9:00 pm don't working
+        //v=5.60 don't give album info
         val music = "${baseUrl}audio.get?user_ids=$userId&access_token=$token&v=5.80"
 
         return withContext(Dispatchers.IO) {
-            val gson = Gson()
-            val response = music.makeRequestViaOkHttp()
-            val json = JSONObject(response).getJSONObject("response")
+            Result.of {
+                val gson = Gson()
+                val response = music.makeRequestViaOkHttp()
 
-            return@withContext gson
-                .fromJson(json.toString(), VkPlaylist::class.java)
+                val json = JSONObject(response).getJSONObject("response")
+
+                gson.fromJson(json.toString(), VkPlaylist::class.java)
+            }
         }
     }
 

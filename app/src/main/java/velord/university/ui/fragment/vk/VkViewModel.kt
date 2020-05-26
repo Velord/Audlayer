@@ -12,6 +12,7 @@ import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
 import velord.university.model.entity.vk.VkAlbum
+import velord.university.model.entity.vk.VkPlaylist
 import velord.university.model.entity.vk.VkSong
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
@@ -75,6 +76,14 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     fun needDownload(vkSong: VkSong): Boolean =
         (vkSong.path.isBlank()) and (File(vkSong.path).exists().not())
 
+    fun sendSongIcon(song: VkSong) {
+        song.getAlbumIcon()?.let {
+            AppBroadcastHub.apply {
+                app.iconUI(it)
+            }
+        }
+    }
+
     suspend fun initVkPlaylist() {
         vkAlbums = repository.getAlbumsFromDb()
         vkPlaylist = repository.getSongsFromDb().map { song ->
@@ -110,7 +119,10 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     suspend fun refreshByToken() {
         //from vk
-        val byTokenSongs = repository.getPlaylistByToken(app).items
+        val byTokenSongs = repository
+            .getPlaylistByToken(app)
+            .getOrElse(VkPlaylist(0, arrayOf()))
+            .items
         //from db
         val fromDbSongs = repository.getSongsFromDb()
         //compare with existed and insert
@@ -277,6 +289,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     private suspend fun compareAndInsert(byTokenSongs: Array<VkSong>,
                                          fromDbSongs: List<VkSong>) {
+        if (byTokenSongs.isEmpty()) return
         //song
         val notExistSong = getNoExistInDbSong(byTokenSongs, fromDbSongs)
         //album
@@ -293,6 +306,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     private suspend fun compareAndDelete(byTokenSongs: Array<VkSong>,
                                          fromDbSongs: List<VkSong>) {
+        if (byTokenSongs.isEmpty()) return
         val toDelete = mutableListOf<VkSong>()
         fromDbSongs.forEach { fromDb ->
             if (byTokenSongs.find { it.id == fromDb.id } == null)

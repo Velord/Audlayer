@@ -4,8 +4,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.SeekBar
 import androidx.lifecycle.ViewModelProviders
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
@@ -209,6 +212,14 @@ open class MiniPlayerGeneralFragment :
         }
     }
 
+    override val iconF: (Intent?) -> Unit = {
+        it?.apply {
+            val extra = AppBroadcastHub.Extra.iconUI
+            val value = getStringExtra(extra)
+            loadSongIcon(miniPlayerIV, value)
+        }
+    }
+
     protected fun stopButtonInvoke(button: ImageButton = miniPlayerPlayOrPauseIB) {
         button.setImageResource(R.drawable.play)
         PlayPauseLogic.value = false
@@ -229,6 +240,14 @@ open class MiniPlayerGeneralFragment :
     protected fun unlikeButtonInvoke(button: ImageButton = miniPlayerSongLikedIB) {
         button.setImageResource(R.drawable.heart_gray)
         HeartLogic.value = false
+    }
+
+    private fun loadSongIcon(view: ImageView, icon: String) {
+        Glide.with(requireActivity())
+            .load(icon)
+            .placeholder(R.drawable.song_item)
+            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+            .into(view)
     }
 
     private fun getInfoFromServiceWhenStart() {

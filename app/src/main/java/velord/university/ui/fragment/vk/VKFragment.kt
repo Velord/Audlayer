@@ -206,8 +206,8 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                 val containF: (VkSong) -> Boolean = {
                     "${it.artist} - ${it.title}" == songName
                 }
-                val song = viewModel.ordered.find { containF(it) }
-                clearAndChangeSelectedItem(song!!)
+                val song = viewModel.ordered.find { containF(it) } ?: return
+                clearAndChangeSelectedItem(song)
                 //apply to ui
                 val files = viewModel.ordered
                 refreshAndScroll(files, rv, containF)
@@ -410,6 +410,19 @@ class VKFragment : ActionBarFragment(), VkReceiver {
             arrayOf(
                 {
                     needDownload(song)
+                    viewModel.sendSongIcon(song)
+                }, {
+                    scope.launch {
+                        song.getAlbumIcon()?.let {
+                            withContext(Dispatchers.Main) {
+                                Glide.with(requireActivity())
+                                    .load(it)
+                                    .placeholder(R.drawable.song_item)
+                                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                                    .into(icon)
+                            }
+                        }
+                    }
                 }
             )
         }
@@ -417,8 +430,6 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         val selected: (VkSong) -> Array<() -> Unit> = { song ->
             general(song) + arrayOf(
                 {
-                    icon.setImageResource(R.drawable.song_item_playing)
-                }, {
                     val size: Double =
                         roundOfDecimalToUp((FileFilter.getSize(File(song.path)).toDouble() / 1024))
                     val album = song.album?.title?.let { "Album: $it" } ?: ""
@@ -433,19 +444,6 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         val notSelected: (VkSong) -> Array<() -> Unit> = { song ->
             general(song) + arrayOf(
                 {
-                    scope.launch {
-                        song.getAlbumIcon()?.let {
-                            withContext(Dispatchers.Main) {
-                                Glide.with(requireActivity())
-                                    .load(it)
-                                    .placeholder(R.drawable.song_item)
-                                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                                    .into(icon)
-                            }
-                        }
-                    }
-                    Unit
-                }, {
                     val album = song.album?.title?.let { "Album: $it" } ?: ""
                     text.text = getString(R.string.vk_rv_item_not_selected,
                         song.artist, song.title, album)

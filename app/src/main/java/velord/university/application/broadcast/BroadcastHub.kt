@@ -239,6 +239,11 @@ object AppBroadcastHub {
             this@playOrStopService.sendBroadcastPlayOrStop()
         }
 
+    fun Context.iconUI(icon: String) =
+        MiniPlayerBroadcastIcon.run {
+            this@iconUI.sendBroadcastIconUI(icon)
+        }
+
     //radio
     fun Context.stopRadioService() =
         RadioBroadcastStop.run {
@@ -356,6 +361,7 @@ object AppBroadcastHub {
         const val getInfoService = "velord.university.GET_INFO"
         const val songPathIsWrongUI = "velord.university.SONG_PATH_IS_WRONG_UI"
         const val playOrStopService = "velord.university.PLAY_OR_STOP"
+        const val iconUI = "velord.university.ICON_UI"
         //radio
         const val stopRadioService = "velord.university.STOP_RADIO"
         const val stopRadioUI = "velord.university.STOP_RADIO_UI"
@@ -384,6 +390,7 @@ object AppBroadcastHub {
         const val songHQUI = "SONG_HQ_UI"
         const val songDurationUI = "SONG_DURATION_UI"
         const val folderPathService = "AUDIO_FOLDER_PATH"
+        const val iconUI = "SONG_ICON"
         //radio
         const val playByRadioStationUrlService= "RADIO_STATION_URL"
         const val radioNameUI = "RADIO_STATION_NAME"
@@ -805,6 +812,20 @@ object AppBroadcastHub {
         fun Context.sendBroadcastPlayOrStop(
             permission: String = PERM_PRIVATE_MINI_PLAYER
         ) = sendBroadcast(actionService, permission)
+    }
+
+    private object MiniPlayerBroadcastIcon : BroadcastBase() {
+
+        override val actionUI: String = Action.iconUI
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        override val extraValueUI: String = Extra.iconUI
+
+        fun Context.sendBroadcastIconUI(
+            icon: String,
+            permission: String = PERM_PRIVATE_MINI_PLAYER
+        ) = sendBroadcast(actionUI, permission, extraValueUI, icon)
     }
 
     private object RadioBroadcastStop : BroadcastBase() {
