@@ -361,7 +361,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private fun stopPlayer() {
         stopOrPausePlayer {
-            player.stop()
+            //player.stop()
         }
     }
 
@@ -371,6 +371,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
                 QueueResolver.loop -> playNext(playlist.getSongPath())
                 QueueResolver.loopAll -> playNext()
                 //reset current song ui
+                //not loop
                 else -> {
                     playNext(playlist.getSongPath())
                     pausePlayer()
@@ -414,22 +415,22 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private fun startSendRewind(startFrom: Int = 0) {
         if (playerIsInitialized()) {
-            //this is how much we must change ui
-            val durationInSeconds =
-                SongTimeConverter.millisecondsToSeconds(player.duration)
+            player.setOnCompletionListener(object : MediaPlayer.OnCompletionListener {
+                override fun onCompletion(mp: MediaPlayer?) {
+                    songIsOver()
+                }
+            } )
 
             var rewindValue = startFrom
             rewindJob = scope.launch {
                 while (isActive) {
-                    while (rewindValue <= durationInSeconds) {
-                        mayInvoke {
-                            AppBroadcastHub.run { rewindUI(rewindValue++) }
-                        }
-                        //store current duration cause onDestroy invoke only when view is destroy
-                        storeCurrentDuration()
-                        delay(1000)
+
+                    mayInvoke {
+                        AppBroadcastHub.run { rewindUI(rewindValue++) }
                     }
-                    songIsOver()
+                    //store current duration cause onDestroy invoke only when view is destroy
+                    storeCurrentDuration()
+                    delay(1000)
                 }
             }
         }
