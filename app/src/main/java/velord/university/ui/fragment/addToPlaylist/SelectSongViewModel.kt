@@ -6,7 +6,7 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import velord.university.application.permission.PermissionChecker
 import velord.university.application.settings.SortByPreference
-import velord.university.model.FileFilter
+import velord.university.model.file.FileFilter
 import java.io.File
 
 class SelectSongViewModel(private val app: Application) : AndroidViewModel(app) {

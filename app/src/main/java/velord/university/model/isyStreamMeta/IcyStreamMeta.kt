@@ -1,5 +1,6 @@
 package velord.university.model.isyStreamMeta
 
+import android.util.Log
 import java.io.IOException
 import java.net.URL
 import java.util.*
@@ -15,20 +16,32 @@ class IcyStreamMeta {
     val artist: String
         get() {
             data = getMetadata()
-            if (!data!!.containsKey("StreamTitle")) return ""
-            val streamTitle = data!!["StreamTitle"]
-            val title = streamTitle!!.substring(0, streamTitle.indexOf("-"))
+            if (!data.containsKey("StreamTitle")) return ""
+            val streamTitle = data["StreamTitle"] ?: return ""
+            Log.d("IcyStreamMeta", "stream title: $streamTitle")
+
+            if (streamTitle.contains('-').not()) return ""
+
+            val index = streamTitle.indexOf("-")
+            val title = streamTitle.substring(0, index)
             return title.trim { it <= ' ' }
         }
 
     val title: String
         get() {
             data = getMetadata()
-            if (!data!!.containsKey("StreamTitle")) return ""
-            val streamTitle = data!!["StreamTitle"]
-            val artist = streamTitle!!.substring(streamTitle.indexOf("-") + 1)
+            if (!data.containsKey("StreamTitle")) return ""
+            val streamTitle = data["StreamTitle"] ?: return ""
+            Log.d("IcyStreamMeta", "stream title: $streamTitle")
+
+            if (streamTitle.contains('-').not()) return ""
+
+            val index = streamTitle.indexOf("-") + 1
+            val artist = streamTitle.substring(index)
             return artist.trim { it <= ' ' }
         }
+
+    fun getArtistAndTitle(): String = "$artist - $title"
 
     private fun getMetadata(): Map<String?, String?> {
         if (::metadata.isInitialized.not()) {

@@ -8,6 +8,7 @@ import android.os.IBinder
 import android.util.Log
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub.iconRadioUI
 import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.AppPreference
@@ -125,6 +126,7 @@ abstract class RadioService : AudioFocusListenerService() {
                 sendIsPlayed()
                 sendRadioName()
                 sendIsLiked()
+                sendIcon()
             }
         }
     }
@@ -196,6 +198,12 @@ abstract class RadioService : AudioFocusListenerService() {
             .setCurrentRadioId(this, currentStation.id.toInt())
     }
 
+    private fun sendIcon() {
+        currentStation.icon?.let {
+            iconRadioUI(it)
+        }
+    }
+
     private fun sendRadioArtist() {
         mayInvoke {
             scopeArtistStream.cancel()
@@ -203,10 +211,9 @@ abstract class RadioService : AudioFocusListenerService() {
             //get info
             scopeArtistStream.launch {
                 while (this.isActive) {
-                     val meta =
-                         IcyStreamMeta()
+                     val meta = IcyStreamMeta()
                     meta.urlStream = URL(currentStation.url)
-                    val title = "${meta.artist} - ${meta.title}"
+                    val title = meta.getArtistAndTitle()
                     AppBroadcastHub.apply {
                         radioArtistUI(title)
                     }

@@ -31,7 +31,7 @@ import velord.university.ui.util.setupPopupMenuOnClick
 
 class RadioFragment : ActionBarFragment(),
     RadioServiceReceiver,
-    RadioUIReceiver{
+    RadioUIReceiver {
 
     override val TAG: String = "RadioFragment"
 
@@ -185,21 +185,15 @@ class RadioFragment : ActionBarFragment(),
         }
     }
 
-    override val stopRadioF: (Intent?) -> Unit = {
+    override val stopRadioF: (Intent?) -> Unit = {}
 
-    }
+    override val playRadioF: (Intent?) -> Unit = {}
 
-    override val playRadioF: (Intent?) -> Unit = {
+    override val likeRadioF: (Intent?) -> Unit = {}
 
-    }
+    override val unlikeRadioF: (Intent?) -> Unit = {}
 
-    override val likeRadioF: (Intent?) -> Unit = {
-
-    }
-
-    override val unlikeRadioF: (Intent?) -> Unit = {
-
-    }
+    override val iconRadioUIF: (Intent?) -> Unit = {}
 
     override fun onStart() {
         super.onStart()

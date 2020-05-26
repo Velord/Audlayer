@@ -310,6 +310,11 @@ object AppBroadcastHub {
             this@showRadioUI.sendBroadcastShowUI()
         }
 
+    fun Context.iconRadioUI(icon: String) =
+        RadioBroadcastIcon.run {
+            this@iconRadioUI.sendBroadcastRadioIconUI(icon)
+        }
+
     object Action {
         //miniPlayer
         const val stopService = "velord.university.STOP"
@@ -366,6 +371,7 @@ object AppBroadcastHub {
         const val radioArtistUI = "velord.university.RADIO_ARTIST_UI"
         const val radioNameUI = "velord.university.RADIO_NAME_UI"
         const val showMiniPlayerRadioUI = "velord.university.RADIO_SHOW_UI"
+        const val iconRadioUI = "velord.university.ICON_RADIO_UI"
     }
 
     object Extra {
@@ -382,6 +388,7 @@ object AppBroadcastHub {
         const val playByRadioStationUrlService= "RADIO_STATION_URL"
         const val radioNameUI = "RADIO_STATION_NAME"
         const val radioArtistUI = "RADIO_STATION_ARTIST"
+        const val iconRadioUI = "RADIO_ICON_ASSET"
     }
 
     private abstract class BroadcastBase {
@@ -939,6 +946,20 @@ object AppBroadcastHub {
 
         fun Context.sendBroadcastShowUI(permission: String = PERM_PRIVATE_RADIO) =
             sendBroadcast(actionUI, permission)
+    }
+
+    private object RadioBroadcastIcon : BroadcastBase() {
+
+        override val actionUI: String = Action.iconRadioUI
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        override val extraValueUI: String = Extra.iconRadioUI
+
+        fun Context.sendBroadcastRadioIconUI(
+            icon: String,
+            permission: String = PERM_PRIVATE_RADIO
+        ) = sendBroadcast(actionUI, permission, extraValueUI, icon)
     }
 }
 

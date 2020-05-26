@@ -16,8 +16,8 @@ import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.FileFilter
-import velord.university.model.FileNameParser
+import velord.university.model.file.FileFilter
+import velord.university.model.file.FileNameParser
 import velord.university.ui.backPressed.BackPressedHandlerFirst
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import java.io.File

@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import velord.university.application.AudlayerApp
 import velord.university.model.entity.RadioStation
-import velord.university.model.util.getJsonDataFromAsset
+import velord.university.model.file.getJsonDataFromAsset
 
 object RadioRepository {
 
@@ -49,7 +49,10 @@ object RadioRepository {
 
     private suspend fun insertDefaultRadioStation(context: Context) =
         withContext(Dispatchers.IO) {
-            val file = getJsonDataFromAsset(context, "DefaultRadioStation")
+            val file = getJsonDataFromAsset(
+                context,
+                "DefaultRadioStation"
+            )
             Log.i("AudlayerApp", file)
 
             val moshi = Moshi.Builder().build()

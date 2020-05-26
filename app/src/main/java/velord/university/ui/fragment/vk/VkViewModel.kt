@@ -10,11 +10,11 @@ import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.FileFilter
-import velord.university.model.FileNameParser
 import velord.university.model.entity.Playlist
 import velord.university.model.entity.vk.VkAlbum
 import velord.university.model.entity.vk.VkSong
+import velord.university.model.file.FileFilter
+import velord.university.model.file.FileNameParser
 import velord.university.model.functionalDataSctructure.result.Result
 import velord.university.repository.FolderRepository
 import velord.university.repository.VkRepository

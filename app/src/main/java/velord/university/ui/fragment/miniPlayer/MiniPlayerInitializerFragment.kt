@@ -30,7 +30,7 @@ abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
     protected lateinit var miniPlayerRadioArtistTV: TextView
     protected lateinit var miniPlayerRadioLikedIB: ImageButton
     protected lateinit var miniPlayerRadioPlayOrPauseIB: ImageButton
-
+    protected lateinit var miniPlayerRadioIcon: ImageView
 
     protected fun initMiniPlayerView(view: View) {
         miniPlayerIV = view.findViewById(R.id.mini_player_imageView)
@@ -54,6 +54,7 @@ abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
         miniPlayerRadioArtistTV = view.findViewById(R.id.mini_player_radio_artist)
         miniPlayerRadioLikedIB = view.findViewById(R.id.mini_player_radio_liked)
         miniPlayerRadioPlayOrPauseIB = view.findViewById(R.id.mini_player_radio_play_or_pause)
+        miniPlayerRadioIcon = view.findViewById(R.id.mini_player_radio_imageView)
     }
 
     protected fun showMiniPlayerGeneral() {

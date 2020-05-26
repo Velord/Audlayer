@@ -10,7 +10,7 @@ import velord.university.application.permission.PermissionChecker
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.FileFilter
+import velord.university.model.file.FileFilter
 import velord.university.ui.util.RVSelection
 import java.io.File
 

@@ -1,4 +1,4 @@
-package velord.university.model
+package velord.university.model.file
 
 import android.media.MediaMetadataRetriever
 import java.io.File
@@ -30,7 +30,11 @@ object FileFilter {
         val nameTitle =
             FileNameParser.removeExtension(file)
                 .substringAfterLast('/')
-        val contQuery = filterBySearchQuery(nameTitle, query)
+        val contQuery =
+            filterBySearchQuery(
+                nameTitle,
+                query
+            )
 
         extension && contQuery
     }

@@ -13,12 +13,12 @@ import velord.university.application.service.audioFocus.AudioFocusListenerServic
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.miniPlayer.MiniPlayerServicePreferences
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.FileFilter
-import velord.university.model.FileNameParser
 import velord.university.model.QueueResolver
 import velord.university.model.ServicePlaylist
 import velord.university.model.converter.SongTimeConverter
 import velord.university.model.entity.MiniPlayerServiceSong
+import velord.university.model.file.FileFilter
+import velord.university.model.file.FileNameParser
 import velord.university.repository.MiniPlayerRepository
 import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.repository.transaction.ServiceTransaction
