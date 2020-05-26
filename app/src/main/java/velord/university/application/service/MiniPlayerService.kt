@@ -424,7 +424,6 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             var rewindValue = startFrom
             rewindJob = scope.launch {
                 while (isActive) {
-
                     mayInvoke {
                         AppBroadcastHub.run { rewindUI(rewindValue++) }
                     }

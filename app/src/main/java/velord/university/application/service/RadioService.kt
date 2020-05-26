@@ -14,13 +14,17 @@ import velord.university.application.settings.AppPreference
 import velord.university.application.settings.miniPlayer.RadioServicePreference
 import velord.university.interactor.RadioInteractor
 import velord.university.model.entity.RadioStation
+import velord.university.model.isyStreamMeta.IcyStreamMeta
 import velord.university.repository.MiniPlayerRepository
 import velord.university.repository.RadioRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
+import java.net.URL
 
 abstract class RadioService : AudioFocusListenerService() {
 
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
+
+    private var scopeArtistStream = CoroutineScope(Job() + Dispatchers.Default)
 
     private lateinit var currentStation: RadioStation
 
@@ -117,6 +121,7 @@ abstract class RadioService : AudioFocusListenerService() {
                     delay(500)
                 }
                 //send info
+                sendRadioArtist()
                 sendIsPlayed()
                 sendRadioName()
                 sendIsLiked()
@@ -189,6 +194,26 @@ abstract class RadioService : AudioFocusListenerService() {
     private fun saveState() {
         RadioServicePreference
             .setCurrentRadioId(this, currentStation.id.toInt())
+    }
+
+    private fun sendRadioArtist() {
+        mayInvoke {
+            scopeArtistStream.cancel()
+            scopeArtistStream = CoroutineScope(Job() + Dispatchers.Default)
+            //get info
+            scopeArtistStream.launch {
+                while (this.isActive) {
+                     val meta =
+                         IcyStreamMeta()
+                    meta.urlStream = URL(currentStation.url)
+                    val title = "${meta.artist} - ${meta.title}"
+                    AppBroadcastHub.apply {
+                        radioArtistUI(title)
+                    }
+                    delay(10000)
+                }
+            }
+        }
     }
 
     private fun sendRadioName() {

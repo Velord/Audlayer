@@ -38,13 +38,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:ellipsize="marquee"
         android:maxWidth="220dp"
         android:maxHeight="15dp"
         android:text="@string/no_artist"
         android:textColor="@color/gray"
         android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/mini_player_radio_liked"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/mini_player_radio_imageView"
         app:layout_constraintTop_toTopOf="parent" />
@@ -74,6 +75,7 @@
         <ImageButton
             android:id="@+id/mini_player_radio_play_or_pause"
             style="@style/MiniPlayerTrackNextImageButtons"
+            android:layout_width="70dp"
             android:contentDescription="@string/mini_player_song_play_or_pause"
             android:src="@drawable/play" />
     </LinearLayout>
