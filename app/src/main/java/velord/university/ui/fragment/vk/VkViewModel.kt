@@ -16,7 +16,6 @@ import velord.university.model.entity.vk.VkPlaylist
 import velord.university.model.entity.vk.VkSong
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
-import velord.university.model.functionalDataSctructure.result.Result
 import velord.university.repository.FolderRepository
 import velord.university.repository.VkRepository
 import velord.university.repository.transaction.PlaylistTransaction
@@ -30,11 +29,12 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
 
+    private lateinit var vkPlaylist: List<VkSong>
+    private lateinit var vkAlbums: List<VkAlbum>
+
     val repository = VkRepository
 
     lateinit var ordered: List<VkSong>
-    private lateinit var vkPlaylist: List<VkSong>
-    private lateinit var vkAlbums: List<VkAlbum>
 
     lateinit var currentQuery: String
 
@@ -75,6 +75,12 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     //path must be not blank and file can be created by that path
     fun needDownload(vkSong: VkSong): Boolean =
         (vkSong.path.isBlank()) and (File(vkSong.path).exists().not())
+
+    fun sendSongIcon(path: String) {
+        val song = ordered.find { it.path == path }
+        if (song == null) sendDefaultSongIcon()
+        else sendSongIcon(song)
+    }
 
     suspend fun initVkPlaylist() {
         vkAlbums = repository.getAlbumsFromDb()
@@ -145,7 +151,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     suspend fun downloadInform(vkSong: VkSong, webView: WebView): Boolean =
         if (needDownload(vkSong)) {
             scope.launch {
-                val file = download(vkSong, webView).getOrElse(null)
+                val file = download(vkSong, webView)
                 //if download will be success ->  not null
                 if (file != null) {
                     applyNewPath(vkSong, file.path)
@@ -203,12 +209,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         return@withContext ordered
     }
 
-    fun sendSongIcon(path: String) {
-        val song = ordered.find { it.path == path }
-        if (song == null) sendDefaultSongIcon()
-        else sendSongIcon(song)
-    }
-
     private fun sendSongIcon(song: VkSong) {
         song.getAlbumIcon()?.let {
             AppBroadcastHub.apply {
@@ -220,62 +220,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     private fun sendDefaultSongIcon() {
         AppBroadcastHub.apply {
             app.iconUI("")
-        }
-    }
-
-    private suspend fun applyNewPath(vkSong: VkSong, path: String) {
-        val index = vkPlaylist.indexOf(vkSong)
-        val song = vkPlaylist[index]
-        vkPlaylist[index].path = path
-        val orderedIndex = ordered.indexOf(song)
-        ordered[orderedIndex].path = path
-
-        repository.updateSong(song)
-    }
-
-    private fun getNoExistInDbAlbum(notExistInDbSong: List<VkSong>,
-                                    fromDbAlbumsTitle: List<String>) =
-        notExistInDbSong
-            .fold(hashMapOf<String, VkAlbum>()) { notExist, vkSong: VkSong ->
-                vkSong.album?.let {
-                    if (fromDbAlbumsTitle.contains(it.title).not())
-                        if (notExist.containsKey(it.title).not())
-                            notExist += Pair(it.title, it)
-                }
-                notExist
-            }
-            .map { it.component2() }
-            .filter { it.id != 0 }
-
-
-    private suspend fun download(vkSong: VkSong, webView: WebView): Result<File?> {
-        //refresh path to blank
-        applyNewPath(vkSong, "")
-        //download
-        return repository.downloadViaSefon(app, webView, vkSong)
-    }
-
-    private suspend fun getNoExistInDbSong(byTokenSongs: Array<VkSong>,
-                                           fromDbSongs: List<VkSong>): List<VkSong> {
-        val fromDbSongsId = fromDbSongs.map { it.id }
-        val allSongFromDb = Playlist
-            .allSongFromPlaylist(PlaylistTransaction.getAllPlaylist())
-        val allSongPath = allSongFromDb.map { it.path }
-        val allSongName = allSongFromDb.map { FileNameParser.removeExtension(it) }
-        return byTokenSongs.fold(mutableListOf<VkSong>()) { notExist, byToken ->
-            if (fromDbSongsId.contains(byToken.id).not())
-                notExist.add(byToken)
-            notExist
-        }.map {
-            if (it.album?.id != 0)
-                it.albumId = it.album?.id
-            val index = getPathIndex(it, allSongName)
-            if (index != -1) {
-                it.path = allSongPath[index]
-                it.artist = FileNameParser.getSongArtist(allSongFromDb[index])
-                it.title = FileNameParser.getSongTitle(allSongFromDb[index])
-            } else it.path = ""
-            it
         }
     }
 
@@ -302,6 +246,61 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
                 app.playByPathService(file.path)
                 app.loopAllService()
             }
+        }
+    }
+
+    private fun getNoExistInDbAlbum(notExistInDbSong: List<VkSong>,
+                                    fromDbAlbumsTitle: List<String>) =
+        notExistInDbSong
+            .fold(hashMapOf<String, VkAlbum>()) { notExist, vkSong: VkSong ->
+                vkSong.album?.let {
+                    if (fromDbAlbumsTitle.contains(it.title).not())
+                        if (notExist.containsKey(it.title).not())
+                            notExist += Pair(it.title, it)
+                }
+                notExist
+            }
+            .map { it.component2() }
+            .filter { it.id != 0 }
+
+    private suspend fun applyNewPath(vkSong: VkSong, path: String) {
+        val index = vkPlaylist.indexOf(vkSong)
+        val song = vkPlaylist[index]
+        vkPlaylist[index].path = path
+        val orderedIndex = ordered.indexOf(song)
+        ordered[orderedIndex].path = path
+
+        repository.updateSong(song)
+    }
+
+    private suspend fun download(vkSong: VkSong, webView: WebView): File? {
+        //refresh path to blank
+        applyNewPath(vkSong, "")
+        //download
+        return repository.download(app, webView, vkSong)
+    }
+
+    private suspend fun getNoExistInDbSong(byTokenSongs: Array<VkSong>,
+                                           fromDbSongs: List<VkSong>): List<VkSong> {
+        val fromDbSongsId = fromDbSongs.map { it.id }
+        val allSongFromDb = Playlist
+            .allSongFromPlaylist(PlaylistTransaction.getAllPlaylist())
+        val allSongPath = allSongFromDb.map { it.path }
+        val allSongName = allSongFromDb.map { FileNameParser.removeExtension(it) }
+        return byTokenSongs.fold(mutableListOf<VkSong>()) { notExist, byToken ->
+            if (fromDbSongsId.contains(byToken.id).not())
+                notExist.add(byToken)
+            notExist
+        }.map {
+            if (it.album?.id != 0)
+                it.albumId = it.album?.id
+            val index = getPathIndex(it, allSongName)
+            if (index != -1) {
+                it.path = allSongPath[index]
+                it.artist = FileNameParser.getSongArtist(allSongFromDb[index])
+                it.title = FileNameParser.getSongTitle(allSongFromDb[index])
+            } else it.path = ""
+            it
         }
     }
 

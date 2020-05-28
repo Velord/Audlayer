@@ -74,7 +74,6 @@ dependencies {
     implementation("com.squareup.moshi:moshi:1.9.2")
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
     //kotest
-
 }
 
 

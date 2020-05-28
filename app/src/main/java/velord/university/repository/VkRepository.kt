@@ -13,6 +13,7 @@ import velord.university.model.entity.vk.VkAlbum
 import velord.university.model.entity.vk.VkPlaylist
 import velord.university.model.entity.vk.VkSong
 import velord.university.model.functionalDataSctructure.result.Result
+import velord.university.repository.fetch.IMusicFetch
 import velord.university.repository.fetch.SefonFetchSequential
 import velord.university.repository.fetch.makeRequestViaOkHttp
 import velord.university.repository.transaction.vk.VkAlbumTransaction
@@ -47,8 +48,7 @@ object VkRepository {
         }
     }
 
-    suspend fun getVkPlaylist() =
-        VkSongTransaction.getPlaylist()
+    suspend fun getVkPlaylist() = VkSongTransaction.getPlaylist()
 
     suspend fun deleteAllTables() {
         VkAlbumTransaction.deleteAll()
@@ -59,6 +59,17 @@ object VkRepository {
                                  webView: WebView,
                                  vkSong: VkSong): Result<File?> =
         Result.ofAsync { SefonFetchSequential(context, webView, vkSong).download() }
+
+    suspend fun downloadViaIMusic(context: Context,
+                                  webView: WebView,
+                                  vkSong: VkSong): Result<File?> =
+        Result.ofAsync { IMusicFetch(context, webView, vkSong).download() }
+
+    suspend fun download(context: Context,
+                         webView: WebView,
+                         vkSong: VkSong): File?  =
+        downloadViaSefon(context, webView, vkSong).getOrElse(null) ?:
+        downloadViaIMusic(context, webView, vkSong).getOrElse(null)
 
     suspend fun updateSong(vkSong: VkSong) =
         VkSongTransaction.update(vkSong)
@@ -89,8 +100,7 @@ object VkRepository {
             if (VkDownloadNotification.downloadIsCanceled())
                 return downloaded
             //download file
-            val file =
-                downloadViaSefon(context, webView, song).getOrElse(null)
+            val file = download(context, webView, song)
             file?.let {
                 song.path = it.path
                 downloaded.add(song)
