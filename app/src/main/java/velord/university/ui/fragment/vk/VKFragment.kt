@@ -374,9 +374,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
 
     private fun updateAdapterWithShuffled() {
         if (viewModel.vkPlaylistIsInitialized()) {
-            val shuffled = viewModel.ordered
-                .shuffled()
-                .toTypedArray()
+            val shuffled = viewModel.shuffle()
             rv.adapter = SongAdapter(shuffled)
         }
     }

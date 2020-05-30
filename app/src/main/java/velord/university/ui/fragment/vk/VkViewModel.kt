@@ -112,6 +112,11 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun shuffle(): Array<VkSong> {
+        ordered = ordered.shuffled()
+        return ordered.toTypedArray()
+    }
+
     suspend fun initVkPlaylist() {
         vkAlbums = repository.getAlbumsFromDb()
         vkPlaylist = repository.getSongsFromDb().map { song ->

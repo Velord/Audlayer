@@ -271,7 +271,7 @@ class SongFragment : ActionBarFragment(),
 
     private fun updateAdapterWithShuffled() {
         if (viewModel.songsIsInitialized()) {
-            val shuffled = viewModel.shuffle().toTypedArray()
+            val shuffled = viewModel.shuffle()
             rv.adapter = SongAdapter(shuffled)
         }
     }

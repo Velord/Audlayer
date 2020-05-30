@@ -79,7 +79,10 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
         return@withContext ordered
     }
 
-    fun shuffle(): List<File> = ordered.shuffled()
+    fun shuffle(): Array<File> {
+        ordered = ordered.shuffled()
+        return ordered.toTypedArray()
+    }
 
     fun storeSearchQuery(query: String) {
         //store search term in shared preferences
