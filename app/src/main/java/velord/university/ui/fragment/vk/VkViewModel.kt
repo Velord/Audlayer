@@ -65,13 +65,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun checkPathThenPlay(vkSong: VkSong, webView: WebView) {
-        scope.launch {
-            if (needDownload(vkSong)) downloadInform(vkSong, webView)
-            else playAudioAndAllSong(vkSong)
-        }
-    }
-
     //path must be not blank and file can be created by that path
     fun needDownload(vkSong: VkSong): Boolean =
         (vkSong.path.isBlank()) and (File(vkSong.path).exists().not())
@@ -80,6 +73,43 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         val song = ordered.find { it.path == path }
         if (song == null) sendDefaultSongIcon()
         else sendSongIcon(song)
+    }
+
+    fun playAudioAndAllSong(song: VkSong) {
+        scope.launch {
+            val file = File(song.path)
+            AppBroadcastHub.apply {
+                SongPlaylistInteractor.songs = ordered
+                    .filter { it.path.isNotBlank() }
+                    .map { File(it.path) }
+                    .toTypedArray()
+                app.playByPathService(file.path)
+                app.loopAllService()
+            }
+        }
+    }
+
+    fun downloadInform(vkSong: VkSong, webView: WebView) {
+        if (needDownload(vkSong)) {
+            scope.launch {
+                val file = download(vkSong, webView)
+                //if download will be success ->  not null
+                if (file != null) {
+                    applyNewPath(vkSong, file.path)
+                    playAudioAndAllSong(vkSong)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            app,
+                            "Song success downloaded", Toast.LENGTH_LONG
+                        ).show()
+                    }
+                } else withContext(Dispatchers.Main) {
+                    Toast.makeText(app,
+                        "Sorry we did not found any link",
+                        Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     suspend fun initVkPlaylist() {
@@ -148,36 +178,11 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    suspend fun downloadInform(vkSong: VkSong, webView: WebView) {
-        if (needDownload(vkSong)) {
-            scope.launch {
-                val file = download(vkSong, webView)
-                //if download will be success ->  not null
-                if (file != null) {
-                    applyNewPath(vkSong, file.path)
-                    playAudioAndAllSong(vkSong)
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            app,
-                            "Song success downloaded", Toast.LENGTH_LONG
-                        ).show()
-                    }
-                } else withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        app,
-                        "Sorry we did not found any link", Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        }
-    }
-
     suspend fun deleteAll() {
         VkRepository.deleteAllTables()
         vkAlbums = repository.getAlbumsFromDb()
         vkPlaylist = repository.getSongsFromDb()
     }
-
 
     suspend fun filterByQuery(query: String): List<VkSong> = withContext(Dispatchers.Default) {
         val filtered = vkPlaylist.filter {
@@ -236,20 +241,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             }
         }
         return index
-    }
-
-    private fun playAudioAndAllSong(song: VkSong) {
-        scope.launch {
-            val file = File(song.path)
-            AppBroadcastHub.apply {
-                SongPlaylistInteractor.songs = ordered
-                    .filter { it.path.isNotBlank() }
-                    .map { File(it.path) }
-                    .toTypedArray()
-                app.playByPathService(file.path)
-                app.loopAllService()
-            }
-        }
     }
 
     private fun getNoExistInDbAlbum(notExistInDbSong: List<VkSong>,

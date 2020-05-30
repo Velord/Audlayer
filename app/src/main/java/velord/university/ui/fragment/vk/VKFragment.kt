@@ -492,25 +492,15 @@ class VKFragment : ActionBarFragment(), VkReceiver {
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                 when (it.itemId) {
                     R.id.vk_rv_item_play_next -> {
-                        val need = {
-                            Toast.makeText(requireContext(),
-                                "Need Download", Toast.LENGTH_SHORT).show()
-                        }
-                        val notNeed = { viewModel.playAudioNext(song) }
-                        needDownload(song, need, notNeed)
+                        viewModel.playAudioNext(song)
                         true
                     }
                     R.id.vk_rv_item_add_to_playlist -> {
                         callbacks?.let { callback ->
-                            val need = {
-                                Toast.makeText(requireContext(),
-                                    "Need Download", Toast.LENGTH_SHORT).show()
-                            }
-                            val notNeed = {
-                                SongPlaylistInteractor.songs = arrayOf(File(song.path))
-                                callback.onAddToPlaylistFromVkFragment()
-                            }
-                            needDownload(song, need, notNeed)
+
+                            SongPlaylistInteractor.songs = arrayOf(File(song.path))
+                            callback.onAddToPlaylistFromVkFragment()
+
                         }
                         true
                     }
@@ -535,20 +525,12 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                         true
                     }
                     R.id.vk_rv_item_delete -> {
-                        val need = {
-                            Toast.makeText(requireContext(),
-                                "Need Download", Toast.LENGTH_SHORT).show()
-                        }
-                        val notNeed = {
-                            scope.launch {
-                                viewModel.deleteSong(song)
-                                withContext(Dispatchers.Main) {
-                                    viewModel.rvResolver.adapter.notifyDataSetChanged()
-                                }
+                        scope.launch {
+                            viewModel.deleteSong(song)
+                            withContext(Dispatchers.Main) {
+                                viewModel.rvResolver.adapter.notifyDataSetChanged()
                             }
-                            Unit
                         }
-                        needDownload(song, need, notNeed)
                         true
                     }
                     else -> {
@@ -568,10 +550,19 @@ class VKFragment : ActionBarFragment(), VkReceiver {
 
         private fun play(song: VkSong,
                          rvSelectResolver: RVSelection<VkSong>) {
-            scope.launch {
-                rvSelectResolver.singleSelectionPrinciple(song)
-                viewModel.checkPathThenPlay(song, webView)
+            val need: () -> Unit = {
+                Toast.makeText(requireContext(),
+                    "Click Download Icon", Toast.LENGTH_SHORT).show()
             }
+
+            val notNeed: () -> Unit = {
+                scope.launch {
+                    rvSelectResolver.singleSelectionPrinciple(song)
+                    viewModel.playAudioAndAllSong(song)
+                }
+            }
+
+            needDownload(song, need, notNeed)
         }
 
         private fun setOnClickAndImageResource(song: VkSong,
@@ -586,7 +577,13 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                 play(song, rvSelectResolver)
             }
             action.setOnClickListener {
-                actionPopUpMenu(song)
+                val need: () -> Unit = {
+                    viewModel.downloadInform(song, webView)
+                }
+                val notNeed: () -> Unit = {
+                    actionPopUpMenu(song)
+                }
+                needDownload(song, need, notNeed)
             }
             frame.setOnClickListener {
                 actionPopUpMenu(song)
