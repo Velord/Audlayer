@@ -148,7 +148,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    suspend fun downloadInform(vkSong: VkSong, webView: WebView): Boolean =
+    suspend fun downloadInform(vkSong: VkSong, webView: WebView) {
         if (needDownload(vkSong)) {
             scope.launch {
                 val file = download(vkSong, webView)
@@ -157,17 +157,20 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
                     applyNewPath(vkSong, file.path)
                     playAudioAndAllSong(vkSong)
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(app,
-                            "Song success downloaded", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            app,
+                            "Song success downloaded", Toast.LENGTH_LONG
+                        ).show()
                     }
-                }
-                else withContext(Dispatchers.Main) {
-                    Toast.makeText(app,
-                        "Sorry we did not found any link", Toast.LENGTH_LONG).show()
+                } else withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        app,
+                        "Sorry we did not found any link", Toast.LENGTH_LONG
+                    ).show()
                 }
             }
-            true
-        } else false
+        }
+    }
 
     suspend fun deleteAll() {
         VkRepository.deleteAllTables()

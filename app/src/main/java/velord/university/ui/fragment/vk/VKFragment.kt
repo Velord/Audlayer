@@ -403,23 +403,47 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         private val frame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
         private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
 
-        private fun needDownload(song: VkSong) {
-            if (viewModel.needDownload(song)) {
+        private inline fun needDownload(song: VkSong,
+                                        need: () -> Unit,
+                                        notNeed: () -> Unit = {}) {
+            if (viewModel.needDownload(song)) need()
+            else notNeed()
+        }
+
+        private fun needDownloadAction(song: VkSong) {
+            val need: () -> Unit = {
                 Glide.with(requireActivity())
                     .load(R.drawable.download_200_gold)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(action)
             }
-            else Glide.with(requireActivity())
-                .load(R.drawable.action_item)
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .into(action)
+
+            val notNeed: () -> Unit = {
+                Glide.with(requireActivity())
+                    .load(R.drawable.action_item)
+                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                    .into(action)
+            }
+
+            needDownload(song, need, notNeed)
+        }
+
+        private fun needDownloadBackground(song: VkSong) {
+            val need: () -> Unit = {
+                itemView.setBackgroundResource(R.color.grayest_opacity)
+            }
+
+            val notNeed: () -> Unit = {
+                itemView.setBackgroundResource(R.color.opacity)
+            }
+
+            needDownload(song, need, notNeed)
         }
 
         val general: (VkSong) -> Array<() -> Unit> = { song ->
             arrayOf(
                 {
-                    needDownload(song)
+                    needDownloadAction(song)
                 }, {
                     scope.launch {
                         song.getAlbumIcon()?.let {
@@ -457,7 +481,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                     text.text = getString(R.string.vk_rv_item_not_selected,
                         song.artist, song.title, album)
                 }, {
-                    itemView.setBackgroundResource(R.color.opacity)
+                    needDownloadBackground(song)
                 }
             )
         }
@@ -468,13 +492,25 @@ class VKFragment : ActionBarFragment(), VkReceiver {
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                 when (it.itemId) {
                     R.id.vk_rv_item_play_next -> {
-                        viewModel.playAudioNext(song)
+                        val need = {
+                            Toast.makeText(requireContext(),
+                                "Need Download", Toast.LENGTH_SHORT).show()
+                        }
+                        val notNeed = { viewModel.playAudioNext(song) }
+                        needDownload(song, need, notNeed)
                         true
                     }
                     R.id.vk_rv_item_add_to_playlist -> {
                         callbacks?.let { callback ->
-                            SongPlaylistInteractor.songs = arrayOf(File(song.path))
-                            callback.onAddToPlaylistFromVkFragment()
+                            val need = {
+                                Toast.makeText(requireContext(),
+                                    "Need Download", Toast.LENGTH_SHORT).show()
+                            }
+                            val notNeed = {
+                                SongPlaylistInteractor.songs = arrayOf(File(song.path))
+                                callback.onAddToPlaylistFromVkFragment()
+                            }
+                            needDownload(song, need, notNeed)
                         }
                         true
                     }
@@ -485,22 +521,34 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                         TODO()
                     }
                     R.id.vk_rv_item_download -> {
-                        scope.launch {
-                            if (viewModel.downloadInform(song, webView).not())
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(requireContext(),
-                                        "Download not needed", Toast.LENGTH_SHORT).show()
-                                }
+                        val need = {
+                            scope.launch {
+                                viewModel.downloadInform(song, webView)
+                            }
+                            Unit
                         }
+                        val notNeed = {
+                            Toast.makeText(requireContext(),
+                                "Download not needed", Toast.LENGTH_SHORT).show()
+                        }
+                        needDownload(song, need, notNeed)
                         true
                     }
                     R.id.vk_rv_item_delete -> {
-                        scope.launch {
-                            viewModel.deleteSong(song)
-                            withContext(Dispatchers.Main) {
-                                viewModel.rvResolver.adapter.notifyDataSetChanged()
-                            }
+                        val need = {
+                            Toast.makeText(requireContext(),
+                                "Need Download", Toast.LENGTH_SHORT).show()
                         }
+                        val notNeed = {
+                            scope.launch {
+                                viewModel.deleteSong(song)
+                                withContext(Dispatchers.Main) {
+                                    viewModel.rvResolver.adapter.notifyDataSetChanged()
+                                }
+                            }
+                            Unit
+                        }
+                        needDownload(song, need, notNeed)
                         true
                     }
                     else -> {
@@ -522,10 +570,8 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         private fun play(song: VkSong,
                          rvSelectResolver: RVSelection<VkSong>) {
             scope.launch {
-                withContext(Dispatchers.Main) {
-                    rvSelectResolver.singleSelectionPrinciple(song)
-                    viewModel.checkPathThenPlay(song, webView)
-                }
+                rvSelectResolver.singleSelectionPrinciple(song)
+                viewModel.checkPathThenPlay(song, webView)
             }
         }
 
