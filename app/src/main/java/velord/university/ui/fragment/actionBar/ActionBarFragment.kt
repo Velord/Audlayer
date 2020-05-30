@@ -64,9 +64,8 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
     }
 
     protected fun rearwardActionButton() {
-        setupPopupMenuOnClick(
+        actionButton.setupPopupMenuOnClick(
             requireContext(),
-            actionButton,
             actionBarPopUpMenuStyle,
             actionBarPopUpMenuLayout,
             actionBarPopUpMenuItemOnCLick

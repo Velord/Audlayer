@@ -32,6 +32,7 @@ import velord.university.model.file.FileNameParser
 import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RVSelection
+import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
@@ -106,9 +107,8 @@ class FolderFragment : ActionBarFragment(),
                     }
                 }
 
-                setupPopupMenuOnClick(
+                super.actionButton.setupPopupMenuOnClick(
                     requireContext(),
-                    super.actionButton,
                     initActionMenuStyle,
                     initActionMenuLayout,
                     initActionMenuItemClickListener
@@ -415,9 +415,8 @@ class FolderFragment : ActionBarFragment(),
                             }
                         }
 
-                        setupPopupMenuOnClick(
+                        actionImageButton.setupPopupMenuOnClick(
                             requireContext(),
-                            actionImageButton,
                             initActionMenuStyle,
                             initActionMenuLayout,
                             initActionMenuItemClickListener
@@ -462,9 +461,8 @@ class FolderFragment : ActionBarFragment(),
                             }
                         }
 
-                        setupPopupMenuOnClick(
+                        actionImageButton.setupAndShowPopupMenuOnClick(
                             requireContext(),
-                            actionImageButton,
                             initActionMenuStyle,
                             initActionMenuLayout,
                             initActionMenuItemClickListener

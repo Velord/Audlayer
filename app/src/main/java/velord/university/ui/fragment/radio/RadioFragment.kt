@@ -27,6 +27,7 @@ import velord.university.application.settings.SortByPreference
 import velord.university.model.entity.RadioStation
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RVSelection
+import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import velord.university.ui.util.setupPopupMenuOnClick
 
 class RadioFragment : ActionBarFragment(),
@@ -89,9 +90,8 @@ class RadioFragment : ActionBarFragment(),
                     }
                 }
 
-                setupPopupMenuOnClick(
+                super.actionButton.setupPopupMenuOnClick(
                     requireContext(),
-                    super.actionButton,
                     initActionMenuStyle,
                     initActionMenuLayout,
                     initActionMenuItemClickListener
@@ -390,9 +390,8 @@ class RadioFragment : ActionBarFragment(),
                 }
             }
 
-            setupPopupMenuOnClick(
+            action.setupAndShowPopupMenuOnClick(
                 requireContext(),
-                action,
                 initActionMenuStyle,
                 initActionMenuLayout,
                 initActionMenuItemClickListener

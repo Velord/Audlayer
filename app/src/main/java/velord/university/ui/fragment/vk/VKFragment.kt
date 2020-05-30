@@ -33,6 +33,7 @@ import velord.university.model.file.FileNameParser
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RVSelection
+import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
@@ -115,9 +116,8 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                     }
                 }
 
-                setupPopupMenuOnClick(
+                super.actionButton.setupPopupMenuOnClick(
                     requireContext(),
-                    super.actionButton,
                     initActionMenuStyle,
                     initActionMenuLayout,
                     initActionMenuItemClickListener
@@ -557,9 +557,8 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                 }
             }
 
-            setupPopupMenuOnClick(
+            action.setupAndShowPopupMenuOnClick(
                 requireContext(),
-                action,
                 initActionMenuStyle,
                 initActionMenuLayout,
                 initActionMenuItemClickListener

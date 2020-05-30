@@ -18,6 +18,7 @@ import velord.university.model.entity.Album
 import velord.university.model.entity.Playlist
 import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarFragment
+import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import velord.university.ui.util.setupPopupMenuOnClick
 
 
@@ -273,9 +274,8 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
                 }
             }
 
-            setupPopupMenuOnClick(
+            actionImageButton.setupPopupMenuOnClick(
                 requireContext(),
-                actionImageButton,
                 initActionMenuStyle,
                 initActionMenuLayout,
                 initActionMenuItemClickListener
@@ -375,9 +375,8 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
                 }
             }
 
-            setupPopupMenuOnClick(
+            actionImageButton.setupAndShowPopupMenuOnClick(
                 requireContext(),
-                actionImageButton,
                 initActionMenuStyle,
                 initActionMenuLayout,
                 initActionMenuItemClickListener

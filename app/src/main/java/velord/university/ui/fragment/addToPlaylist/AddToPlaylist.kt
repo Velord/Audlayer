@@ -19,7 +19,7 @@ import velord.university.model.entity.Playlist
 import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.ui.backPressed.BackPressedHandlerSecond
 import velord.university.ui.fragment.LoggerSelfLifecycleFragment
-import velord.university.ui.util.setupPopupMenuOnClick
+import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import java.io.File
 
 class AddToPlaylist : LoggerSelfLifecycleFragment(), BackPressedHandlerSecond {
@@ -123,48 +123,46 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(), BackPressedHandlerSecond {
         }
 
         private val actionPopUpMenu: (Playlist) -> Unit = { playlist ->
-                val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
-                val initActionMenuLayout = { R.menu.add_to_playlist_pop_up }
-                val initActionMenuItemClickListener: (MenuItem) -> Boolean = {menuItem ->
-                    when (menuItem.itemId) {
-                        R.id.playlist_item_play -> {
-                            //don't remember for SongPlaylist Interactor
-                            SongPlaylistInteractor.songs =
-                                playlist.songs.map { File(it) }.toTypedArray()
-                            AppBroadcastHub.apply {
-                                requireContext().playByPathService(playlist.songs[0])
+            val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
+            val initActionMenuLayout = { R.menu.add_to_playlist_pop_up }
+            val initActionMenuItemClickListener: (MenuItem) -> Boolean = {menuItem ->
+                when (menuItem.itemId) {
+                    R.id.playlist_item_play -> {
+                        //don't remember for SongPlaylist Interactor
+                        SongPlaylistInteractor.songs =
+                            playlist.songs.map { File(it) }.toTypedArray()
+                        AppBroadcastHub.apply {
+                            requireContext().playByPathService(playlist.songs[0])
+                        }
+                        true
+                    }
+                    R.id.playlist_item_add_to_home_screen -> {
+                        TODO()
+                        true
+                    }
+                    R.id.playlist_item_delete -> {
+                        scope.launch {
+                            PlaylistTransaction.delete(playlist.id)
+                            withContext(Dispatchers.Main) {
+                                setupAdapter()
                             }
-                            true
                         }
-                        R.id.playlist_item_add_to_home_screen -> {
-                            TODO()
-                            true
-                        }
-                        R.id.playlist_item_delete -> {
-                            scope.launch {
-                                PlaylistTransaction.delete(playlist.id)
-                                withContext(Dispatchers.Main) {
-                                    setupAdapter()
-                                }
-                            }
-                            true
-                        }
-                        else -> {
-                            false
-                        }
+                        true
+                    }
+                    else -> {
+                        false
                     }
                 }
+            }
 
-            setupPopupMenuOnClick(
+            actionImageButton.setupAndShowPopupMenuOnClick(
                 requireContext(),
-                actionImageButton,
                 initActionMenuStyle,
                 initActionMenuLayout,
                 initActionMenuItemClickListener
             )
-
-                Unit
-            }
+            Unit
+        }
 
         private fun setOnClickAndImageResource(playlist: Playlist) {
             itemView.setOnClickListener {

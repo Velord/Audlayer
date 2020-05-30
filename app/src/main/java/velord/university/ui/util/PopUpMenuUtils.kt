@@ -6,14 +6,23 @@ import android.view.View
 import android.widget.PopupMenu
 import androidx.appcompat.view.ContextThemeWrapper
 
-fun setupPopupMenuOnClick(context: Context,
-                          view: View,
+fun View.setupAndShowPopupMenuOnClick(context: Context,
+                                 initActionMenuStyle: () -> Int,
+                                 initActionMenuLayout: () -> Int,
+                                 initActionMenuItemClickListener: (MenuItem) -> Boolean): PopupMenu  =
+    setupPopupMenuOnClick(context,
+        initActionMenuStyle, initActionMenuLayout,
+        initActionMenuItemClickListener
+    ).apply { show() }
+
+
+fun View.setupPopupMenuOnClick(context: Context,
                           initActionMenuStyle: () -> Int,
                           initActionMenuLayout: () -> Int,
                           initActionMenuItemClickListener: (MenuItem) -> Boolean): PopupMenu {
     val style = initActionMenuStyle()
     val contextThemeWrapper = ContextThemeWrapper(context, style)
-    val popupMenu = PopupMenu(contextThemeWrapper, view)
+    val popupMenu = PopupMenu(contextThemeWrapper, this)
     popupMenu.setOnMenuItemClickListener { menuItem ->
         initActionMenuItemClickListener(menuItem)
     }
@@ -21,7 +30,7 @@ fun setupPopupMenuOnClick(context: Context,
     val layout = initActionMenuLayout()
     inflater.inflate(layout, popupMenu.menu)
 
-    view.setOnClickListener {
+    setOnClickListener {
         popupMenu.show()
     }
 
