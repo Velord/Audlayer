@@ -79,7 +79,8 @@ data class RvSelectionOld<T>(var adapter: RecyclerView.Adapter<RecyclerView.View
 data class RVSelection<T>(
     var adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>,
     var state: Int,
-    val selected: MutableList<T> = mutableListOf()
+    val selected: MutableList<T> = mutableListOf(),
+    var currentPosition: Int = 0
 ) {
 
     fun addSelected(value: T) {
@@ -101,6 +102,11 @@ data class RVSelection<T>(
         addSelected(value)
     }
 
+    suspend fun scroll(rv: RecyclerView) = withContext(Dispatchers.Main) {
+        adapter.notifyDataSetChanged()
+        rv.scrollToPosition(currentPosition)
+    }
+
     suspend inline fun refreshAndScroll(items: List<T>,
                                         rv: RecyclerView,
                                         crossinline f: (T) -> Boolean) =
@@ -109,6 +115,7 @@ data class RVSelection<T>(
             items.forEachIndexed { index, value ->
                 if (f(value)) {
                     rv.scrollToPosition(index)
+                    currentPosition = index
                     return@forEachIndexed
                 }
             }

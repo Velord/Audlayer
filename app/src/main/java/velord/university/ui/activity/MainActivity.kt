@@ -60,27 +60,37 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun startApp() {
-        //start app
-        AudlayerApp.initApp(baseContext)
-        //service mini player general
-        startService(
-            Intent(this,
-            MiniPlayerServiceBroadcastReceiver().javaClass))
-        //service mini player radio
-        startService(
-            Intent(this,
-            RadioServiceBroadcastReceiver().javaClass)
-        )
-        //self view
-        setContentView(R.layout.main_activity)
-        //fragment
-        initFragment(
-            fm,
-            MainFragment(),
-            R.id.main_container
-        )
-        //
-        viewModel
+        try {
+            //start app
+            AudlayerApp.initApp(baseContext)
+            //service mini player general
+            startService(
+                Intent(
+                    this,
+                    MiniPlayerServiceBroadcastReceiver().javaClass
+                )
+            )
+            //service mini player radio
+            startService(
+                Intent(
+                    this,
+                    RadioServiceBroadcastReceiver().javaClass
+                )
+            )
+            //self view
+            setContentView(R.layout.main_activity)
+            //fragment
+            initFragment(
+                fm,
+                MainFragment(),
+                R.id.main_container
+            )
+            //
+            viewModel
+        }
+        catch(e: Exception) {
+            startApp()
+        }
     }
 
     override fun onRequestPermissionsResult(

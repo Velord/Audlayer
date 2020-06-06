@@ -302,9 +302,9 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                     pb.visibility = View.GONE
                 }
                 updateAdapterBySearchQuery()
+                viewModel.rvResolver.scroll(rv)
             }
         }
-
     }
 
     private fun sortBy(index: Int): Boolean {

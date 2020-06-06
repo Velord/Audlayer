@@ -1,6 +1,5 @@
 package velord.university
 
-import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
@@ -12,6 +11,10 @@ class ExampleUnitTest {
 
     @Test
     fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+        var s = "!!!Hello world!!!"
+
+        s = s.substring(3).replace('!', '*')
+
+        println(s)
     }
 }
