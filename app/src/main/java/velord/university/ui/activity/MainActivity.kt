@@ -28,6 +28,7 @@ import velord.university.ui.fragment.main.MainFragment
 import velord.university.ui.fragment.song.SongFragment
 import velord.university.ui.fragment.vk.VKFragment
 import velord.university.ui.util.addFragment
+import velord.university.ui.util.hideVirtualButtons
 import velord.university.ui.util.initFragment
 
 
@@ -61,6 +62,8 @@ class MainActivity : AppCompatActivity(),
 
     private fun startApp() {
         try {
+            //hide virtual buttons
+            hideVirtualButtons()
             //start app
             AudlayerApp.initApp(baseContext)
             //service mini player general
