@@ -517,13 +517,18 @@ class FolderFragment : ActionBarFragment(),
         private val selected: (File) -> Array<() -> Unit> = { file ->
             arrayOf(
                 {
-                    val size: Double =
-                        roundOfDecimalToUp((FileFilter.getSize(file).toDouble() / 1024))
-                    path.text = getString(
-                        R.string.folder_fragment_rv_item,
-                        FileNameParser.removeExtension(file),
-                        size.toString()
-                    )
+                    path.text = if (file.isDirectory.not()) {
+                        val size: Double = roundOfDecimalToUp(
+                            (FileFilter.getSize(file).toDouble() / 1024)
+                        )
+                        getString(
+                            R.string.folder_fragment_rv_item,
+                            FileNameParser.removeExtension(file),
+                            size.toString()
+                        )
+                    }
+                    else FileNameParser.removeExtension(file)
+
                 },
                 {
                     itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
