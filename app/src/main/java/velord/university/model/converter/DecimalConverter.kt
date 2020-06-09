@@ -3,8 +3,9 @@ package velord.university.model.converter
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
-//i don't know but in android 8
+//I don't know but in android 8 (Xiaomi Note 5 Plus)
 //.format(number) return string with comma instead of dot
+//android 6 (Xiaomi Note 3 Pro) work fine
 fun roundOfDecimalToUp(number: Double): Double {
     val df = DecimalFormat("0.00")
     df.roundingMode = RoundingMode.FLOOR
