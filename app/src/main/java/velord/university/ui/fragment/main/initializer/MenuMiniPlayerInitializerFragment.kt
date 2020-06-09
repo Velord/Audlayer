@@ -15,13 +15,16 @@ import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.MiniPlayerBroadcastReceiverShowAndHider
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
+import velord.university.repository.MiniPlayerRepository
 import velord.university.ui.fragment.miniPlayer.MiniPlayerRadioGeneralFragment
+import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import velord.university.ui.fragment.miniPlayer.miniPlayerHide.MiniPlayerHideFragment
 import velord.university.ui.fragment.miniPlayer.miniPlayerStopAndHide.MiniPlayerStopAndHideFragment
 import velord.university.ui.util.viewPager.LiquidSwipeDynamicHeightViewPager
 
 
-abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
+abstract class MenuMiniPlayerInitializerFragment :
+    MenuInitializerFragment(),
     MiniPlayerBroadcastReceiverShowAndHider {
 
     override val TAG: String = "MenuNowPlayingFragment"
@@ -29,7 +32,7 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
     private lateinit var viewFrame: View
     private lateinit var miniPlayerViewPager: ViewPager
 
-    private val receivers = receiverList()
+    private val receivers = miniPlayerShowAndHiderReceiverList()
 
     private val fm by lazy {
         activity!!.supportFragmentManager
@@ -38,9 +41,11 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
     override fun onStart() {
         super.onStart()
         receivers.forEach {
-            requireActivity()
-                .registerBroadcastReceiver(
-                    it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER)
+            requireActivity().registerBroadcastReceiver(
+                it.first,
+                IntentFilter(it.second),
+                PERM_PRIVATE_MINI_PLAYER
+            )
         }
     }
 
@@ -104,8 +109,13 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
     }
 
     private fun stopAndHideMiniPLayer() {
-        AppBroadcastHub.apply {
-            requireContext().stopService()
+        when(MiniPlayerRepository.getState(requireContext())) {
+            MiniPlayerLayoutState.GENERAL -> AppBroadcastHub.apply {
+                requireContext().stopService()
+            }
+            MiniPlayerLayoutState.RADIO -> AppBroadcastHub.apply {
+                requireContext().stopRadioService()
+            }
         }
         AppBroadcastHub.apply {
             requireContext().hideUI()
@@ -172,14 +182,12 @@ abstract class MenuMiniPlayerInitializerFragment : MenuInitializerFragment(),
         }
     }
 
-    override val showF: (Intent?) -> Unit
-        get() = {
-            miniPlayerViewPager.currentItem = 1
-            viewFrame.visibility = View.VISIBLE
-        }
+    override val showF: (Intent?) -> Unit = {
+        miniPlayerViewPager.currentItem = 1
+        viewFrame.visibility = View.VISIBLE
+    }
 
-    override val hideF: (Intent?) -> Unit
-        get() = {
-            viewFrame.visibility = View.GONE
-        }
+    override val hideF: (Intent?) -> Unit = {
+        viewFrame.visibility = View.GONE
+    }
 }

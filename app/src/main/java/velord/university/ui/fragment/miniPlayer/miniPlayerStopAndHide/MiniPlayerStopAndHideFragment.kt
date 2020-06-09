@@ -10,8 +10,7 @@ import velord.university.ui.fragment.main.MainFragment
 
 class MiniPlayerStopAndHideFragment : LoggerSelfLifecycleFragment() {
 
-    override val TAG: String
-        get() = "StopCloseMiniPlayerFragment"
+    override val TAG: String = "StopCloseMiniPlayerFragment"
 
     companion object {
         fun newInstance() = MainFragment()

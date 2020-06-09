@@ -38,8 +38,10 @@ abstract class AudioFocusListenerService : Service(),
     override fun onDestroy() {
         super.onDestroy()
         //audioManager
-        if (player.isPlaying.not())
-            audioManager.abandonAudioFocus(afListenerMusic)
+        if (::player.isInitialized) {
+            if (player.isPlaying.not())
+                audioManager.abandonAudioFocus(afListenerMusic)
+        }
     }
 
     protected fun playerIsInitialized(): Boolean = ::player.isInitialized

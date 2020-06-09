@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.IntentFilter
 import velord.university.application.broadcast.AppBroadcastHub.Action.addToQueueService
 import velord.university.application.broadcast.AppBroadcastHub.Action.getInfoService
-import velord.university.application.broadcast.AppBroadcastHub.Action.hideUI
 import velord.university.application.broadcast.AppBroadcastHub.Action.likeService
 import velord.university.application.broadcast.AppBroadcastHub.Action.likeUI
 import velord.university.application.broadcast.AppBroadcastHub.Action.loopAllService
@@ -204,6 +203,11 @@ object AppBroadcastHub {
             this@hideUI.sendBroadcastHide()
         }
 
+    fun Context.showUI() =
+        MiniPlayerBroadcastShow.run {
+            this@showUI.sendBroadcastShow()
+        }
+
     fun Context.playAllInFolderService(path: String) =
         MiniPlayerBroadcastPlayAllInFolder.run {
             this@playAllInFolderService.sendBroadcastPlayAllInFolder(path)
@@ -321,6 +325,9 @@ object AppBroadcastHub {
         }
 
     object Action {
+        //general
+        const val hideUI = "velord.university.GENERAL_HIDE"
+        const val showUI = "velord.university.GENERAL_SHOW"
         //miniPlayer
         const val stopService = "velord.university.STOP"
         const val stopUI = "velord.university.STOP_UI"
@@ -353,7 +360,6 @@ object AppBroadcastHub {
         const val songHQUI = "velord.university.SONG_HQ_UI"
         const val songDurationUI = "velord.university.SONG_DURATION_UI"
         const val showMiniPlayerGeneralUI = "velord.university.SHOW_MINI_PLAYER_GENERAL_UI"
-        const val hideUI = "velord.university.SONG_HIDE"
         const val playAllInFolderService = "velord.university.PLAY_ALL_IN_FOLDER"
         const val playNextAllInFolderService = "velord.university.PLAY_NEXT_ALL_IN_FOLDER"
         const val shuffleAndPlayAllInFolderService = "velord.university.SHUFFLE_AND_PLAY_ALL_IN_FOLDER"
@@ -721,11 +727,20 @@ object AppBroadcastHub {
     }
 
     private object MiniPlayerBroadcastHide : BroadcastBase() {
-        override val actionUI: String = hideUI
+        override val actionUI: String = Action.hideUI
 
         override val filterUI: IntentFilter = IntentFilter(actionUI)
 
         fun Context.sendBroadcastHide(permission: String = PERM_PRIVATE_MINI_PLAYER) =
+            sendBroadcast(actionUI, permission)
+    }
+
+    private object MiniPlayerBroadcastShow : BroadcastBase() {
+        override val actionUI: String = Action.showUI
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        fun Context.sendBroadcastShow(permission: String = PERM_PRIVATE_MINI_PLAYER) =
             sendBroadcast(actionUI, permission)
     }
 

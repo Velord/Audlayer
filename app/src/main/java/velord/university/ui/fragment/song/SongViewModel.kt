@@ -100,11 +100,11 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
     fun getSearchQuery(): String = SearchQueryPreferences.getStoredQuerySong(app)
 
     fun playAudioAndAllSong(file: File) {
+        SongPlaylistInteractor.songs = ordered.toTypedArray()
+
         AppBroadcastHub.apply {
-            SongPlaylistInteractor.songs = ordered.toTypedArray()
+            app.showUI()
             app.playByPathService(file.path)
-        }
-        AppBroadcastHub.apply {
             app.loopAllService()
         }
     }

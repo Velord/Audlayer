@@ -10,8 +10,8 @@ interface MiniPlayerBroadcastReceiverShowAndHider {
 
     val TAG: String
 
-    fun receiverList() = arrayOf(
-        Pair(show(), AppBroadcastHub.Action.showMiniPlayerGeneralUI),
+    fun miniPlayerShowAndHiderReceiverList() = arrayOf(
+        Pair(show(), AppBroadcastHub.Action.showUI),
         Pair(hide(), AppBroadcastHub.Action.hideUI)
     )
 

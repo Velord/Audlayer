@@ -41,6 +41,7 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
             //first of all reassignment interactor
             RadioInteractor.radioStation = radio
             AppBroadcastHub.apply {
+                app.showUI()
                 app.playByUrlRadioService(radio.url)
             }
         }

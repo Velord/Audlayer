@@ -189,7 +189,7 @@ abstract class RadioService : AudioFocusListenerService() {
         //this means ui have been destroyed after destroy main activity
         //but app is still working -> after restoration we should play radio
         if (isPlaying && appWasDestroyed.not()) {
-            player.start()
+            if (playerIsInitialized()) player.start()
         }
     }
 

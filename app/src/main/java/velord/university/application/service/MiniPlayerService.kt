@@ -135,7 +135,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun pausePlayer() = stopOrPausePlayer {
             player.pause()
-        }
+    }
 
     protected fun playSongAfterCreatedPlayer() {
         if (playerIsInitialized()) {
