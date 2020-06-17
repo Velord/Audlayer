@@ -998,4 +998,3 @@ object AppBroadcastHub {
         ) = sendBroadcast(actionUI, permission, extraValueUI, icon)
     }
 }
-

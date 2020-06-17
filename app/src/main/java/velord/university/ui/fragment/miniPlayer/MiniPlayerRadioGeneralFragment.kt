@@ -6,15 +6,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_RADIO
 import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
+import velord.university.model.entity.DrawableIcon
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import velord.university.ui.fragment.miniPlayer.logic.general.HeartLogic
 import velord.university.ui.fragment.miniPlayer.logic.general.PlayPauseLogic
@@ -119,7 +117,8 @@ class MiniPlayerRadioGeneralFragment :
         it?.apply {
             val extra = AppBroadcastHub.Extra.iconRadioUI
             val value = getStringExtra(extra)
-            loadRadioStationIcon(miniPlayerRadioIcon, value)
+            DrawableIcon.loadRadioIconByName(
+                requireContext(), miniPlayerRadioIcon, value)
         }
     }
 
@@ -132,16 +131,5 @@ class MiniPlayerRadioGeneralFragment :
         }
         val state = MiniPlayerLayoutState.RADIO
         viewModel.mayDoAction(state, f)
-    }
-
-    private fun loadRadioStationIcon(view: ImageView, icon: String) {
-        val imageName = resources.getIdentifier(
-            icon, "drawable", requireContext().packageName)
-
-        Glide.with(requireActivity())
-            .load(imageName)
-            .placeholder(R.drawable.radio_record)
-            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-            .into(view)
     }
 }

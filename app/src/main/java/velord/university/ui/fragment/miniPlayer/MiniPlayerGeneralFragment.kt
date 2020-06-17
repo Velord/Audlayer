@@ -4,11 +4,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.view.View
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.SeekBar
 import androidx.lifecycle.ViewModelProviders
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
@@ -16,6 +13,7 @@ import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.model.converter.SongTimeConverter
+import velord.university.model.entity.DrawableIcon
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import velord.university.ui.fragment.miniPlayer.logic.general.*
 
@@ -216,7 +214,9 @@ open class MiniPlayerGeneralFragment :
         it?.apply {
             val extra = AppBroadcastHub.Extra.iconUI
             val value = getStringExtra(extra)
-            loadSongIcon(miniPlayerIV, value)
+
+            DrawableIcon.loadSongIconByName(
+                requireContext(), miniPlayerIV, value)
         }
     }
 
@@ -240,14 +240,6 @@ open class MiniPlayerGeneralFragment :
     protected fun unlikeButtonInvoke(button: ImageButton = miniPlayerSongLikedIB) {
         button.setImageResource(R.drawable.heart_gray)
         HeartLogic.value = false
-    }
-
-    private fun loadSongIcon(view: ImageView, icon: String) {
-        Glide.with(requireActivity())
-            .load(icon)
-            .placeholder(R.drawable.song_item)
-            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-            .into(view)
     }
 
     private fun getInfoFromServiceWhenStart() {

@@ -68,8 +68,8 @@ object VkRepository {
     suspend fun download(context: Context,
                          webView: WebView,
                          vkSong: VkSong): File?  =
-        downloadViaSefon(context, webView, vkSong).getOrElse(null) ?:
-        downloadViaIMusic(context, webView, vkSong).getOrElse(null)
+        downloadViaIMusic(context, webView, vkSong).getOrElse(null) ?:
+        downloadViaSefon(context, webView, vkSong).getOrElse(null)
 
     suspend fun updateSong(vkSong: VkSong) =
         VkSongTransaction.update(vkSong)

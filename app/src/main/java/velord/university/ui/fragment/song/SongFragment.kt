@@ -26,14 +26,15 @@ import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.roundOfDecimalToUp
+import velord.university.model.entity.DrawableIcon
 import velord.university.model.entity.Playlist
+import velord.university.model.entity.Song
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RVSelection
 import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import velord.university.ui.util.setupPopupMenuOnClick
-import java.io.File
 
 class SongFragment : ActionBarFragment(),
     SongReceiver {
@@ -72,13 +73,18 @@ class SongFragment : ActionBarFragment(),
     private tailrec suspend fun changeRVItem(songPath: String) {
         if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.apply {
-                clearAndChangeSelectedItem(File(songPath))
+                val songList = viewModel.ordered
+                val song = songList.find { it.file.absolutePath == songPath }
+
+                clearAndChangeSelectedItem(song!!)
                 //apply to ui
-                val files = viewModel.ordered
-                val containF: (File) -> Boolean = {
-                    it.absolutePath == songPath
+                val containF: (Song) -> Boolean = {
+                    it == song
                 }
-                refreshAndScroll(files, rv, containF)
+                refreshAndScroll(songList, rv, containF)
+                //send new icon
+
+                viewModel.sendIconToMiniPlayer(song)
             }
             return
         } else {
@@ -278,7 +284,7 @@ class SongFragment : ActionBarFragment(),
 
     private fun getRecyclerViewResolver(
         adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
-    ): RVSelection<File> {
+    ): RVSelection<Song> {
         return if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.adapter = adapter
             viewModel.rvResolver
@@ -293,23 +299,27 @@ class SongFragment : ActionBarFragment(),
     private inner class SongHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        val text: TextView = itemView.findViewById(R.id.general_item_path)
+        private val text: TextView = itemView.findViewById(R.id.general_item_path)
         private val action: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
         private val frame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
-        val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
+        private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
 
-        val selected:  (File) -> Array<() -> Unit> = { song ->
+        val selected:  (Song) -> Array<() -> Unit> = { song ->
             arrayOf(
                 {
                     icon.setImageResource(R.drawable.song_item_playing)
                 },
                 {
-                    val album = Playlist.whichPlaylist(viewModel.allPlaylist, song.path)
-                    val size: Double =
-                        roundOfDecimalToUp((FileFilter.getSize(song).toDouble() / 1024))
+                    val album = Playlist.whichPlaylist(
+                        viewModel.allPlaylist, song.file.path)
+
+                    val size: Double = roundOfDecimalToUp(
+                            (FileFilter.getSize(song.file).toDouble() / 1024)
+                    )
+
                     text.text = getString(
                         R.string.song_rv_item,
-                        FileNameParser.removeExtension(song),
+                        FileNameParser.removeExtension(song.file),
                         size.toString(), album
                     )
                 },
@@ -319,13 +329,13 @@ class SongFragment : ActionBarFragment(),
             )
         }
 
-        val notSelected: (File) -> Array<() -> Unit> = { song ->
+        val notSelected: (Song) -> Array<() -> Unit> = { song ->
             arrayOf(
                 {
                     icon.setImageResource(R.drawable.song_item)
                 },
                 {
-                    text.text = FileNameParser.removeExtension(song)
+                    text.text = FileNameParser.removeExtension(song.file)
                 },
                 {
                     itemView.setBackgroundResource(R.color.opacity)
@@ -333,11 +343,10 @@ class SongFragment : ActionBarFragment(),
             )
         }
 
-        private fun playSong(song: File) {
+        private fun playSong(song: Song) =
             viewModel.playAudioAndAllSong(song)
-        }
 
-        private val actionPopUpMenu: (File) -> Unit = { song ->
+        private val actionPopUpMenu: (Song) -> Unit = { song ->
             val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
             val initActionMenuLayout = { R.menu.folder_item_is_audio_pop_up }
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
@@ -352,7 +361,7 @@ class SongFragment : ActionBarFragment(),
                     }
                     R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
                         callbacks?.let { callback ->
-                            SongPlaylistInteractor.songs = arrayOf(song)
+                            SongPlaylistInteractor.songs = arrayOf(song.file)
                             callback.onAddToPlaylistFromSongFragment()
                         }
                         true
@@ -378,8 +387,8 @@ class SongFragment : ActionBarFragment(),
             Unit
         }
 
-        private fun setOnClickAndImageResource(song: File,
-                                               rvSelectResolver: RVSelection<File>) {
+        private fun setOnClickAndImageResource(song: Song,
+                                               rvSelectResolver: RVSelection<Song>) {
             itemView.setOnClickListener {
                 scope.launch {
                     withContext(Dispatchers.Main) {
@@ -397,14 +406,7 @@ class SongFragment : ActionBarFragment(),
                     }
                 }
             }
-            icon.setOnClickListener {
-                scope.launch {
-                    withContext(Dispatchers.Main) {
-                        rvSelectResolver.singleSelectionPrinciple(song)
-                        playSong(song)
-                    }
-                }
-            }
+            setIconView(song, rvSelectResolver)
             action.setOnClickListener {
                 actionPopUpMenu(song)
             }
@@ -414,8 +416,23 @@ class SongFragment : ActionBarFragment(),
 
         }
 
-        private fun applyState(value: File,
-                               rvSelectResolver: RVSelection<File>) {
+        private fun setIconView(song: Song,
+                                rvSelectResolver: RVSelection<Song>) {
+            icon.setOnClickListener {
+                scope.launch {
+                    withContext(Dispatchers.Main) {
+                        rvSelectResolver.singleSelectionPrinciple(song)
+                        playSong(song)
+                    }
+                }
+            }
+
+            DrawableIcon.loadSongIconByName(
+                requireContext(), icon, song.icon)
+        }
+
+        private fun applyState(value: Song,
+                               rvSelectResolver: RVSelection<Song>) {
             when(rvSelectResolver.state) {
                 0 -> rvSelectResolver.isContains(
                     value,
@@ -425,21 +442,22 @@ class SongFragment : ActionBarFragment(),
             }
         }
 
-        fun bindItem(song: File, position: Int,
-                     rvSelectResolver: RVSelection<File>) {
+        fun bindItem(song: Song, position: Int,
+                     rvSelectResolver: RVSelection<Song>) {
             applyState(song, rvSelectResolver)
             setOnClickAndImageResource(song, rvSelectResolver)
         }
     }
 
-    private inner class SongAdapter(val items: Array<out File>):
-        RecyclerView.Adapter<SongHolder>(),  FastScrollRecyclerView.SectionedAdapter{
+    private inner class SongAdapter(val items: Array<out Song>):
+        RecyclerView.Adapter<SongHolder>(),  FastScrollRecyclerView.SectionedAdapter {
 
         private val rvSelectResolver = getRecyclerViewResolver(
             this as RecyclerView.Adapter<RecyclerView.ViewHolder>
         )
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongHolder {
+        override fun onCreateViewHolder(parent: ViewGroup,
+                                        viewType: Int): SongHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
                 R.layout.general_rv_item, parent, false
@@ -447,7 +465,8 @@ class SongFragment : ActionBarFragment(),
             return SongHolder(view)
         }
 
-        override fun onBindViewHolder(holder: SongHolder, position: Int) {
+        override fun onBindViewHolder(holder: SongHolder,
+                                      position: Int) {
             items[position].apply {
                 holder.bindItem(this, position, rvSelectResolver)
             }
@@ -456,6 +475,6 @@ class SongFragment : ActionBarFragment(),
         override fun getItemCount(): Int = items.size
 
         override fun getSectionName(position: Int): String =
-            "${items[position].name[0]}"
+            "${items[position].file.name[0]}"
     }
 }
