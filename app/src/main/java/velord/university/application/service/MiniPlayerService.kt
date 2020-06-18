@@ -1,6 +1,8 @@
 package velord.university.application.service
 
 import android.content.Intent
+import android.media.MediaExtractor
+import android.media.MediaFormat.KEY_BIT_RATE
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.IBinder
@@ -24,6 +26,7 @@ import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.repository.transaction.ServiceTransaction
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import java.io.File
+import java.io.IOException
 
 
 abstract class MiniPlayerService : AudioFocusListenerService() {
@@ -514,7 +517,18 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         AppBroadcastHub.run { songDurationUI(player.duration) }
 
     private fun sendIsHQ(song: File) {
-        mayInvoke {  }
+        mayInvoke {
+            val mex = MediaExtractor()
+            try {
+                mex.setDataSource(song.absolutePath)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+
+            val mf = mex.getTrackFormat(0)
+            val bitRate = mf.getInteger(KEY_BIT_RATE)
+
+        }
     }
 
     private fun sendSongNameAndArtist(file: File) {
