@@ -1,6 +1,5 @@
 package velord.university.ui.activity
 
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -13,8 +12,6 @@ import velord.university.R
 import velord.university.application.AudlayerApp
 import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.permission.PermissionChecker
-import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
-import velord.university.application.service.RadioServiceBroadcastReceiver
 import velord.university.application.settings.AppPreference
 import velord.university.ui.backPressed.BackPressedHandler
 import velord.university.ui.backPressed.BackPressedHandlerFirst
@@ -66,20 +63,6 @@ class MainActivity : AppCompatActivity(),
             hideVirtualButtons()
             //start app
             AudlayerApp.initApp(baseContext)
-            //service mini player general
-            startService(
-                Intent(
-                    this,
-                    MiniPlayerServiceBroadcastReceiver().javaClass
-                )
-            )
-            //service mini player radio
-            startService(
-                Intent(
-                    this,
-                    RadioServiceBroadcastReceiver().javaClass
-                )
-            )
             //self view
             setContentView(R.layout.main_activity)
             //fragment
@@ -115,7 +98,6 @@ class MainActivity : AppCompatActivity(),
     override fun onDestroy() {
         Log.d(TAG, "called onDestroy")
         super.onDestroy()
-        stopService(Intent(this, MiniPlayerServiceBroadcastReceiver().javaClass))
         AppPreference.setAppIsDestroyed(this, false)
     }
 

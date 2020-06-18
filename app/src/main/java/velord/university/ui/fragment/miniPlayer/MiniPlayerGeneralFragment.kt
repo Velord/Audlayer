@@ -3,9 +3,12 @@ package velord.university.ui.fragment.miniPlayer
 import android.content.Intent
 import android.content.IntentFilter
 import android.view.View
+import android.webkit.URLUtil
 import android.widget.ImageButton
 import android.widget.SeekBar
 import androidx.lifecycle.ViewModelProviders
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
@@ -215,8 +218,7 @@ open class MiniPlayerGeneralFragment :
             val extra = AppBroadcastHub.Extra.iconUI
             val value = getStringExtra(extra)
 
-            DrawableIcon.loadSongIconByName(
-                requireContext(), miniPlayerIV, value)
+            loadIcon(value)
         }
     }
 
@@ -240,6 +242,19 @@ open class MiniPlayerGeneralFragment :
     protected fun unlikeButtonInvoke(button: ImageButton = miniPlayerSongLikedIB) {
         button.setImageResource(R.drawable.heart_gray)
         HeartLogic.value = false
+    }
+
+    private fun loadIcon(value: String) {
+        //check if url -> load via Glide else via drawable
+        if (URLUtil.isHttpUrl(value) ||
+            URLUtil.isHttpsUrl(value))
+            Glide.with(requireContext())
+                .load(value)
+                .placeholder(R.drawable.repair_tools)
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                .into(miniPlayerIV)
+        else DrawableIcon.loadSongIconByName(
+            requireContext(), miniPlayerIV, value)
     }
 
     private fun getInfoFromServiceWhenStart() {

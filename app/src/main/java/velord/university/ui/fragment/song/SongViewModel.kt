@@ -114,7 +114,7 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
             .toTypedArray()
 
         AppBroadcastHub.apply {
-            app.showUI()
+            app.showGeneralUI()
             app.playByPathService(song.file.path)
             app.loopAllService()
             sendIconToMiniPlayer(song)
@@ -125,7 +125,7 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
         //don't remember for SongQuery Interactor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(song.file)
         AppBroadcastHub.apply {
-            app.showUI()
+            app.showGeneralUI()
             app.playByPathService(song.file.path)
             sendIconToMiniPlayer(song)
             app.loopService()

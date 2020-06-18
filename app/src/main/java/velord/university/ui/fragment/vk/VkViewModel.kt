@@ -69,12 +69,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     fun needDownload(vkSong: VkSong): Boolean =
         (vkSong.path.isBlank()) and (File(vkSong.path).exists().not())
 
-    fun sendSongIcon(path: String) {
-        val song = ordered.find { it.path == path }
-        if (song == null) sendDefaultSongIcon()
-        else sendSongIcon(song)
-    }
-
     fun playAudioAndAllSong(song: VkSong) {
         scope.launch {
             val file = File(song.path)
@@ -83,6 +77,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
                     .filter { it.path.isNotBlank() }
                     .map { File(it.path) }
                     .toTypedArray()
+
                 app.playByPathService(file.path)
                 app.loopAllService()
             }
@@ -115,6 +110,14 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     fun shuffle(): Array<VkSong> {
         ordered = ordered.shuffled()
         return ordered.toTypedArray()
+    }
+
+    fun sendSongIcon(song: VkSong) {
+        song.getAlbumIcon()?.let {
+            AppBroadcastHub.apply {
+                app.iconUI(it)
+            }
+        }
     }
 
     suspend fun initVkPlaylist() {
@@ -220,14 +223,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         }
 
         return@withContext ordered
-    }
-
-    private fun sendSongIcon(song: VkSong) {
-        song.getAlbumIcon()?.let {
-            AppBroadcastHub.apply {
-                app.iconUI(it)
-            }
-        }
     }
 
     private fun sendDefaultSongIcon() {

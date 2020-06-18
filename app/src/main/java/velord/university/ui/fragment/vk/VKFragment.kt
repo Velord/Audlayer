@@ -190,7 +190,6 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                     .removeExtension(File(path))
                 scope.launch {
                     changeRVItem(songPath)
-                    viewModel.sendSongIcon(path)
                 }
             }
         }
@@ -220,6 +219,8 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                 //apply to ui
                 val files = viewModel.ordered
                 refreshAndScroll(files, rv, containF)
+                //sendIcon
+                viewModel.sendSongIcon(song)
             }
             return
         } else {
