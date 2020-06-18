@@ -13,10 +13,6 @@
         android:title="@string/pop_up_menu_item_sort_by"
         app:showAsAction="ifRoom"/>
 
-    <item android:id="@+id/vk_fragment_refresh"
-        android:title="@string/vk_pop_up_refresh"
-        app:showAsAction="ifRoom"/>
-
     <item android:id="@+id/vk_fragment_log_out"
         android:title="@string/vk_popup_log_out"
         app:showAsAction="ifRoom"/>

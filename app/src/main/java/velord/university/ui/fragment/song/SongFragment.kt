@@ -75,8 +75,11 @@ class SongFragment :
     private tailrec suspend fun changeRVItem(songPath: String) {
         if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.apply {
+                val containF: (Song) -> Boolean = {
+                    it == song
+                }
                 val songList = viewModel.ordered
-                val song = songList.find { it.file.absolutePath == songPath }
+                val song = viewModel.songs.find { containF(it) } ?: return
 
                 clearAndChangeSelectedItem(song!!)
                 //apply to ui
@@ -85,6 +88,7 @@ class SongFragment :
                 }
                 refreshAndScroll(songList, rv, containF)
                 //send new icon
+                //this covers case when app is launch
                 viewModel.sendIconToMiniPlayer(song)
             }
             return
@@ -172,13 +176,12 @@ class SongFragment :
     override val actionBarPopUpMenu: (PopupMenu) -> Unit = {  }
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
-        val correctQuery =
-            if (searchQuery == "-1") ""
-            else searchQuery
-        //store search term in shared preferences
-        viewModel.storeSearchQuery(correctQuery)
-        //update files list
-        updateAdapterBySearchQuery(correctQuery)
+        if (searchQuery != "-1") {
+            //store search term in shared preferences
+            viewModel.storeSearchQuery(searchQuery)
+            //update files list
+            updateAdapterBySearchQuery(searchQuery)
+        }
     }
     override val actionBarPopUp: (ImageButton) -> Unit = { }
 
@@ -216,7 +219,8 @@ class SongFragment :
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.song_fragment, container, false).apply {
+        return inflater.inflate(R.layout.song_fragment,
+            container, false).apply {
             scope.launch {
                 viewModel
                 withContext(Dispatchers.Main) {

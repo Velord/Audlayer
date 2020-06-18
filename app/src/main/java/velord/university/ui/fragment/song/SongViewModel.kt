@@ -104,9 +104,6 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
         //store search term in shared preferences
         currentQuery = query
         SearchQueryPreferences.setStoredQuerySong(app, currentQuery)
-        val check = SearchQueryPreferences.getStoredQuerySong(app)
-        Log.d(TAG, "retrieved: $check")
-        Log.d(TAG, "stored: $currentQuery")
     }
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized

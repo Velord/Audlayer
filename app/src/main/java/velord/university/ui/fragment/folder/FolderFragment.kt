@@ -176,18 +176,16 @@ class FolderFragment : ActionBarFragment(),
         if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.apply {
                 val fileList = viewModel.ordered
-                val file = fileList.find { it.file.absolutePath == songPath }
+                val file = fileList.find { it.file.absolutePath == songPath } ?: return
 
-                file?.let {
-                    clearAndChangeSelectedItem(file!!)
-                    //apply to ui
-                    val containF: (Song) -> Boolean = {
-                        it == file
-                    }
-                    refreshAndScroll(fileList, rv, containF)
-                    //send new icon
-                    viewModel.sendIconToMiniPlayer(file)
+                clearAndChangeSelectedItem(file!!)
+                //apply to ui
+                val containF: (Song) -> Boolean = {
+                    it == file
                 }
+                refreshAndScroll(fileList, rv, containF)
+                //send new icon
+                viewModel.sendIconToMiniPlayer(file)
             }
             return
         } else {
@@ -230,7 +228,8 @@ class FolderFragment : ActionBarFragment(),
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.folder_fragment, container, false).apply {
+        return inflater.inflate(R.layout.folder_fragment,
+            container, false).apply {
             //init action bar
             super.initActionBar(this)
             super.changeUIAfterSubmitTextInSearchView(super.searchView)

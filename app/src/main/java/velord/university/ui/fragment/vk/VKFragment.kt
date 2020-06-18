@@ -13,6 +13,7 @@ import android.widget.*
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
@@ -61,6 +62,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
     private lateinit var login: Button
     private lateinit var pb: ProgressBar
     private lateinit var webView: WebView
+    private lateinit var swipeContainer: SwipeRefreshLayout
 
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = { it ->
         when (it.itemId) {
@@ -129,10 +131,6 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                 super.actionButton.callOnClick()
                 true
             }
-            R.id.vk_fragment_refresh -> {
-                scope.launch { checkToken() }
-                true
-            }
             R.id.vk_fragment_log_out -> {
                 VkPreference.setAccessToken(requireContext(), "")
                 scope.launch { checkToken() }
@@ -172,13 +170,12 @@ class VKFragment : ActionBarFragment(), VkReceiver {
     }
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
-        val correctQuery =
-            if (searchQuery == "-1") ""
-            else searchQuery
-        //store search term in shared preferences
-        viewModel.storeSearchQuery(correctQuery)
-        //update files list
-        updateAdapterBySearchQuery(correctQuery)
+        if (searchQuery != "-1") {
+            //store search term in shared preferences
+            viewModel.storeSearchQuery(searchQuery)
+            //update files list
+            updateAdapterBySearchQuery(searchQuery)
+        }
     }
 
     private val receivers = receiverList()
@@ -215,13 +212,14 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                 val containF: (VkSong) -> Boolean = {
                     "${it.artist} - ${it.title}" == songName
                 }
-                val song = viewModel.ordered.find { containF(it) } ?: return
+                val song = viewModel.vkSongs.find { containF(it) } ?: return
                 clearAndChangeSelectedItem(song)
                 //apply to ui
                 val files = viewModel.ordered
                 refreshAndScroll(files, rv, containF)
-                //sendIcon
-                viewModel.sendSongIcon(song)
+                //send new icon
+                //this covers case when app is launch
+                viewModel.sendIconToMiniPlayer(song)
             }
             return
         } else {
@@ -266,7 +264,8 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.vk_fragment, container, false).apply {
+        return inflater.inflate(R.layout.vk_fragment,
+            container, false).apply {
             scope.launch {
                 withContext(Dispatchers.Main) {
                     //init action bar
@@ -287,26 +286,36 @@ class VKFragment : ActionBarFragment(), VkReceiver {
     private suspend fun checkToken() {
         if (::login.isInitialized) {
             val token = VkPreference.getAccessToken(requireContext())
-            if (token.isBlank()) {
-                withContext(Dispatchers.Main) {
-                    rv.adapter = SongAdapter(arrayOf())
-                    login.visibility = View.VISIBLE
-                    Toast.makeText(requireContext(),
-                        "Login to continue", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                withContext(Dispatchers.Main) {
-                    login.visibility = View.GONE
-                    pb.visibility = View.VISIBLE
-                }
-                viewModel.refreshByToken()
-                withContext(Dispatchers.Main) {
-                    pb.visibility = View.GONE
-                }
-                updateAdapterBySearchQuery()
-                viewModel.rvResolver.scroll(rv)
-            }
+            if (token.isBlank()) tokenIsBlank()
+            else tokenIsCorrect()
         }
+    }
+
+    private suspend fun tokenIsBlank() =
+        withContext(Dispatchers.Main) {
+            rv.adapter = SongAdapter(arrayOf())
+            login.visibility = View.VISIBLE
+            //Now we call setRefreshing(false) to signal refresh has finished
+            swipeContainer.isRefreshing = false
+            Toast.makeText(
+                requireContext(),
+                "Login to continue", Toast.LENGTH_SHORT
+            ).show()
+        }
+
+    private suspend fun tokenIsCorrect() {
+        //hide login button
+        withContext(Dispatchers.Main) {
+            login.visibility = View.GONE
+        }
+        viewModel.refreshByToken()
+        //Now we call setRefreshing(false) to signal refresh has finished
+        withContext(Dispatchers.Main) {
+            swipeContainer.isRefreshing = false
+        }
+        //update ui
+        updateAdapterBySearchQuery()
+        viewModel.rvResolver.scroll(rv)
     }
 
     private fun sortBy(index: Int): Boolean {
@@ -326,8 +335,18 @@ class VKFragment : ActionBarFragment(), VkReceiver {
     private fun initViews(view: View) {
         pb = view.findViewById(R.id.vk_pb)
         webView = view.findViewById(R.id.web_view)
+        initSwipeRefresh(view)
         initRV(view)
         initLogin(view)
+    }
+
+    private fun initSwipeRefresh(view: View) {
+        swipeContainer = view.findViewById(R.id.vk_fragment_swipeContainer)
+        swipeContainer.setOnRefreshListener(object : SwipeRefreshLayout.OnRefreshListener {
+            override fun onRefresh() {
+                scope.launch { checkToken() }
+            }
+        })
     }
 
     private fun initRV(view: View) {
@@ -405,7 +424,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
 
         private inline fun needDownload(song: VkSong,
                                         need: () -> Unit,
-                                        notNeed: () -> Unit = {}) {
+                                        notNeed: () -> Unit = { } ) {
             if (viewModel.needDownload(song)) need()
             else notNeed()
         }
@@ -446,14 +465,13 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                     needDownloadAction(song)
                 }, {
                     scope.launch {
-                        song.getAlbumIcon()?.let {
-                            withContext(Dispatchers.Main) {
-                                Glide.with(requireActivity())
-                                    .load(it)
-                                    .placeholder(R.drawable.song_item_black)
-                                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                                    .into(icon)
-                            }
+                        val songIcon = song.getAlbumIcon()
+                        withContext(Dispatchers.Main) {
+                            Glide.with(requireActivity())
+                                .load(songIcon)
+                                .placeholder(R.drawable.song_item_black)
+                                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                                .into(icon)
                         }
                     }
                 }
@@ -618,7 +636,8 @@ class VKFragment : ActionBarFragment(), VkReceiver {
     }
 
     private inner class SongAdapter(val items: Array<out VkSong>):
-        RecyclerView.Adapter<SongHolder>(),  FastScrollRecyclerView.SectionedAdapter{
+        RecyclerView.Adapter<SongHolder>(),
+        FastScrollRecyclerView.SectionedAdapter{
 
         private val rvSelectResolver = getRecyclerViewResolver(
             this as RecyclerView.Adapter<RecyclerView.ViewHolder>
