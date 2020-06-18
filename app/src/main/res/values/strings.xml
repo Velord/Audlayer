@@ -37,7 +37,7 @@
     <string name="folder_fragment_item_icon">File icon</string>
     <string name="folder_fragment_item_path">File path</string>
     <string name="folder_fragment_item_action">File action</string>
-    <string name="folder_fragment_rv_item">%1$s \nMb: %2$s</string>
+    <string name="folder_fragment_rv_item">%1$s \nMb: %2$s %4$s</string>
     <string name="action_bar_hint_folder">Find Audio</string>
     <string name="action_bar_hint_album">Playlist | Album</string>
     <string name="action_bar_hint_select_song">Choose Song</string>
@@ -85,7 +85,7 @@
     <string name="vk_login_go_back_at">Go back at: %1$d</string>
     <string name="vk_login_birth_date">Birth date: %1$s</string>
     <string name="vk_base_url">https://api.vk.com/method/</string>
-    <string name="vk_rv_item_selected">%1$s - %2$s\n%3$s Mb: %4$s</string>
+    <string name="vk_rv_item_selected">%1$s - %2$s\n%3$s Mb: %4$s %5$s</string>
     <string name="vk_rv_item_not_selected">%1$s - %2$s\n%3$s</string>
     <string name="download">Download</string>
     <string name="vk_pop_up_refresh">Refresh</string>

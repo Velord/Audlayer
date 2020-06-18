@@ -26,6 +26,7 @@ import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.application.settings.VkPreference
 import velord.university.interactor.SongPlaylistInteractor
+import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.entity.vk.VkSong
 import velord.university.model.file.FileFilter
@@ -465,8 +466,17 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                     val size: Double =
                         roundOfDecimalToUp((FileFilter.getSize(File(song.path)).toDouble() / 1024))
                     val album = song.album?.title?.let { "Album: $it" } ?: ""
-                    text.text = getString(R.string.vk_rv_item_selected,
-                        song.artist, song.title, album, size.toString())
+
+                    val bitrate = SongBitrate.getKbpsString(File(song.path))
+
+                    text.text = getString(
+                        R.string.vk_rv_item_selected,
+                        song.artist,
+                        song.title,
+                        album,
+                        size.toString(),
+                        bitrate
+                    )
                 }, {
                     itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
                 }

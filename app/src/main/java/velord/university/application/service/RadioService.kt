@@ -211,7 +211,7 @@ abstract class RadioService : AudioFocusListenerService() {
             //get info
             scopeArtistStream.launch {
                 while (this.isActive) {
-                     val meta = IcyStreamMeta()
+                    val meta = IcyStreamMeta()
                     meta.urlStream = URL(currentStation.url)
                     val title = meta.getArtistAndTitle()
                     AppBroadcastHub.apply {

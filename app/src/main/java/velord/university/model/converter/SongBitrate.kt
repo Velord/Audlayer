@@ -26,5 +26,5 @@ object SongBitrate {
     }
 
     fun getKbpsString(song: File): String =
-        "${getKbps(song)} kbps"
+        "${getKbps(song)} kbit/s"
 }
