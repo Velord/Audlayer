@@ -75,14 +75,13 @@ class SongFragment :
     private tailrec suspend fun changeRVItem(songPath: String) {
         if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.apply {
-                val containF: (Song) -> Boolean = {
-                    it == song
-                }
-                val songList = viewModel.ordered
-                val song = viewModel.songs.find { containF(it) } ?: return
+                val song = viewModel.songs.find {
+                    it.file.absolutePath == songPath
+                } ?: return
 
                 clearAndChangeSelectedItem(song!!)
                 //apply to ui
+                val songList = viewModel.ordered
                 val containF: (Song) -> Boolean = {
                     it == song
                 }

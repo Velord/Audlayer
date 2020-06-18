@@ -209,13 +209,16 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         if (viewModel.rvResolverIsInitialized() &&
             viewModel.orderedIsInitialized()) {
             viewModel.rvResolver.apply {
-                val containF: (VkSong) -> Boolean = {
+                val song = viewModel.vkSongs.find {
                     "${it.artist} - ${it.title}" == songName
-                }
-                val song = viewModel.vkSongs.find { containF(it) } ?: return
+                } ?: return
+
                 clearAndChangeSelectedItem(song)
                 //apply to ui
                 val files = viewModel.ordered
+                val containF: (VkSong) -> Boolean = {
+                    it == song
+                }
                 refreshAndScroll(files, rv, containF)
                 //send new icon
                 //this covers case when app is launch
