@@ -24,7 +24,6 @@ class AudlayerApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-
         //service mini player general
         startService(
             Intent(
@@ -41,8 +40,8 @@ class AudlayerApp : Application() {
         )
     }
 
-    override fun onTrimMemory(level: Int) {
-        super.onTrimMemory(level)
+    override fun onTerminate() {
+        super.onTerminate()
 
         stopService(Intent(this,
             MiniPlayerServiceBroadcastReceiver().javaClass))

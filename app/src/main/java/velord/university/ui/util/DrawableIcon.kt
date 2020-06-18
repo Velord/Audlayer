@@ -1,4 +1,4 @@
-package velord.university.model.entity
+package velord.university.ui.util
 
 import android.content.Context
 import android.widget.ImageView
@@ -73,13 +73,21 @@ object DrawableIcon {
     private val getIconByName: (Context, String)
     -> ((Context) -> Int) = { context, radioName ->
 
-        { getDrawableIcon(context, radioName) }
+        {
+            getDrawableIcon(
+                context,
+                radioName
+            )
+        }
     }
 
     private val getRandomDefaultSongIcon: (Context)
     -> Int = { context ->
 
-        getDrawableIcon(context, getRandomSongIconName())
+        getDrawableIcon(
+            context,
+            getRandomSongIconName()
+        )
     }
 
 
@@ -88,7 +96,10 @@ object DrawableIcon {
                             nameIcon: String) =
         loadIcon(
             context,
-            getIconByName(context, nameIcon),
+            getIconByName(
+                context,
+                nameIcon
+            ),
             view,
             R.drawable.radio_record
         )
@@ -107,7 +118,10 @@ object DrawableIcon {
                            nameIcon: String) =
         loadIcon(
             context,
-            getIconByName(context, nameIcon),
+            getIconByName(
+                context,
+                nameIcon
+            ),
             view,
             R.drawable.song_item_black
         )

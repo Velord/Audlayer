@@ -16,9 +16,9 @@ import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.model.converter.SongTimeConverter
-import velord.university.model.entity.DrawableIcon
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import velord.university.ui.fragment.miniPlayer.logic.general.*
+import velord.university.ui.util.DrawableIcon
 
 open class MiniPlayerGeneralFragment :
     MiniPlayerInitializerFragment(),

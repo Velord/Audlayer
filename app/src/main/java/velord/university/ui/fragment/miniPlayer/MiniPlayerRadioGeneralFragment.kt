@@ -12,10 +12,10 @@ import velord.university.application.broadcast.PERM_PRIVATE_RADIO
 import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
-import velord.university.model.entity.DrawableIcon
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import velord.university.ui.fragment.miniPlayer.logic.general.HeartLogic
 import velord.university.ui.fragment.miniPlayer.logic.general.PlayPauseLogic
+import velord.university.ui.util.DrawableIcon
 
 class MiniPlayerRadioGeneralFragment :
     MiniPlayerGeneralFragment(),
