@@ -37,7 +37,7 @@
     <string name="folder_fragment_item_icon">File icon</string>
     <string name="folder_fragment_item_path">File path</string>
     <string name="folder_fragment_item_action">File action</string>
-    <string name="folder_fragment_rv_item">%1$s \nMb: %2$s %4$s</string>
+    <string name="folder_fragment_rv_item">%1$s \nMb: %2$s %3$s</string>
     <string name="action_bar_hint_folder">Find Audio</string>
     <string name="action_bar_hint_album">Playlist | Album</string>
     <string name="action_bar_hint_select_song">Choose Song</string>

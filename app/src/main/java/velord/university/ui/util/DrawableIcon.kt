@@ -44,6 +44,7 @@ object DrawableIcon {
         "song_item_purple",
         "song_item_light_green",
         "song_item_gold",
+        "song_item_cyan",
         "song_item_blue"
     )
 
@@ -71,12 +72,12 @@ object DrawableIcon {
     }
 
     private val getIconByName: (Context, String)
-    -> ((Context) -> Int) = { context, radioName ->
+    -> ((Context) -> Int) = { context, iconName ->
 
         {
             getDrawableIcon(
                 context,
-                radioName
+                iconName
             )
         }
     }

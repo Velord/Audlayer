@@ -178,15 +178,16 @@ class FolderFragment : ActionBarFragment(),
                 val fileList = viewModel.ordered
                 val file = fileList.find { it.file.absolutePath == songPath }
 
-                clearAndChangeSelectedItem(file!!)
-
-                //apply to ui
-                val containF: (Song) -> Boolean = {
-                    it == file
+                file?.let {
+                    clearAndChangeSelectedItem(file!!)
+                    //apply to ui
+                    val containF: (Song) -> Boolean = {
+                        it == file
+                    }
+                    refreshAndScroll(fileList, rv, containF)
+                    //send new icon
+                    viewModel.sendIconToMiniPlayer(file)
                 }
-                refreshAndScroll(fileList, rv, containF)
-                //send new icon
-                viewModel.sendIconToMiniPlayer(file)
             }
             return
         } else {
