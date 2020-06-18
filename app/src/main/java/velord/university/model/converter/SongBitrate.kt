@@ -19,10 +19,10 @@ object SongBitrate {
         return mf.getInteger(MediaFormat.KEY_BIT_RATE)
     }
 
-    fun getKbps(song: File): Float {
+    fun getKbps(song: File): Int {
         val bitrate = getBitrate(song)
 
-        return bitrate.toFloat() / 1000
+        return bitrate / 1000
     }
 
     fun getKbpsString(song: File): String =

@@ -25,6 +25,7 @@ import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
+import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.entity.Playlist
 import velord.university.model.entity.Song
@@ -317,10 +318,14 @@ class SongFragment :
                             (FileFilter.getSize(song.file).toDouble() / 1024)
                     )
 
+                    val bitrate = SongBitrate.getKbpsString(song.file)
+
                     text.text = getString(
                         R.string.song_rv_item,
                         FileNameParser.removeExtension(song.file),
-                        size.toString(), album
+                        size.toString(),
+                        album,
+                        bitrate
                     )
                 },
                 {
