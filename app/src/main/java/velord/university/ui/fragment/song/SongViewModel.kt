@@ -4,8 +4,7 @@ import android.app.Application
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
@@ -21,6 +20,8 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
 
     val TAG = "SongViewModel"
 
+    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+
     lateinit var allPlaylist: List<Playlist>
     lateinit var songs: List<Song>
     lateinit var ordered: List<Song>
@@ -29,7 +30,13 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
 
     lateinit var rvResolver: RVSelection<Song>
 
-    suspend fun retrieveSongsFromDb() =
+    init {
+        scope.launch {
+            retrieveSongsFromDb()
+        }
+    }
+
+    private suspend fun retrieveSongsFromDb() =
         withContext(Dispatchers.IO) {
             allPlaylist = PlaylistTransaction.getAllPlaylist()
             Log.d(TAG, "all playlist retrieved")

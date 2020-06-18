@@ -217,7 +217,7 @@ class SongFragment :
     ): View {
         return inflater.inflate(R.layout.song_fragment, container, false).apply {
             scope.launch {
-                viewModel.retrieveSongsFromDb()
+                viewModel
                 withContext(Dispatchers.Main) {
                     //init action bar
                     super.initActionBar(this@apply)
