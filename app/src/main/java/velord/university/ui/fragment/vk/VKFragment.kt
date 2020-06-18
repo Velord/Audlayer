@@ -448,7 +448,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                             withContext(Dispatchers.Main) {
                                 Glide.with(requireActivity())
                                     .load(it)
-                                    .placeholder(R.drawable.song_item)
+                                    .placeholder(R.drawable.song_item_black)
                                     .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                                     .into(icon)
                             }

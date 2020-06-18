@@ -38,6 +38,15 @@ object DrawableIcon {
         "song_book_2"
     )
 
+    private val folderSongIcon = arrayOf(
+        "song_item_black",
+        "song_item_red",
+        "song_item_purple",
+        "song_item_light_green",
+        "song_item_gold",
+        "song_item_blue"
+    )
+
     private inline fun loadIcon(context: Context,
                                 getIcon: (Context) -> Int,
                                 view: ImageView,
@@ -85,8 +94,13 @@ object DrawableIcon {
         )
 
 
-    fun getRandomSongIconName() =
+    val getRandomSongIconName: () -> String = {
         defaultSongIcon.random()
+    }
+
+    val getRandomFolderSongIconName: () -> String = {
+        folderSongIcon.random()
+    }
 
     fun loadSongIconByName(context: Context,
                            view: ImageView,
@@ -95,16 +109,15 @@ object DrawableIcon {
             context,
             getIconByName(context, nameIcon),
             view,
-            R.drawable.song_item
+            R.drawable.song_item_black
         )
 
     fun loadRandomSongIcon(context: Context,
-                     view: ImageView) =
+                           view: ImageView) =
         loadIcon(
             context,
             getRandomDefaultSongIcon,
             view,
-            R.drawable.song_item
+            R.drawable.song_item_black
         )
-
 }

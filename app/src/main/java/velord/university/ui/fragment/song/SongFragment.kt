@@ -36,7 +36,8 @@ import velord.university.ui.util.RVSelection
 import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import velord.university.ui.util.setupPopupMenuOnClick
 
-class SongFragment : ActionBarFragment(),
+class SongFragment :
+    ActionBarFragment(),
     SongReceiver {
     //Required interface for hosting activities
     interface Callbacks {
@@ -83,7 +84,6 @@ class SongFragment : ActionBarFragment(),
                 }
                 refreshAndScroll(songList, rv, containF)
                 //send new icon
-
                 viewModel.sendIconToMiniPlayer(song)
             }
             return
@@ -332,7 +332,7 @@ class SongFragment : ActionBarFragment(),
         val notSelected: (Song) -> Array<() -> Unit> = { song ->
             arrayOf(
                 {
-                    icon.setImageResource(R.drawable.song_item)
+                    icon.setImageResource(R.drawable.song_item_black)
                 },
                 {
                     text.text = FileNameParser.removeExtension(song.file)

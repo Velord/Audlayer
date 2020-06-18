@@ -25,6 +25,8 @@ import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.roundOfDecimalToUp
+import velord.university.model.entity.DrawableIcon
+import velord.university.model.entity.Song
 import velord.university.model.file.FileExtension
 import velord.university.model.file.FileExtensionModifier
 import velord.university.model.file.FileFilter
@@ -172,13 +174,18 @@ class FolderFragment : ActionBarFragment(),
     private tailrec suspend fun changeRVItem(songPath: String) {
         if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.apply {
+                val fileList = viewModel.ordered
+                val file = fileList.find { it.file.absolutePath == songPath }
+
+                clearAndChangeSelectedItem(file!!)
+
                 //apply to ui
-                clearAndChangeSelectedItem(File(songPath))
-                val files = viewModel.ordered
-                val containF: (File) -> Boolean = {
-                    it.absolutePath == songPath
+                val containF: (Song) -> Boolean = {
+                    it == file
                 }
-                refreshAndScroll(files, rv, containF)
+                refreshAndScroll(fileList, rv, containF)
+                //send new icon
+                viewModel.sendIconToMiniPlayer(file)
             }
             return
         } else {
@@ -274,15 +281,27 @@ class FolderFragment : ActionBarFragment(),
     }
 
     private fun openAddToPlaylistFragmentByQuery() {
-        val files = viewModel.filterAndSortFiles(
-            FileFilter.filterFileBySearchQuery, viewModel.currentQuery)
+        val files = viewModel
+            .filterAndSortFiles(
+                FileFilter.filterFileBySearchQuery, viewModel.currentQuery
+            )
+            .map { it.file }
+            .toTypedArray()
+
+
         val audio = FileFilter.filterOnlyAudio(files).toTypedArray()
         openAddToPlaylistFragment(audio)
     }
 
     private fun openCreatePlaylistFragmentByQuery() {
-        val songs = viewModel.filterAndSortFiles(
-            FileFilter.filterFileBySearchQuery, viewModel.currentQuery)
+        val songs = viewModel
+            .filterAndSortFiles(
+                FileFilter.filterFileBySearchQuery,
+                viewModel.currentQuery
+            )
+            .map { it.file }
+            .toTypedArray()
+
         openCreatePlaylistFragment(songs)
     }
 
@@ -356,7 +375,7 @@ class FolderFragment : ActionBarFragment(),
 
     private fun getRecyclerViewResolver(
         adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
-    ): RVSelection<File> {
+    ): RVSelection<Song> {
         return if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.adapter = adapter
             viewModel.rvResolver
@@ -376,34 +395,34 @@ class FolderFragment : ActionBarFragment(),
         private val actionImageButton: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
         private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
 
-        private fun setOnClickAndImageResource(file: File,
-                                               rvSelectResolver: RVSelection<File>) {
-            when(FileExtension.getFileExtension(file)) {
+        private fun setOnClickAndImageResource(value: Song,
+                                               rvSelectResolver: RVSelection<Song>) {
+            when(FileExtension.getFileExtension(value.file)) {
                 FileExtensionModifier.DIRECTORY -> {
-                    val action = { setupAdapter(file) }
+                    val action = { setupAdapter(value.file) }
                     val popUpAction = {
                         val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
                         val initActionMenuLayout = { R.menu.folder_item_is_folder_pop_up }
                         val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                             when (it.itemId) {
                                 R.id.folder_recyclerView_item_isFolder_play -> {
-                                    viewModel.playAllInFolder(file)
+                                    viewModel.playAllInFolder(value)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_play_next -> {
-                                    viewModel.playAllInFolderNext(file)
+                                    viewModel.playAllInFolderNext(value)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_add_to_playlist -> {
-                                    openAddToPlaylistFragmentByFolder(file)
+                                    openAddToPlaylistFragmentByFolder(value.file)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_create_playlist -> {
-                                    openCreatePlaylistFragmentByFolder(file)
+                                    openCreatePlaylistFragmentByFolder(value.file)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_shuffle -> {
-                                    viewModel.shuffleAndPlayAllInFolder(file)
+                                    viewModel.shuffleAndPlayAllInFolder(value)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_add_to_home_screen -> {
@@ -424,27 +443,27 @@ class FolderFragment : ActionBarFragment(),
 
                         Unit
                     }
-                    setOnClick(file, rvSelectResolver, action, popUpAction)
+                    setOnClick(value, rvSelectResolver, action, popUpAction)
                     icon.setImageResource(R.drawable.extension_file_folder)
                 }
                 FileExtensionModifier.AUDIO -> {
-                    val action = { viewModel.playAudioFile(file) }
+                    val action = { viewModel.playAudioFile(value) }
                     val popUpAction = {
                         val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
                         val initActionMenuLayout = { R.menu.folder_item_is_audio_pop_up }
                         val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                             when (it.itemId) {
                                 R.id.folder_recyclerView_item_isAudio_play -> {
-                                    viewModel.playAudio(file)
+                                    viewModel.playAudio(value)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isAudio_play_next -> {
-                                    viewModel.playAudioNext(file)
+                                    viewModel.playAudioNext(value)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
                                     callbacks?.let { callback ->
-                                        SongPlaylistInteractor.songs = arrayOf(file)
+                                        SongPlaylistInteractor.songs = arrayOf(value.file)
                                         callback.onAddToPlaylistFromFolderFragment()
                                     }
                                     true
@@ -470,7 +489,7 @@ class FolderFragment : ActionBarFragment(),
 
                         Unit
                     }
-                    setOnClick(file, rvSelectResolver, action, popUpAction)
+                    setOnClick(value, rvSelectResolver, action, popUpAction)
                 }
                 FileExtensionModifier.NOT_COMPATIBLE -> {
                     icon.setImageResource(R.drawable.extension_file_not_important)
@@ -478,14 +497,14 @@ class FolderFragment : ActionBarFragment(),
             }
         }
 
-        private inline fun setOnClick(file: File,
-                                      rvSelectResolver: RVSelection<File>,
+        private inline fun setOnClick(value: Song,
+                                      rvSelectResolver: RVSelection<Song>,
                                       crossinline f: () -> Unit,
                                       crossinline popUpF: () -> Unit) {
             itemView.setOnClickListener {
                 scope.launch {
                     withContext(Dispatchers.Main) {
-                        rvSelectResolver.singleSelectionPrinciple(file)
+                        rvSelectResolver.singleSelectionPrinciple(value)
                         f()
                     }
                 }
@@ -493,7 +512,7 @@ class FolderFragment : ActionBarFragment(),
             icon.setOnClickListener {
                 scope.launch {
                     withContext(Dispatchers.Main) {
-                        rvSelectResolver.singleSelectionPrinciple(file)
+                        rvSelectResolver.singleSelectionPrinciple(value)
                         f()
                     }
                 }
@@ -501,7 +520,7 @@ class FolderFragment : ActionBarFragment(),
             path.setOnClickListener {
                 scope.launch {
                     withContext(Dispatchers.Main) {
-                        rvSelectResolver.singleSelectionPrinciple(file)
+                        rvSelectResolver.singleSelectionPrinciple(value)
                         f()
                     }
                 }
@@ -514,20 +533,20 @@ class FolderFragment : ActionBarFragment(),
             }
         }
 
-        private val selected: (File) -> Array<() -> Unit> = { file ->
+        private val selected: (Song) -> Array<() -> Unit> = { value ->
             arrayOf(
                 {
-                    path.text = if (file.isDirectory.not()) {
+                    path.text = if (viewModel.isAudio(value)) {
                         val size: Double = roundOfDecimalToUp(
-                            (FileFilter.getSize(file).toDouble() / 1024)
+                            (FileFilter.getSize(value.file).toDouble() / 1024)
                         )
                         getString(
                             R.string.folder_fragment_rv_item,
-                            FileNameParser.removeExtension(file),
+                            FileNameParser.removeExtension(value.file),
                             size.toString()
                         )
                     }
-                    else FileNameParser.removeExtension(file)
+                    else FileNameParser.removeExtension(value.file)
 
                 },
                 {
@@ -535,28 +554,28 @@ class FolderFragment : ActionBarFragment(),
                 },
                 {
                     icon.setImageResource(R.drawable.song_item_playing)
-
                 }
             )
         }
 
-        private val notSelected: (File) -> Array<() -> Unit> = { file ->
+        private val notSelected: (Song) -> Array<() -> Unit> = { value ->
             arrayOf(
                 {
-                    path.text = FileNameParser.removeExtension(file)
+                    path.text = FileNameParser.removeExtension(value.file)
                 },
                 {
                     itemView.setBackgroundResource(R.color.opacity)
                 },
                 {
-                    icon.setImageResource(R.drawable.extension_file_song_purple)
-
+                    if (viewModel.isAudio(value))
+                        DrawableIcon.loadSongIconByName(
+                            requireContext(), icon, value.icon)
                 }
             )
         }
 
-        private fun applyState(value: File,
-                               rvSelectResolver: RVSelection<File>) {
+        private fun applyState(value: Song,
+                               rvSelectResolver: RVSelection<Song>) {
             when(rvSelectResolver.state) {
                 0 -> rvSelectResolver.isContains(
                     value,
@@ -566,21 +585,25 @@ class FolderFragment : ActionBarFragment(),
             }
         }
 
-        fun bindItem(file: File, position: Int,
-                     rvSelectResolver: RVSelection<File>) {
-            applyState(file, rvSelectResolver)
-            setOnClickAndImageResource(file, rvSelectResolver)
+        fun bindItem(value: Song,
+                     position: Int,
+                     rvSelectResolver: RVSelection<Song>) {
+
+            applyState(value, rvSelectResolver)
+            setOnClickAndImageResource(value, rvSelectResolver)
         }
     }
 
-    private inner class FileAdapter(val items: Array<out File>):
-        RecyclerView.Adapter<FileHolder>(),  FastScrollRecyclerView.SectionedAdapter {
+    private inner class FileAdapter(val items: Array<out Song>):
+        RecyclerView.Adapter<FileHolder>(),
+        FastScrollRecyclerView.SectionedAdapter {
 
         private val rvSelectResolver = getRecyclerViewResolver(
             this as RecyclerView.Adapter<RecyclerView.ViewHolder>
         )
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileHolder {
+        override fun onCreateViewHolder(parent: ViewGroup,
+                                        viewType: Int): FileHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
                 R.layout.general_rv_item, parent, false
@@ -589,7 +612,8 @@ class FolderFragment : ActionBarFragment(),
             return FileHolder(view)
         }
 
-        override fun onBindViewHolder(holder: FileHolder, position: Int) {
+        override fun onBindViewHolder(holder: FileHolder,
+                                      position: Int) {
             items[position].apply {
                 holder.bindItem(this, position, rvSelectResolver)
             }
@@ -598,6 +622,6 @@ class FolderFragment : ActionBarFragment(),
         override fun getItemCount(): Int = items.size
 
         override fun getSectionName(position: Int): String =
-            "${items[position].name[0]}"
+            "${items[position].file.name[0]}"
     }
 }
