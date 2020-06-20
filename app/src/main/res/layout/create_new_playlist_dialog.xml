@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/edit_name"
     android:layout_width="wrap_content"
-    android:background="@color/fragmentBackgroundDarkerPurple"
+    android:background="@color/deepPurpleA400"
     android:layout_height="wrap_content"
     android:layout_gravity="center">
 
@@ -27,7 +28,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:hint="Type.."
+        android:hint="@string/type"
         android:imeOptions="actionDone"
         android:inputType="text"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,12 +49,10 @@
 
     <LinearLayout
         android:id="@+id/create_new_playlist_cancel_layout"
-        android:layout_width="120dp"
-        android:layout_height="40dp"
+        style="@style/CreateNewPlaylistLinearLayout"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
-        android:orientation="horizontal"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/dark_border_shape"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -62,22 +61,22 @@
         <ImageButton
             android:id="@+id/create_new_playlist_cancel"
             style="@style/CreateNewPlaylistButton"
-            android:src="@drawable/cancel" />
+            android:contentDescription="@string/create_new_playlist_cancel"
+            android:src="@drawable/round_cancel_presentation_red_a200_48dp" />
 
         <TextView
             android:id="@+id/create_new_playlist_cancel_msg"
             style="@style/CreateNewPlaylistTextView"
             android:text="@string/create_new_playlist_cancel" />
+
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/create_new_playlist_apply_layout"
-        android:layout_width="120dp"
-        android:layout_height="40dp"
+        style="@style/CreateNewPlaylistLinearLayout"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:orientation="horizontal"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/dark_border_shape"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -86,6 +85,7 @@
         <ImageButton
             android:id="@+id/create_new_playlist_apply"
             style="@style/CreateNewPlaylistButton"
+            android:contentDescription="@string/create_new_playlist_apply"
             android:src="@drawable/apply" />
 
         <TextView

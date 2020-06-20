@@ -169,4 +169,13 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
+    <style name="CreateNewPlaylistLinearLayout" parent="Widget.AppCompat.ImageButton">
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_width">120dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
 </resources>

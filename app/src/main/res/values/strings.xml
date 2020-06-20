@@ -96,5 +96,6 @@
     <string name="no_artist">No Artist</string>
     <string name="delete_all">Delete All</string>
     <string name="login">Login</string>
+    <string name="type">Type..</string>
     <integer name="com_vk_sdk_AppId">7360134</integer>
 </resources>
