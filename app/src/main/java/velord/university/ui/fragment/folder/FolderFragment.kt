@@ -435,7 +435,7 @@ class FolderFragment : ActionBarFragment(),
                             }
                         }
 
-                        actionImageButton.setupPopupMenuOnClick(
+                        actionImageButton.setupAndShowPopupMenuOnClick(
                             requireContext(),
                             initActionMenuStyle,
                             initActionMenuLayout,

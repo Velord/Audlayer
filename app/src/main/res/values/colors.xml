@@ -37,6 +37,7 @@
     <color name="redA400">#FF1744</color>
     <color name="redA700">#D50000</color>
     <color name="deepPurpleA200">#7C4DFF</color>
+    <color name="deepPurpleA200Opacity">#807C4DFF</color>
     <color name="greenA700">#388E3C</color>
     <color name="tealA700">#00BFA5</color>
     <color name="grey800">#424242</color>
