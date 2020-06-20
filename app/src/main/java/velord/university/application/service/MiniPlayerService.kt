@@ -72,8 +72,10 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     protected fun playOrStopService() {
-        if (player.isPlaying) pausePlayer()
-        else playSongAfterCreatedPlayer()
+        if (playerIsInitialized()) {
+            if (player.isPlaying) pausePlayer()
+            else playSongAfterCreatedPlayer()
+        }
     }
 
     protected fun playAllInFolder(pathFolder: String) {
@@ -135,7 +137,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     protected fun pausePlayer() = stopOrPausePlayer {
-            player.pause()
+        player.pause()
     }
 
     protected fun playSongAfterCreatedPlayer() {
@@ -362,7 +364,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private fun stopPlayer() {
         stopOrPausePlayer {
-            //player.stop()
+            //player.release()
         }
     }
 
@@ -387,7 +389,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         //start playing
         val song = if (path == null) playlist.getNext()
         else playlist.getSongAndResetQuery(path)
-        createPlayer(song.path)?.let {
+        createPlayer(song.absoluteFile)?.let {
             player = it
             //focus listener
             setAudioFocusMusicListener()
@@ -409,8 +411,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }()
     }
 
-    private fun createPlayer(path: String): MediaPlayer? {
-        val uri = Uri.parse(path)
+    private fun createPlayer(file: File): MediaPlayer? {
+        Log.d(TAG, file.path)
+        val uri = Uri.fromFile(file)
         return MediaPlayer.create(baseContext, uri)
     }
 

@@ -2,8 +2,11 @@ package velord.university.repository.fetch
 
 import android.annotation.SuppressLint
 import android.app.DownloadManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Context.DOWNLOAD_SERVICE
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
@@ -22,6 +25,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import velord.university.model.converter.transliterate
+import velord.university.model.entity.vk.VkDownloadFile
 import velord.university.model.entity.vk.VkSong
 import java.io.File
 import java.util.*
@@ -247,26 +251,51 @@ data class SefonFetchSequential(private val context: Context,
         }
     }
 
-    private suspend fun fetchSong(url: String): File = withContext(Dispatchers.IO) {
-        val ext = ".mp3"
-        val name = "${song.artist} - ${song.title}"
-        val vkDir = "${Environment.getExternalStorageDirectory().path}/Audlayer/Vk"
-        val downloadedFile = File(vkDir, "$name$ext")
-
-
+    private suspend fun fetchSong(url: String): String?
+            = withContext(Dispatchers.IO) {
+        //register receiver on download completed
+        var downloaded = false
+        val onComplete = object : BroadcastReceiver() {
+            override fun onReceive(ctxt: Context, intent: Intent) {
+                downloaded = true
+            }
+        }
+        context.registerReceiver(onComplete,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+        )
+        //ready steady go
+        val vkDownloadFile =
+            VkDownloadFile(song)
+        Log.d(TAG, "To path: ${vkDownloadFile.fullPath}")
+        //build
         val req = DownloadManager.Request(Uri.parse(url))
-            .setTitle(name)
+            .setTitle(vkDownloadFile.name)
             .setDescription("Downloading")
             .setVisibleInDownloadsUi(true)
-            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-            .setDestinationUri(Uri.fromFile(downloadedFile))
-            .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+            .setNotificationVisibility(
+                DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            .setDestinationUri(vkDownloadFile.uriFromFile)
+            .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or
+                    DownloadManager.Request.NETWORK_MOBILE)
             .setAllowedOverRoaming(false)
+        //download
+        val downloadManager = context
+            .getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+        // enqueue puts the download request in the queue.
+        downloadManager.enqueue(req)
+        //wait 10 sec to download
+        repeat(10) {
+            if (downloaded.not()) delay(1000)
+            else return@repeat
+        }
+        //unregister
+        context.unregisterReceiver(onComplete)
+        //if download is not success
+        if (downloaded.not()) {
+            return@withContext null
+        }
 
-
-        val downloadManager = context.getSystemService(DOWNLOAD_SERVICE) as DownloadManager
-        downloadManager.enqueue(req) // enqueue puts the download request in the queue.
-        return@withContext downloadedFile
+        return@withContext  vkDownloadFile.fullPath
     }
 
     private suspend fun fetchSearchResult(url: String)
@@ -327,7 +356,7 @@ data class SefonFetchSequential(private val context: Context,
         return fetchSearch(directSearchLink)
     }
 
-    suspend fun downloadFileByLink(link: String): File {
+    suspend fun downloadFileByLink(link: String): String? {
         //intercept link
         fetchDirectFileLink(link)
         //wait
@@ -337,7 +366,7 @@ data class SefonFetchSequential(private val context: Context,
         return fetchSong(directFileLink)
     }
 
-    suspend fun download(): File? {
+    suspend fun download(): String? {
         val searchLinkList = getSearchLinkList()
         //what we should do in next step ->
         //download or return

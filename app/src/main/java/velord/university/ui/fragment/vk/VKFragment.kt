@@ -209,7 +209,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         if (viewModel.rvResolverIsInitialized() &&
             viewModel.orderedIsInitialized()) {
             viewModel.rvResolver.apply {
-                val song = viewModel.vkSongs.find {
+                val song = viewModel.vkSongList.find {
                     "${it.artist} - ${it.title}" == songName
                 } ?: return
 
@@ -403,6 +403,42 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         }
     }
 
+    private fun downloadInform(song: VkSong) {
+        if (viewModel.needDownload(song)) {
+            scope.launch {
+                val onSuccess: (VkSong, CoroutineScope) -> Unit = { song, scope ->
+                    scope.launch {
+                        withContext(Dispatchers.Main) {
+                            updateAdapterBySearchQuery()
+                            Toast.makeText(
+                                requireContext(),
+                                "Song success downloaded",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+                val onFailure: (CoroutineScope) -> Unit = {
+                    scope.launch {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Sorry we did not found any link",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+                viewModel.downloadThenPlay(song, webView, onSuccess, onFailure)
+            }
+        }
+        else Toast.makeText(
+            requireContext(),
+            "Don't need download",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
     private fun getRecyclerViewResolver(
         adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
     ): RVSelection<VkSong> {
@@ -542,9 +578,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                     }
                     R.id.vk_rv_item_download -> {
                         val need = {
-                            scope.launch {
-                                viewModel.downloadInform(song, webView)
-                            }
+                            downloadInform(song)
                             Unit
                         }
                         val notNeed = {
@@ -608,7 +642,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
             }
             action.setOnClickListener {
                 val need: () -> Unit = {
-                    viewModel.downloadInform(song, webView)
+                    downloadInform(song)
                 }
                 val notNeed: () -> Unit = {
                     actionPopUpMenu(song)

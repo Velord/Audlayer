@@ -18,7 +18,6 @@ import velord.university.repository.fetch.SefonFetchSequential
 import velord.university.repository.fetch.makeRequestViaOkHttp
 import velord.university.repository.transaction.vk.VkAlbumTransaction
 import velord.university.repository.transaction.vk.VkSongTransaction
-import java.io.File
 
 object VkRepository {
 
@@ -57,17 +56,18 @@ object VkRepository {
 
     suspend fun downloadViaSefon(context: Context,
                                  webView: WebView,
-                                 vkSong: VkSong): Result<File?> =
+                                 vkSong: VkSong): Result<String?> =
         Result.ofAsync { SefonFetchSequential(context, webView, vkSong).download() }
 
     suspend fun downloadViaIMusic(context: Context,
                                   webView: WebView,
-                                  vkSong: VkSong): Result<File?> =
+                                  vkSong: VkSong): Result<String?> =
         Result.ofAsync { IMusicFetch(context, webView, vkSong).download() }
+
 
     suspend fun download(context: Context,
                          webView: WebView,
-                         vkSong: VkSong): File?  =
+                         vkSong: VkSong): String?  =
         downloadViaIMusic(context, webView, vkSong).getOrElse(null) ?:
         downloadViaSefon(context, webView, vkSong).getOrElse(null)
 
@@ -102,7 +102,7 @@ object VkRepository {
             //download file
             val file = download(context, webView, song)
             file?.let {
-                song.path = it.path
+                song.path = it
                 downloaded.add(song)
                 ++downloadedCount
             }

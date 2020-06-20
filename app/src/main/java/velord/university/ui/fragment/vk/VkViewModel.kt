@@ -29,7 +29,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     private val scope = CoroutineScope(Job() + Dispatchers.IO)
 
-    lateinit var vkSongs: List<VkSong>
+    lateinit var vkSongList: List<VkSong>
     private lateinit var vkAlbums: List<VkAlbum>
 
     val repository = VkRepository
@@ -50,7 +50,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 
-    fun vkPlaylistIsInitialized() = ::vkSongs.isInitialized
+    fun vkPlaylistIsInitialized() = ::vkSongList.isInitialized
 
     fun getSearchQuery(): String =
         SearchQueryPreferences.getStoredQueryVk(app)
@@ -71,14 +71,17 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun playAudioAndAllSong(song: VkSong) {
         scope.launch {
-            val file = File(song.path)
             AppBroadcastHub.apply {
+                val ossdf = ordered
+                val fdgds = ordered
                 SongPlaylistInteractor.songs = ordered
                     .filter { it.path.isNotBlank() }
                     .map { File(it.path) }
                     .toTypedArray()
 
-                app.playByPathService(file.path)
+                val songdfs = song
+                val sdfds = song
+                app.playByPathService(song.path)
                 app.loopAllService()
                 //sendIcon
                 sendIconToMiniPlayer(song)
@@ -86,27 +89,18 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun downloadInform(vkSong: VkSong, webView: WebView) {
-        if (needDownload(vkSong)) {
-            scope.launch {
-                val file = download(vkSong, webView)
-                //if download will be success ->  not null
-                if (file != null) {
-                    applyNewPath(vkSong, file.path)
-                    playAudioAndAllSong(vkSong)
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            app,
-                            "Song success downloaded", Toast.LENGTH_LONG
-                        ).show()
-                    }
-                } else withContext(Dispatchers.Main) {
-                    Toast.makeText(app,
-                        "Sorry we did not found any link",
-                        Toast.LENGTH_LONG).show()
-                }
-            }
+    suspend fun downloadThenPlay(vkSong: VkSong,
+                                 webView: WebView,
+                                 onSuccess: (VkSong, CoroutineScope) -> Unit,
+                                 onFailure: (CoroutineScope) -> Unit) {
+        val filePath =  download(vkSong, webView)
+        //if download will be success ->  not null
+        if (filePath != null) {
+            applyNewPath(vkSong, filePath)
+            playAudioAndAllSong(vkSong)
+            onSuccess(vkSong, scope)
         }
+        else onFailure(scope)
     }
 
     fun shuffle(): Array<VkSong> {
@@ -124,7 +118,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     suspend fun initVkPlaylist() {
         vkAlbums = repository.getAlbumsFromDb()
-        vkSongs = repository.getSongsFromDb().map { song ->
+        vkSongList = repository.getSongsFromDb().map { song ->
             song.albumId?.let { albumId ->
                 val indexAlbum = vkAlbums.find { it.id == albumId }
                 indexAlbum?.let {
@@ -136,7 +130,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     suspend fun pathIsWrong(path: String) {
-        val song = vkSongs.find {
+        val song = vkSongList.find {
             it.path == path
         }
         applyNewPath(song!!, "")
@@ -173,7 +167,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     suspend fun downloadAll(webView: WebView) {
         //which
-        val toDownload = vkSongs
+        val toDownload = vkSongList
             .filter { needDownload(it) }
             .reversed()
         //download
@@ -191,11 +185,11 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     suspend fun deleteAll() {
         VkRepository.deleteAllTables()
         vkAlbums = repository.getAlbumsFromDb()
-        vkSongs = repository.getSongsFromDb()
+        vkSongList = repository.getSongsFromDb()
     }
 
     suspend fun filterByQuery(query: String): List<VkSong> = withContext(Dispatchers.Default) {
-        val filtered = vkSongs.filter {
+        val filtered = vkSongList.filter {
             FileFilter.filterBySearchQuery("${it.artist} - ${it.title}", query)
         }
         //sort by name or artist or date added or duration or size
@@ -227,12 +221,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         return@withContext ordered
     }
 
-    private fun sendDefaultSongIcon() {
-        AppBroadcastHub.apply {
-            app.iconUI("")
-        }
-    }
-
     private fun getPathIndex(vkSong: VkSong, allSongFromDb: List<String>): Int {
         val name = "${vkSong.artist} - ${vkSong.title}"
         val index = allSongFromDb.indexOf(name)
@@ -260,16 +248,17 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             .filter { it.id != 0 }
 
     private suspend fun applyNewPath(vkSong: VkSong, path: String) {
-        val index = vkSongs.indexOf(vkSong)
-        val song = vkSongs[index]
-        vkSongs[index].path = path
+        val index = vkSongList.indexOf(vkSong)
+        val song = vkSongList[index]
+        vkSongList[index].path = path
+
         val orderedIndex = ordered.indexOf(song)
         ordered[orderedIndex].path = path
 
         repository.updateSong(song)
     }
 
-    private suspend fun download(vkSong: VkSong, webView: WebView): File? {
+    private suspend fun download(vkSong: VkSong, webView: WebView): String? {
         //refresh path to blank
         applyNewPath(vkSong, "")
         //download
