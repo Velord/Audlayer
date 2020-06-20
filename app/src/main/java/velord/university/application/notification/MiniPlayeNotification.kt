@@ -134,10 +134,10 @@ object MiniPlayerServiceNotification {
         view.setListener(context)
         //create builder
         return NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.album_gray)
+            .setSmallIcon(R.drawable.song_item_playing)
             .setLargeIcon(
                 BitmapFactory.decodeResource(
-                    context.resources, R.drawable.album_gray)
+                    context.resources, R.drawable.song_item_playing)
             )
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_MAX)

@@ -183,16 +183,16 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
     private fun changeButtonToStandardBackground(position: Int) =
         when (position) {
             0 -> {
-                folderImageBt.setImageResource(R.drawable.folder_gray)
+                folderImageBt.setImageResource(R.drawable.outline_folder_grey_600_48dp)
             }
             1 -> {
-                albumImageBt.setImageResource(R.drawable.album_gray)
+                albumImageBt.setImageResource(R.drawable.baseline_album_grey_600_48dp)
             }
             2 -> {
                 songImageBt.setImageResource(R.drawable.song_gray)
             }
             3 -> {
-                radioImageBt.setImageResource(R.drawable.radio_gray)
+                radioImageBt.setImageResource(R.drawable.round_radio_grey_600_48dp)
             }
             4 -> {
                 vkImageBt.setImageResource(R.drawable.vk_gray)
@@ -205,16 +205,16 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
     private fun changeButtonToNewBackground(position: Int) =
         when (position) {
             0 -> {
-                folderImageBt.setImageResource(R.drawable.folder_pressed)
+                folderImageBt.setImageResource(R.drawable.baseline_folder_teal_a700_48dp)
             }
             1 -> {
-                albumImageBt.setImageResource(R.drawable.album_pressed)
+                albumImageBt.setImageResource(R.drawable.baseline_album_red_a400_48dp)
             }
             2 -> {
                 songImageBt.setImageResource(R.drawable.song_pressed)
             }
             3 -> {
-                radioImageBt.setImageResource(R.drawable.radio_pressed)
+                radioImageBt.setImageResource(R.drawable.round_radio_orange_a700_48dp)
             }
             4 -> {
                 vkImageBt.setImageResource(R.drawable.vk_pressed)

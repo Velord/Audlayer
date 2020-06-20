@@ -162,11 +162,11 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         R.style.PopupMenuOverlapAnchorFolder
     }
     override val actionBarLeftMenu: (ImageButton) -> Unit = {
-        it.setImageResource(R.drawable.action_bar_settings_gold)
+        it.setImageResource(R.drawable.round_format_list_bulleted_amber_a400_48dp)
     }
     override val actionBarPopUpMenu: (PopupMenu) -> Unit = {  }
     override val actionBarPopUp: (ImageButton) -> Unit = {
-        it.setImageResource(R.drawable.action_bar_pop_up_gold)
+        it.setImageResource(R.drawable.arrow_down_amber_a400)
     }
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
@@ -471,7 +471,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         private fun needDownloadAction(song: VkSong) {
             val need: () -> Unit = {
                 Glide.with(requireActivity())
-                    .load(R.drawable.download_200_gold)
+                    .load(R.drawable.download_200_amber_a400)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(action)
             }
@@ -513,6 +513,8 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                                 .into(icon)
                         }
                     }
+                }, {
+                    text.setTextColor(resources.getColor(R.color.menuArticle))
                 }
             )
         }
@@ -548,6 +550,10 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                         song.artist, song.title, album)
                 }, {
                     needDownloadBackground(song)
+                }, {
+                    if (viewModel.needDownload(song)) {
+                        text.setTextColor(resources.getColor(R.color.gray_lighter))
+                    }
                 }
             )
         }

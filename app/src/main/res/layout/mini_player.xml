@@ -45,7 +45,7 @@
         android:maxWidth="220dp"
         android:maxHeight="15dp"
         android:text="@string/mini_player_song_no_information"
-        android:textColor="@color/gray"
+        android:textColor="@color/gray_lighter"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:text="@string/mini_player_song_high_quality"
-        android:textSize="8sp"
+        android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="@+id/mini_player_song_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -69,7 +69,7 @@
         android:layout_marginStart="8dp"
         android:contentDescription="@string/mini_player_song_shuffle"
 
-        android:src="@drawable/shuffle_gray"
+        android:src="@drawable/round_shuffle_grey_600_48dp"
         app:layout_constraintBottom_toBottomOf="@+id/mini_player_imageView"
         app:layout_constraintStart_toEndOf="@+id/mini_player_imageView"
         app:layout_constraintTop_toBottomOf="@+id/mini_player_song_artist"
@@ -79,7 +79,7 @@
         android:id="@+id/mini_player_song_repeat"
         style="@style/MiniPlayerShuffleRepeatLikedImageButtons"
         android:contentDescription="@string/mini_player_song_repeat"
-        android:src="@drawable/repeat_gray"
+        android:src="@drawable/baseline_loop_grey_600_48dp"
 
         app:layout_constraintBottom_toBottomOf="@+id/mini_player_imageView"
         app:layout_constraintStart_toEndOf="@+id/mini_player_song_shuffle"
@@ -110,7 +110,7 @@
             android:id="@+id/mini_player_song_skip_prev"
             style="@style/MiniPlayerTrackNextImageButtons"
             android:contentDescription="@string/mini_player_song_skip_prev"
-            android:src="@drawable/skip_prev_green" />
+            android:src="@drawable/round_skip_previous_deep_purple_a200_48dp" />
 
         <ImageButton
             android:id="@+id/mini_player_song_play_or_pause"
@@ -122,7 +122,7 @@
             android:id="@+id/mini_player_song_skip_next"
             style="@style/MiniPlayerTrackNextImageButtons"
             android:contentDescription="@string/mini_player_song_skip_next"
-            android:src="@drawable/skip_next_green" />
+            android:src="@drawable/round_skip_next_deep_purple_a200_48dp" />
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

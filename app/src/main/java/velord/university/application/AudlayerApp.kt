@@ -15,9 +15,6 @@ import velord.university.repository.factory.AppDatabase
 import velord.university.repository.factory.buildAppDatabase
 import velord.university.repository.transaction.PlaylistTransaction
 
-
-//default playlist is Favourite, Played
-
 class AudlayerApp : Application() {
 
     private val TAG = "AudlayerApp"
@@ -38,15 +35,6 @@ class AudlayerApp : Application() {
                 RadioServiceBroadcastReceiver().javaClass
             )
         )
-    }
-
-    override fun onTerminate() {
-        super.onTerminate()
-
-        stopService(Intent(this,
-            MiniPlayerServiceBroadcastReceiver().javaClass))
-        stopService(Intent(this,
-            RadioServiceBroadcastReceiver().javaClass))
     }
 
     companion object {

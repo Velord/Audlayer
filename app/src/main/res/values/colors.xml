@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimary">#00BFA5</color>
     <color name="colorPrimaryOpacity">#80008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorPrimaryDarkOpacity">#CC003029</color>
-    <color name="colorAccent">#273FB5</color>
+    <color name="colorAccent">#7C4DFF</color>
     <color name="fragmentBackground">#030622</color>
     <color name="fragmentBackgroundDarker">#00022C</color>
     <color name="fragmentBackgroundDarkest">#000218</color>
@@ -15,6 +15,7 @@
     <color name="blueShadow">#273FB5</color>
     <color name="dark">#000000</color>
     <color name="gray">#585858</color>
+    <color name="gray_lighter">#A6FFFFFF</color>
     <color name="gray_opacity">#33585858</color>
     <color name="grayest_opacity">#A6585858</color>
     <color name="fragmentBackgroundOpacity">#66030622</color>
@@ -23,7 +24,7 @@
     <color name="blueOpacity">#99273FB5</color>
     <color name="blueShadowOpacity">#33273FB5</color>
     <color name="darkOpacity">#33000000</color>
-    <color name="menuArticle">#C8FFFFFF</color>
+    <color name="menuArticle">#CCFFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="playerFragmentBackgroundDarkerOpacity">#4D00022C</color>
     <color name="menuFragmentBackgroundDarkestOpacity">#6600020E</color>

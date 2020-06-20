@@ -12,8 +12,6 @@ import android.widget.*
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import kotlinx.coroutines.*
 import velord.university.R
@@ -26,6 +24,7 @@ import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.model.entity.RadioStation
 import velord.university.ui.fragment.actionBar.ActionBarFragment
+import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import velord.university.ui.util.setupPopupMenuOnClick
@@ -115,11 +114,11 @@ class RadioFragment : ActionBarFragment(),
         R.style.PopupMenuOverlapAnchorFolder
     }
     override val actionBarLeftMenu: (ImageButton) -> Unit = {
-        it.setImageResource(R.drawable.action_bar_settings_gold)
+        it.setImageResource(R.drawable.round_format_list_bulleted_deep_purple_a200_48dp)
     }
     override val actionBarPopUpMenu: (PopupMenu) -> Unit = {  }
     override val actionBarPopUp: (ImageButton) -> Unit = {
-        it.setImageResource(R.drawable.action_bar_pop_up_gold)
+        it.setImageResource(R.drawable.arrow_down_deep_purple_a200)
     }
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
@@ -287,18 +286,9 @@ class RadioFragment : ActionBarFragment(),
         viewModel.playRadio(radio)
     }
 
-    private fun loadRadioStationIcon(radio: RadioStation, view: ImageView) {
-        radio.icon?.let {
-            val imageName = resources.getIdentifier(
-                it, "drawable", requireContext().packageName)
-
-            Glide.with(requireActivity())
-                .load(imageName)
-                .placeholder(R.drawable.radio_record)
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .into(view)
-        }
-    }
+    private fun loadRadioStationIcon(radio: RadioStation, view: ImageView) =
+        DrawableIcon.loadRadioIconByName(
+            requireContext(), view, radio.icon ?: "")
 
     private fun setName(radio: RadioStation, view: TextView) {
         view.text = radio.name

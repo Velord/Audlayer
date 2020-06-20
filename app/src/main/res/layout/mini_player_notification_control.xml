@@ -46,7 +46,7 @@
 
                 <ImageView
                     android:id="@+id/notification_previous"
-                    android:src="@drawable/skip_prev"
+                    android:src="@drawable/round_skip_previous_deep_purple_a200_48dp"
                     style="@style/MiniPlayerNotificationControl">
 
                 </ImageView>
@@ -59,7 +59,7 @@
 
                 <ImageView
                     android:id="@+id/notification_next"
-                    android:src="@drawable/skip_next"
+                    android:src="@drawable/round_skip_next_deep_purple_a200_48dp"
                     style="@style/MiniPlayerNotificationControl">
                 </ImageView>
 

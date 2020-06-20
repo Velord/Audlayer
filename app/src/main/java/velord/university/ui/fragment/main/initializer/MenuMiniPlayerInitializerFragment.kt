@@ -35,7 +35,7 @@ abstract class MenuMiniPlayerInitializerFragment :
     private val receivers = miniPlayerShowAndHiderReceiverList()
 
     private val fm by lazy {
-        activity!!.supportFragmentManager
+        requireActivity().supportFragmentManager
     }
 
     override fun onStart() {

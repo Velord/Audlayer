@@ -72,15 +72,11 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     fun playAudioAndAllSong(song: VkSong) {
         scope.launch {
             AppBroadcastHub.apply {
-                val ossdf = ordered
-                val fdgds = ordered
                 SongPlaylistInteractor.songs = ordered
                     .filter { it.path.isNotBlank() }
                     .map { File(it.path) }
                     .toTypedArray()
 
-                val songdfs = song
-                val sdfds = song
                 app.playByPathService(song.path)
                 app.loopAllService()
                 //sendIcon

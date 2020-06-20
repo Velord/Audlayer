@@ -66,7 +66,7 @@ open class MiniPlayerGeneralFragment :
             HeartLogic.press(requireActivity(), viewModel.getState())
         }
         miniPlayerSongRepeatIB.setOnClickListener {
-            RepeatLogic.press(requireActivity())
+            LoopLogic.press(requireActivity())
         }
         miniPlayerPlayOrPauseIB.setOnClickListener {
             PlayPauseLogic.press(requireActivity(), viewModel.getState())
@@ -165,25 +165,25 @@ open class MiniPlayerGeneralFragment :
     }
 
     override val shuffleF: (Intent?) -> Unit = {
-        miniPlayerSongShuffleIB.setImageResource(R.drawable.shuffle)
+        miniPlayerSongShuffleIB.setImageResource(R.drawable.round_shuffle_teal_700_48dp)
         ShuffleLogic.value = true
     }
 
     override val unShuffleF: (Intent?) -> Unit = {
-        miniPlayerSongShuffleIB.setImageResource(R.drawable.shuffle_gray)
+        miniPlayerSongShuffleIB.setImageResource(R.drawable.round_shuffle_grey_600_48dp)
         ShuffleLogic.value = false
     }
 
     override val loopF: (Intent?) -> Unit = {
-        miniPlayerSongRepeatIB.setImageResource(R.drawable.repeat_one)
+        miniPlayerSongRepeatIB.setImageResource(R.drawable.one_teal_700)
     }
 
     override val loopAllF: (Intent?) -> Unit = {
-        miniPlayerSongRepeatIB.setImageResource(R.drawable.repeat_all)
+        miniPlayerSongRepeatIB.setImageResource(R.drawable.round_loop_teal_700_48dp)
     }
 
     override val notLoopF: (Intent?) -> Unit = {
-        miniPlayerSongRepeatIB.setImageResource(R.drawable.repeat_gray)
+        miniPlayerSongRepeatIB.setImageResource(R.drawable.round_loop_grey_600_48dp)
     }
 
     override val songNameF: (Intent?) -> Unit = { intent ->

@@ -107,7 +107,7 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
                     toZeroLevelFromSelectSongFragment()
                 }
             }
-            setImageResource(R.drawable.back_green)
+            setImageResource(R.drawable.back_arrow_deep_purple_a200)
         }
     }
     override val actionBarPopUpMenu: (PopupMenu) -> Unit = {

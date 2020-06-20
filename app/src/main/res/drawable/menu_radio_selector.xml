@@ -11,11 +11,11 @@
         android:state_focused="false"
         android:state_pressed="true"/>
     <item
-        android:drawable="@drawable/radio_gray"
+        android:drawable="@drawable/round_radio_grey_600_48dp"
         android:state_focused="true"
         android:state_pressed="false"/>
     <item
-        android:drawable="@drawable/radio_gray"
+        android:drawable="@drawable/round_radio_grey_600_48dp"
         android:state_focused="false"
         android:state_pressed="false"/>
 </selector>

@@ -61,10 +61,10 @@ object VkDownloadNotification {
 
         return NotificationCompat.Builder(context, channelId)
             .setContentTitle("Audlayer Vk Downloading...")
-            .setSmallIcon(R.drawable.album_gray)
+            .setSmallIcon(R.drawable.song_item_playing)
             .setLargeIcon(
                 BitmapFactory.decodeResource(
-                    context.resources, R.drawable.album_gray)
+                    context.resources, R.drawable.song_item_playing)
             )
             .addAction(R.drawable.cancel, "Cancel", pendIntent)
     }
