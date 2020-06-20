@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import velord.university.R
 import velord.university.application.settings.VkPreference
 import velord.university.ui.backPressed.BackPressedHandlerVkFirst
-import velord.university.ui.fragment.LoggerSelfLifecycleFragment
+import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
 
 
 class VkAccessTokenFragment : LoggerSelfLifecycleFragment(),

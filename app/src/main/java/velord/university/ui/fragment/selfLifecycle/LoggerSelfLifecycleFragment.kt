@@ -1,4 +1,4 @@
-package velord.university.ui.fragment
+package velord.university.ui.fragment.selfLifecycle
 
 import android.content.Context
 import android.os.Bundle

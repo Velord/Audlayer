@@ -8,7 +8,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import velord.university.R
-import velord.university.ui.fragment.LoggerSelfLifecycleFragment
+import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
 import velord.university.ui.util.setupPopupMenuOnClick
 
 

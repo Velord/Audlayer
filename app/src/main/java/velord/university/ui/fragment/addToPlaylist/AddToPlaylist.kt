@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
@@ -18,11 +19,13 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
 import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.ui.backPressed.BackPressedHandlerSecond
-import velord.university.ui.fragment.LoggerSelfLifecycleFragment
+import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
 import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import java.io.File
 
-class AddToPlaylist : LoggerSelfLifecycleFragment(), BackPressedHandlerSecond {
+class AddToPlaylist :
+    LoggerSelfLifecycleFragment(),
+    BackPressedHandlerSecond {
     //Required interface for hosting activities
     interface Callbacks {
         fun openCreateNewPlaylistDialogFragment()
@@ -39,6 +42,7 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(), BackPressedHandlerSecond {
 
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
+    private lateinit var layoutCS: ConstraintLayout
     private lateinit var rv: RecyclerView
     private lateinit var createNew: Button
 
@@ -63,7 +67,9 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(), BackPressedHandlerSecond {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.add_to_playlist_fragment, container, false).apply {
+        return inflater.inflate(
+            R.layout.add_to_playlist_fragment,
+            container, false).apply {
             initViews(this)
             setupAdapter()
         }
@@ -72,6 +78,13 @@ class AddToPlaylist : LoggerSelfLifecycleFragment(), BackPressedHandlerSecond {
     private fun initViews(view: View) {
         initCreateNew(view)
         initRV(view)
+        initCS(view)
+    }
+
+    private fun initCS(view: View) {
+        layoutCS = view.findViewById(R.id.add_to_playlist_CS)
+        //if you now cause this lambda is blank -> you cool
+        layoutCS.setOnClickListener {  }
     }
 
     private fun initCreateNew(view: View) {

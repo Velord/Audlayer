@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import velord.university.R
-import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 import velord.university.ui.fragment.main.MainFragment
+import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
 
 class MiniPlayerStopAndHideFragment : LoggerSelfLifecycleFragment() {
 

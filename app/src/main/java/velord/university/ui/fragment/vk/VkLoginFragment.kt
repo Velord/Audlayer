@@ -16,7 +16,7 @@ import org.json.JSONObject
 import velord.university.R
 import velord.university.application.settings.VkPreference
 import velord.university.ui.backPressed.BackPressedHandlerVkZero
-import velord.university.ui.fragment.LoggerSelfLifecycleFragment
+import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
 import java.io.IOException
 
 class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero {

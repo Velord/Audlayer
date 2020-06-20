@@ -13,10 +13,10 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.ui.fragment.LoggerSelfLifecycleFragment
 import velord.university.ui.fragment.album.AlbumFragment
 import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.radio.RadioFragment
+import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
 import velord.university.ui.fragment.song.SongFragment
 import velord.university.ui.fragment.vk.VKFragment
 

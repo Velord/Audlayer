@@ -11,7 +11,6 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.DialogFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,13 +18,18 @@ import kotlinx.coroutines.launch
 import velord.university.R
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.repository.transaction.PlaylistTransaction
+import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleDialogFragment
 
 
-class CreateNewPlaylistDialogFragment : DialogFragment(){
+class CreateNewPlaylistDialogFragment : LoggerSelfLifecycleDialogFragment() {
+
+    override val TAG: String = "CreateNewPlaylistDialogFragment"
+
     //Required interface for hosting activities
     interface Callbacks {
         fun success()
     }
+
     private var callbacks: Callbacks? =  null
 
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
