@@ -43,11 +43,6 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     override fun onCreate() {
         Log.d(TAG, "onCreate called")
         super.onCreate()
-        //init
-        scope.launch {
-            PlaylistTransaction.checkDbTableColumn()
-            restoreState()
-        }
     }
 
     override fun onDestroy() {
@@ -56,7 +51,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         //store player state
         storeIsPlayingState()
         stopPlayer()
-        destroyNotification()
+        //destroyNotification()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -68,6 +63,15 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
                                 flags: Int,
                                 startId: Int): Int {
         Log.d(TAG, "onStartCommand called")
+        super.onStartCommand(intent, flags, startId)
+
+        scope.launch {
+            PlaylistTransaction.checkDbTableColumn()
+            restoreState()
+        }
+        changeNotificationInfo()
+        changeNotificationPlayOrStop(player.isPlaying)
+
         return START_STICKY
     }
 
@@ -287,7 +291,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         MiniPlayerServiceNotification.dismiss()
     }
 
-    private fun changeNotificationInfo(file: File) {
+    private fun changeNotificationInfo(file: File = playlist.getSong()) {
         val title = FileNameParser.getSongTitle(file)
         val artist = FileNameParser.getSongArtist(file)
         MiniPlayerServiceNotification.updateSongTitleAndArtist(this, title, artist)

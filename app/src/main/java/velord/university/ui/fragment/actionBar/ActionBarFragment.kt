@@ -13,6 +13,7 @@ import velord.university.ui.util.setupPopupMenuOnClick
 
 
 abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
+
     override val TAG: String = "ActionBarFragment"
 
     protected val viewModelActionBar by lazy {

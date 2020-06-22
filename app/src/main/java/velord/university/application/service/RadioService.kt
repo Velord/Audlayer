@@ -37,6 +37,7 @@ abstract class RadioService : AudioFocusListenerService() {
     override fun onCreate() {
         Log.d(TAG, "onCreate called")
         super.onCreate()
+
     }
 
     override fun onDestroy() {
@@ -46,7 +47,6 @@ abstract class RadioService : AudioFocusListenerService() {
         storeIsPlayingState()
         stopPlayer()
         saveState()
-        //destroyNotification()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -58,14 +58,19 @@ abstract class RadioService : AudioFocusListenerService() {
                                 flags: Int,
                                 startId: Int): Int {
         Log.d(TAG, "onStartCommand called")
+        super.onStartCommand(intent, flags, startId)
+
         scope.launch {
             restoreState()
         }
+        changeNotificationInfo()
+        changeNotificationPlayOrStop(player.isPlaying)
+
         return START_STICKY
     }
 
     protected fun playOrStopService() {
-        if (player.isPlaying) pausePlayer()
+        if (playerIsInitialized() && player.isPlaying) pausePlayer()
         else playRadioAfterCreatedPlayer()
     }
 
