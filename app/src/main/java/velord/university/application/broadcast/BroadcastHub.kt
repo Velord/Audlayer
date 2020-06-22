@@ -413,7 +413,7 @@ object AppBroadcastHub {
         const val playByRadioStationUrlService= "RADIO_STATION_URL"
         const val radioNameUI = "RADIO_STATION_NAME"
         const val radioArtistUI = "RADIO_STATION_ARTIST"
-        const val iconRadioUI = "RADIO_ICON_ASSET"
+        const val iconRadioUI = "RADIO_ICON"
     }
 
     private abstract class BroadcastBase {

@@ -110,11 +110,11 @@ object VkRepository {
             val progress = "All: $songCount, " +
                     "no link: ${index - downloadedCount + 1}, " +
                     "downloaded: $downloadedCount"
-            VkDownloadNotification.setText(progress)
+            VkDownloadNotification.setText(context, progress)
         }
         //finalize notification
         val downloadedText = "Audlayer Vk Downloaded!"
-        VkDownloadNotification.setText(downloadedText)
+        VkDownloadNotification.setText(context, downloadedText)
 
         return downloaded
     }

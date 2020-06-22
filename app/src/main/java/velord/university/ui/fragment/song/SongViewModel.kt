@@ -93,7 +93,7 @@ class SongViewModel(private val app: Application) : AndroidViewModel(app) {
         }
 
     fun sendIconToMiniPlayer(song: Song) =
-        AppBroadcastHub.apply { app.iconUI(song.icon) }
+        AppBroadcastHub.apply { app.iconUI(song.icon.toString()) }
 
     fun shuffle(): Array<Song> {
         ordered = ordered.shuffled()

@@ -33,7 +33,8 @@
         android:inputType="text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/create_new_playlist_name"
-        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_hint" />
+        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_hint"
+        android:autofillHints="" />
 
     <TextView
         android:id="@+id/create_new_playlist_name"

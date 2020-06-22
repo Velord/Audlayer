@@ -46,6 +46,7 @@
 
                 <ImageView
                     android:id="@+id/notification_previous"
+                    android:contentDescription="@string/skip_previous"
                     android:src="@drawable/round_skip_previous_deep_purple_a200_48dp"
                     style="@style/MiniPlayerNotificationControl">
 
@@ -53,18 +54,21 @@
 
                 <ImageView
                     android:id="@+id/notification_play_or_stop"
+                    android:contentDescription="@string/audlayer_play"
                     android:src="@drawable/play"
                     style="@style/MiniPlayerNotificationControl">
                 </ImageView>
 
                 <ImageView
                     android:id="@+id/notification_next"
+                    android:contentDescription="@string/skip_next"
                     android:src="@drawable/round_skip_next_deep_purple_a200_48dp"
                     style="@style/MiniPlayerNotificationControl">
                 </ImageView>
 
             <ImageView
                 android:id="@+id/notification_cancel"
+                android:contentDescription="@string/audlayer_cancel"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:src="@drawable/cancel_notification"

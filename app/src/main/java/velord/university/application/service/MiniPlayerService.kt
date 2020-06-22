@@ -292,10 +292,6 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         sendShowGeneralUI()
     }
 
-    private fun destroyNotification() {
-        MiniPlayerServiceNotification.dismiss()
-    }
-
     private fun changeNotificationInfo(file: File = playlist.getSong()) {
         val title = FileNameParser.getSongTitle(file)
         val artist = FileNameParser.getSongArtist(file)
@@ -445,11 +441,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private fun startSendRewind(startFrom: Int = 0) {
         if (playerIsInitialized()) {
-            player.setOnCompletionListener(object : MediaPlayer.OnCompletionListener {
-                override fun onCompletion(mp: MediaPlayer?) {
-                    songIsOver()
-                }
-            } )
+            player.setOnCompletionListener { songIsOver() }
 
             var rewindValue = startFrom
             rewindJob = scope.launch {

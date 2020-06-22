@@ -97,5 +97,10 @@
     <string name="delete_all">Delete All</string>
     <string name="login">Login</string>
     <string name="type">Type..</string>
+    <string name="skip_previous">Skip Previous</string>
+    <string name="audlayer_play">Audlayer play</string>
+    <string name="skip_next">Skip Next</string>
+    <string name="audlayer_cancel">Audlayer Cancel</string>
+    <string name="authorize_confirmed">Authorize confirmed</string>
     <integer name="com_vk_sdk_AppId">7360134</integer>
 </resources>

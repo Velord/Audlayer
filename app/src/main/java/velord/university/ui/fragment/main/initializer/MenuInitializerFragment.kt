@@ -30,7 +30,7 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
     private var buttonPressed: Int = 2
 
     private val fm by lazy {
-        activity!!.supportFragmentManager
+        requireActivity().supportFragmentManager
     }
 
     private lateinit var selfView: View

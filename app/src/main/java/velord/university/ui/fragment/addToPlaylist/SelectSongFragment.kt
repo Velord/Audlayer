@@ -22,7 +22,9 @@ import velord.university.ui.backPressed.BackPressedHandlerFirst
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import java.io.File
 
-class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
+class SelectSongFragment :
+    ActionBarFragment(),
+    BackPressedHandlerFirst {
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromAddSongFragment()
@@ -128,7 +130,7 @@ class SelectSongFragment : ActionBarFragment(), BackPressedHandlerFirst {
             else -> {}
         }
     }
-    override val actionBarPopUp: (ImageButton) -> Unit = { }
+    override val actionBarPopUp: (ImageButton) -> Unit = {}
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")

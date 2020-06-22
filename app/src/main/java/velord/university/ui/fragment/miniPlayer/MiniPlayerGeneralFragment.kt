@@ -35,7 +35,7 @@ open class MiniPlayerGeneralFragment :
         ViewModelProviders.of(this).get(MiniPlayerViewModel::class.java)
     }
 
-    private val receivers = receiver()
+    private val receivers = this.receiver()
 
     private val scope =
         CoroutineScope(Job() + Dispatchers.Default)
@@ -267,8 +267,8 @@ open class MiniPlayerGeneralFragment :
                 .placeholder(R.drawable.repair_tools)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .into(miniPlayerIV)
-        else DrawableIcon.loadSongIconByName(
-            requireContext(), miniPlayerIV, value)
+        else DrawableIcon.loadSongIconDrawable(
+            requireContext(), miniPlayerIV, value.toInt())
     }
 
     private fun getInfoFromServiceWhenStart() {

@@ -287,10 +287,17 @@ class VKFragment : ActionBarFragment(), VkReceiver {
     }
 
     private suspend fun checkToken() {
+        withContext(Dispatchers.Main) {
+            swipeContainer.isRefreshing = true
+        }
         if (::login.isInitialized) {
             val token = VkPreference.getAccessToken(requireContext())
             if (token.isBlank()) tokenIsBlank()
             else tokenIsCorrect()
+        }
+        //Now we call setRefreshing(false) to signal refresh has finished
+        withContext(Dispatchers.Main) {
+            swipeContainer.isRefreshing = false
         }
     }
 
@@ -298,8 +305,6 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         withContext(Dispatchers.Main) {
             rv.adapter = SongAdapter(arrayOf())
             login.visibility = View.VISIBLE
-            //Now we call setRefreshing(false) to signal refresh has finished
-            swipeContainer.isRefreshing = false
             Toast.makeText(
                 requireContext(),
                 "Login to continue", Toast.LENGTH_SHORT
@@ -312,10 +317,6 @@ class VKFragment : ActionBarFragment(), VkReceiver {
             login.visibility = View.GONE
         }
         viewModel.refreshByToken()
-        //Now we call setRefreshing(false) to signal refresh has finished
-        withContext(Dispatchers.Main) {
-            swipeContainer.isRefreshing = false
-        }
         //update ui
         updateAdapterBySearchQuery()
         viewModel.rvResolver.scroll(rv)
@@ -345,11 +346,7 @@ class VKFragment : ActionBarFragment(), VkReceiver {
 
     private fun initSwipeRefresh(view: View) {
         swipeContainer = view.findViewById(R.id.vk_fragment_swipeContainer)
-        swipeContainer.setOnRefreshListener(object : SwipeRefreshLayout.OnRefreshListener {
-            override fun onRefresh() {
-                scope.launch { checkToken() }
-            }
-        })
+        swipeContainer.setOnRefreshListener { scope.launch { checkToken() } }
     }
 
     private fun initRV(view: View) {

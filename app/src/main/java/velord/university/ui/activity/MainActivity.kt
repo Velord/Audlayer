@@ -41,8 +41,6 @@ class MainActivity : AppCompatActivity(),
 
     private val fm = supportFragmentManager
 
-    private var scope = CoroutineScope(Job() + Dispatchers.Default)
-
     private var scopeNotification = CoroutineScope(Job() + Dispatchers.Default)
 
     private val viewModel by lazy {

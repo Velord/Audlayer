@@ -6,23 +6,11 @@ import android.widget.Scroller
 
 //https://github.com/Chrisvin/LiquidSwipe
 
-internal class FixedSpeedScroller : Scroller {
+internal class FixedSpeedScroller(context: Context?,
+                                  interpolator: Interpolator?) :
+    Scroller(context, interpolator) {
 
     var scrollerDuration = 1000
-
-    constructor(context: Context?, interpolator: Interpolator?) : super(context, interpolator)
-    constructor(context: Context?, interpolator: Interpolator?, duration: Int) : this(
-        context,
-        interpolator
-    ) {
-        this.scrollerDuration = duration
-    }
-
-    constructor(context: Context?, interpolator: Interpolator?, flywheel: Boolean) : super(
-        context,
-        interpolator,
-        flywheel
-    )
 
     override fun startScroll(
         startX: Int,

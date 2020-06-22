@@ -178,7 +178,7 @@ class FolderFragment : ActionBarFragment(),
                 val fileList = viewModel.ordered
                 val file = fileList.find { it.file.absolutePath == songPath } ?: return
 
-                clearAndChangeSelectedItem(file!!)
+                clearAndChangeSelectedItem(file)
                 //apply to ui
                 val containF: (Song) -> Boolean = {
                     it == file
@@ -573,7 +573,7 @@ class FolderFragment : ActionBarFragment(),
                 },
                 {
                     if (viewModel.isAudio(value))
-                        DrawableIcon.loadSongIconByName(
+                        DrawableIcon.loadSongIconDrawable(
                             requireContext(), icon, value.icon)
                 }
             )

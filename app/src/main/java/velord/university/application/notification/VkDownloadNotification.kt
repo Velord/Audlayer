@@ -19,11 +19,11 @@ object VkDownloadNotification {
 
     private lateinit var notificationManager: NotificationManager
 
-    private lateinit var builder: NotificationCompat.Builder
-
     private var userCanceledDownload = false
 
-    fun setText(text: String) {
+    fun setText(context: Context,
+                text: String) {
+        val builder = getNotificationBuilder(context)
         builder.setContentText(text)
         notificationManager.notify(notificationDownloadId, builder.build())
     }
@@ -38,7 +38,7 @@ object VkDownloadNotification {
     fun build(context: Context): NotificationManager {
         notificationManager = context
             .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        builder = getNotificationBuilder(context)
+        val builder = getNotificationBuilder(context)
         notificationManager.notify(notificationDownloadId, builder.build())
 
         return notificationManager

@@ -289,8 +289,8 @@ class RadioFragment : ActionBarFragment(),
     }
 
     private fun loadRadioStationIcon(radio: RadioStation, view: ImageView) =
-        DrawableIcon.loadRadioIconByName(
-            requireContext(), view, radio.icon ?: "")
+        DrawableIcon.loadRadioIconAsset(
+            requireContext(), view, radio.icon)
 
     private fun setName(radio: RadioStation, view: TextView) {
         view.text = radio.name

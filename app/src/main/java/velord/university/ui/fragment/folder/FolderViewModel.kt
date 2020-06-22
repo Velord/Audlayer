@@ -29,7 +29,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
     var currentFolder: File = Environment.getExternalStorageDirectory()
 
     fun sendIconToMiniPlayer(song: Song) =
-        AppBroadcastHub.apply { app.iconUI(song.icon) }
+        AppBroadcastHub.apply { app.iconUI(song.icon.toString()) }
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 

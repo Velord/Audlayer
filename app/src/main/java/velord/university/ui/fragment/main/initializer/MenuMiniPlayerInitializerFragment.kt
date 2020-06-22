@@ -32,7 +32,7 @@ abstract class MenuMiniPlayerInitializerFragment :
     private lateinit var viewFrame: View
     private lateinit var miniPlayerViewPager: ViewPager
 
-    private val receivers = miniPlayerShowAndHiderReceiverList()
+    private val receivers = this.miniPlayerShowAndHiderReceiverList()
 
     private val fm by lazy {
         requireActivity().supportFragmentManager
@@ -175,7 +175,7 @@ abstract class MenuMiniPlayerInitializerFragment :
                 val fragment = `object` as Fragment?
                 if (fragment != null && fragment.view != null) {
                     currentPosition = position
-                    val view = fragment.view!!
+                    val view = fragment.requireView()
                     container.measureCurrentView(view)
                 }
             }

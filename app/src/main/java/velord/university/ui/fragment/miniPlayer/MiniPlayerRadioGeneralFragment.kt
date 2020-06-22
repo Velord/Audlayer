@@ -121,7 +121,7 @@ class MiniPlayerRadioGeneralFragment :
         it?.apply {
             val extra = AppBroadcastHub.Extra.iconRadioUI
             val value = getStringExtra(extra)
-            DrawableIcon.loadRadioIconByName(
+            DrawableIcon.loadRadioIconAsset(
                 requireContext(), miniPlayerRadioIcon, value)
         }
     }

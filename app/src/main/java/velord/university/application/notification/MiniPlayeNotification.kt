@@ -158,20 +158,20 @@ object MiniPlayerServiceNotification {
                 NOTIFICATION_ACTION_PLAY_OR_STOP ->
                     when(MiniPlayerRepository.getState(context!!)) {
                         MiniPlayerLayoutState.GENERAL ->
-                            AppBroadcastHub.run { context!!.playOrStopService() }
+                            AppBroadcastHub.run { context.playOrStopService() }
                         MiniPlayerLayoutState.RADIO ->
-                            AppBroadcastHub.run { context!!.playOrStopRadioService() }
+                            AppBroadcastHub.run { context.playOrStopRadioService() }
                     }
                 NOTIFICATION_ACTION_NEXT ->
                     when(MiniPlayerRepository.getState(context!!)) {
                         MiniPlayerLayoutState.GENERAL ->
-                            AppBroadcastHub.run { context!!.skipNextService() }
+                            AppBroadcastHub.run { context.skipNextService() }
                     }
 
                 NOTIFICATION_ACTION_PREVIUOS ->
                     when(MiniPlayerRepository.getState(context!!)) {
                         MiniPlayerLayoutState.GENERAL ->
-                            AppBroadcastHub.run { context!!.skipPrevService() }
+                            AppBroadcastHub.run { context.skipPrevService() }
                     }
                 NOTIFICATION_ACTION_CANCEL -> dismiss()
             }

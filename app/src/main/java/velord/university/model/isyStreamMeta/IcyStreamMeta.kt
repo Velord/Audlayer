@@ -59,7 +59,7 @@ class IcyStreamMeta {
     @Synchronized
     @Throws(IOException::class)
     private fun retrieveMetadata() {
-        val con = urlStream!!.openConnection()
+        val con = urlStream.openConnection()
         con.setRequestProperty("Icy-MetaData", "1")
         con.setRequestProperty("Connection", "close")
         con.setRequestProperty("Accept", null)

@@ -5,6 +5,6 @@ import java.io.File
 
 data class Song(
     val file: File,
-    val getIconF: () -> String = DrawableIcon.getRandomSongIconName,
-    val icon: String = getIconF()
+    val getIconF: () -> Int = DrawableIcon.getRandomSongIconName,
+    val icon: Int = getIconF()
 )

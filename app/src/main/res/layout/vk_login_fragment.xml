@@ -49,7 +49,8 @@
         app:layout_constraintBottom_toBottomOf="@+id/vk_login_get_access_token"
         app:layout_constraintEnd_toStartOf="@+id/vk_login_get_access_token"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/vk_login_get_access_token" />
+        app:layout_constraintTop_toTopOf="@+id/vk_login_get_access_token"
+        android:contentDescription="@string/authorize_confirmed" />
 
     <TextView
         android:id="@+id/vk_login_user_page_id"

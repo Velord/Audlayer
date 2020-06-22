@@ -79,7 +79,7 @@ class SongFragment :
                     it.file.absolutePath == songPath
                 } ?: return
 
-                clearAndChangeSelectedItem(song!!)
+                clearAndChangeSelectedItem(song)
                 //apply to ui
                 val songList = viewModel.ordered
                 val containF: (Song) -> Boolean = {
@@ -435,7 +435,7 @@ class SongFragment :
                 }
             }
 
-            DrawableIcon.loadSongIconByName(
+            DrawableIcon.loadSongIconDrawable(
                 requireContext(), icon, song.icon)
         }
 
