@@ -24,6 +24,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <service
             android:name="velord.university.application.service.MiniPlayerService"
             android:enabled="true"
@@ -58,7 +59,6 @@
         <activity android:name=".ui.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -66,7 +66,23 @@
         <receiver android:name=".application.notification.VkDownloadNotification$VkDownloadNotificationReceiver">
         </receiver>
 
-        <receiver android:name=".application.notification.MiniPlayerServiceNotification$MiniPlayerNotificationBroadcastReceiver">
+        <receiver android:name=".application.broadcast.MiniPlayerNotificationBroadcastReceiver">
+        </receiver>
+
+        <receiver android:name=".application.broadcast.RestarterMiniPlayerGeneralService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="RestartMiniPlayerGeneralService" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".application.broadcast.RestarterRadioService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="RestartRadioService" />
+            </intent-filter>
         </receiver>
 
     </application>

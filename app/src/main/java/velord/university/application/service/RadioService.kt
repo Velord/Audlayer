@@ -9,6 +9,7 @@ import android.util.Log
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.AppBroadcastHub.iconRadioUI
+import velord.university.application.broadcast.RestarterRadioService
 import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.AppPreference
@@ -40,6 +41,8 @@ abstract class RadioService : AudioFocusListenerService() {
 
         scope.launch {
             restoreState()
+            changeNotificationInfo()
+            changeNotificationPlayOrStop(player.isPlaying)
         }
     }
 
@@ -50,24 +53,13 @@ abstract class RadioService : AudioFocusListenerService() {
         storeIsPlayingState()
         stopPlayer()
         saveState()
-    }
-
-    override fun onUnbind(intent: Intent?): Boolean {
-        Log.d(TAG, "onUnbind called")
-        return super.onUnbind(intent)
+        restartService()
     }
 
     override fun onStartCommand(intent: Intent?,
                                 flags: Int,
                                 startId: Int): Int {
-        Log.d(TAG, "onStartCommand called")
         super.onStartCommand(intent, flags, startId)
-
-        scope.launch {
-            restoreState()
-        }
-        changeNotificationInfo()
-        changeNotificationPlayOrStop(player.isPlaying)
 
         return START_STICKY
     }
@@ -157,7 +149,14 @@ abstract class RadioService : AudioFocusListenerService() {
         currentStation = RadioRepository.getById(id)
         RadioInteractor.radioStation = currentStation
 
-        userRotateDeviceProtection()
+        //userRotateDeviceProtection()
+    }
+
+    private fun restartService() {
+        val broadcastIntent = Intent()
+        broadcastIntent.action = "RestartRadioService"
+        broadcastIntent.setClass(this, RestarterRadioService::class.java)
+        this.sendBroadcast(broadcastIntent)
     }
 
     private fun radioIsCached() {

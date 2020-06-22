@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.RestarterMiniPlayerGeneralService
 import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.AppPreference
@@ -47,6 +48,10 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         scope.launch {
             PlaylistTransaction.checkDbTableColumn()
             restoreState()
+            mayInvoke {
+                changeNotificationInfo()
+                changeNotificationPlayOrStop(true)
+            }
         }
     }
 
@@ -56,6 +61,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         //store player state
         storeIsPlayingState()
         stopPlayer()
+        restartService()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -66,16 +72,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     override fun onStartCommand(intent: Intent?,
                                 flags: Int,
                                 startId: Int): Int {
-        Log.d(TAG, "onStartCommand called")
         super.onStartCommand(intent, flags, startId)
-
-        scope.launch {
-            PlaylistTransaction.checkDbTableColumn()
-            restoreState()
-        }
-        changeNotificationInfo()
-        changeNotificationPlayOrStop(player.isPlaying)
-
         return START_STICKY
     }
 
@@ -277,6 +274,13 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
     }
 
+    private fun restartService() {
+        val broadcastIntent = Intent()
+        broadcastIntent.action = "RestartMiniPlayerGeneralService"
+        broadcastIntent.setClass(this, RestarterMiniPlayerGeneralService::class.java)
+        this.sendBroadcast(broadcastIntent)
+    }
+
     private fun sendInfoWhenPlay() {
         //send command to change ui
         mayInvoke {
@@ -295,7 +299,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     private fun changeNotificationInfo(file: File = playlist.getSong()) {
         val title = FileNameParser.getSongTitle(file)
         val artist = FileNameParser.getSongArtist(file)
-        MiniPlayerServiceNotification.updateSongTitleAndArtist(this, title, artist)
+        MiniPlayerServiceNotification.
+        updateSongTitleAndArtist(this, title, artist)
     }
 
     private fun changeNotificationPlayOrStop(isPlaying: Boolean) =

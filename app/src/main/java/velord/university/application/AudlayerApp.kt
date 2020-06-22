@@ -1,8 +1,10 @@
 package velord.university.application
 
 import android.app.Application
+import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -22,19 +24,9 @@ class AudlayerApp : Application() {
     override fun onCreate() {
         super.onCreate()
         //service mini player general
-        startService(
-            Intent(
-                this,
-                MiniPlayerServiceBroadcastReceiver().javaClass
-            )
-        )
+        startService(this, MiniPlayerServiceBroadcastReceiver())
         //service mini player radio
-        startService(
-            Intent(
-                this,
-                RadioServiceBroadcastReceiver().javaClass
-            )
-        )
+        startService(this, RadioServiceBroadcastReceiver())
     }
 
     companion object {
@@ -42,6 +34,14 @@ class AudlayerApp : Application() {
 
         private val scope: CoroutineScope =
             CoroutineScope(Job() + Dispatchers.Default)
+
+        fun startService(context: Context,
+                                 service: Service) =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(Intent(context, service::class.java))
+            } else {
+                context.startService(Intent(context, service::class.java))
+            }
 
         fun initApp(context: Context) {
             //init working folder

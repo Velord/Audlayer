@@ -29,7 +29,7 @@ class RadioServiceBroadcastReceiver :
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onStartCommand called")
+        super.onStartCommand(intent, flags, startId)
 
         receivers.forEach {
             baseContext.registerBroadcastReceiver(

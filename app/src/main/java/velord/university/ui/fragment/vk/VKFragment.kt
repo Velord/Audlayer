@@ -292,8 +292,8 @@ class VKFragment : ActionBarFragment(),
                     super.observeSearchQuery()
                     //setup adapter by invoke change in search view
                     setupAdapter()
+                    checkToken()
                 }
-                checkToken()
             }
         }
     }
