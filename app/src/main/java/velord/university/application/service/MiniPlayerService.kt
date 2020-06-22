@@ -43,6 +43,11 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     override fun onCreate() {
         Log.d(TAG, "onCreate called")
         super.onCreate()
+
+        scope.launch {
+            PlaylistTransaction.checkDbTableColumn()
+            restoreState()
+        }
     }
 
     override fun onDestroy() {
@@ -51,7 +56,6 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         //store player state
         storeIsPlayingState()
         stopPlayer()
-        //destroyNotification()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -138,6 +142,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             playSongAfterCreatedPlayer()
             restoreStatePlayer()
         }
+        else AppBroadcastHub.run { playerUnavailableUI() }
     }
 
     protected fun pausePlayer() = stopOrPausePlayer {
@@ -306,43 +311,60 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
         if (songsToPlaylist.isNotEmpty()) {
             playlist.addToQueue(*songsToPlaylist.toTypedArray())
-            //restore shuffle and loop state
-            val isShuffle = MiniPlayerServicePreferences
-                .getIsShuffle(this@MiniPlayerService)
-            val loopState = MiniPlayerServicePreferences
-                .getLoopState(this@MiniPlayerService)
-            //restore duration
-            val duration = MiniPlayerServicePreferences
-                .getCurrentDuration(this@MiniPlayerService)
-            //what song should play
-            var posWasPlayedSong = MiniPlayerServicePreferences
-                .getCurrentPos(this@MiniPlayerService)
-            if (posWasPlayedSong > songsToPlaylist.lastIndex)
-                posWasPlayedSong = songsToPlaylist.lastIndex
-            val path = playlist.notShuffled[posWasPlayedSong].path
             //restore isPlaying state
             val isPlaying = MiniPlayerServicePreferences
                 .getIsPlaying(this@MiniPlayerService)
             val appWasDestroyed = AppPreference
                 .getAppIsDestroyed(this@MiniPlayerService)
             //apply shuffle state player
-            if (isShuffle) shuffleOn()
-            else shuffleOff()
+            applyShuffleState()
             //apply loop state player
-            when(loopState) {
-                0 -> notLoopState()
-                1 -> loopState()
-                2 -> loopAllState()
-            }
+            applyLoopState()
+            //restore duration
+            //what song should play
             //after all info got -> start player ->  set current time -> stop
-            playNext(path)
-            rewindPlayer(duration)
-            pausePlayer()
+            applyRewind(songsToPlaylist)
             //this means ui have been destroyed with service after destroy main activity
             //but app is still working -> after restoration we should play song
             if (isPlaying && appWasDestroyed.not()) {
                 playSongAfterCreatedPlayer()
             }
+        }
+    }
+
+    private fun applyRewind(songsToPlaylist: List<File>) {
+        val duration = MiniPlayerServicePreferences
+            .getCurrentDuration(this@MiniPlayerService)
+        val path = restoreSongPath(songsToPlaylist)
+        playNext(path)
+        player.setVolume(0.0f, 0.0f)
+        rewindPlayer(duration)
+        pausePlayer()
+        player.setVolume(1.0f, 1.0f)
+    }
+
+    private fun restoreSongPath(songsToPlaylist: List<File>): String {
+        var posWasPlayedSong = MiniPlayerServicePreferences
+            .getCurrentPos(this@MiniPlayerService)
+        if (posWasPlayedSong > songsToPlaylist.lastIndex)
+            posWasPlayedSong = songsToPlaylist.lastIndex
+        return playlist.notShuffled[posWasPlayedSong].path
+    }
+
+    private fun applyShuffleState(
+        state: Boolean = MiniPlayerServicePreferences
+            .getIsShuffle(this@MiniPlayerService)) {
+        if (state) shuffleOn()
+        else shuffleOff()
+    }
+
+    private fun applyLoopState(
+        state: Int = MiniPlayerServicePreferences
+            .getLoopState(this@MiniPlayerService)) {
+        when(state) {
+            0 -> notLoopState()
+            1 -> loopState()
+            2 -> loopAllState()
         }
     }
 

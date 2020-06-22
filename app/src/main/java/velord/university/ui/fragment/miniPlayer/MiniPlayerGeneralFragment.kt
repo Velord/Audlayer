@@ -9,6 +9,7 @@ import android.widget.SeekBar
 import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
@@ -35,6 +36,9 @@ open class MiniPlayerGeneralFragment :
     }
 
     private val receivers = receiver()
+
+    private val scope =
+        CoroutineScope(Job() + Dispatchers.Default)
 
     override fun onStart() {
         super.onStart()
@@ -219,6 +223,16 @@ open class MiniPlayerGeneralFragment :
             val value = getStringExtra(extra)
 
             loadIcon(value)
+        }
+    }
+
+    override val playerUnavailableUIF: (Intent?) -> Unit = {
+        it?.apply {
+            //wait and request info
+            scope.launch {
+                delay(500)
+                getInfoFromServiceWhenStart()
+            }
         }
     }
 

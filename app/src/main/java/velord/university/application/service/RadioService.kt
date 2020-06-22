@@ -38,6 +38,9 @@ abstract class RadioService : AudioFocusListenerService() {
         Log.d(TAG, "onCreate called")
         super.onCreate()
 
+        scope.launch {
+            restoreState()
+        }
     }
 
     override fun onDestroy() {
@@ -114,25 +117,30 @@ abstract class RadioService : AudioFocusListenerService() {
     protected fun unlikeRadio() {}
 
     protected fun getInfoFromServiceToUI() {
-        scope.launch {
-            if (stationIsInitialized().not())
-                restoreState()
-            if (stationIsInitialized()) {
-                //audio focus loss protection
-                //if this will be invoke before focus loss
-                //player will pause
-                launch {
-                    delay(500)
-                    userRotateDeviceProtection()
-                    delay(500)
+        if (playerIsInitialized()) {
+            scope.launch {
+                if (stationIsInitialized().not())
+                    restoreState()
+                if (stationIsInitialized()) {
+                    //audio focus loss protection
+                    //if this will be invoke before focus loss
+                    //player will pause
+                    launch {
+                        delay(500)
+                        userRotateDeviceProtection()
+                        delay(500)
+                    }
+                    //send info
+                    sendRadioArtist()
+                    sendIsPlayed()
+                    sendRadioName()
+                    sendIsLiked()
+                    sendIcon()
                 }
-                //send info
-                sendRadioArtist()
-                sendIsPlayed()
-                sendRadioName()
-                sendIsLiked()
-                sendIcon()
             }
+        }
+        else AppBroadcastHub.run {
+            radioPlayerUnavailableUI()
         }
     }
 

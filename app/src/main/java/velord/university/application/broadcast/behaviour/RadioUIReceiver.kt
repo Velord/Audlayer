@@ -18,8 +18,17 @@ interface RadioUIReceiver {
         Pair(nameRadio(), AppBroadcastHub.Action.radioNameUI),
         Pair(artistRadio(), AppBroadcastHub.Action.radioArtistUI),
         Pair(showRadio(), AppBroadcastHub.Action.showMiniPlayerRadioUI),
-        Pair(iconRadio(), AppBroadcastHub.Action.iconRadioUI)
+        Pair(iconRadio(), AppBroadcastHub.Action.iconRadioUI),
+        Pair(radioPlayerUnavailable(), AppBroadcastHub.Action.radioPlayerUnavailableUI)
     )
+
+    val radioPlayerUnavailableUIF: (Intent?) -> Unit
+    fun radioPlayerUnavailable() = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            radioPlayerUnavailableUIF(intent)
+        }
+    }
 
     val iconRadioUIF: (Intent?) -> Unit
     fun iconRadio() = object : BroadcastReceiver() {

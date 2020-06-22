@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_RADIO
@@ -24,6 +25,8 @@ class MiniPlayerRadioGeneralFragment :
     override val TAG: String = "MiniPlayerRadioGeneralFragment"
 
     private val receivers = getRadioUIReceiverList()
+
+    private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
     override fun onStart() {
         super.onStart()
@@ -54,6 +57,7 @@ class MiniPlayerRadioGeneralFragment :
         return inflater.inflate(R.layout.mini_player_fragment, container, false).apply {
             super.initMiniPlayerGeneralView(this)
             initView()
+            //getInfoFromServiceWhenStart()
         }
     }
 
@@ -119,6 +123,16 @@ class MiniPlayerRadioGeneralFragment :
             val value = getStringExtra(extra)
             DrawableIcon.loadRadioIconByName(
                 requireContext(), miniPlayerRadioIcon, value)
+        }
+    }
+
+    override val radioPlayerUnavailableUIF: (Intent?) -> Unit = {
+        it?.apply {
+            //wait and request info
+            scope.launch {
+                delay(500)
+                getInfoFromServiceWhenStart()
+            }
         }
     }
 

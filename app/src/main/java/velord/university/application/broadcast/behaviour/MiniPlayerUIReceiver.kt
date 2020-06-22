@@ -29,8 +29,17 @@ interface MiniPlayerUIReceiver {
         Pair(songArtist(), AppBroadcastHub.Action.songArtistUI),
         Pair(songHQ(), AppBroadcastHub.Action.songHQUI),
         Pair(show(), AppBroadcastHub.Action.showMiniPlayerGeneralUI),
-        Pair(icon(), AppBroadcastHub.Action.iconUI)
+        Pair(icon(), AppBroadcastHub.Action.iconUI),
+        Pair(playerUnavailable(), AppBroadcastHub.Action.playerUnavailableUI)
     )
+
+    val playerUnavailableUIF: (Intent?) -> Unit
+    fun playerUnavailable() = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            playerUnavailableUIF(intent)
+        }
+    }
 
     val iconF: (Intent?) -> Unit
     fun icon() = object : BroadcastReceiver() {

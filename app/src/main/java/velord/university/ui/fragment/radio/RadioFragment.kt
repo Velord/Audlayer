@@ -194,6 +194,8 @@ class RadioFragment : ActionBarFragment(),
 
     override val iconRadioUIF: (Intent?) -> Unit = {}
 
+    override val radioPlayerUnavailableUIF: (Intent?) -> Unit = {}
+
     override fun onStart() {
         super.onStart()
 
