@@ -41,9 +41,17 @@ abstract class RadioService : AudioFocusListenerService() {
 
         scope.launch {
             restoreState()
-            changeNotificationInfo()
-            changeNotificationPlayOrStop(player.isPlaying)
+            mayInvoke {
+                changeNotificationInfo()
+                changeNotificationPlayOrStop(player.isPlaying)
+            }
         }
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        restartService()
+
+        super.onTaskRemoved(rootIntent)
     }
 
     override fun onDestroy() {

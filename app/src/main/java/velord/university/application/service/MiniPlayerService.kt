@@ -55,6 +55,13 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        Toast.makeText(this, "sdfdsdsfds", Toast.LENGTH_SHORT).show()
+        restartService()
+
+        super.onTaskRemoved(rootIntent)
+    }
+
     override fun onDestroy() {
         Log.d(TAG, "onDestroy called")
         super.onDestroy()
