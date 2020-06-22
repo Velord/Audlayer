@@ -19,7 +19,8 @@ import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
-import velord.university.application.broadcast.behaviour.SongReceiver
+import velord.university.application.broadcast.behaviour.MiniPlayerIconReceiver
+import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
@@ -41,7 +42,8 @@ import java.io.File
 
 class FolderFragment : ActionBarFragment(),
     BackPressedHandlerZero,
-    SongReceiver {
+    SongPathReceiver,
+    MiniPlayerIconReceiver {
     //Required interface for hosting activities
     interface Callbacks {
         fun onCreatePlaylist()
@@ -159,7 +161,8 @@ class FolderFragment : ActionBarFragment(),
     }
     override val actionBarPopUp: (ImageButton) -> Unit = { }
 
-    private val receivers = receiverList()
+    private val receivers = receiverList() +
+            getIconReceiverList()
 
     override val songPathF: (Intent?) -> Unit =
         { nullableIntent ->
@@ -171,6 +174,14 @@ class FolderFragment : ActionBarFragment(),
                 }
             }
         }
+
+    override val iconClicked: (Intent?) -> Unit = {
+        it?.apply {
+            scope.launch {
+                viewModel.rvResolver.scroll(rv)
+            }
+        }
+    }
 
     private tailrec suspend fun changeRVItem(songPath: String) {
         if (viewModel.rvResolverIsInitialized()) {

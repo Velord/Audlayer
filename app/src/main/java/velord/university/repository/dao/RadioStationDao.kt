@@ -37,5 +37,5 @@ interface RadioStationDao {
     fun deleteById(id: String)
 
     @Query("Delete From RadioStation")
-    fun nukeTable()
+    fun nudeTable()
 }

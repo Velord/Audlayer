@@ -96,6 +96,8 @@ abstract class RadioService : AudioFocusListenerService() {
                     Uri.parse(url)
                 )
                 player.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                //send info
+                AppBroadcastHub.run { showRadioUI() }
                 //focus
                 setAudioFocusMusicListener()
                 //save
@@ -131,17 +133,22 @@ abstract class RadioService : AudioFocusListenerService() {
                         delay(500)
                     }
                     //send info
-                    sendRadioArtist()
-                    sendIsPlayed()
-                    sendRadioName()
-                    sendIsLiked()
-                    sendIcon()
+                    AppBroadcastHub.run { showRadioUI() }
+                    sendAllInfo()
                 }
             }
         }
         else AppBroadcastHub.run {
             radioPlayerUnavailableUI()
         }
+    }
+
+    private suspend fun sendAllInfo() {
+        sendRadioArtist()
+        sendIsPlayed()
+        sendRadioName()
+        sendIsLiked()
+        sendIcon()
     }
 
     private suspend fun restoreState() = withContext(Dispatchers.IO) {
@@ -154,6 +161,8 @@ abstract class RadioService : AudioFocusListenerService() {
     }
 
     private fun radioIsCached() {
+        MiniPlayerRepository.setState(
+            this, MiniPlayerLayoutState.RADIO)
         stopMiniPlayerService()
         sendShowRadioUI()
         playRadioAfterCreatedPlayer()
@@ -201,7 +210,16 @@ abstract class RadioService : AudioFocusListenerService() {
             .getAppIsDestroyed(this@RadioService)
         //this means ui have been destroyed after destroy main activity
         //but app is still working -> after restoration we should play radio
-        if (isPlaying && appWasDestroyed.not()) {
+        if (appWasDestroyed) {
+            mayInvoke {
+                scope.launch {
+                    sendAllInfo()
+                    playByUrl(currentStation.url)
+                    pausePlayer()
+                }
+            }
+        }
+        else if (isPlaying && appWasDestroyed.not()) {
             if (playerIsInitialized()) player.start()
         }
     }
@@ -261,7 +279,9 @@ abstract class RadioService : AudioFocusListenerService() {
 
     private fun sendInfoWhenPlay() {
         mayInvoke {
-            getInfoFromServiceToUI()
+            scope.launch {
+                sendAllInfo()
+            }
         }
         //send command to change notification
         changeNotificationPlayOrStop(true)

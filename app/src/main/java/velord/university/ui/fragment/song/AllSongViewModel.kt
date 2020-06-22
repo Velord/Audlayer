@@ -16,7 +16,7 @@ import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.ui.util.RVSelection
 
 
-class SongViewModel(private val app: Application) : AndroidViewModel(app) {
+class AllSongViewModel(private val app: Application) : AndroidViewModel(app) {
 
     val TAG = "SongViewModel"
 

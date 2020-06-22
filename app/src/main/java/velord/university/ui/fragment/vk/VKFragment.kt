@@ -21,6 +21,7 @@ import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
+import velord.university.application.broadcast.behaviour.MiniPlayerIconReceiver
 import velord.university.application.broadcast.behaviour.VkReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
@@ -39,7 +40,9 @@ import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
-class VKFragment : ActionBarFragment(), VkReceiver {
+class VKFragment : ActionBarFragment(),
+    VkReceiver,
+    MiniPlayerIconReceiver {
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromVkFragment()
@@ -178,7 +181,8 @@ class VKFragment : ActionBarFragment(), VkReceiver {
         }
     }
 
-    private val receivers = receiverList()
+    private val receivers = receiverList() +
+            getIconReceiverList()
 
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
@@ -201,6 +205,14 @@ class VKFragment : ActionBarFragment(), VkReceiver {
                 withContext(Dispatchers.Main) {
                     viewModel.rvResolver.adapter.notifyDataSetChanged()
                 }
+            }
+        }
+    }
+
+    override val iconClicked: (Intent?) -> Unit = {
+        it?.apply {
+            scope.launch {
+                viewModel.rvResolver.scroll(rv)
             }
         }
     }

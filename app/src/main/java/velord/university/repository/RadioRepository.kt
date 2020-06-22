@@ -47,6 +47,11 @@ object RadioRepository {
             db.radioDao().getByUrl(url).liked
         }
 
+    suspend fun clearTable() =
+        withContext(Dispatchers.IO) {
+            db.radioDao().nudeTable()
+        }
+
     private suspend fun insertDefaultRadioStation(context: Context) =
         withContext(Dispatchers.IO) {
             val file = getJsonDataFromAsset(

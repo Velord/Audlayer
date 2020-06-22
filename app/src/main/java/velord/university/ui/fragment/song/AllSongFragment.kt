@@ -20,7 +20,8 @@ import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
-import velord.university.application.broadcast.behaviour.SongReceiver
+import velord.university.application.broadcast.behaviour.MiniPlayerIconReceiver
+import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
@@ -37,9 +38,10 @@ import velord.university.ui.util.RVSelection
 import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import velord.university.ui.util.setupPopupMenuOnClick
 
-class SongFragment :
+class AllSongFragment :
     ActionBarFragment(),
-    SongReceiver {
+    SongPathReceiver,
+    MiniPlayerIconReceiver {
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromSongFragment()
@@ -49,18 +51,19 @@ class SongFragment :
     override val TAG: String = "SongFragment"
 
     companion object {
-        fun newInstance() = SongFragment()
+        fun newInstance() = AllSongFragment()
     }
 
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
     private val viewModel by lazy {
-        ViewModelProviders.of(this).get(SongViewModel::class.java)
+        ViewModelProviders.of(this).get(AllSongViewModel::class.java)
     }
 
     private lateinit var rv: RecyclerView
 
-    private val receivers = receiverList()
+    private val receivers = receiverList() +
+            getIconReceiverList()
 
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
@@ -70,6 +73,14 @@ class SongFragment :
                     changeRVItem(songPath)
                 }
             }
+    }
+
+    override val iconClicked: (Intent?) -> Unit = {
+        it?.apply {
+            scope.launch {
+                viewModel.rvResolver.scroll(rv)
+            }
+        }
     }
 
     private tailrec suspend fun changeRVItem(songPath: String) {

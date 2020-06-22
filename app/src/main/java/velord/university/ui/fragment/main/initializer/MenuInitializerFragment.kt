@@ -17,7 +17,7 @@ import velord.university.ui.fragment.album.AlbumFragment
 import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.radio.RadioFragment
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
-import velord.university.ui.fragment.song.SongFragment
+import velord.university.ui.fragment.song.AllSongFragment
 import velord.university.ui.fragment.vk.VKFragment
 
 
@@ -278,7 +278,7 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
             }
             2 -> {
                 Log.d(TAG, "create SongFragment")
-                SongFragment()
+                AllSongFragment()
             }
             3 -> {
                 Log.d(TAG, "create RadioFragment")
@@ -290,7 +290,7 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
             }
             else -> {
                 Log.d(TAG, "create SongFragment")
-                SongFragment()
+                AllSongFragment()
             }
         }
 }

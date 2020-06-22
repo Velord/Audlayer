@@ -66,6 +66,9 @@ open class MiniPlayerGeneralFragment :
         //init mini player initializer fragment
         super.initMiniPlayerView(view)
         //self
+        miniPlayerIconIV.setOnClickListener {
+            AppBroadcastHub.run { requireContext().clickOnIcon() }
+        }
         miniPlayerSongLikedIB.setOnClickListener {
             HeartLogic.press(requireActivity(), viewModel.getState())
         }
@@ -230,7 +233,7 @@ open class MiniPlayerGeneralFragment :
         it?.apply {
             //wait and request info
             scope.launch {
-                delay(500)
+                delay(1000)
                 getInfoFromServiceWhenStart()
             }
         }
@@ -266,9 +269,9 @@ open class MiniPlayerGeneralFragment :
                 .load(value)
                 .placeholder(R.drawable.repair_tools)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .into(miniPlayerIV)
+                .into(miniPlayerIconIV)
         else DrawableIcon.loadSongIconDrawable(
-            requireContext(), miniPlayerIV, value.toInt())
+            requireContext(), miniPlayerIconIV, value.toInt())
     }
 
     private fun getInfoFromServiceWhenStart() {

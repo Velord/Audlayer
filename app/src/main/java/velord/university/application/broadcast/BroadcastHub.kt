@@ -253,6 +253,11 @@ object AppBroadcastHub {
             this@playerUnavailableUI.sendBroadcastUnavailableUI()
         }
 
+    fun Context.clickOnIcon() =
+        MiniPlayerBroadcastClickOnIcon.run {
+            this@clickOnIcon.sendBroadcastClickOnIcon()
+        }
+
     //radio
     fun Context.stopRadioService() =
         RadioBroadcastStop.run {
@@ -334,6 +339,11 @@ object AppBroadcastHub {
             this@radioPlayerUnavailableUI.sendBroadcastUnavailableUI()
         }
 
+    fun Context.clickOnRadioIcon() =
+        RadioBroadcastClickOnIcon.run {
+            this@clickOnRadioIcon.sendBroadcastClickOnIcon()
+        }
+
     object Action {
         //general
         const val hideUI = "velord.university.GENERAL_HIDE"
@@ -379,6 +389,7 @@ object AppBroadcastHub {
         const val playOrStopService = "velord.university.PLAY_OR_STOP"
         const val iconUI = "velord.university.ICON_UI"
         const val playerUnavailableUI = "velord.university.PLAYER_UNAVAILABLE"
+        const val clickOnIcon = "velord.university.CLICK_ON_ICON"
         //radio
         const val stopRadioService = "velord.university.STOP_RADIO"
         const val stopRadioUI = "velord.university.STOP_RADIO_UI"
@@ -396,6 +407,7 @@ object AppBroadcastHub {
         const val showMiniPlayerRadioUI = "velord.university.RADIO_SHOW_UI"
         const val iconRadioUI = "velord.university.ICON_RADIO_UI"
         const val radioPlayerUnavailableUI = "velord.university.RADIO_PLAYER_UNAVAILABLE"
+        const val clickOnRadioIcon = "velord.university.CLICK_ON_RADIO_ICON"
     }
 
     object Extra {
@@ -866,6 +878,17 @@ object AppBroadcastHub {
         ) = sendBroadcast(actionUI, permission)
     }
 
+    private object MiniPlayerBroadcastClickOnIcon : BroadcastBase() {
+
+        override val actionUI: String = Action.clickOnIcon
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        fun Context.sendBroadcastClickOnIcon(
+            permission: String = PERM_PRIVATE_MINI_PLAYER
+        ) = sendBroadcast(actionUI, permission)
+    }
+
     private object RadioBroadcastStop : BroadcastBase() {
 
         override val actionService: String = Action.stopRadioService
@@ -1028,6 +1051,17 @@ object AppBroadcastHub {
         override val filterUI: IntentFilter = IntentFilter(actionUI)
 
         fun Context.sendBroadcastUnavailableUI(
+            permission: String = PERM_PRIVATE_MINI_PLAYER
+        ) = sendBroadcast(actionUI, permission)
+    }
+
+    private object RadioBroadcastClickOnIcon : BroadcastBase() {
+
+        override val actionUI: String = Action.clickOnRadioIcon
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        fun Context.sendBroadcastClickOnIcon(
             permission: String = PERM_PRIVATE_MINI_PLAYER
         ) = sendBroadcast(actionUI, permission)
     }

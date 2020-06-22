@@ -17,6 +17,7 @@ import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_RADIO
+import velord.university.application.broadcast.behaviour.RadioIconReceiver
 import velord.university.application.broadcast.behaviour.RadioServiceReceiver
 import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
@@ -31,7 +32,8 @@ import velord.university.ui.util.setupPopupMenuOnClick
 
 class RadioFragment : ActionBarFragment(),
     RadioServiceReceiver,
-    RadioUIReceiver {
+    RadioUIReceiver,
+    RadioIconReceiver {
 
     override val TAG: String = "RadioFragment"
 
@@ -131,7 +133,9 @@ class RadioFragment : ActionBarFragment(),
         updateAdapterBySearchQuery(correctQuery)
     }
 
-    private val receivers = receiverServiceList() + getRadioUIReceiverList()
+    private val receivers = receiverServiceList() +
+            getRadioUIReceiverList() +
+            getRadioIconReceiverList()
 
     override val likeRadioUIF: (Intent?) -> Unit = {
         if (viewModel.currentRadioIsInitialized())
@@ -147,18 +151,7 @@ class RadioFragment : ActionBarFragment(),
 
     override val stopRadioUIF: (Intent?) -> Unit = {}
 
-    override val playRadioUIF: (Intent?) -> Unit = {
-        if (viewModel.rvResolverIsInitialized()) {
-            scope.launch {
-                viewModel.rvResolver.state = 1
-                val stations = viewModel.ordered
-                val f: (RadioStation) -> Boolean = { radio ->
-                    viewModel.rvResolver.selected.contains(radio)
-                }
-                viewModel.rvResolver.refreshAndScroll(stations, rv, f)
-            }
-        }
-    }
+    override val playRadioUIF: (Intent?) -> Unit = {}
 
     override val getInfoRadioF: (Intent?) -> Unit = {}
 
@@ -167,7 +160,20 @@ class RadioFragment : ActionBarFragment(),
     override val nameRadioUIF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.radioNameUI
-            val value = getStringExtra(extra)
+            //radio name do not use cause RadioService can't change selected item
+            //what ui send to service it is receive
+            val radioName = getStringExtra(extra)
+
+            if (viewModel.rvResolverIsInitialized()) {
+                scope.launch {
+                    viewModel.rvResolver.state = 1
+                    val stations = viewModel.ordered
+                    val f: (RadioStation) -> Boolean = { radio ->
+                        stations.contains(radio)
+                    }
+                    viewModel.rvResolver.refreshAndScroll(stations, rv, f)
+                }
+            }
         }
     }
 
@@ -178,11 +184,7 @@ class RadioFragment : ActionBarFragment(),
         }
     }
 
-    override val showRadioUIF: (Intent?) -> Unit = {
-        it?.apply {
-
-        }
-    }
+    override val showRadioUIF: (Intent?) -> Unit = {}
 
     override val stopRadioF: (Intent?) -> Unit = {}
 
@@ -195,6 +197,14 @@ class RadioFragment : ActionBarFragment(),
     override val iconRadioUIF: (Intent?) -> Unit = {}
 
     override val radioPlayerUnavailableUIF: (Intent?) -> Unit = {}
+
+    override val iconRadioClicked: (Intent?) -> Unit = {
+        it?.apply {
+            scope.launch {
+                viewModel.rvResolver.scroll(rv)
+            }
+        }
+    }
 
     override fun onStart() {
         super.onStart()

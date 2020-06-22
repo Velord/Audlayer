@@ -22,7 +22,7 @@ import velord.university.ui.fragment.addToPlaylist.CreateNewPlaylistDialogFragme
 import velord.university.ui.fragment.addToPlaylist.SelectSongFragment
 import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.main.MainFragment
-import velord.university.ui.fragment.song.SongFragment
+import velord.university.ui.fragment.song.AllSongFragment
 import velord.university.ui.fragment.vk.VKFragment
 import velord.university.ui.util.addFragment
 import velord.university.ui.util.hideVirtualButtons
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity(),
     SelectSongFragment.Callbacks,
     AddToPlaylist.Callbacks,
     CreateNewPlaylistDialogFragment.Callbacks,
-    SongFragment.Callbacks,
+    AllSongFragment.Callbacks,
     VKFragment.Callbacks {
 
     private val TAG = "MainActivity"

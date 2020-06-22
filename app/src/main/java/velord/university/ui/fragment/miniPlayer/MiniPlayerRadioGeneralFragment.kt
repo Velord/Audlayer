@@ -57,11 +57,14 @@ class MiniPlayerRadioGeneralFragment :
         return inflater.inflate(R.layout.mini_player_fragment, container, false).apply {
             super.initMiniPlayerGeneralView(this)
             initView()
-            //getInfoFromServiceWhenStart()
+            getInfoFromServiceWhenStart()
         }
     }
 
     private fun initView() {
+        miniPlayerRadioIcon.setOnClickListener {
+            AppBroadcastHub.run { requireContext().clickOnRadioIcon() }
+        }
         miniPlayerRadioPlayOrPauseIB.setOnClickListener {
             PlayPauseLogic.press(requireActivity(), viewModel.getState())
         }
@@ -130,7 +133,7 @@ class MiniPlayerRadioGeneralFragment :
         it?.apply {
             //wait and request info
             scope.launch {
-                delay(500)
+                delay(1000)
                 getInfoFromServiceWhenStart()
             }
         }

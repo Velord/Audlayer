@@ -9,7 +9,7 @@ import velord.university.ui.util.setAutoScrollable
 
 abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
 
-    protected lateinit var miniPlayerIV: ImageView
+    protected lateinit var miniPlayerIconIV: ImageView
     protected lateinit var miniPlayerNameTV: TextView
     protected lateinit var miniPlayerArtistTV: TextView
     protected lateinit var miniPlayerSongQualityTV: TextView
@@ -33,7 +33,7 @@ abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
     protected lateinit var miniPlayerRadioIcon: ImageView
 
     protected fun initMiniPlayerView(view: View) {
-        miniPlayerIV = view.findViewById(R.id.mini_player_imageView)
+        miniPlayerIconIV = view.findViewById(R.id.mini_player_icon_imageView)
         initSongName(view)
         initSongArtist(view)
         miniPlayerSongQualityTV = view.findViewById(R.id.mini_player_song_quality)

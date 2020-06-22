@@ -6,19 +6,19 @@ import android.content.Intent
 import android.util.Log
 import velord.university.application.broadcast.AppBroadcastHub
 
-interface SongReceiver {
+interface RadioIconReceiver {
 
     val TAG: String
 
-    fun receiverList() = arrayOf(
-        Pair(songPath(), AppBroadcastHub.Action.songPathUI)
+    fun getRadioIconReceiverList() = arrayOf(
+        Pair(iconRadioClicked(), AppBroadcastHub.Action.clickOnRadioIcon)
     )
 
-    val songPathF: (Intent?) -> Unit
-    fun songPath() = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
+    val iconRadioClicked: (Intent?) -> Unit
+    fun iconRadioClicked() = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
-            songPathF(intent)
+            iconRadioClicked(intent)
         }
     }
 }
