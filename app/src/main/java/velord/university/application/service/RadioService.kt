@@ -117,18 +117,7 @@ abstract class RadioService : AudioFocusListenerService() {
         val radioStation = RadioInteractor.radioStation
         if (url == radioStation.url) {
             //no need cache if same url radio is playing ih this moment
-            if (protectSameCache(url)) {
-                scope.launch {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            this@RadioService,
-                            "Already is caching", Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-                sendRadioName()
-                return
-            }
+            if (protectSameCache(url)) return
             //assignment
             currentStation = radioStation
             //action
@@ -139,10 +128,10 @@ abstract class RadioService : AudioFocusListenerService() {
                 Uri.parse(url)
             )
             player.setAudioStreamType(AudioManager.STREAM_MUSIC)
-            //send info
-            sendShowRadioUI()
             //focus
             setAudioFocusMusicListener()
+            //send info
+            sendShowRadioUI()
             //save
             saveState()
             //play
@@ -182,10 +171,21 @@ abstract class RadioService : AudioFocusListenerService() {
         }
 
     private fun protectSameCache(urlIncome: String): Boolean =
-        (playerIsInitialized() &&
-                currentStation.url == urlIncome &&
-                player.isPlaying)
-
+        if(playerIsInitialized() &&
+            currentStation.url == urlIncome &&
+            player.isPlaying) {
+            scope.launch {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@RadioService,
+                        "Already is caching", Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            sendRadioName()
+            true
+        }
+        else false
 
     private fun sendAllInfo() {
         scope.launch {

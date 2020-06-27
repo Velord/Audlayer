@@ -1,11 +1,9 @@
 package velord.university.application.service.audioFocus
 
 import android.media.AudioManager
-import android.media.MediaPlayer
 import android.util.Log
 
 data class AudioFocusListener(private val audioFocusChangeF: AudioFocusChangeF,
-                              private val player: MediaPlayer,
                               private val tag: String
 ) : AudioManager.OnAudioFocusChangeListener {
 

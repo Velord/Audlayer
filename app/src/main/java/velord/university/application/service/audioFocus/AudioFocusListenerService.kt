@@ -52,7 +52,6 @@ abstract class AudioFocusListenerService : Service(),
         afListenerMusic =
             AudioFocusListener(
                 onAudioFocusChange,
-                player,
                 TAG
             )
         val requestResult = audioManager.requestAudioFocus(

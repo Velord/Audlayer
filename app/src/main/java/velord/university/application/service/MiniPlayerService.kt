@@ -14,7 +14,6 @@ import velord.university.application.service.audioFocus.AudioFocusChangeF
 import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.miniPlayer.MiniPlayerServicePreferences
-import velord.university.application.settings.miniPlayer.RadioServicePreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.QueueResolver
 import velord.university.model.ServicePlaylist
@@ -58,7 +57,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
                 player.setVolume(0.5f, 0.5f)
             },
             {
-                if (RadioServicePreference.getIsPlaying(this)) {
+                if (MiniPlayerServicePreferences.getIsPlaying(this)) {
                     playSongAfterCreatedPlayer()
                     player.setVolume(1.0f, 1.0f)
                 }
@@ -418,7 +417,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private fun stopPlayer() {
         stopOrPausePlayer {
-            player.stop()
+            player.pause()
         }
     }
 
@@ -449,7 +448,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             player = it
             //low volume
             if (silence) player.setVolume(0.0f, 0.0f)
-            //focus listener
+            //focus
             setAudioFocusMusicListener()
             //play
             playSongAfterCreatedPlayer()
