@@ -344,6 +344,11 @@ object AppBroadcastHub {
             this@clickOnRadioIcon.sendBroadcastClickOnIcon()
         }
 
+    fun Context.radioUrlIsWrongUI(url: String) =
+        RadioBroadcastUrlWrong.run {
+            this@radioUrlIsWrongUI.sendBroadcastUrlIsWrongUI(url)
+        }
+
     object Action {
         //general
         const val hideUI = "velord.university.GENERAL_HIDE"
@@ -408,6 +413,7 @@ object AppBroadcastHub {
         const val iconRadioUI = "velord.university.ICON_RADIO_UI"
         const val radioPlayerUnavailableUI = "velord.university.RADIO_PLAYER_UNAVAILABLE"
         const val clickOnRadioIcon = "velord.university.CLICK_ON_RADIO_ICON"
+        const val radioUrlIsWrongUI = "velord.university.RADIO_URL_IS_WRONG_UI"
     }
 
     object Extra {
@@ -422,10 +428,11 @@ object AppBroadcastHub {
         const val folderPathService = "AUDIO_FOLDER_PATH"
         const val iconUI = "SONG_ICON"
         //radio
-        const val playByRadioStationUrlService= "RADIO_STATION_URL"
+        const val radioStationUrlService = "RADIO_STATION_URL_SERVICE"
         const val radioNameUI = "RADIO_STATION_NAME"
         const val radioArtistUI = "RADIO_STATION_ARTIST"
         const val iconRadioUI = "RADIO_ICON"
+        const val radioStationUrlUI = "RADIO_STATION_URL_UI"
     }
 
     private abstract class BroadcastBase {
@@ -975,7 +982,7 @@ object AppBroadcastHub {
 
         override val filterService: IntentFilter = IntentFilter(actionService)
 
-        override val extraValueService: String = Extra.playByRadioStationUrlService
+        override val extraValueService: String = Extra.radioStationUrlService
 
         fun Context.sendBroadcastPlayByUrl(
             url: String,
@@ -1026,7 +1033,8 @@ object AppBroadcastHub {
 
         override val filterUI: IntentFilter = IntentFilter(actionUI)
 
-        fun Context.sendBroadcastShowUI(permission: String = PERM_PRIVATE_RADIO) =
+        fun Context.sendBroadcastShowUI(
+            permission: String = PERM_PRIVATE_RADIO) =
             sendBroadcast(actionUI, permission)
     }
 
@@ -1051,7 +1059,7 @@ object AppBroadcastHub {
         override val filterUI: IntentFilter = IntentFilter(actionUI)
 
         fun Context.sendBroadcastUnavailableUI(
-            permission: String = PERM_PRIVATE_MINI_PLAYER
+            permission: String = PERM_PRIVATE_RADIO
         ) = sendBroadcast(actionUI, permission)
     }
 
@@ -1062,7 +1070,20 @@ object AppBroadcastHub {
         override val filterUI: IntentFilter = IntentFilter(actionUI)
 
         fun Context.sendBroadcastClickOnIcon(
-            permission: String = PERM_PRIVATE_MINI_PLAYER
+            permission: String = PERM_PRIVATE_RADIO
         ) = sendBroadcast(actionUI, permission)
+    }
+
+    private object RadioBroadcastUrlWrong : BroadcastBase() {
+        override val actionUI: String = Action.radioUrlIsWrongUI
+
+        override val filterUI: IntentFilter = IntentFilter(actionUI)
+
+        override val extraValueUI: String = Extra.radioStationUrlUI
+
+        fun Context.sendBroadcastUrlIsWrongUI(
+            url: String,
+            permission: String = PERM_PRIVATE_RADIO
+        ) = sendBroadcast(actionUI, permission, extraValueUI, url)
     }
 }

@@ -18,7 +18,8 @@ import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_RADIO
 import velord.university.application.broadcast.behaviour.RadioIconReceiver
-import velord.university.application.broadcast.behaviour.RadioNameArtistUIreceiver
+import velord.university.application.broadcast.behaviour.RadioNameArtistUIReceiver
+import velord.university.application.broadcast.behaviour.RadioUnavailableUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
@@ -30,8 +31,9 @@ import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import velord.university.ui.util.setupPopupMenuOnClick
 
 class RadioFragment : ActionBarFragment(),
-    RadioNameArtistUIreceiver,
-    RadioIconReceiver {
+    RadioNameArtistUIReceiver,
+    RadioIconReceiver,
+    RadioUnavailableUIReceiver {
 
     override val TAG: String = "RadioFragment"
 
@@ -131,9 +133,9 @@ class RadioFragment : ActionBarFragment(),
         updateAdapterBySearchQuery(correctQuery)
     }
 
-    private val receivers =
-                getRadioNameArtistUIReceiverList() +
-                getRadioIconReceiverList()
+    private val receivers = getRadioNameArtistUIReceiverList() +
+            getRadioIconReceiverList() +
+            getRadioUnavailableUIReceiverList()
 
     override val nameRadioUIF: (Intent?) -> Unit = {
         it?.apply {
@@ -146,7 +148,7 @@ class RadioFragment : ActionBarFragment(),
                     val stations = viewModel.ordered
                     val station = stations.find { it.name == radioName }
                     val f: (RadioStation) -> Boolean = { radio ->
-                        stations.contains(station)
+                        radio == station
                     }
 
                     viewModel.rvResolver.refreshAndScroll(stations, rv, f)
@@ -166,6 +168,37 @@ class RadioFragment : ActionBarFragment(),
         it?.apply {
             scope.launch {
                 viewModel.rvResolver.scroll(rv)
+            }
+        }
+    }
+
+    override val radioPlayerUnavailableUIF: (Intent?) -> Unit = {
+        it?.apply {
+            scope.launch {
+
+            }
+        }
+
+    }
+
+    override val radioUrlIsWrongUIF: (Intent?) -> Unit = {
+        it?.apply {
+            scope.launch {
+                val extra = AppBroadcastHub.Extra.radioStationUrlUI
+                val radioUrl = getStringExtra(extra)
+
+                if (viewModel.rvResolverIsInitialized()) {
+                    scope.launch {
+                        viewModel.rvResolver.state = 1
+                        val stations = viewModel.ordered
+                        val station = stations.find { it.url == radioUrl }
+                        val f: (RadioStation) -> Boolean = { radio ->
+                            radio == station
+                        }
+
+                        viewModel.rvResolver.refreshAndScroll(stations, rv, f)
+                    }
+                }
             }
         }
     }

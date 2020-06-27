@@ -49,7 +49,7 @@ class RadioServiceBroadcastReceiver :
     override val playByUrlRadioF: (Intent?) -> Unit = {
         scope.launch {
             it?.let {
-                val extra = AppBroadcastHub.Extra.playByRadioStationUrlService
+                val extra = AppBroadcastHub.Extra.radioStationUrlService
                 val path = it.getStringExtra(extra)
                 super<RadioService>.playByUrl(path)
             }

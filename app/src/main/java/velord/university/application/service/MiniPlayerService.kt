@@ -462,10 +462,21 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             storeSongPositionInQueue()
             //notification refresh
             changeNotificationInfo(song)
-        } ?: {
-            Log.d(TAG, "Path: $path is incorrect")
-            sendPathIsWrong(song.path)
-        }()
+        } ?: pathIsWrong(path!!)
+    }
+
+    private fun pathIsWrong(path: String) {
+        Log.d(TAG, "Path: $path is incorrect")
+        sendPathIsWrong(path)
+        scope.launch {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    this@MiniPlayerService,
+                    "Path: $path is unavailable",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     private fun createPlayer(file: File): MediaPlayer? {

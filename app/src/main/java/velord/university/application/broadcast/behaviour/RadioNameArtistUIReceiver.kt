@@ -6,7 +6,7 @@ import android.content.Intent
 import android.util.Log
 import velord.university.application.broadcast.AppBroadcastHub
 
-interface RadioNameArtistUIreceiver {
+interface RadioNameArtistUIReceiver {
 
     val TAG: String
 

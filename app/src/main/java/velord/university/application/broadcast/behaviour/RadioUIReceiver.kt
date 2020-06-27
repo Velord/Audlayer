@@ -6,10 +6,13 @@ import android.content.Intent
 import android.util.Log
 import velord.university.application.broadcast.AppBroadcastHub
 
-interface RadioUIReceiver: RadioNameArtistUIreceiver {
+interface RadioUIReceiver:
+    RadioNameArtistUIReceiver,
+    RadioUnavailableUIReceiver{
 
     fun getRadioUIReceiverList() =
         getRadioNameArtistUIReceiverList() +
+                getRadioUnavailableUIReceiverList() +
                 arrayOf(
                     Pair(stopRadio(), AppBroadcastHub.Action.stopRadioUI),
                     Pair(playRadio(), AppBroadcastHub.Action.playRadioUI),
@@ -17,16 +20,9 @@ interface RadioUIReceiver: RadioNameArtistUIreceiver {
                     Pair(unlikeRadio(), AppBroadcastHub.Action.unlikeRadioUI),
                     Pair(showRadio(), AppBroadcastHub.Action.showMiniPlayerRadioUI),
                     Pair(iconRadio(), AppBroadcastHub.Action.iconRadioUI),
-                    Pair(radioPlayerUnavailable(), AppBroadcastHub.Action.radioPlayerUnavailableUI)
+                    Pair(radioPlayerUnavailable(), AppBroadcastHub.Action.radioPlayerUnavailableUI),
+                    Pair(radioUrlIsWrongUI(), AppBroadcastHub.Action.radioUrlIsWrongUI)
                 )
-
-    val radioPlayerUnavailableUIF: (Intent?) -> Unit
-    fun radioPlayerUnavailable() = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.i(TAG, "received broadcast: ${intent?.action}")
-            radioPlayerUnavailableUIF(intent)
-        }
-    }
 
     val iconRadioUIF: (Intent?) -> Unit
     fun iconRadio() = object : BroadcastReceiver() {

@@ -133,11 +133,13 @@ class MiniPlayerRadioGeneralFragment :
         it?.apply {
             //wait and request info
             scope.launch {
-                delay(1000)
+                delay(3000)
                 getInfoFromServiceWhenStart()
             }
         }
     }
+
+    override val radioUrlIsWrongUIF: (Intent?) -> Unit = {}
 
     private fun getInfoFromServiceWhenStart() {
         val f: () -> Unit = {
