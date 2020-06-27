@@ -6,11 +6,13 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.AppBroadcastHub.iconRadioUI
 import velord.university.application.broadcast.RestarterRadioService
 import velord.university.application.notification.MiniPlayerServiceNotification
+import velord.university.application.service.audioFocus.AudioFocusChangeF
 import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.miniPlayer.RadioServicePreference
@@ -30,6 +32,33 @@ abstract class RadioService : AudioFocusListenerService() {
 
     private lateinit var currentStation: RadioStation
 
+    override val onAudioFocusChange: AudioFocusChangeF =
+        AudioFocusChangeF(
+            {
+                if (player.isPlaying) {
+                    pausePlayer()
+                    //rearward playing state
+                    storeIsPlayingStateTrue()
+                }
+            },
+            {
+                if (player.isPlaying) {
+                    pausePlayer()
+                    //rearward playing state
+                    storeIsPlayingStateTrue()
+                }
+            },
+            {
+                player.setVolume(0.5f, 0.5f)
+            },
+            {
+                if (RadioServicePreference.getIsPlaying(this)) {
+                    playRadioIfCan()
+                    player.setVolume(1.0f, 1.0f)
+                }
+            }
+        )
+
     override fun onBind(intent: Intent?): IBinder? {
         Log.d(TAG, "onBind called")
         return  null
@@ -43,12 +72,14 @@ abstract class RadioService : AudioFocusListenerService() {
             restoreState()
             mayInvoke {
                 changeNotificationInfo()
-                changeNotificationPlayOrStop(player.isPlaying)
+                changeNotificationPlayOrStop(false)
             }
         }
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
+        Toast.makeText(this, "onTaskRemoved", Toast.LENGTH_SHORT).show()
+
         restartService()
 
         super.onTaskRemoved(rootIntent)
@@ -82,29 +113,40 @@ abstract class RadioService : AudioFocusListenerService() {
     }
 
     protected fun playByUrl(url: String) {
-        scope.launch {
-            //check correct radioStation
-            val radioStation = RadioInteractor.radioStation
-            if (url == radioStation.url) {
-                //assignment
-                currentStation = radioStation
-                //action
-                stopOrPausePlayer { stopPlayer() }
-                //create
-                player = MediaPlayer.create(
-                    this@RadioService,
-                    Uri.parse(url)
-                )
-                player.setAudioStreamType(AudioManager.STREAM_MUSIC)
-                //send info
-                AppBroadcastHub.run { showRadioUI() }
-                //focus
-                setAudioFocusMusicListener()
-                //save
-                saveState()
-                //play
-                radioIsCached()
+        //check correct radioStation
+        val radioStation = RadioInteractor.radioStation
+        if (url == radioStation.url) {
+            //no need cache if same url radio is playing ih this moment
+            if (protectSameCache(url)) {
+                scope.launch {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@RadioService,
+                            "Already is caching", Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                sendRadioName()
+                return
             }
+            //assignment
+            currentStation = radioStation
+            //action
+            stopOrPausePlayer { stopPlayer() }
+            //create
+            player = MediaPlayer.create(
+                this@RadioService,
+                Uri.parse(url)
+            )
+            player.setAudioStreamType(AudioManager.STREAM_MUSIC)
+            //send info
+            sendShowRadioUI()
+            //focus
+            setAudioFocusMusicListener()
+            //save
+            saveState()
+            //play
+            radioIsCached()
         }
     }
 
@@ -114,50 +156,61 @@ abstract class RadioService : AudioFocusListenerService() {
         else playByUrl(currentStation.url)
     }
     //ignore cause radioFragment handle this
-    protected fun likeRadio() {}
+    protected fun likeRadio() {
+        if (stationIsInitialized()) scope.launch {
+            changeLikeInDB(true)
+        }
+    }
     //ignore cause radioFragment handle this
-    protected fun unlikeRadio() {}
+    protected fun unlikeRadio() {
+        if (stationIsInitialized()) scope.launch {
+            changeLikeInDB(false)
+        }
+    }
 
     protected fun getInfoFromServiceToUI() {
-        if (playerIsInitialized()) {
-            scope.launch {
-                if (stationIsInitialized().not())
-                    restoreState()
-                if (stationIsInitialized()) {
-                    //audio focus loss protection
-                    //if this will be invoke before focus loss
-                    //player will pause
-                    launch {
-                        delay(500)
-                        userRotateDeviceProtection()
-                        delay(500)
-                    }
-                    //send info
-                    AppBroadcastHub.run { showRadioUI() }
-                    sendAllInfo()
-                }
-            }
-        }
+        if (stationIsInitialized()) sendAllInfo()
         else AppBroadcastHub.run {
             radioPlayerUnavailableUI()
         }
     }
 
-    private suspend fun sendAllInfo() {
-        sendRadioArtist()
-        sendIsPlayed()
-        sendRadioName()
-        sendIsLiked()
-        sendIcon()
+    private suspend fun changeLikeInDB(isLike: Boolean) =
+        withContext(Dispatchers.IO) {
+            if (isLike) RadioRepository.likeByUrl(currentStation.url)
+            else RadioRepository.unlikeByUrl(currentStation.url)
+        }
+
+    private fun protectSameCache(urlIncome: String): Boolean =
+        (playerIsInitialized() &&
+                currentStation.url == urlIncome &&
+                player.isPlaying)
+
+
+    private fun sendAllInfo() {
+        scope.launch {
+            sendRadioArtist()
+            sendIsPlayed()
+            sendRadioName()
+            sendIsLiked()
+            sendIcon()
+        }
     }
 
     private suspend fun restoreState() = withContext(Dispatchers.IO) {
         Log.d(TAG, "restoreState")
         val id = RadioServicePreference.getCurrentRadioId(this@RadioService)
-        currentStation = RadioRepository.getById(id)
-        RadioInteractor.radioStation = currentStation
 
-        //userRotateDeviceProtection()
+        RadioRepository.getById(id)!!.let {
+            currentStation = it
+            RadioInteractor.radioStation = currentStation
+            //cache radio
+            mayInvoke {
+                sendAllInfo()
+                playByUrl(currentStation.url)
+                pausePlayer()
+            }
+        }
     }
 
     private fun restartService() {
@@ -168,10 +221,7 @@ abstract class RadioService : AudioFocusListenerService() {
     }
 
     private fun radioIsCached() {
-        MiniPlayerRepository.setState(
-            this, MiniPlayerLayoutState.RADIO)
         stopMiniPlayerService()
-        sendShowRadioUI()
         playRadioAfterCreatedPlayer()
     }
 
@@ -194,21 +244,32 @@ abstract class RadioService : AudioFocusListenerService() {
     }
 
     private fun stopOrPausePlayer(f: () -> Unit) {
-        if (playerIsInitialized()) f()
+        if (playerIsInitialized()) {
+            f()
+            storeIsPlayingState()
+        }
         //send command to change ui
         sendInfoWhenStop()
     }
 
     private fun storeIsPlayingState() {
         if (playerIsInitialized()) {
-            if (player.isPlaying) RadioServicePreference
-                .setIsPlaying(this, true)
-            else RadioServicePreference
-                .setIsPlaying(this, false)
+            if (player.isPlaying) storeIsPlayingStateTrue()
+            else storeIsPlayingStateFalse()
         }
     }
 
-    private fun userRotateDeviceProtection() {
+    private fun storeIsPlayingStateTrue() {
+        RadioServicePreference
+            .setIsPlaying(this, true)
+    }
+
+    private fun storeIsPlayingStateFalse() {
+        RadioServicePreference
+            .setIsPlaying(this, false)
+    }
+
+    private fun appWasDestroyedProtection() {
         Log.d(TAG, "userRotateDeviceProtection")
         //restore isPlaying state
         val isPlaying = RadioServicePreference
@@ -219,11 +280,9 @@ abstract class RadioService : AudioFocusListenerService() {
         //but app is still working -> after restoration we should play radio
         if (appWasDestroyed) {
             mayInvoke {
-                scope.launch {
-                    sendAllInfo()
-                    playByUrl(currentStation.url)
-                    pausePlayer()
-                }
+                sendAllInfo()
+                playByUrl(currentStation.url)
+                pausePlayer()
             }
         }
         else if (isPlaying && appWasDestroyed.not()) {
@@ -279,10 +338,13 @@ abstract class RadioService : AudioFocusListenerService() {
         }
     }
 
-    private fun sendShowRadioUI() =
+    private fun sendShowRadioUI() {
+        MiniPlayerRepository.setState(
+            this, MiniPlayerLayoutState.RADIO)
         AppBroadcastHub.apply {
             showRadioUI()
         }
+    }
 
     private fun sendInfoWhenPlay() {
         mayInvoke {
@@ -296,13 +358,14 @@ abstract class RadioService : AudioFocusListenerService() {
     }
 
     private suspend fun sendIsLiked() = withContext(Dispatchers.IO) {
-        when (RadioRepository.isLike(currentStation.url)) {
+        when (RadioRepository.isLike(currentStation.url).getOrElse(null)) {
             true -> mayInvoke {
                 AppBroadcastHub.apply { likeRadioUI() }
             }
             false -> mayInvoke {
                 AppBroadcastHub.apply { unlikeRadioUI() }
             }
+            else -> Log.d(TAG, "sendIsLiked is null value")
         }
     }
 

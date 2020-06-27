@@ -6,21 +6,19 @@ import android.content.Intent
 import android.util.Log
 import velord.university.application.broadcast.AppBroadcastHub
 
-interface RadioUIReceiver {
+interface RadioUIReceiver: RadioNameArtistUIreceiver {
 
-    val TAG: String
-
-    fun getRadioUIReceiverList() = arrayOf(
-        Pair(stopRadio(), AppBroadcastHub.Action.stopRadioUI),
-        Pair(playRadio(), AppBroadcastHub.Action.playRadioUI),
-        Pair(likeRadio(), AppBroadcastHub.Action.likeRadioUI),
-        Pair(unlikeRadio(), AppBroadcastHub.Action.unlikeRadioUI),
-        Pair(nameRadio(), AppBroadcastHub.Action.radioNameUI),
-        Pair(artistRadio(), AppBroadcastHub.Action.radioArtistUI),
-        Pair(showRadio(), AppBroadcastHub.Action.showMiniPlayerRadioUI),
-        Pair(iconRadio(), AppBroadcastHub.Action.iconRadioUI),
-        Pair(radioPlayerUnavailable(), AppBroadcastHub.Action.radioPlayerUnavailableUI)
-    )
+    fun getRadioUIReceiverList() =
+        getRadioNameArtistUIReceiverList() +
+                arrayOf(
+                    Pair(stopRadio(), AppBroadcastHub.Action.stopRadioUI),
+                    Pair(playRadio(), AppBroadcastHub.Action.playRadioUI),
+                    Pair(likeRadio(), AppBroadcastHub.Action.likeRadioUI),
+                    Pair(unlikeRadio(), AppBroadcastHub.Action.unlikeRadioUI),
+                    Pair(showRadio(), AppBroadcastHub.Action.showMiniPlayerRadioUI),
+                    Pair(iconRadio(), AppBroadcastHub.Action.iconRadioUI),
+                    Pair(radioPlayerUnavailable(), AppBroadcastHub.Action.radioPlayerUnavailableUI)
+                )
 
     val radioPlayerUnavailableUIF: (Intent?) -> Unit
     fun radioPlayerUnavailable() = object : BroadcastReceiver() {
@@ -35,22 +33,6 @@ interface RadioUIReceiver {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
             iconRadioUIF(intent)
-        }
-    }
-
-    val nameRadioUIF: (Intent?) -> Unit
-    fun nameRadio() = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.i(TAG, "received broadcast: ${intent?.action}")
-            nameRadioUIF(intent)
-        }
-    }
-
-    val artistRadioUIF: (Intent?) -> Unit
-    fun artistRadio() = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.i(TAG, "received broadcast: ${intent?.action}")
-            artistRadioUIF(intent)
         }
     }
 

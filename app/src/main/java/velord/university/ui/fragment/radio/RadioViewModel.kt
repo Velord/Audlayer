@@ -56,13 +56,6 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
         SearchQueryPreferences.setStoredQueryRadio(app, currentQuery)
     }
 
-    fun changeLike(isLike: Boolean) {
-        scope.launch {
-            changeLikeInDB(isLike)
-            reassignmentRadioPlaylist()
-        }
-    }
-
     suspend fun filterByQuery(query: String): List<RadioStation> =
         withContext(Dispatchers.Default) {
             val filtered = radioPlaylist.filter {
@@ -93,8 +86,4 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
     private suspend fun reassignmentRadioPlaylist() {
         radioPlaylist = RadioRepository.getAll()
     }
-
-    private suspend fun changeLikeInDB(isLike: Boolean) =
-        if (isLike) RadioRepository.likeByUrl(currentRadio.url)
-        else RadioRepository.unlikeByUrl(currentRadio.url)
 }

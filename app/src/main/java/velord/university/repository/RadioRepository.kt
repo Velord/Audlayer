@@ -7,49 +7,62 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import velord.university.application.AudlayerApp
+import velord.university.application.AudlayerApp.Companion.db
 import velord.university.model.entity.RadioStation
 import velord.university.model.file.getJsonDataFromAsset
+import velord.university.model.functionalDataSctructure.result.Result
 
 object RadioRepository {
 
-    private val db = AudlayerApp.db!!
-
     suspend fun getAll(): List<RadioStation> =
         withContext(Dispatchers.IO) {
-            AudlayerApp.db!!.radioDao().getAll()
+            db?.run {
+                radioDao().getAll()
+            } ?: listOf()
         }
 
     suspend fun checkDefaultRadioStation(context: Context) =
         withContext(Dispatchers.IO) {
-            val stations = db.radioDao().getAll()
+            val stations = db?.run {
+                radioDao().getAll()
+            } ?: listOf()
             if (stations.isEmpty())
                 insertDefaultRadioStation(context)
         }
 
     suspend fun likeByUrl(url: String) =
         withContext(Dispatchers.IO) {
-            db.radioDao().updateLikeByUrl(url, true)
+            db?.run {
+                radioDao().updateLikeByUrl(url, true)
+            }
         }
 
     suspend fun unlikeByUrl(url: String) =
         withContext(Dispatchers.IO) {
-            db.radioDao().updateLikeByUrl(url, false)
+            db?.run {
+                radioDao().updateLikeByUrl(url, false)
+            }
         }
 
-    suspend fun getById(id: Int): RadioStation =
+    suspend fun getById(id: Int): RadioStation? =
         withContext(Dispatchers.IO) {
-            db.radioDao().getById(id)
+            db?.run {
+                radioDao().getById(id)
+            }
         }
 
-    suspend fun isLike(url: String): Boolean =
+    suspend fun isLike(url: String): Result<Boolean?> =
         withContext(Dispatchers.IO) {
-            db.radioDao().getByUrl(url).liked
+            Result.of {
+                db!!.radioDao().getByUrl(url).liked
+            }
         }
 
     suspend fun clearTable() =
         withContext(Dispatchers.IO) {
-            db.radioDao().nudeTable()
+            db?.run {
+                radioDao().nudeTable()
+            }
         }
 
     private suspend fun insertDefaultRadioStation(context: Context) =
@@ -65,6 +78,8 @@ object RadioRepository {
             val adapter: JsonAdapter<List<RadioStation>> = moshi.adapter(type)
             val stations = adapter.fromJson(file)
 
-            db.radioDao().insertAll(*stations!!.toTypedArray())
+            db?.run {
+                radioDao().insertAll(*stations!!.toTypedArray())
+            }
         }
 }

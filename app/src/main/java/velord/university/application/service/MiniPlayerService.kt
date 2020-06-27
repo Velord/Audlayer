@@ -10,9 +10,11 @@ import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.RestarterMiniPlayerGeneralService
 import velord.university.application.notification.MiniPlayerServiceNotification
+import velord.university.application.service.audioFocus.AudioFocusChangeF
 import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.miniPlayer.MiniPlayerServicePreferences
+import velord.university.application.settings.miniPlayer.RadioServicePreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.QueueResolver
 import velord.university.model.ServicePlaylist
@@ -36,6 +38,33 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private lateinit var rewindJob: Job
 
+    override val onAudioFocusChange: AudioFocusChangeF =
+        AudioFocusChangeF(
+            {
+                if (player.isPlaying) {
+                    pausePlayer()
+                    //rearward playing state
+                    storeIsPlayingStateTrue()
+                }
+            },
+            {
+                if (player.isPlaying) {
+                    pausePlayer()
+                    //rearward playing state
+                    storeIsPlayingStateTrue()
+                }
+            },
+            {
+                player.setVolume(0.5f, 0.5f)
+            },
+            {
+                if (RadioServicePreference.getIsPlaying(this)) {
+                    playSongAfterCreatedPlayer()
+                    player.setVolume(1.0f, 1.0f)
+                }
+            }
+        )
+
     override fun onBind(intent: Intent?): IBinder? {
         Log.d(TAG, "onBind called")
         return  null
@@ -56,7 +85,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
-        Toast.makeText(this, "sdfdsdsfds", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "onTaskRemoved", Toast.LENGTH_SHORT).show()
         restartService()
 
         super.onTaskRemoved(rootIntent)
@@ -136,16 +165,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     protected fun getInfoFromServiceToUI() {
-        if (playerIsInitialized()) {
-            val restoreStatePlayer: () -> Unit =
-                if (player.isPlaying) { {} }
-                else { { pausePlayer() } }
-            //TODO() does need this lines ?
-            pausePlayer()
-            sendInfoToUI()
-            playSongAfterCreatedPlayer()
-            restoreStatePlayer()
-        }
+        if (playerIsInitialized()) sendInfoToUI()
         else AppBroadcastHub.run { playerUnavailableUI() }
     }
 
@@ -331,7 +351,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             //restore duration
             //what song should play
             //after all info got -> start player ->  set current time -> stop
-            applyRewind(songsToPlaylist)
+            applySong(songsToPlaylist)
             //this means ui have been destroyed with service after destroy main activity
             //but app is still working -> after restoration we should play song
             if (isPlaying && appWasDestroyed.not()) {
@@ -340,12 +360,11 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
     }
 
-    private fun applyRewind(songsToPlaylist: List<File>) {
+    private fun applySong(songsToPlaylist: List<File>) {
         val duration = MiniPlayerServicePreferences
-            .getCurrentDuration(this@MiniPlayerService)
+           .getCurrentDuration(this@MiniPlayerService)
         val path = restoreSongPath(songsToPlaylist)
-        playNext(path)
-        player.setVolume(0.0f, 0.0f)
+        playNext(path, true)
         rewindPlayer(duration)
         pausePlayer()
         player.setVolume(1.0f, 1.0f)
@@ -386,6 +405,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     private fun stopOrPausePlayer(f: () -> Unit) {
         if (playerIsInitialized()) {
             f()
+            storeIsPlayingState()
             stopSendRewind()
         }
         //send command to change ui
@@ -398,7 +418,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private fun stopPlayer() {
         stopOrPausePlayer {
-            //player.release()
+            player.stop()
         }
     }
 
@@ -417,7 +437,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
     }
 
-    private fun playNext(path: String? = null) {
+    private fun playNext(
+        path: String? = null,
+        silence: Boolean = false) {
         //check if song now is playing
         stopPlayer()
         //start playing
@@ -425,6 +447,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         else playlist.getSongAndResetQuery(path)
         createPlayer(song.absoluteFile)?.let {
             player = it
+            //low volume
+            if (silence) player.setVolume(0.0f, 0.0f)
             //focus listener
             setAudioFocusMusicListener()
             //play
@@ -475,11 +499,19 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private fun storeIsPlayingState() {
         if (playerIsInitialized()) {
-            if (player.isPlaying) MiniPlayerServicePreferences
-                .setIsPlaying(this@MiniPlayerService, true)
-            else MiniPlayerServicePreferences
-                .setIsPlaying(this, false)
+            if (player.isPlaying) storeIsPlayingStateTrue()
+            else storeIsPlayingStateFalse()
         }
+    }
+
+    private fun storeIsPlayingStateTrue() {
+        MiniPlayerServicePreferences
+            .setIsPlaying(this, true)
+    }
+
+    private fun storeIsPlayingStateFalse() {
+        MiniPlayerServicePreferences
+            .setIsPlaying(this, false)
     }
 
     private fun storeSongPositionInQueue() {
@@ -507,18 +539,36 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private fun sendInfoToUI(song: File = playlist.getSong()) {
         //send info
-        scope.launch {
-            mayInvoke {
-                sendShowGeneralUI()
-                sendLoopState()
-                sendShuffleState()
-                sendPath(song)
-                sendSongNameAndArtist(song)
-                sendDurationSong(player)
-                sendIsHQ(song)
-                scope.launch {
-                    sendIsLoved(song)
-                }
+        mayInvoke {
+            sendShowGeneralUI()
+            sendIsPlayed()
+            sendLoopState()
+            sendShuffleState()
+            sendPath(song)
+            sendSongNameAndArtist(song)
+            sendSongDuration(player)
+            sendIsHQ(song)
+            sendCurrentDuration()
+            scope.launch {
+                sendIsLoved(song)
+            }
+        }
+    }
+
+    private fun sendCurrentDuration() {
+        val duration = 
+            MiniPlayerServicePreferences.getCurrentDuration(this)
+        val seconds = SongTimeConverter.millisecondsToSeconds(duration)
+        AppBroadcastHub.run { rewindUI(seconds) }
+    }
+
+    private fun sendIsPlayed() {
+        mayInvoke {
+            if (playerIsInitialized()) {
+                if(player.isPlaying)
+                    AppBroadcastHub.apply { playUI() }
+                else
+                    AppBroadcastHub.run { stopUI() }
             }
         }
     }
@@ -544,7 +594,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     private fun sendPath(song: File) =
         AppBroadcastHub.run { songPathUI(song.path) }
 
-    private fun sendDurationSong(player: MediaPlayer) =
+    private fun sendSongDuration(player: MediaPlayer) =
         AppBroadcastHub.run { songDurationUI(player.duration) }
 
     private fun sendIsHQ(song: File) {

@@ -4,7 +4,8 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.util.Log
 
-data class AudioFocusListener(private val player: MediaPlayer,
+data class AudioFocusListener(private val audioFocusChangeF: AudioFocusChangeF,
+                              private val player: MediaPlayer,
                               private val tag: String
 ) : AudioManager.OnAudioFocusChangeListener {
 
@@ -13,20 +14,19 @@ data class AudioFocusListener(private val player: MediaPlayer,
         when (focusChange) {
             AudioManager.AUDIOFOCUS_LOSS -> {
                 event = "AUDIOFOCUS_LOSS"
-                player.pause()
+                audioFocusChangeF.focusLossF()
             }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
                 event = "AUDIOFOCUS_LOSS_TRANSIENT"
-                player.pause()
+                audioFocusChangeF.focusLossTransientF()
             }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 event = "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK"
-                player.setVolume(0.5f, 0.5f)
+                audioFocusChangeF.focusLossTransientCanDuckF()
             }
             AudioManager.AUDIOFOCUS_GAIN -> {
                 event = "AUDIOFOCUS_GAIN"
-                if (!player.isPlaying) player.start()
-                player.setVolume(1.0f, 1.0f)
+                audioFocusChangeF.focusGainF()
             }
         }
         Log.d(tag, "onAudioFocusChange: $event")

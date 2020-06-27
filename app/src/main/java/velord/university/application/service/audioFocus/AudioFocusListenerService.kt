@@ -12,6 +12,8 @@ abstract class AudioFocusListenerService : Service(),
     MediaPlayer.OnCompletionListener {
 
     abstract val TAG: String
+    //how service should react to focus change
+    abstract val onAudioFocusChange: AudioFocusChangeF
 
     protected lateinit var audioManager: AudioManager
     protected lateinit var afListenerMusic: AudioFocusListener
@@ -49,6 +51,7 @@ abstract class AudioFocusListenerService : Service(),
     protected fun setAudioFocusMusicListener() {
         afListenerMusic =
             AudioFocusListener(
+                onAudioFocusChange,
                 player,
                 TAG
             )

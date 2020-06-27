@@ -3,6 +3,10 @@ package velord.university.application.service
 import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.AppBroadcastHub.likeRadioUI
 import velord.university.application.broadcast.AppBroadcastHub.unlikeRadioUI
@@ -18,6 +22,8 @@ class RadioServiceBroadcastReceiver :
     override val TAG: String = "RadioServiceBrdcstRcvr"
 
     private val receivers = receiverServiceList()
+
+    private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy called")
@@ -41,48 +47,62 @@ class RadioServiceBroadcastReceiver :
     }
 
     override val playByUrlRadioF: (Intent?) -> Unit = {
-        it?.let {
-            val extra = AppBroadcastHub.Extra.playByRadioStationUrlService
-            val path = it.getStringExtra(extra)
-            super<RadioService>.playByUrl(path)
+        scope.launch {
+            it?.let {
+                val extra = AppBroadcastHub.Extra.playByRadioStationUrlService
+                val path = it.getStringExtra(extra)
+                super<RadioService>.playByUrl(path)
+            }
         }
     }
 
     override val stopRadioF: (Intent?) -> Unit = {
-        it?.let {
-            super.pausePlayer()
+        scope.launch {
+            it?.let {
+                super.pausePlayer()
+            }
         }
     }
 
     override val playRadioF: (Intent?) -> Unit = {
-        it?.let {
-            super.playRadioIfCan()
+        scope.launch {
+            it?.let {
+                super.playRadioIfCan()
+            }
         }
     }
 
     override val likeRadioF: (Intent?) -> Unit = {
-        it?.let {
-            super.likeRadio()
-            this.likeRadioUI()
+        scope.launch {
+            it?.let {
+                super.likeRadio()
+                this@RadioServiceBroadcastReceiver.likeRadioUI()
+            }
         }
     }
 
     override val unlikeRadioF: (Intent?) -> Unit = {
-        it?.let {
-            super.unlikeRadio()
-            this.unlikeRadioUI()
+        scope.launch {
+            it?.let {
+                super.unlikeRadio()
+                this@RadioServiceBroadcastReceiver.unlikeRadioUI()
+            }
         }
     }
 
     override val getInfoRadioF: (Intent?) -> Unit = {
-        it?.let {
-            super.getInfoFromServiceToUI()
+        scope.launch {
+            it?.let {
+                super.getInfoFromServiceToUI()
+            }
         }
     }
 
     override val playOrStopRadioF: (Intent?) -> Unit = {
-        it?.let {
-            super.playOrStopService()
+        scope.launch {
+            it?.let {
+                super.playOrStopService()
+            }
         }
     }
 }

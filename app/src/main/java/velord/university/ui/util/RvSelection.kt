@@ -103,7 +103,6 @@ data class RVSelection<T>(
     }
 
     suspend fun scroll(rv: RecyclerView) = withContext(Dispatchers.Main) {
-        adapter.notifyDataSetChanged()
         rv.scrollToPosition(currentPosition)
     }
 
