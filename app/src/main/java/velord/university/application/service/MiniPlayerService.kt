@@ -77,7 +77,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             PlaylistTransaction.checkDbTableColumn()
             restoreState()
             mayInvoke {
-                changeNotificationInfo()
+                if (playlistIsInitialized())
+                    changeNotificationInfo()
                 changeNotificationPlayOrStop(true)
             }
         }
@@ -297,6 +298,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
     }
 
+    private fun playlistIsInitialized(): Boolean =
+        playlist.notShuffled.isNotEmpty()
+
     private fun restartService() {
         val broadcastIntent = Intent()
         broadcastIntent.action = "RestartMiniPlayerGeneralService"
@@ -311,7 +315,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
         //send command to change notification
         changeNotificationPlayOrStop(true)
-        changeNotificationInfo(playlist.getSong())
+        if (playlistIsInitialized())
+            changeNotificationInfo()
     }
 
     private fun stopElseService() {
@@ -320,11 +325,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private fun changeNotificationInfo(file: File = playlist.getSong()) {
-        if (playerIsInitialized()) {
-            val title = FileNameParser.getSongTitle(file)
-            val artist = FileNameParser.getSongArtist(file)
-            MiniPlayerServiceNotification.updateSongTitleAndArtist(this, title, artist)
-        }
+        val title = FileNameParser.getSongTitle(file)
+        val artist = FileNameParser.getSongArtist(file)
+        MiniPlayerServiceNotification.updateSongTitleAndArtist(this, title, artist)
     }
 
     private fun changeNotificationPlayOrStop(isPlaying: Boolean) =
