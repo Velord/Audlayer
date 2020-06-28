@@ -1,8 +1,6 @@
 package velord.university.ui.activity
 
-import android.content.Context
 import android.content.pm.PackageManager
-import android.media.AudioManager
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -27,9 +25,7 @@ import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.main.MainFragment
 import velord.university.ui.fragment.song.AllSongFragment
 import velord.university.ui.fragment.vk.VKFragment
-import velord.university.ui.util.addFragment
-import velord.university.ui.util.hideVirtualButtons
-import velord.university.ui.util.initFragment
+import velord.university.ui.util.*
 
 
 class MainActivity : AppCompatActivity(),
@@ -131,27 +127,15 @@ class MainActivity : AppCompatActivity(),
             super.onBackPressed()
         }
     }
-
+    //main fragment handle this
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean =
         when (event.keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP -> {
-                val manager = this
-                    .getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                manager.adjustStreamVolume(
-                    AudioManager.STREAM_MUSIC,
-                    AudioManager.ADJUST_RAISE,
-                    AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE
-                )
+                hideDefaultChangeVolumeBar(this, VolumeEvent.INCREASE)
                 true
             }
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                val manager = this
-                    .getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                manager.adjustStreamVolume(
-                    AudioManager.STREAM_MUSIC,
-                    AudioManager.ADJUST_LOWER,
-                    AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE
-                )
+                hideDefaultChangeVolumeBar(this, VolumeEvent.DECREASE)
                 true
             }
             else -> super.onKeyDown(keyCode, event)

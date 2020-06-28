@@ -18,7 +18,8 @@ import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.main.initializer.MenuMiniPlayerInitializerFragment
 
 
-class MainFragment : MenuMiniPlayerInitializerFragment(),
+class MainFragment :
+    MenuMiniPlayerInitializerFragment(),
     BackPressedHandlerZero {
 
     override val TAG: String = "MainFragment"
