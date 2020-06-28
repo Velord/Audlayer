@@ -1,27 +1,16 @@
 package velord.university.application.settings
 
 import android.content.Context
-import android.preference.PreferenceManager
-import androidx.core.content.edit
 
-private const val AUDLAYER_APP_DESTROYED = "appIsDestroyed"
+class AppPreference(context: Context) {
 
-object AppPreference {
+    companion object {
+        private const val AUDLAYER_APP_DESTROYED = "appIsDestroyed"
+    }
 
-    fun setAppIsDestroyed(
-        context: Context,
-        isDestroyed: Boolean,
-        key: String = AUDLAYER_APP_DESTROYED
-    ) =
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .edit {
-                putBoolean(key, isDestroyed)
-            }
-
-    fun getAppIsDestroyed(
-        context: Context,
-        key: String = AUDLAYER_APP_DESTROYED
-    ) =
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .getBoolean(key, false)
+    var appIsDestroyed: Boolean by PreferencesDelegate(
+        context,
+        AUDLAYER_APP_DESTROYED,
+        false
+    )
 }

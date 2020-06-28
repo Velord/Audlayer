@@ -74,7 +74,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         val menuItem = it.menu
 
         val nameArtistDateOrder =
-            SortByPreference.getSortByAlbumFragment(requireContext())
+            SortByPreference(requireContext()).sortByAlbumFragment
         when(nameArtistDateOrder) {
             0 -> { menuItem.getItem(0).isChecked = true }
             1 -> { menuItem.getItem(1).isChecked = true }
@@ -82,7 +82,8 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
             3 -> { menuItem.getItem(3).isChecked = true }
         }
 
-        when(SortByPreference.getAscDescAlbumFragment(requireContext())) {
+        val ascDescOrder = SortByPreference(requireContext()).ascDescAlbumFragment
+        when(ascDescOrder) {
             0 -> { menuItem.getItem(4).isChecked = true }
             1 -> { menuItem.getItem(5).isChecked = true }
             else -> {}
@@ -199,14 +200,14 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
     }
 
     private fun sortBy(index: Int): Boolean {
-        SortByPreference.setSortByAlbumFragment(requireContext(), index)
+        SortByPreference(requireContext()).sortByAlbumFragment = index
         updateAdapterBySearchQuery(viewModel.currentQuery)
         super.rearwardActionButton()
         return true
     }
 
     private fun sortByAscDesc(index: Int): Boolean {
-        SortByPreference.setAscDescAlbumFragment(requireContext(), index)
+        SortByPreference(requireContext()).ascDescAlbumFragment = index
         updateAdapterBySearchQuery(viewModel.currentQuery)
         super.rearwardActionButton()
         return true

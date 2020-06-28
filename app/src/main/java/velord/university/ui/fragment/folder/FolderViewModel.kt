@@ -105,7 +105,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
         val compatibleFileFormat =
             filesInFolder.filter { filter(it.file, searchTerm) }
         // sort by name or artist or date added
-        val sortedFiles = when(SortByPreference.getSortByFolderFragment(app)) {
+        val sortedFiles = when(SortByPreference(app).sortByFolderFragment) {
             0 ->  {
                 compatibleFileFormat.sortedBy {  FileFilter.getName(it.file)  }
             }
@@ -118,7 +118,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
             else -> compatibleFileFormat
         }
         // sort by ascending or descending order
-        ordered = when(SortByPreference.getAscDescFolderFragment(app)) {
+        ordered = when(SortByPreference(app).ascDescFolderFragment) {
             0 -> sortedFiles
             1 ->  sortedFiles.reversed()
             else -> sortedFiles

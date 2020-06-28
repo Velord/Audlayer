@@ -98,14 +98,15 @@ class FolderFragment : ActionBarFragment(),
                     val menuItem = popUpMenu.menu
 
                     val nameArtistDateOrder =
-                        SortByPreference.getSortByFolderFragment(requireContext())
+                        SortByPreference(requireContext()).sortByFolderFragment
                     when(nameArtistDateOrder) {
                         0 -> { menuItem.getItem(0).isChecked = true }
                         1 -> { menuItem.getItem(1).isChecked = true }
                         2 -> { menuItem.getItem(2).isChecked = true }
                     }
 
-                    when(SortByPreference.getAscDescFolderFragment(requireContext())) {
+                    val ascDescOrder = SortByPreference(requireContext()).ascDescFolderFragment
+                    when(ascDescOrder) {
                         0 -> { menuItem.getItem(3).isChecked = true }
                         1 -> { menuItem.getItem(4).isChecked = true }
                         else -> {}
@@ -330,14 +331,14 @@ class FolderFragment : ActionBarFragment(),
     }
 
     private fun sortBy(index: Int): Boolean {
-        SortByPreference.setSortByFolderFragment(requireContext(), index)
+        SortByPreference(requireContext()).sortByFolderFragment = index
         updateAdapterBySearchQuery(viewModel.currentQuery)
         super.rearwardActionButton()
         return true
     }
 
     private fun sortByAscDesc(index: Int): Boolean {
-        SortByPreference.setAscDescFolderFragment(requireContext(), index)
+        SortByPreference(requireContext()).ascDescFolderFragment = index
         updateAdapterBySearchQuery(viewModel.currentQuery)
         super.rearwardActionButton()
         return true

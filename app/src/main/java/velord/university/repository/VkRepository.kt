@@ -28,8 +28,8 @@ object VkRepository {
         VkSongTransaction.getSongs()
 
     suspend fun getPlaylistByToken(context: Context): Result<VkPlaylist> {
-        val userId = VkPreference.getPageId(context)
-        val token = VkPreference.getAccessToken(context)
+        val userId = VkPreference(context).pageId
+        val token = VkPreference(context).accessToken
         val baseUrl = context.getString(R.string.vk_base_url)
         //v=5.80 in 5.26.2020 9:00 pm don't working
         //v=5.60 don't give album info

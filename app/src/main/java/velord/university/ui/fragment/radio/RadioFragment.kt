@@ -77,14 +77,14 @@ class RadioFragment : ActionBarFragment(),
                     val menuItem = menu.menu
 
                     val sortBy =
-                        SortByPreference.getSortByRadioFragment(requireContext())
+                        SortByPreference(requireContext()).sortByRadioFragment
                     when(sortBy) {
                         0 -> { menuItem.getItem(0).isChecked = true }
                         1 -> { menuItem.getItem(1).isChecked = true }
                     }
 
                     val ascDescOrder =
-                        SortByPreference.getAscDescRadioFragment(requireContext())
+                        SortByPreference(requireContext()).ascDescRadioFragment
                     when(ascDescOrder) {
                         0 -> { menuItem.getItem(2).isChecked = true }
                         1 -> { menuItem.getItem(3).isChecked = true }
@@ -269,14 +269,14 @@ class RadioFragment : ActionBarFragment(),
     }
 
     private fun sortBy(index: Int): Boolean {
-        SortByPreference.setSortByRadioFragment(requireContext(), index)
+        SortByPreference(requireContext()).sortByRadioFragment = index
         updateAdapterBySearchQuery(viewModel.currentQuery)
         super.rearwardActionButton()
         return true
     }
 
     private fun sortByAscDesc(index: Int): Boolean {
-        SortByPreference.setAscDescRadioFragment(requireContext(), index)
+        SortByPreference(requireContext()).ascDescRadioFragment = index
         updateAdapterBySearchQuery(viewModel.currentQuery)
         super.rearwardActionButton()
         return true

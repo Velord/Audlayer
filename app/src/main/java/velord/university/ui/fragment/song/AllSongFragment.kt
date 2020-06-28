@@ -141,7 +141,7 @@ class AllSongFragment :
                     val menuItem = menu.menu
 
                     val sortBy =
-                        SortByPreference.getSortBySongFragment(requireContext())
+                        SortByPreference(requireContext()).sortByAllSongFragment
                     when(sortBy) {
                         0 -> { menuItem.getItem(0).isChecked = true }
                         1 -> { menuItem.getItem(1).isChecked = true }
@@ -151,7 +151,7 @@ class AllSongFragment :
                     }
 
                     val ascDescOrder =
-                        SortByPreference.getAscDescSongFragment(requireContext())
+                        SortByPreference(requireContext()).ascDescAllSongFragment
                     when(ascDescOrder) {
                         0 -> { menuItem.getItem(5).isChecked = true }
                         1 -> { menuItem.getItem(6).isChecked = true }
@@ -260,14 +260,14 @@ class AllSongFragment :
     }
 
     private fun sortBy(index: Int): Boolean {
-        SortByPreference.setSortBySongFragment(requireContext(), index)
+        SortByPreference(requireContext()).sortByAllSongFragment = index
         updateAdapterBySearchQuery(viewModel.currentQuery)
         super.rearwardActionButton()
         return true
     }
 
     private fun sortByAscDesc(index: Int): Boolean {
-        SortByPreference.setAscDescSongFragment(requireContext(), index)
+        SortByPreference(requireContext()).ascDescAllSongFragment = index
         updateAdapterBySearchQuery(viewModel.currentQuery)
         super.rearwardActionButton()
         return true

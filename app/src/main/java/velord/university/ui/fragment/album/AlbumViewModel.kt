@@ -42,7 +42,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
     lateinit var albums: List<Album>
 
     fun getSearchQuery(): String =
-        SearchQueryPreferences.getStoredQueryAlbum(app)
+        SearchQueryPreferences(app).storedQueryAlbum
 
     fun albumsIsInitialized(): Boolean = ::albums.isInitialized
 
@@ -51,7 +51,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
     fun filterByQueryPlaylist(query: String): List<Playlist> {
         val newOther = other.filter { it.name.contains(query) }
         // sort by album or artist or year or number of tracks
-        val sortedPlaylist = when(SortByPreference.getSortByAlbumFragment(app)) {
+        val sortedPlaylist = when(SortByPreference(app).sortByAlbumFragment) {
             //album TODO()
             0 -> newOther
             //artist
@@ -65,7 +65,7 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
             else -> newOther
         }
         // sort by ascending or descending order
-        val orderedPlaylist = when(SortByPreference.getAscDescAlbumFragment(app)) {
+        val orderedPlaylist = when(SortByPreference(app).ascDescAlbumFragment) {
             0 -> sortedPlaylist
             1 ->  sortedPlaylist.reversed()
             else -> sortedPlaylist
@@ -93,8 +93,8 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
     fun storeSearchQuery(query: String) {
         //store search term in shared preferences
         currentQuery = query
-        SearchQueryPreferences.setStoredQueryAlbum(app, currentQuery)
-        val check = SearchQueryPreferences.getStoredQueryAlbum(app)
+        SearchQueryPreferences(app).storedQueryAlbum = currentQuery
+        val check = SearchQueryPreferences(app).storedQueryAlbum
         Log.d(TAG, "retrieved: $check")
         Log.d(TAG, "stored: $currentQuery")
     }

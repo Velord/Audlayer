@@ -60,30 +60,30 @@ class SelectSongFragment :
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
             R.id.sort_by_name -> {
-                SortByPreference.setSortBySelectSongFragment(requireContext(), 0)
+                SortByPreference(requireContext()).sortBySelectSongFragment = 0
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
             R.id.sort_by_artist -> {
-                SortByPreference.setSortBySelectSongFragment(requireContext(), 1)
+                SortByPreference(requireContext()).sortBySelectSongFragment = 1
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
             R.id.sort_by_date_added -> {
-                SortByPreference.setSortBySelectSongFragment(requireContext(), 2)
+                SortByPreference(requireContext()).sortBySelectSongFragment = 2
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true                        }
             R.id.sort_by_ascending_order -> {
-                SortByPreference.setAscDescSelectSongFragment(requireContext(), 0)
+                SortByPreference(requireContext()).ascDescSelectSongFragment = 0
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
             }
             R.id.sort_by_descending_order -> {
-                SortByPreference.setAscDescSelectSongFragment(requireContext(), 1)
+                SortByPreference(requireContext()).ascDescSelectSongFragment = 1
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 super.rearwardActionButton()
                 true
@@ -117,14 +117,14 @@ class SelectSongFragment :
         val menuItem = it.menu
 
         val nameArtistDateOrder =
-            SortByPreference.getSortBySelectSongFragment(requireContext())
+            SortByPreference(requireContext()).sortBySelectSongFragment
         when(nameArtistDateOrder) {
             0 -> { menuItem.getItem(0).isChecked = true }
             1 -> { menuItem.getItem(1).isChecked = true }
             2 -> { menuItem.getItem(2).isChecked = true }
         }
 
-        when(SortByPreference.getAscDescSelectSongFragment(requireContext())) {
+        when(SortByPreference(requireContext()).ascDescSelectSongFragment) {
             0 -> { menuItem.getItem(3).isChecked = true }
             1 -> { menuItem.getItem(4).isChecked = true }
             else -> {}

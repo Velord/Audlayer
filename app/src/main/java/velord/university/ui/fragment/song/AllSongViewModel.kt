@@ -53,7 +53,8 @@ class AllSongViewModel(private val app: Application) : AndroidViewModel(app) {
                 FileFilter.filterFileBySearchQuery(it.file, query)
             }
             //sort by name or artist or date added or duration or size
-            val sorted = when(SortByPreference.getSortBySongFragment(app)) {
+            val sortByOrder = SortByPreference(app).sortByAllSongFragment
+            val sorted = when(sortByOrder) {
                 //name
                 0 -> filtered.sortedBy {
                     FileFilter.getName(it.file)
@@ -83,7 +84,8 @@ class AllSongViewModel(private val app: Application) : AndroidViewModel(app) {
                 else -> filtered
             }
             // sort by ascending or descending order
-            ordered = when(SortByPreference.getAscDescSongFragment(app)) {
+            val ascDescOrder = SortByPreference(app).ascDescAllSongFragment
+            ordered = when(ascDescOrder) {
                 0 -> sorted
                 1 ->  sorted.reversed()
                 else -> sorted
@@ -103,14 +105,15 @@ class AllSongViewModel(private val app: Application) : AndroidViewModel(app) {
     fun storeSearchQuery(query: String) {
         //store search term in shared preferences
         currentQuery = query
-        SearchQueryPreferences.setStoredQuerySong(app, currentQuery)
+        SearchQueryPreferences(app).storedQueryAllSong = currentQuery
     }
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 
     fun songsIsInitialized() = ::songs.isInitialized
 
-    fun getSearchQuery(): String = SearchQueryPreferences.getStoredQuerySong(app)
+    fun getSearchQuery(): String =
+        SearchQueryPreferences(app).storedQueryAllSong
 
     fun playAudioAndAllSong(song: Song) {
         SongPlaylistInteractor.songs = ordered

@@ -48,12 +48,12 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     fun getSearchQuery(): String =
-        SearchQueryPreferences.getStoredQueryRadio(app)
+        SearchQueryPreferences(app).storedQueryRadio
 
     fun storeSearchQuery(query: String) {
         //store search term in shared preferences
         currentQuery = query
-        SearchQueryPreferences.setStoredQueryRadio(app, currentQuery)
+        SearchQueryPreferences(app).storedQueryRadio = currentQuery
     }
 
     suspend fun filterByQuery(query: String): List<RadioStation> =
@@ -62,7 +62,7 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
                 it.name.contains(query)
             }
             //sort by name or artist or date added or duration or size
-            val sorted = when(SortByPreference.getSortByRadioFragment(app)) {
+            val sorted = when(SortByPreference(app).sortByRadioFragment) {
                 //name
                 0 -> filtered.sortedBy {
                     it.name
@@ -74,7 +74,7 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
                 else -> filtered
             }
             // sort by ascending or descending order
-            ordered = when(SortByPreference.getAscDescRadioFragment(app)) {
+            ordered = when(SortByPreference(app).ascDescRadioFragment) {
                 0 -> sorted
                 1 ->  sorted.reversed()
                 else -> sorted

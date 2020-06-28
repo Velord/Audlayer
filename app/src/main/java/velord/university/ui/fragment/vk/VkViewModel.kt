@@ -45,7 +45,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     fun storeSearchQuery(query: String) {
         //store search term in shared preferences
         currentQuery = query
-        SearchQueryPreferences.setStoredQueryVk(app, currentQuery)
+        SearchQueryPreferences(app).storedQueryVk = currentQuery
     }
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
@@ -53,7 +53,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     fun vkPlaylistIsInitialized() = ::vkSongList.isInitialized
 
     fun getSearchQuery(): String =
-        SearchQueryPreferences.getStoredQueryVk(app)
+        SearchQueryPreferences(app).storedQueryVk
 
     fun playAudioNext(song: VkSong) {
         val file = File(song.path)
@@ -189,7 +189,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             FileFilter.filterBySearchQuery("${it.artist} - ${it.title}", query)
         }
         //sort by name or artist or date added or duration or size
-        val sorted = when(SortByPreference.getSortByVkFragment(app)) {
+        val sorted = when(SortByPreference(app).sortByVkFragment) {
             //name
             0 -> filtered.sortedBy {
                 FileFilter.getName(File(it.path))
@@ -208,7 +208,8 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             else -> filtered
         }
         // sort by ascending or descending order
-        ordered = when(SortByPreference.getAscDescVkFragment(app)) {
+        val ascDescOrder = SortByPreference(app).ascDescVkFragment
+        ordered = when(ascDescOrder) {
             0 -> sorted
             1 ->  sorted.reversed()
             else -> sorted

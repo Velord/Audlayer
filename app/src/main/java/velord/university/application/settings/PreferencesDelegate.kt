@@ -1,0 +1,42 @@
+package velord.university.application.settings
+
+import android.content.Context
+import android.preference.PreferenceManager
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+
+class PreferencesDelegate<TValue>(
+    private val context: Context,
+    private val name: String,
+    private val defValue: TValue
+) : ReadWriteProperty<Any?, TValue> {
+
+    override fun getValue(thisRef: Any?, property: KProperty<*>): TValue {
+        with(PreferenceManager.getDefaultSharedPreferences(context)) {
+            return when (defValue) {
+                is Boolean -> (getBoolean(name, defValue) as? TValue) ?: defValue
+                is Int -> (getInt(name, defValue) as TValue) ?: defValue
+                is Float -> (getFloat(name, defValue) as TValue) ?: defValue
+                is Long -> (getLong(name, defValue) as TValue) ?: defValue
+                is String -> (getString(name, defValue) as TValue) ?: defValue
+                else -> throw NotFoundRealizationException(defValue)
+            }
+        }
+    }
+
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: TValue) {
+        with(PreferenceManager.getDefaultSharedPreferences(context).edit()) {
+            when (value) {
+                is Boolean -> putBoolean(name, value)
+                is Int -> putInt(name, value)
+                is Float -> putFloat(name, value)
+                is Long -> putLong(name, value)
+                is String -> putString(name, value)
+                else -> throw NotFoundRealizationException(value)
+            }
+            commit()
+        }
+    }
+
+    class NotFoundRealizationException(defValue: Any?) : Exception("not found realization for $defValue")
+}

@@ -101,13 +101,13 @@ class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero 
     }
 
     fun checkToken(
-        token: String = VkPreference.getAccessToken(requireContext())) {
+        token: String = VkPreference(requireContext()).accessToken) {
         if (token.isBlank()) getAccessToken.visibility = View.VISIBLE
         else checkCredentials(token)
     }
 
     private fun checkCredentials(token: String) {
-        val userId = VkPreference.getPageId(requireContext())
+        val userId = VkPreference(requireContext()).pageId
         val baseUrl = "https://api.vk.com/method/"
         val birth = "${baseUrl}users.get?user_ids=$userId&fields=bdate&access_token=$token&v=5.80"
         checkBirth(birth)
@@ -115,14 +115,14 @@ class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero 
 
     private fun tokenIsInvalid() {
         scope.launch {
-            VkPreference.setAccessToken(requireContext(), "")
+            VkPreference(requireContext()).accessToken = ""
             withContext(Dispatchers.Main) {
                 credentialsConfirmed.apply {
                     visibility = View.VISIBLE
                     setImageResource(R.drawable.cancel)
-                    VkPreference.setAccessToken(requireContext(), "")
-                    VkPreference.setEmail(requireContext(), "")
-                    VkPreference.setPageId(requireContext(), -1)
+                    VkPreference(requireContext()).accessToken = ""
+                    VkPreference(requireContext()).email = ""
+                    VkPreference(requireContext()).pageId =  -1
                 }
             }
         }
@@ -139,14 +139,14 @@ class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero 
                     visibility = View.VISIBLE
                     text = getString(
                         R.string.vk_login_email,
-                        VkPreference.getEmail(requireContext())
+                        VkPreference(requireContext()).email
                     )
                 }
                 userPage.apply {
                     visibility = View.VISIBLE
                     text = getString(
                         R.string.vk_login_page,
-                        VkPreference.getPageId(requireContext())
+                        VkPreference(requireContext()).pageId
                     )
 
                 }

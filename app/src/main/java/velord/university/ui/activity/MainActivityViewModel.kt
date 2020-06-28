@@ -7,6 +7,6 @@ import velord.university.application.settings.AppPreference
 class MainActivityViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
-        AppPreference.setAppIsDestroyed(app, true)
+        AppPreference(app).appIsDestroyed = true
     }
 }

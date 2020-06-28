@@ -110,13 +110,13 @@ class VkAccessTokenFragment : LoggerSelfLifecycleFragment(),
             val userEmail = "&email="
 
             val token = url.substringAfter(prefix).substringBefore(expires)
-            VkPreference.setAccessToken(requireContext(), token)
+            VkPreference(requireContext()).accessToken = token
 
             val id = url.substringAfter(userId).substringBefore(userEmail)
-            VkPreference.setPageId(requireContext(), id.toInt())
+            VkPreference(requireContext()).pageId = id.toInt()
 
             val email = url.substringAfter(userEmail)
-            VkPreference.setEmail(requireContext(), email)
+            VkPreference(requireContext()).email = email
 
             callback?.accessTokenConfirmed()
         }

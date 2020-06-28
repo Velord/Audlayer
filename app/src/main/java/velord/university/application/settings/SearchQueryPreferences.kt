@@ -4,75 +4,49 @@ import android.content.Context
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 
-private const val PREF_SEARCH_QUERY_ALBUM = "searchQueryAlbum"
-private const val PREF_SEARCH_QUERY_SONG = "searchQuerySong"
-private const val PREF_SEARCH_QUERY_VK = "searchQueryVk"
-private const val PREF_SEARCH_QUERY_RADIO = "searchQueryRadio"
+class SearchQueryPreferences(context: Context) {
 
-object SearchQueryPreferences {
+    companion object {
+        private const val PREF_SEARCH_QUERY_ALBUM = "searchQueryAlbum"
+        private const val PREF_SEARCH_QUERY_ALL_SONG = "searchQuerySong"
+        private const val PREF_SEARCH_QUERY_VK = "searchQueryVk"
+        private const val PREF_SEARCH_QUERY_RADIO = "searchQueryRadio"
 
-    fun getStoredQueryFolder(context: Context,
-                             folder: String): String  =
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(folder, "-1")!!
+        fun getStoredQueryFolder(context: Context,
+                                 folder: String): String  =
+            PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(folder, "-1")!!
 
-    fun setStoredQueryFolder(context: Context,
-                             folder: String,
-                             query: String) =
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .edit {
-                putString(folder, query)
-            }
+        fun setStoredQueryFolder(context: Context,
+                                 folder: String,
+                                 query: String) =
+            PreferenceManager.getDefaultSharedPreferences(context)
+                .edit {
+                    putString(folder, query)
+                }
+    }
 
-    fun getStoredQueryAlbum(context: Context,
-                            key: String = PREF_SEARCH_QUERY_ALBUM): String  =
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(key, "-1")!!
+    var storedQueryAlbum: String by PreferencesDelegate(
+        context,
+        PREF_SEARCH_QUERY_ALBUM,
+    "-1"
+    )
 
-    fun setStoredQueryAlbum(context: Context,
-                            query: String,
-                            key: String = PREF_SEARCH_QUERY_ALBUM) =
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .edit {
-                putString(key, query)
-            }
+    var storedQueryAllSong: String by PreferencesDelegate(
+        context,
+        PREF_SEARCH_QUERY_ALL_SONG,
+        "-1"
+    )
 
-    fun getStoredQuerySong(context: Context,
-                            key: String = PREF_SEARCH_QUERY_SONG): String  =
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(key, "-1")!!
+    var storedQueryVk: String by PreferencesDelegate(
+        context,
+        PREF_SEARCH_QUERY_VK,
+        "-1"
+    )
 
-    fun setStoredQuerySong(context: Context,
-                            query: String,
-                            key: String = PREF_SEARCH_QUERY_SONG) =
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .edit {
-                putString(key, query)
-            }
-
-    fun getStoredQueryVk(context: Context,
-                           key: String = PREF_SEARCH_QUERY_VK): String  =
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(key, "-1")!!
-
-    fun setStoredQueryVk(context: Context,
-                       query: String,
-                       key: String = PREF_SEARCH_QUERY_VK) =
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .edit {
-                putString(key, query)
-            }
-
-    fun getStoredQueryRadio(context: Context,
-                         key: String = PREF_SEARCH_QUERY_RADIO): String  =
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(key, "-1")!!
-
-    fun setStoredQueryRadio(context: Context,
-                         query: String,
-                         key: String = PREF_SEARCH_QUERY_RADIO) =
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .edit {
-                putString(key, query)
-            }
+    var storedQueryRadio: String by PreferencesDelegate(
+        context,
+        PREF_SEARCH_QUERY_RADIO,
+        "-1"
+    )
 }

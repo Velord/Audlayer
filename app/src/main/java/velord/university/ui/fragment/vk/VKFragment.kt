@@ -105,7 +105,7 @@ class VKFragment : ActionBarFragment(),
                     val menuItem = menu.menu
 
                     val sortBy =
-                        SortByPreference.getSortByVkFragment(requireContext())
+                        SortByPreference(requireContext()).sortByVkFragment
                     when(sortBy) {
                         0 -> { menuItem.getItem(0).isChecked = true }
                         1 -> { menuItem.getItem(1).isChecked = true }
@@ -115,7 +115,7 @@ class VKFragment : ActionBarFragment(),
                     }
 
                     val ascDescOrder =
-                        SortByPreference.getAscDescVkFragment(requireContext())
+                        SortByPreference(requireContext()).ascDescVkFragment
                     when(ascDescOrder) {
                         0 -> { menuItem.getItem(5).isChecked = true }
                         1 -> { menuItem.getItem(6).isChecked = true }
@@ -135,7 +135,7 @@ class VKFragment : ActionBarFragment(),
                 true
             }
             R.id.vk_fragment_log_out -> {
-                VkPreference.setAccessToken(requireContext(), "")
+                VkPreference(requireContext()).accessToken = ""
                 scope.launch { checkToken() }
                 true
             }
@@ -303,7 +303,7 @@ class VKFragment : ActionBarFragment(),
             swipeContainer.isRefreshing = true
         }
         if (::login.isInitialized) {
-            val token = VkPreference.getAccessToken(requireContext())
+            val token = VkPreference(requireContext()).accessToken
             if (token.isBlank()) tokenIsBlank()
             else tokenIsCorrect()
         }
@@ -335,14 +335,14 @@ class VKFragment : ActionBarFragment(),
     }
 
     private fun sortBy(index: Int): Boolean {
-        SortByPreference.setSortByVkFragment(requireContext(), index)
+        SortByPreference(requireContext()).sortByVkFragment = index
         updateAdapterBySearchQuery()
         super.rearwardActionButton()
         return true
     }
 
     private fun sortByAscDesc(index: Int): Boolean {
-        SortByPreference.setAscDescVkFragment(requireContext(), index)
+        SortByPreference(requireContext()).ascDescVkFragment = index
         updateAdapterBySearchQuery()
         super.rearwardActionButton()
         return true

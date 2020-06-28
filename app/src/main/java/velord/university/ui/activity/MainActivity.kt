@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity(),
     override fun onDestroy() {
         Log.d(TAG, "called onDestroy")
         super.onDestroy()
-        AppPreference.setAppIsDestroyed(this, false)
+        AppPreference(this).appIsDestroyed = false
     }
 
     override fun onStart() {

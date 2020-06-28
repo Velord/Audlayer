@@ -25,7 +25,7 @@ class SelectSongViewModel(private val app: Application) : AndroidViewModel(app) 
         val songs =
             fileList.filter { filter(it, searchTerm) }
         // sort by name or artist or date added
-        val sorted = when(SortByPreference.getSortBySelectSongFragment(context)) {
+        val sorted = when(SortByPreference(context).sortBySelectSongFragment) {
             0 ->  {
                 songs.sortedBy {  FileFilter.getName(it)  }
             }
@@ -38,7 +38,7 @@ class SelectSongViewModel(private val app: Application) : AndroidViewModel(app) 
             else -> songs
         }
         // sort by ascending or descending order
-        return when(SortByPreference.getAscDescSelectSongFragment(context)) {
+        return when(SortByPreference(context).ascDescSelectSongFragment) {
             0 -> sorted
             1 ->  sorted.reversed()
             else -> sorted

@@ -57,7 +57,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
                 player.setVolume(0.5f, 0.5f)
             },
             {
-                if (MiniPlayerServicePreferences.getIsPlaying(this)) {
+                if (MiniPlayerServicePreferences(this).isPlaying) {
                     playSongAfterCreatedPlayer()
                     player.setVolume(1.0f, 1.0f)
                 }
@@ -229,8 +229,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         QueueResolver.shuffleState = true
         //store before shuffle
         playlist.shuffle()
-        MiniPlayerServicePreferences
-            .setIsShuffle(this, QueueResolver.shuffleState)
+        MiniPlayerServicePreferences(this).isShuffle =
+            QueueResolver.shuffleState
         mayInvoke {
             AppBroadcastHub.run { shuffleUI() }
         }
@@ -239,8 +239,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     protected fun shuffleOff() {
         QueueResolver.shuffleState = false
         playlist.notShuffle()
-        MiniPlayerServicePreferences
-            .setIsShuffle(this, QueueResolver.shuffleState)
+        MiniPlayerServicePreferences(this).isShuffle =
+            QueueResolver.shuffleState
         mayInvoke {
             AppBroadcastHub.run { unShuffleUI() }
         }
@@ -275,8 +275,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun loopState() {
         QueueResolver.loopState()
-        MiniPlayerServicePreferences
-            .setLoopState(this, 1)
+        MiniPlayerServicePreferences(this).loopState = 1
         mayInvoke {
             AppBroadcastHub.apply { this@MiniPlayerService.loopUI() }
         }
@@ -284,8 +283,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun notLoopState() {
         QueueResolver.notLoopState()
-        MiniPlayerServicePreferences
-            .setLoopState(this, 0)
+        MiniPlayerServicePreferences(this).loopState = 0
         mayInvoke {
             AppBroadcastHub.apply { this@MiniPlayerService.notLoopUI() }
         }
@@ -293,8 +291,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun loopAllState() {
         QueueResolver.loopAllState()
-        MiniPlayerServicePreferences
-            .setLoopState(this, 2)
+        MiniPlayerServicePreferences(this).loopState = 2
         mayInvoke {
             AppBroadcastHub.apply { this@MiniPlayerService.loopAllUI() }
         }
@@ -323,10 +320,11 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private fun changeNotificationInfo(file: File = playlist.getSong()) {
-        val title = FileNameParser.getSongTitle(file)
-        val artist = FileNameParser.getSongArtist(file)
-        MiniPlayerServiceNotification.
-        updateSongTitleAndArtist(this, title, artist)
+        if (playerIsInitialized()) {
+            val title = FileNameParser.getSongTitle(file)
+            val artist = FileNameParser.getSongArtist(file)
+            MiniPlayerServiceNotification.updateSongTitleAndArtist(this, title, artist)
+        }
     }
 
     private fun changeNotificationPlayOrStop(isPlaying: Boolean) =
@@ -339,10 +337,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         if (songsToPlaylist.isNotEmpty()) {
             playlist.addToQueue(*songsToPlaylist.toTypedArray())
             //restore isPlaying state
-            val isPlaying = MiniPlayerServicePreferences
-                .getIsPlaying(this@MiniPlayerService)
-            val appWasDestroyed = AppPreference
-                .getAppIsDestroyed(this@MiniPlayerService)
+            val isPlaying = MiniPlayerServicePreferences(this).isPlaying
+            val appWasDestroyed = AppPreference(this).appIsDestroyed
             //apply shuffle state player
             applyShuffleState()
             //apply loop state player
@@ -360,8 +356,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private fun applySong(songsToPlaylist: List<File>) {
-        val duration = MiniPlayerServicePreferences
-           .getCurrentDuration(this@MiniPlayerService)
+        val duration = MiniPlayerServicePreferences(this).currentDuration
         val path = restoreSongPath(songsToPlaylist)
         playNext(path, true)
         rewindPlayer(duration)
@@ -370,23 +365,20 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private fun restoreSongPath(songsToPlaylist: List<File>): String {
-        var posWasPlayedSong = MiniPlayerServicePreferences
-            .getCurrentPos(this@MiniPlayerService)
+        var posWasPlayedSong = MiniPlayerServicePreferences(this).currentPos
         if (posWasPlayedSong > songsToPlaylist.lastIndex)
             posWasPlayedSong = songsToPlaylist.lastIndex
         return playlist.notShuffled[posWasPlayedSong].path
     }
 
     private fun applyShuffleState(
-        state: Boolean = MiniPlayerServicePreferences
-            .getIsShuffle(this@MiniPlayerService)) {
+        state: Boolean = MiniPlayerServicePreferences(this).isShuffle) {
         if (state) shuffleOn()
         else shuffleOff()
     }
 
     private fun applyLoopState(
-        state: Int = MiniPlayerServicePreferences
-            .getLoopState(this@MiniPlayerService)) {
+        state: Int = MiniPlayerServicePreferences(this).loopState) {
         when(state) {
             0 -> notLoopState()
             1 -> loopState()
@@ -515,26 +507,23 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private fun storeIsPlayingStateTrue() {
-        MiniPlayerServicePreferences
-            .setIsPlaying(this, true)
+        MiniPlayerServicePreferences(this).isPlaying = true
     }
 
     private fun storeIsPlayingStateFalse() {
-        MiniPlayerServicePreferences
-            .setIsPlaying(this, false)
+        MiniPlayerServicePreferences(this).isPlaying = false
     }
 
     private fun storeSongPositionInQueue() {
         val posInQueue = playlist.getSong()
         val pos = playlist.notShuffled.indexOf(posInQueue)
-        MiniPlayerServicePreferences.setCurrentPos(this, pos)
+        MiniPlayerServicePreferences(this).currentPos = pos
         Log.d(TAG, "store pos: $pos")
     }
 
     private fun storeCurrentDuration(duration: Int = player.currentPosition) {
         //store current duration cause onDestroy invoke only when view is destroy
-        MiniPlayerServicePreferences
-            .setCurrentDuration(this@MiniPlayerService, duration)
+        MiniPlayerServicePreferences(this).currentDuration = duration
         Log.d(TAG, "store duration: $duration")
     }
 
@@ -567,7 +556,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private fun sendCurrentDuration() {
         val duration = 
-            MiniPlayerServicePreferences.getCurrentDuration(this)
+            MiniPlayerServicePreferences(this).currentDuration
         val seconds = SongTimeConverter.millisecondsToSeconds(duration)
         AppBroadcastHub.run { rewindUI(seconds) }
     }
@@ -588,7 +577,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private fun sendLoopState() =
-        when(MiniPlayerServicePreferences.getLoopState(this)) {
+        when(MiniPlayerServicePreferences(this).loopState) {
             0 -> mayInvoke { AppBroadcastHub.run { notLoopUI() } }
             1 -> mayInvoke { AppBroadcastHub.run { loopUI() } }
             2 -> mayInvoke { AppBroadcastHub.run { loopAllUI() } }
@@ -596,7 +585,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
 
     private fun sendShuffleState() {
-        if (MiniPlayerServicePreferences.getIsShuffle(this))
+        if (MiniPlayerServicePreferences(this).isShuffle)
             mayInvoke { AppBroadcastHub.run { shuffleUI() } }
         else mayInvoke { AppBroadcastHub.run { unShuffleUI() } }
     }

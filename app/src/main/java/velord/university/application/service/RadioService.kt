@@ -52,7 +52,7 @@ abstract class RadioService : AudioFocusListenerService() {
                 player.setVolume(0.5f, 0.5f)
             },
             {
-                if (RadioServicePreference.getIsPlaying(this)) {
+                if (RadioServicePreference(this).isPlaying) {
                     playRadioIfCan()
                     player.setVolume(1.0f, 1.0f)
                 }
@@ -220,7 +220,7 @@ abstract class RadioService : AudioFocusListenerService() {
 
     private suspend fun restoreState() = withContext(Dispatchers.IO) {
         Log.d(TAG, "restoreState")
-        val id = RadioServicePreference.getCurrentRadioId(this@RadioService)
+        val id = RadioServicePreference(this@RadioService).currentRadioId
 
         RadioRepository.getById(id)?.let {
             currentStation = it
@@ -281,22 +281,20 @@ abstract class RadioService : AudioFocusListenerService() {
     }
 
     private fun storeIsPlayingStateTrue() {
-        RadioServicePreference
-            .setIsPlaying(this, true)
+        RadioServicePreference(this@RadioService).isPlaying = true
     }
 
     private fun storeIsPlayingStateFalse() {
-        RadioServicePreference
-            .setIsPlaying(this, false)
+        RadioServicePreference(this@RadioService).isPlaying = false
     }
 
     private fun appWasDestroyedProtection() {
         Log.d(TAG, "userRotateDeviceProtection")
         //restore isPlaying state
-        val isPlaying = RadioServicePreference
-            .getIsPlaying(this@RadioService)
-        val appWasDestroyed = AppPreference
-            .getAppIsDestroyed(this@RadioService)
+        val isPlaying =
+            RadioServicePreference(this@RadioService).isPlaying
+        val appWasDestroyed =
+            AppPreference(this@RadioService).appIsDestroyed
         //this means ui have been destroyed after destroy main activity
         //but app is still working -> after restoration we should play radio
         if (appWasDestroyed) {
@@ -312,8 +310,8 @@ abstract class RadioService : AudioFocusListenerService() {
     }
 
     private fun saveState() {
-        RadioServicePreference
-            .setCurrentRadioId(this, currentStation.id.toInt())
+        RadioServicePreference(this@RadioService).currentRadioId =
+            currentStation.id.toInt()
     }
 
     private fun sendRadioPlayerUnavailable() =
