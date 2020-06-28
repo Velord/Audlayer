@@ -1,8 +1,11 @@
 package velord.university.ui.activity
 
+import android.content.Context
 import android.content.pm.PackageManager
+import android.media.AudioManager
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
@@ -128,6 +131,31 @@ class MainActivity : AppCompatActivity(),
             super.onBackPressed()
         }
     }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean =
+        when (event.keyCode) {
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                val manager = this
+                    .getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                manager.adjustStreamVolume(
+                    AudioManager.STREAM_MUSIC,
+                    AudioManager.ADJUST_RAISE,
+                    AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE
+                )
+                true
+            }
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                val manager = this
+                    .getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                manager.adjustStreamVolume(
+                    AudioManager.STREAM_MUSIC,
+                    AudioManager.ADJUST_LOWER,
+                    AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE
+                )
+                true
+            }
+            else -> super.onKeyDown(keyCode, event)
+        }
 
     override fun onAddToPlaylist() {
         addFragment(

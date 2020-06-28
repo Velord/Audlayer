@@ -19,6 +19,19 @@
         <include layout="@layout/menu" />
     </FrameLayout>
 
+    <SeekBar
+        android:id="@+id/change_volume_seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:visibility="gone"
+        android:progressTint="@color/amberA400"
+        android:thumb="@android:color/transparent"
+        app:layout_constraintBottom_toTopOf="@+id/menu_frame"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <com.jem.liquidswipe.layout.LiquidSwipeFrameLayout
         android:id="@+id/mini_player_frame"
         android:layout_width="match_parent"
