@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProviders
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.AudlayerApp
-import velord.university.application.notification.MiniPlayerServiceNotification
+import velord.university.application.notification.MiniPlayerNotification
 import velord.university.application.permission.PermissionChecker
 import velord.university.application.settings.AppPreference
 import velord.university.ui.backPressed.BackPressedHandler
@@ -191,11 +191,11 @@ class MainActivity : AppCompatActivity(),
     private fun initNotification() {
         scopeNotification.cancel()
         scopeNotification = CoroutineScope(Job() + Dispatchers.Default)
-        MiniPlayerServiceNotification.initNotificationManager(this)
+        MiniPlayerNotification.initNotificationManager(this)
     }
 
     private tailrec suspend fun dismissNotification() {
-        MiniPlayerServiceNotification.dismiss()
+        MiniPlayerNotification.dismiss()
         delay(1000)
         dismissNotification()
     }

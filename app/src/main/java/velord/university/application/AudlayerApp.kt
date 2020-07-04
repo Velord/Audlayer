@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import velord.university.application.service.AudlayerNotificationService
 import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
 import velord.university.application.service.RadioServiceBroadcastReceiver
 import velord.university.application.service.WidgetService
@@ -30,6 +31,8 @@ class AudlayerApp : Application() {
         startService(this, RadioServiceBroadcastReceiver())
         //service widget
         startService(this, WidgetService())
+        //service notification
+        startService(this, AudlayerNotificationService())
     }
 
     companion object {

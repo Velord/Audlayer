@@ -11,7 +11,6 @@ import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.AppBroadcastHub.iconRadioUI
 import velord.university.application.broadcast.RestarterRadioService
-import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.service.audioFocus.AudioFocusChangeF
 import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.miniPlayer.RadioServicePreference
@@ -69,10 +68,6 @@ abstract class RadioService : AudioFocusListenerService() {
 
         scope.launch {
             restoreState()
-            mayInvoke {
-                changeNotificationInfo()
-                changeNotificationPlayOrStop(false)
-            }
         }
     }
 
@@ -297,7 +292,6 @@ abstract class RadioService : AudioFocusListenerService() {
             radioPlayerUnavailableUI()
         }
 
-
     private fun sendIcon() {
         currentStation.icon?.let {
             iconRadioUI(it)
@@ -355,9 +349,6 @@ abstract class RadioService : AudioFocusListenerService() {
                 sendAllInfo()
             }
         }
-        //send command to change notification
-        changeNotificationPlayOrStop(true)
-        changeNotificationInfo()
     }
 
     private suspend fun sendIsLiked() = withContext(Dispatchers.IO) {
@@ -376,24 +367,10 @@ abstract class RadioService : AudioFocusListenerService() {
         mayInvoke {
             AppBroadcastHub.apply { stopRadioUI() }
         }
-        //send command to change notification
-        changeNotificationPlayOrStop(false)
     }
 
     private fun sendUrlIsWrong(url: String) =
         AppBroadcastHub.run { radioUrlIsWrongUI(url) }
-
-    private fun changeNotificationInfo() {
-        if (stationIsInitialized()) {
-            val title = currentStation.name
-            val artist = ""
-            MiniPlayerServiceNotification
-                .updateSongTitleAndArtist(this, title, artist)
-        }
-    }
-
-    private fun changeNotificationPlayOrStop(isPlaying: Boolean) =
-        MiniPlayerServiceNotification.updatePlayOrStop(this, isPlaying)
 
     private fun stationIsInitialized(): Boolean =
         ::currentStation.isInitialized

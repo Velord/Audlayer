@@ -9,9 +9,9 @@ import android.widget.Toast
 import velord.university.application.broadcast.*
 import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.behaviour.RadioUIReceiver
-import velord.university.ui.widget.AudlayerWidget
+import velord.university.application.notification.MiniPlayerNotification
 
-class WidgetService : Service(),
+class AudlayerNotificationService : Service(),
     MiniPlayerUIReceiver,
     RadioUIReceiver {
 
@@ -25,10 +25,10 @@ class WidgetService : Service(),
         it?.apply {
             val extra = AppBroadcastHub.Extra.radioNameUI
             val value = getStringExtra(extra)
-            AudlayerWidget.widgetTitle = value
 
-            this@WidgetService.mayInvokeRadio {
-                AudlayerWidget.invokeUpdate(this@WidgetService)
+            this@AudlayerNotificationService.mayInvokeRadio {
+                MiniPlayerNotification
+                    .updateSongTitle(this@AudlayerNotificationService, value)
             }
         }
     }
@@ -37,19 +37,23 @@ class WidgetService : Service(),
         it?.apply {
             val extra = AppBroadcastHub.Extra.radioArtistUI
             val value = getStringExtra(extra)
-            AudlayerWidget.widgetArtist = value
 
-            this@WidgetService.mayInvokeRadio {
-                AudlayerWidget.invokeUpdate(this@WidgetService)
+            this@AudlayerNotificationService.mayInvokeRadio {
+                MiniPlayerNotification
+                    .updateSongArtist(this@AudlayerNotificationService, value)
             }
         }
     }
 
     override val stopRadioUIF: (Intent?) -> Unit = {
         it?.apply {
-            AudlayerWidget.widgetIsPlaying = false
+            changeNotificationPlayOrStop(false)
+        }
+    }
 
-            AudlayerWidget.invokeUpdate(this@WidgetService)
+    override val playRadioUIF: (Intent?) -> Unit = {
+        it?.let {
+            changeNotificationPlayOrStop(true)
         }
     }
 
@@ -58,15 +62,9 @@ class WidgetService : Service(),
             val extra = AppBroadcastHub.Extra.iconRadioUI
             val value = getStringExtra(extra)
 
-            AudlayerWidget.iconIsSong = false
-            AudlayerWidget.widgetIcon = value
-
-            AudlayerWidget.invokeUpdate(this@WidgetService)
+           MiniPlayerNotification
+               .updateIcon(this@AudlayerNotificationService, value)
         }
-    }
-
-    override val playRadioUIF: (Intent?) -> Unit = {
-        AudlayerWidget.widgetIsPlaying = true
     }
 
     override val iconF: (Intent?) -> Unit = {
@@ -74,37 +72,31 @@ class WidgetService : Service(),
             val extra = AppBroadcastHub.Extra.iconUI
             val value = getStringExtra(extra)
 
-            AudlayerWidget.iconIsSong = true
-            AudlayerWidget.widgetIcon = value
-
-            AudlayerWidget.invokeUpdate(this@WidgetService)
+            MiniPlayerNotification
+                .updateIcon(this@AudlayerNotificationService, value)
         }
     }
 
     override val stopF: (Intent?) -> Unit = {
         it?.apply {
-            AudlayerWidget.widgetIsPlaying = false
-
-            AudlayerWidget.invokeUpdate(this@WidgetService)
+            changeNotificationPlayOrStop(false)
         }
     }
 
     override val playF: (Intent?) -> Unit = {
         it?.apply {
-            AudlayerWidget.widgetIsPlaying = true
-
-            AudlayerWidget.invokeUpdate(this@WidgetService)
+            changeNotificationPlayOrStop(true)
         }
     }
 
     override val songArtistF: (Intent?) -> Unit = { intent ->
         intent?.apply {
             val extra = AppBroadcastHub.Extra.songArtistUI
-            val songArtist = getStringExtra(extra)
-            AudlayerWidget.widgetArtist = songArtist
+            val value = getStringExtra(extra)
 
-            this@WidgetService.mayInvokeGeneral {
-                AudlayerWidget.invokeUpdate(this@WidgetService)
+            this@AudlayerNotificationService.mayInvokeGeneral {
+                MiniPlayerNotification
+                    .updateSongArtist(this@AudlayerNotificationService, value)
             }
         }
     }
@@ -113,10 +105,10 @@ class WidgetService : Service(),
         intent?.apply {
             val extra = AppBroadcastHub.Extra.songNameUI
             val value = getStringExtra(extra)
-            AudlayerWidget.widgetTitle = value
 
-            this@WidgetService.mayInvokeGeneral {
-                AudlayerWidget.invokeUpdate(this@WidgetService)
+            this@AudlayerNotificationService.mayInvokeGeneral {
+                MiniPlayerNotification
+                    .updateSongTitle(this@AudlayerNotificationService, value)
             }
         }
     }
@@ -218,6 +210,7 @@ class WidgetService : Service(),
         Log.d(TAG, "onCreate called")
         super.onCreate()
 
+
         receivers.forEach {
             this.applicationContext.registerBroadcastReceiver(
                 it.first,
@@ -232,13 +225,6 @@ class WidgetService : Service(),
                 PERM_PRIVATE_RADIO
             )
         }
-
-        AppBroadcastHub.apply {
-            this@WidgetService.getInfoService()
-            this@WidgetService.getInfoRadioService()
-        }
-
-        AudlayerWidget.invokeUpdate(this)
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
@@ -271,10 +257,13 @@ class WidgetService : Service(),
         return START_STICKY
     }
 
+    private fun changeNotificationPlayOrStop(isPlaying: Boolean) =
+        MiniPlayerNotification.updatePlayOrStop(this, isPlaying)
+
     private fun restartService() {
         val broadcastIntent = Intent()
-        broadcastIntent.action = "RestartWidgetService"
-        broadcastIntent.setClass(this, RestarterWidgetService::class.java)
+        broadcastIntent.action = "RestartNotificationService"
+        broadcastIntent.setClass(this, RestarterNotificationService::class.java)
         this.sendBroadcast(broadcastIntent)
     }
 }

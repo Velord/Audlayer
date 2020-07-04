@@ -1,17 +1,24 @@
 package velord.university.application.notification
 
+import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
+import android.webkit.URLUtil
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.NotificationTarget
 import velord.university.R
 import velord.university.application.broadcast.MiniPlayerNotificationBroadcastReceiver
+import velord.university.ui.util.DrawableIcon
+import velord.university.ui.widget.AudlayerWidget
 
-object MiniPlayerServiceNotification {
+
+object MiniPlayerNotification {
 
     const val NOTIFICATION_ACTION_PREVIUOS = "actionPrevious"
     const val NOTIFICATION_ACTION_PLAY_OR_STOP = "actionPlayOrStop"
@@ -27,6 +34,7 @@ object MiniPlayerServiceNotification {
     private var title = ""
     private var artist = ""
     private var isPlaying = false
+    private var icon: String = ""
 
     private fun Context.intentPrevious(): PendingIntent {
         val intentPrevious = Intent(
@@ -74,7 +82,6 @@ object MiniPlayerServiceNotification {
             Context.NOTIFICATION_SERVICE) as NotificationManager
         //build notification
         updatePlayOrStop(context, isPlaying)
-        updateSongTitleAndArtist(context, title, artist)
     }
 
     fun dismiss() {
@@ -85,36 +92,117 @@ object MiniPlayerServiceNotification {
     fun updatePlayOrStop(context: Context,
                          isPlaying: Boolean) {
         this.isPlaying = isPlaying
+        val f: (RemoteViews, NotificationCompat.Builder) -> Unit = { view, _ ->
+            when (this.isPlaying) {
+                true -> {
+                    view.setImageViewResource(
+                        R.id.notification_play_or_stop,
+                        R.drawable.pause
+                    )
+                }
+                false -> {
+                    view.setImageViewResource(
+                        R.id.notification_play_or_stop,
+                        R.drawable.play
+                    )
+                }
+            }
+        }
+        updateNotification(context, f)
+    }
+
+    fun updateSongTitle(context: Context,
+                        title: String) {
+        this.title = title
+        val f: (RemoteViews, NotificationCompat.Builder) -> Unit = { view, _ ->
+            view.setTextViewText(R.id.notification_title, title)
+        }
+        updateNotification(context, f)
+    }
+
+    fun updateSongArtist(context: Context,
+                         artist: String) {
+        this.artist = artist
+        val f: (RemoteViews, NotificationCompat.Builder) -> Unit = { view, _ ->
+            view.setTextViewText(R.id.notification_artist, artist)
+        }
+        updateNotification(context, f)
+    }
+
+    fun updateIcon(context: Context, value: String) {
+        this.icon = value
+        val f: (RemoteViews, NotificationCompat.Builder) -> Unit = { _, builder ->
+            loadIcon(context, builder.notification, value)
+        }
+        updateNotification(context, f)
+    }
+
+    fun updateArtistAndTitle(context: Context,
+                             artist: String,
+                             title: String) {
+        this.artist = artist
+        this.title = title
+        val f: (RemoteViews, NotificationCompat.Builder) -> Unit = { view, _ ->
+            view.setTextViewText(R.id.notification_artist, artist)
+            view.setTextViewText(R.id.notification_title, title)
+        }
+        updateNotification(context, f)
+    }
+
+    private fun loadIcon(context: Context,
+                         notification: Notification,
+                         value: String) {
+        val notificationTarget = NotificationTarget(
+            context,
+            R.id.notification_image,
+            view,
+            notification,
+            id
+        )
+
+        if (AudlayerWidget.widgetIcon.isNotEmpty()) {
+            when(AudlayerWidget.iconIsSong) {
+                true -> {
+                    if (URLUtil.isHttpUrl(value) ||
+                        URLUtil.isHttpsUrl(value)
+                    ) {
+                        Glide.with(context)
+                            .asBitmap()
+                            .load(value)
+                            .placeholder(R.drawable.song_item_black)
+                            .into(notificationTarget)
+                    } else view.setImageViewResource(
+                        R.id.audlayer_widget_image,
+                        AudlayerWidget.widgetIcon.toInt()
+                    )
+                }
+                false -> {
+                    val radioIconAsset =
+                        DrawableIcon.getResourceIdIcon(context, value)
+
+                    Glide.with(context)
+                        .asBitmap()
+                        .load(radioIconAsset)
+                        .placeholder(R.drawable.song_item_black)
+                        .into(notificationTarget)
+                }
+            }
+        }
+    }
+
+    private inline fun updateNotification(context: Context,
+                                          f: (RemoteViews, NotificationCompat.Builder) -> Unit) {
         //create builder
         val builder = getNotificationBuilder(context)
         //change view
-        when (this.isPlaying) {
-            true -> {
-                view.setImageViewResource(R.id.notification_play_or_stop, R.drawable.pause)
-            }
-            false -> {
-                view.setImageViewResource(R.id.notification_play_or_stop, R.drawable.play)
-            }
-        }
+        f(view, builder)
         //notify
-        if (::notificationManager.isInitialized)
+        if (managerInitialized())
             notificationManager.notify(id, builder.build())
     }
 
-    fun updateSongTitleAndArtist(context: Context,
-                                 title: String,
-                                 artist: String) {
-        //create builder
-        val builder = getNotificationBuilder(context)
-        //change view
-        this.artist = artist
-        this.title = title
-        view.setTextViewText(R.id.notification_artist, artist)
-        view.setTextViewText(R.id.notification_title, title)
-        //notify
-        if (::notificationManager.isInitialized)
-            notificationManager.notify(id, builder.build())
-    }
+    private fun managerInitialized(): Boolean =
+        ::notificationManager.isInitialized
 
     private fun getNotificationBuilder(context: Context): NotificationCompat.Builder {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

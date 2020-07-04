@@ -58,6 +58,11 @@
             android:exported="true">
         </service>
 
+        <service android:name=".application.service.AudlayerNotificationService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
         <activity
             android:name=".ui.activity.VkLoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
@@ -114,6 +119,16 @@
                 <action android:name="RestartWidgetService" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".application.broadcast.RestarterNotificationService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="RestartNotificationService" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

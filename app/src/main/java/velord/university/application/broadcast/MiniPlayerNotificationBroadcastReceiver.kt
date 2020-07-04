@@ -3,11 +3,11 @@ package velord.university.application.broadcast
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import velord.university.application.notification.MiniPlayerServiceNotification
-import velord.university.application.notification.MiniPlayerServiceNotification.NOTIFICATION_ACTION_CANCEL
-import velord.university.application.notification.MiniPlayerServiceNotification.NOTIFICATION_ACTION_NEXT
-import velord.university.application.notification.MiniPlayerServiceNotification.NOTIFICATION_ACTION_PLAY_OR_STOP
-import velord.university.application.notification.MiniPlayerServiceNotification.NOTIFICATION_ACTION_PREVIUOS
+import velord.university.application.notification.MiniPlayerNotification
+import velord.university.application.notification.MiniPlayerNotification.NOTIFICATION_ACTION_CANCEL
+import velord.university.application.notification.MiniPlayerNotification.NOTIFICATION_ACTION_NEXT
+import velord.university.application.notification.MiniPlayerNotification.NOTIFICATION_ACTION_PLAY_OR_STOP
+import velord.university.application.notification.MiniPlayerNotification.NOTIFICATION_ACTION_PREVIUOS
 import velord.university.repository.MiniPlayerRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 
@@ -33,7 +33,7 @@ class MiniPlayerNotificationBroadcastReceiver : BroadcastReceiver() {
                     MiniPlayerLayoutState.GENERAL ->
                         AppBroadcastHub.run { context.skipPrevService() }
                 }
-            NOTIFICATION_ACTION_CANCEL -> MiniPlayerServiceNotification.dismiss()
+            NOTIFICATION_ACTION_CANCEL -> MiniPlayerNotification.dismiss()
         }
     }
 }

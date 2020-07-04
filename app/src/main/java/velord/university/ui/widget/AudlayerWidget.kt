@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.AppWidgetTarget
 import velord.university.R
 import velord.university.application.broadcast.WidgetBroadcastReceiver
-import velord.university.application.notification.MiniPlayerServiceNotification
+import velord.university.application.notification.MiniPlayerNotification
 import velord.university.ui.util.DrawableIcon
 
 
@@ -122,7 +122,7 @@ class AudlayerWidget : AppWidgetProvider() {
         private fun Context.intentPrevious(): PendingIntent {
             val intentPrevious = Intent(
                 this, WidgetBroadcastReceiver::class.java)
-                .setAction(MiniPlayerServiceNotification.NOTIFICATION_ACTION_PREVIUOS)
+                .setAction(MiniPlayerNotification.NOTIFICATION_ACTION_PREVIUOS)
             return  PendingIntent.getBroadcast(
                 this, 0,
                 intentPrevious, PendingIntent.FLAG_UPDATE_CURRENT
@@ -133,7 +133,7 @@ class AudlayerWidget : AppWidgetProvider() {
             val intentPlay = Intent(
                 this, WidgetBroadcastReceiver::class.java
             )
-                .setAction(MiniPlayerServiceNotification.NOTIFICATION_ACTION_PLAY_OR_STOP)
+                .setAction(MiniPlayerNotification.NOTIFICATION_ACTION_PLAY_OR_STOP)
             return PendingIntent.getBroadcast(
                 this, 0,
                 intentPlay, PendingIntent.FLAG_UPDATE_CURRENT
@@ -143,7 +143,7 @@ class AudlayerWidget : AppWidgetProvider() {
         private fun Context.intentNext(): PendingIntent {
             val intentPrevious = Intent(
                 this, WidgetBroadcastReceiver::class.java)
-                .setAction(MiniPlayerServiceNotification.NOTIFICATION_ACTION_NEXT)
+                .setAction(MiniPlayerNotification.NOTIFICATION_ACTION_NEXT)
             return PendingIntent.getBroadcast(
                 this, 0,
                 intentPrevious, PendingIntent.FLAG_UPDATE_CURRENT

@@ -9,7 +9,6 @@ import android.widget.Toast
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.RestarterMiniPlayerGeneralService
-import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.service.audioFocus.AudioFocusChangeF
 import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.AppPreference
@@ -76,11 +75,6 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         scope.launch {
             PlaylistTransaction.checkDbTableColumn()
             restoreState()
-            mayInvoke {
-                if (playlistIsInitialized())
-                    changeNotificationInfo()
-                changeNotificationPlayOrStop(true)
-            }
         }
     }
 
@@ -313,25 +307,12 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         mayInvoke {
             AppBroadcastHub.run { playUI() }
         }
-        //send command to change notification
-        changeNotificationPlayOrStop(true)
-        if (playlistIsInitialized())
-            changeNotificationInfo()
     }
 
     private fun stopElseService() {
         AppBroadcastHub.run { stopRadioService() }
         sendShowGeneralUI()
     }
-
-    private fun changeNotificationInfo(file: File = playlist.getSong()) {
-        val title = FileNameParser.getSongTitle(file)
-        val artist = FileNameParser.getSongArtist(file)
-        MiniPlayerServiceNotification.updateSongTitleAndArtist(this, title, artist)
-    }
-
-    private fun changeNotificationPlayOrStop(isPlaying: Boolean) =
-        MiniPlayerServiceNotification.updatePlayOrStop(this, isPlaying)
 
     private suspend fun restoreState() {
         val songsFromDb = ServiceTransaction.getPlaylist()
@@ -406,8 +387,6 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         mayInvoke {
             AppBroadcastHub.apply { stopUI() }
         }
-        //send command to change notification
-        changeNotificationPlayOrStop(false)
     }
 
     private fun stopPlayer() {
@@ -455,8 +434,6 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             sendInfoToUI(song)
             //store pos
             storeSongPositionInQueue()
-            //notification refresh
-            changeNotificationInfo(song)
         } ?: pathIsWrong(path!!)
     }
 
