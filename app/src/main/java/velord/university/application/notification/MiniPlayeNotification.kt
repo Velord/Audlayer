@@ -35,6 +35,7 @@ object MiniPlayerNotification {
     private var artist = ""
     private var isPlaying = false
     private var icon: String = ""
+    private var iconIsSong = true
 
     private fun Context.intentPrevious(): PendingIntent {
         val intentPrevious = Intent(
@@ -129,7 +130,10 @@ object MiniPlayerNotification {
         updateNotification(context, f)
     }
 
-    fun updateIcon(context: Context, value: String) {
+    fun updateIcon(context: Context,
+                   value: String,
+                   isSong: Boolean = this.iconIsSong) {
+        this.iconIsSong = isSong
         this.icon = value
         val f: (RemoteViews, NotificationCompat.Builder) -> Unit = { _, builder ->
             loadIcon(context, builder.notification, value)
@@ -160,18 +164,17 @@ object MiniPlayerNotification {
             id
         )
 
-        if (AudlayerWidget.widgetIcon.isNotEmpty()) {
-            when(AudlayerWidget.iconIsSong) {
+        if (icon.isNotEmpty()) {
+            when(iconIsSong) {
                 true -> {
                     if (URLUtil.isHttpUrl(value) ||
-                        URLUtil.isHttpsUrl(value)
-                    ) {
+                        URLUtil.isHttpsUrl(value))
                         Glide.with(context)
                             .asBitmap()
                             .load(value)
                             .placeholder(R.drawable.song_item_black)
                             .into(notificationTarget)
-                    } else view.setImageViewResource(
+                    else view.setImageViewResource(
                         R.id.audlayer_widget_image,
                         AudlayerWidget.widgetIcon.toInt()
                     )

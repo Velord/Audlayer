@@ -162,8 +162,8 @@ class FolderFragment : ActionBarFragment(),
     }
     override val actionBarPopUp: (ImageButton) -> Unit = { }
 
-    private val receivers = receiverList() +
-            getIconReceiverList()
+    private val receivers = songPathReceiverList() +
+            getIconClickedReceiverList()
 
     override val songPathF: (Intent?) -> Unit =
         { nullableIntent ->
@@ -261,7 +261,7 @@ class FolderFragment : ActionBarFragment(),
         return true
     }
 
-    private fun openAddToPlaylistFragment(songs: Array<File>) {
+    private fun openAddToPlaylistFragment(songs: Array<Song>) {
         callbacks?.let {
             if (songs.isNotEmpty()) {
                 SongPlaylistInteractor.songs = songs
@@ -272,7 +272,7 @@ class FolderFragment : ActionBarFragment(),
         }
     }
 
-    private fun openCreatePlaylistFragment(songs: Array<File>) {
+    private fun openCreatePlaylistFragment(songs: Array<Song>) {
         callbacks?.let {
             if (songs.isNotEmpty()) {
                 SongPlaylistInteractor.songs = songs
@@ -302,7 +302,11 @@ class FolderFragment : ActionBarFragment(),
             .toTypedArray()
 
 
-        val audio = FileFilter.filterOnlyAudio(files).toTypedArray()
+        val audio = FileFilter
+            .filterOnlyAudio(files)
+            .map { Song(it) }
+            .toTypedArray()
+
         openAddToPlaylistFragment(audio)
     }
 
@@ -312,8 +316,6 @@ class FolderFragment : ActionBarFragment(),
                 FileFilter.filterFileBySearchQuery,
                 viewModel.currentQuery
             )
-            .map { it.file }
-            .toTypedArray()
 
         openCreatePlaylistFragment(songs)
     }
@@ -476,7 +478,7 @@ class FolderFragment : ActionBarFragment(),
                                 }
                                 R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
                                     callbacks?.let { callback ->
-                                        SongPlaylistInteractor.songs = arrayOf(value.file)
+                                        SongPlaylistInteractor.songs = arrayOf(value)
                                         callback.onAddToPlaylistFromFolderFragment()
                                     }
                                     true

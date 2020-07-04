@@ -17,6 +17,7 @@ import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
+import velord.university.model.entity.Song
 import velord.university.repository.transaction.PlaylistTransaction
 import velord.university.ui.backPressed.BackPressedHandlerSecond
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
@@ -143,7 +144,10 @@ class AddToPlaylist :
                     R.id.playlist_item_play -> {
                         //don't remember for SongPlaylist Interactor
                         SongPlaylistInteractor.songs =
-                            playlist.songs.map { File(it) }.toTypedArray()
+                            playlist.songs
+                                .map { Song(File(it)) }
+                                .toTypedArray()
+
                         AppBroadcastHub.apply {
                             requireContext().playByPathService(playlist.songs[0])
                         }

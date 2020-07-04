@@ -10,7 +10,7 @@ interface MiniPlayerIconClickReceiver {
 
     val TAG: String
 
-    fun getIconReceiverList() = arrayOf(
+    fun getIconClickedReceiverList() = arrayOf(
         Pair(iconClicked(), AppBroadcastHub.Action.clickOnIcon)
     )
 

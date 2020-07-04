@@ -19,6 +19,7 @@ import velord.university.model.ServicePlaylist
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.SongTimeConverter
 import velord.university.model.entity.MiniPlayerServiceSong
+import velord.university.model.entity.Song
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
 import velord.university.repository.MiniPlayerRepository
@@ -152,7 +153,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun playByPath(path: String) {
         playlist.clearQueue()
-        addToQueue(SongPlaylistInteractor.songs.toList())
+        addToQueue(SongPlaylistInteractor.songs.map { it.file }.toList())
         playNext(path)
         //showUI
         stopElseService()
@@ -319,6 +320,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         val songsToPlaylist = MiniPlayerServiceSong.getSongsToPlaylist(songsFromDb)
 
         if (songsToPlaylist.isNotEmpty()) {
+            applyInteractor(songsToPlaylist)
             playlist.addToQueue(*songsToPlaylist.toTypedArray())
             //restore isPlaying state
             val isPlaying = MiniPlayerServicePreferences(this).isPlaying
@@ -333,10 +335,17 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             applySong(songsToPlaylist)
             //this means ui have been destroyed with service after destroy main activity
             //but app is still working -> after restoration we should play song
+            //TODO() does need this lines ?
             if (isPlaying && appWasDestroyed.not()) {
                 playSongAfterCreatedPlayer()
             }
         }
+    }
+
+    private fun applyInteractor(songsToPlaylist: List<File>) {
+        SongPlaylistInteractor.songs = songsToPlaylist
+            .map { Song(it) }
+            .toTypedArray()
     }
 
     private fun applySong(songsToPlaylist: List<File>) {
@@ -571,7 +580,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private fun sendPath(song: File) =
-        AppBroadcastHub.run { songPathUI(song.path) }
+        AppBroadcastHub.run { songPathUI(song.absolutePath) }
 
     private fun sendSongDuration(player: MediaPlayer) =
         AppBroadcastHub.run { songDurationUI(player.duration) }

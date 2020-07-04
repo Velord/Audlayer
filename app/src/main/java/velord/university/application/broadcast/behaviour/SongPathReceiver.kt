@@ -10,7 +10,7 @@ interface SongPathReceiver {
 
     val TAG: String
 
-    fun receiverList() = arrayOf(
+    fun songPathReceiverList() = arrayOf(
         Pair(songPath(), AppBroadcastHub.Action.songPathUI)
     )
 

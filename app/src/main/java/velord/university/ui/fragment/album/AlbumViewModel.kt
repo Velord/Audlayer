@@ -12,6 +12,7 @@ import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Album
 import velord.university.model.entity.Playlist
+import velord.university.model.entity.Song
 import velord.university.model.file.FileFilter
 import velord.university.repository.FolderRepository
 import velord.university.repository.transaction.AlbumTransaction
@@ -77,8 +78,10 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
     fun playSongs(songs: Array<String>) {
         if (songs.isNotEmpty()) {
             //don't remember for SongPlaylistInteractor
-            SongPlaylistInteractor.songs =
-                songs.map { File(it) }.toTypedArray()
+            SongPlaylistInteractor.songs = songs
+                .map { Song(File(it)) }
+                .toTypedArray()
+
             AppBroadcastHub.apply {
                 app.playByPathService(songs[0])
             }

@@ -9,17 +9,38 @@ import android.widget.Toast
 import velord.university.application.broadcast.*
 import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.behaviour.RadioUIReceiver
+import velord.university.application.broadcast.behaviour.SongPathReceiver
+import velord.university.interactor.SongPlaylistInteractor
+import velord.university.model.entity.Song
 import velord.university.ui.widget.AudlayerWidget
 
 class WidgetService : Service(),
     MiniPlayerUIReceiver,
-    RadioUIReceiver {
+    RadioUIReceiver,
+    SongPathReceiver {
 
     override val TAG = "WidgetService"
 
-    private val receivers = miniPlayerUIReceiverList()
+    private val receivers = miniPlayerUIReceiverList() +
+            songPathReceiverList()
 
     private val receiversRadio = getRadioUIReceiverList()
+
+    override val songPathF: (Intent?) -> Unit = { intent ->
+        intent?.apply {
+            val extra = AppBroadcastHub.Extra.songPathUI
+            val songPath = getStringExtra(extra)
+
+            val song = SongPlaylistInteractor.songs.find {
+                it.file.path == songPath
+            }
+
+            song?.let {
+                val songIcon = getSongIconValue(song)
+                changeIcon(songIcon)
+            }
+        }
+    }
 
     override val nameRadioUIF: (Intent?) -> Unit = {
         it?.apply {
@@ -74,10 +95,7 @@ class WidgetService : Service(),
             val extra = AppBroadcastHub.Extra.iconUI
             val value = getStringExtra(extra)
 
-            AudlayerWidget.iconIsSong = true
-            AudlayerWidget.widgetIcon = value
-
-            AudlayerWidget.invokeUpdate(this@WidgetService)
+            changeIcon(value)
         }
     }
 
@@ -269,6 +287,20 @@ class WidgetService : Service(),
         super.onStartCommand(intent, flags, startId)
 
         return START_STICKY
+    }
+
+    companion object {
+        fun getSongIconValue(song: Song): String =
+            if (song.iconUrl.isNullOrBlank().not())
+                song.iconUrl!!
+            else song.icon.toString()
+    }
+
+    private fun changeIcon(value: String) {
+        AudlayerWidget.iconIsSong = true
+        AudlayerWidget.widgetIcon = value
+
+        AudlayerWidget.invokeUpdate(this@WidgetService)
     }
 
     private fun restartService() {

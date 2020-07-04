@@ -9,17 +9,38 @@ import android.widget.Toast
 import velord.university.application.broadcast.*
 import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.behaviour.RadioUIReceiver
+import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.application.notification.MiniPlayerNotification
+import velord.university.interactor.SongPlaylistInteractor
 
 class AudlayerNotificationService : Service(),
     MiniPlayerUIReceiver,
-    RadioUIReceiver {
+    RadioUIReceiver,
+    SongPathReceiver {
 
     override val TAG = "WidgetService"
 
-    private val receivers = miniPlayerUIReceiverList()
+    private val receivers = miniPlayerUIReceiverList() +
+            songPathReceiverList()
 
     private val receiversRadio = getRadioUIReceiverList()
+
+    override val songPathF: (Intent?) -> Unit = { intent ->
+        intent?.apply {
+            val extra = AppBroadcastHub.Extra.songPathUI
+            val songPath = getStringExtra(extra)
+
+            val song = SongPlaylistInteractor.songs.find {
+                it.file.path == songPath
+            }
+
+            song?.let {
+                val songIcon = WidgetService.getSongIconValue(song)
+                MiniPlayerNotification
+                    .updateIcon(this@AudlayerNotificationService, songIcon, true)
+            }
+        }
+    }
 
     override val nameRadioUIF: (Intent?) -> Unit = {
         it?.apply {
@@ -63,7 +84,7 @@ class AudlayerNotificationService : Service(),
             val value = getStringExtra(extra)
 
            MiniPlayerNotification
-               .updateIcon(this@AudlayerNotificationService, value)
+               .updateIcon(this@AudlayerNotificationService, value, false)
         }
     }
 
@@ -73,7 +94,7 @@ class AudlayerNotificationService : Service(),
             val value = getStringExtra(extra)
 
             MiniPlayerNotification
-                .updateIcon(this@AudlayerNotificationService, value)
+                .updateIcon(this@AudlayerNotificationService, value, true)
         }
     }
 

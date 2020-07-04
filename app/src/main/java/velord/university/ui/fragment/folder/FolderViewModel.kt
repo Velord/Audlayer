@@ -36,8 +36,11 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
     fun getSearchQuery(): String =
         SearchQueryPreferences.getStoredQueryFolder(app, currentFolder.path)
 
-    fun onlyAudio(file: File): Array<File> =
-        FileFilter.filterOnlyAudio(file).toTypedArray()
+    fun onlyAudio(file: File): Array<Song> =
+        FileFilter
+            .filterOnlyAudio(file)
+            .map { Song(it) }
+            .toTypedArray()
 
     fun playAllInFolder(value: Song) {
         //don't remember for SongPlaylistInteractor
@@ -63,7 +66,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun playAudio(value: Song) {
         //don't remember for SongPlaylistInteractor it will be used between this and service
-        SongPlaylistInteractor.songs = arrayOf(value.file)
+        SongPlaylistInteractor.songs = arrayOf(value)
         AppBroadcastHub.apply {
             app.playByPathService(value.file.path)
             app.loopService()
@@ -72,7 +75,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun playAudioNext(value: Song) {
         //don't remember for SongQueryInteractor it will be used between this and service
-        SongPlaylistInteractor.songs = arrayOf(value.file)
+        SongPlaylistInteractor.songs = arrayOf(value)
         //add to queue one song
         AppBroadcastHub.apply {
             app.addToQueueService(value.file.path)
@@ -90,8 +93,6 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
     fun playAudioFile(value: Song) {
         AppBroadcastHub.apply {
            SongPlaylistInteractor.songs = fileList
-               .map { it.file }
-               .toTypedArray()
 
            app.playByPathService(value.file.path)
        }
@@ -135,7 +136,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
         val filesInFolder = file.listFiles()
         return filesInFolder
             .map {
-                Song(it, DrawableIcon.getRandomFolderSongIconName)
+                Song(it, "", DrawableIcon.getRandomFolderSongIconName)
             }
             .toTypedArray()
 

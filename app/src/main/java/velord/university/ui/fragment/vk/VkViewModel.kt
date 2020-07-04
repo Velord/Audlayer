@@ -11,6 +11,7 @@ import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
+import velord.university.model.entity.Song
 import velord.university.model.entity.vk.VkAlbum
 import velord.university.model.entity.vk.VkPlaylist
 import velord.university.model.entity.vk.VkSong
@@ -56,12 +57,11 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         SearchQueryPreferences(app).storedQueryVk
 
     fun playAudioNext(song: VkSong) {
-        val file = File(song.path)
         //don't remember for SongQuery Interactor it will be used between this and service
-        SongPlaylistInteractor.songs = arrayOf(file)
+        addToInteractor()
         //add to queue one song
         AppBroadcastHub.apply {
-            app.addToQueueService(file.path)
+            app.addToQueueService(song.path)
         }
     }
 
@@ -71,12 +71,9 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun playAudioAndAllSong(song: VkSong) {
         scope.launch {
-            AppBroadcastHub.apply {
-                SongPlaylistInteractor.songs = ordered
-                    .filter { it.path.isNotBlank() }
-                    .map { File(it.path) }
-                    .toTypedArray()
+            addToInteractor()
 
+            AppBroadcastHub.apply {
                 app.playByPathService(song.path)
                 app.loopAllService()
                 //sendIcon
@@ -216,6 +213,18 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         }
 
         return@withContext ordered
+    }
+
+    private fun addToInteractor() {
+        SongPlaylistInteractor.songs = ordered
+            .filter { it.path.isNotBlank() }
+            .map {
+                Song(
+                    File(it.path),
+                    it.getAlbumIcon()
+                )
+            }
+            .toTypedArray()
     }
 
     private fun getPathIndex(vkSong: VkSong, allSongFromDb: List<String>): Int {

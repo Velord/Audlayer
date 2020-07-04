@@ -117,7 +117,6 @@ class AllSongViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun playAudioAndAllSong(song: Song) {
         SongPlaylistInteractor.songs = ordered
-            .map { it.file }
             .toTypedArray()
 
         AppBroadcastHub.apply {
@@ -130,7 +129,7 @@ class AllSongViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun playAudio(song: Song) {
         //don't remember for SongQuery Interactor it will be used between this and service
-        SongPlaylistInteractor.songs = arrayOf(song.file)
+        SongPlaylistInteractor.songs = arrayOf(song)
         AppBroadcastHub.apply {
             app.showGeneralUI()
             app.playByPathService(song.file.path)
@@ -141,7 +140,7 @@ class AllSongViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun playAudioNext(song: Song) {
         //don't remember for SongQuery Interactor it will be used between this and service
-        SongPlaylistInteractor.songs = arrayOf(song.file)
+        SongPlaylistInteractor.songs = arrayOf(song)
         //add to queue one song
         AppBroadcastHub.apply {
             app.addToQueueService(song.file.path)

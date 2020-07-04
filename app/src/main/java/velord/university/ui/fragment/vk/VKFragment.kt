@@ -30,9 +30,9 @@ import velord.university.application.settings.VkPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
+import velord.university.model.entity.Song
 import velord.university.model.entity.vk.VkSong
 import velord.university.model.file.FileFilter
-import velord.university.model.file.FileNameParser
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RVSelection
@@ -182,16 +182,14 @@ class VKFragment : ActionBarFragment(),
     }
 
     private val receivers = receiverList() +
-            getIconReceiverList()
+            getIconClickedReceiverList()
 
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
                 val extra = AppBroadcastHub.Extra.songPathUI
                 val path = getStringExtra(extra)
-                val songPath = FileNameParser
-                    .removeExtension(File(path))
                 scope.launch {
-                    changeRVItem(songPath)
+                    changeRVItem(path)
                 }
             }
         }
@@ -217,12 +215,12 @@ class VKFragment : ActionBarFragment(),
         }
     }
 
-    private tailrec suspend fun changeRVItem(songName: String) {
+    private tailrec suspend fun changeRVItem(songPath: String) {
         if (viewModel.rvResolverIsInitialized() &&
             viewModel.orderedIsInitialized()) {
             viewModel.rvResolver.apply {
                 val song = viewModel.vkSongList.find {
-                    "${it.artist} - ${it.title}" == songName
+                    it.path == songPath
                 } ?: return
 
                 clearAndChangeSelectedItem(song)
@@ -239,7 +237,7 @@ class VKFragment : ActionBarFragment(),
             return
         } else {
             delay(500)
-            changeRVItem(songName)
+            changeRVItem(songPath)
         }
     }
 
@@ -579,7 +577,7 @@ class VKFragment : ActionBarFragment(),
                     R.id.vk_rv_item_add_to_playlist -> {
                         callbacks?.let { callback ->
 
-                            SongPlaylistInteractor.songs = arrayOf(File(song.path))
+                            SongPlaylistInteractor.songs = arrayOf(Song(File(song.path)))
                             callback.onAddToPlaylistFromVkFragment()
 
                         }

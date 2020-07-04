@@ -62,8 +62,8 @@ class AllSongFragment :
 
     private lateinit var rv: RecyclerView
 
-    private val receivers = receiverList() +
-            getIconReceiverList()
+    private val receivers = songPathReceiverList() +
+            getIconClickedReceiverList()
 
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
@@ -380,7 +380,7 @@ class AllSongFragment :
                     }
                     R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
                         callbacks?.let { callback ->
-                            SongPlaylistInteractor.songs = arrayOf(song.file)
+                            SongPlaylistInteractor.songs = arrayOf(song)
                             callback.onAddToPlaylistFromSongFragment()
                         }
                         true

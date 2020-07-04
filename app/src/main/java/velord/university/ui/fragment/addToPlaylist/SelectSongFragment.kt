@@ -16,6 +16,7 @@ import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
+import velord.university.model.entity.Song
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
 import velord.university.ui.backPressed.BackPressedHandlerFirst
@@ -190,7 +191,10 @@ class SelectSongFragment :
             callbacks?.let { it ->
                 if (viewModel.checked.isNotEmpty()) {
                     SongPlaylistInteractor.songs =
-                        viewModel.checked.map { File(it) }.toTypedArray()
+                        viewModel.checked
+                            .map { Song(File(it)) }
+                            .toTypedArray()
+
                     it.onAddToPlaylistFromAddSongFragment()
                 }
                 else Toast.makeText(requireContext(),
@@ -228,6 +232,9 @@ class SelectSongFragment :
 
     private fun setupAdapter() {
         viewModel.fileList = SongPlaylistInteractor.songs
+            .map { it.file }
+            .toTypedArray()
+
         updateAdapterBySearchQuery("")
     }
 
