@@ -11,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
 import velord.university.application.service.RadioServiceBroadcastReceiver
+import velord.university.application.service.WidgetService
 import velord.university.repository.FolderRepository
 import velord.university.repository.RadioRepository
 import velord.university.repository.factory.AppDatabase
@@ -27,6 +28,8 @@ class AudlayerApp : Application() {
         startService(this, MiniPlayerServiceBroadcastReceiver())
         //service mini player radio
         startService(this, RadioServiceBroadcastReceiver())
+        //service widget
+        startService(this, WidgetService())
     }
 
     companion object {

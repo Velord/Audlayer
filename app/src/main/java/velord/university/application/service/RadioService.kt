@@ -14,7 +14,6 @@ import velord.university.application.broadcast.RestarterRadioService
 import velord.university.application.notification.MiniPlayerServiceNotification
 import velord.university.application.service.audioFocus.AudioFocusChangeF
 import velord.university.application.service.audioFocus.AudioFocusListenerService
-import velord.university.application.settings.AppPreference
 import velord.university.application.settings.miniPlayer.RadioServicePreference
 import velord.university.interactor.RadioInteractor
 import velord.university.model.entity.RadioStation
@@ -286,27 +285,6 @@ abstract class RadioService : AudioFocusListenerService() {
 
     private fun storeIsPlayingStateFalse() {
         RadioServicePreference(this@RadioService).isPlaying = false
-    }
-
-    private fun appWasDestroyedProtection() {
-        Log.d(TAG, "userRotateDeviceProtection")
-        //restore isPlaying state
-        val isPlaying =
-            RadioServicePreference(this@RadioService).isPlaying
-        val appWasDestroyed =
-            AppPreference(this@RadioService).appIsDestroyed
-        //this means ui have been destroyed after destroy main activity
-        //but app is still working -> after restoration we should play radio
-        if (appWasDestroyed) {
-            mayInvoke {
-                sendAllInfo()
-                playByUrl(currentStation.url)
-                pausePlayer()
-            }
-        }
-        else if (isPlaying && appWasDestroyed.not()) {
-            if (playerIsInitialized()) player.start()
-        }
     }
 
     private fun saveState() {

@@ -35,7 +35,7 @@ open class MiniPlayerGeneralFragment :
         ViewModelProviders.of(this).get(MiniPlayerViewModel::class.java)
     }
 
-    private val receivers = this.receiver()
+    private val receivers = this.miniPlayerUIReceiverList()
 
     private val scope =
         CoroutineScope(Job() + Dispatchers.Default)

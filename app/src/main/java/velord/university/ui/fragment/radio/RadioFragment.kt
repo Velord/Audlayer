@@ -17,7 +17,7 @@ import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_RADIO
-import velord.university.application.broadcast.behaviour.RadioIconReceiver
+import velord.university.application.broadcast.behaviour.RadioIconClickReceiver
 import velord.university.application.broadcast.behaviour.RadioNameArtistUIReceiver
 import velord.university.application.broadcast.behaviour.RadioUnavailableUIReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
@@ -32,7 +32,7 @@ import velord.university.ui.util.setupPopupMenuOnClick
 
 class RadioFragment : ActionBarFragment(),
     RadioNameArtistUIReceiver,
-    RadioIconReceiver,
+    RadioIconClickReceiver,
     RadioUnavailableUIReceiver {
 
     override val TAG: String = "RadioFragment"

@@ -6,7 +6,7 @@ import android.content.Intent
 import android.util.Log
 import velord.university.application.broadcast.AppBroadcastHub
 
-interface MiniPlayerIconReceiver {
+interface MiniPlayerIconClickReceiver {
 
     val TAG: String
 

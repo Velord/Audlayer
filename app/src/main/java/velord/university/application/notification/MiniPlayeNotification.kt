@@ -17,7 +17,7 @@ object MiniPlayerServiceNotification {
     const val NOTIFICATION_ACTION_PLAY_OR_STOP = "actionPlayOrStop"
     const val NOTIFICATION_ACTION_NEXT = "actionNext"
     const val NOTIFICATION_ACTION_CANCEL = "actionCancel"
-    const val channelId = "velord.audlayer.notification.miniPlayerService"
+    private const val channelId = "velord.audlayer.notification.miniPlayerService"
     const val id = 2345
 
     private lateinit var view: RemoteViews
@@ -39,7 +39,7 @@ object MiniPlayerServiceNotification {
     }
 
     private fun Context.intentPlayOrStop(): PendingIntent {
-        val intentPlay =Intent(
+        val intentPlay = Intent(
             this, MiniPlayerNotificationBroadcastReceiver::class.java
         )
             .setAction(NOTIFICATION_ACTION_PLAY_OR_STOP)
@@ -146,5 +146,4 @@ object MiniPlayerServiceNotification {
         setOnClickPendingIntent(R.id.notification_next, context.intentNext())
         setOnClickPendingIntent(R.id.notification_cancel, context.intentCancel())
     }
-
 }

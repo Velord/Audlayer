@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:background="@drawable/forest_trees_fog_horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="100dp">
+
+    <ImageView
+        android:id="@+id/audlayer_widget_image"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/album_album">
+    </ImageView>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:paddingTop="10dp"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+
+            <TextView
+                android:id="@+id/audlayer_widget_artist"
+                android:textSize="16sp"
+                style="@style/MiniPlayerWidgetArtistTitle">
+            </TextView>
+
+            <TextView
+                android:id="@+id/audlayer_widget_title"
+                android:textSize="14sp"
+                style="@style/MiniPlayerWidgetArtistTitle">
+            </TextView>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+
+            <ImageView
+                android:id="@+id/audlayer_widget_previous"
+                android:contentDescription="@string/skip_previous"
+                android:src="@drawable/round_skip_previous_deep_purple_a200_48dp"
+                style="@style/MiniPlayerNotificationControl">
+
+            </ImageView>
+
+            <ImageView
+                android:id="@+id/audlayer_widget_play_or_stop"
+                android:contentDescription="@string/audlayer_play"
+                android:src="@drawable/play"
+                style="@style/MiniPlayerNotificationControl">
+            </ImageView>
+
+            <ImageView
+                android:id="@+id/audlayer_widget_next"
+                android:contentDescription="@string/skip_next"
+                android:src="@drawable/round_skip_next_deep_purple_a200_48dp"
+                style="@style/MiniPlayerNotificationControl">
+            </ImageView>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

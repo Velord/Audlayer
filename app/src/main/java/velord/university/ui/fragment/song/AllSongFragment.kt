@@ -20,7 +20,7 @@ import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
-import velord.university.application.broadcast.behaviour.MiniPlayerIconReceiver
+import velord.university.application.broadcast.behaviour.MiniPlayerIconClickReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
@@ -41,7 +41,7 @@ import velord.university.ui.util.setupPopupMenuOnClick
 class AllSongFragment :
     ActionBarFragment(),
     SongPathReceiver,
-    MiniPlayerIconReceiver {
+    MiniPlayerIconClickReceiver {
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromSongFragment()

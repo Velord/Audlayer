@@ -103,4 +103,6 @@
     <string name="audlayer_cancel">Audlayer Cancel</string>
     <string name="authorize_confirmed">Authorize confirmed</string>
     <integer name="com_vk_sdk_AppId">7360134</integer>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
 </resources>

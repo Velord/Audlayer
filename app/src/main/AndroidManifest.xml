@@ -2,19 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="velord.university">
 
-    <permission android:name="velord.university.PERM_PRIVATE_MINI_PLAYER"
-        android:protectionLevel="signature"/>
+    <permission
+        android:name="velord.university.PERM_PRIVATE_MINI_PLAYER"
+        android:protectionLevel="signature" />
+    <permission
+        android:name="velord.university.PERM_PRIVATE_RADIO"
+        android:protectionLevel="signature" />
 
-    <permission android:name="velord.university.PERM_PRIVATE_RADIO"
-        android:protectionLevel="signature"/>
-
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-
-    <uses-permission android:name="velord.university.PERM_PRIVATE_MINI_PLAYER"/>
-    <uses-permission android:name="velord.university.PERM_PRIVATE_RADIO"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="velord.university.PERM_PRIVATE_MINI_PLAYER" />
+    <uses-permission android:name="velord.university.PERM_PRIVATE_RADIO" />
 
     <application
         android:name=".application.AudlayerApp"
@@ -26,42 +26,58 @@
         android:theme="@style/AppTheme">
 
         <service
-            android:name="velord.university.application.service.MiniPlayerService"
+            android:name=".application.service.MiniPlayerService"
             android:enabled="true"
             android:exported="true">
-        </service>
-
-        <service android:name="velord.university.application.service.MiniPlayerServiceBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true">
-
         </service>
 
         <service
-            android:name="velord.university.application.service.RadioService"
+            android:name=".application.service.MiniPlayerServiceBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
         </service>
 
-        <service android:name="velord.university.application.service.RadioServiceBroadcastReceiver"
+        <service
+            android:name=".application.service.RadioService"
             android:enabled="true"
             android:exported="true">
-
         </service>
 
-        <service android:name=".application.service.KillNotificationsService">
+        <service
+            android:name=".application.service.RadioServiceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
+        <service
+            android:name=".application.service.KillNotificationsService">
+        </service>
+
+        <service android:name=".application.service.WidgetService"
+            android:enabled="true"
+            android:exported="true">
         </service>
 
         <activity
             android:name=".ui.activity.VkLoginActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"/>
-
+            android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity android:name=".ui.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".ui.widget.AudlayerWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/audlayer_widget_info" />
+        </receiver>
 
         <receiver android:name=".application.notification.VkDownloadNotification$VkDownloadNotificationReceiver">
         </receiver>
@@ -69,7 +85,11 @@
         <receiver android:name=".application.broadcast.MiniPlayerNotificationBroadcastReceiver">
         </receiver>
 
-        <receiver android:name=".application.broadcast.RestarterMiniPlayerGeneralService"
+       <receiver android:name=".application.broadcast.WidgetBroadcastReceiver">
+       </receiver>
+
+        <receiver
+            android:name=".application.broadcast.RestarterMiniPlayerGeneralService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -77,7 +97,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".application.broadcast.RestarterRadioService"
+        <receiver
+            android:name=".application.broadcast.RestarterRadioService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -85,6 +106,14 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".application.broadcast.RestarterWidgetService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="RestartWidgetService" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

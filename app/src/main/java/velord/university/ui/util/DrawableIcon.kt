@@ -63,7 +63,7 @@ object DrawableIcon {
     }
 
 
-    private val getResourceIdIcon: (Context, String)
+    val getResourceIdIcon: (Context, String)
     -> Int = { context, iconName ->
 
         context.resources.getIdentifier(

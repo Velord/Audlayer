@@ -11,7 +11,7 @@ interface MiniPlayerUIReceiver {
 
     val TAG: String
 
-    fun receiver() = arrayOf(
+    fun miniPlayerUIReceiverList() = arrayOf(
         Pair(stop(), AppBroadcastHub.Action.stopUI),
         Pair(play(), AppBroadcastHub.Action.playUI),
         Pair(like(), AppBroadcastHub.Action.likeUI),
