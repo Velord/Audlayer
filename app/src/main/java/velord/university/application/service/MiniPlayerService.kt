@@ -80,19 +80,16 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
-        Toast.makeText(this, "onTaskRemoved", Toast.LENGTH_SHORT).show()
-        restartService()
-
         super.onTaskRemoved(rootIntent)
+
+        whenServiceKilled()
     }
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy called")
         super.onDestroy()
-        //store player state
-        storeIsPlayingState()
-        stopPlayer()
-        restartService()
+
+        whenServiceKilled()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
@@ -296,6 +293,15 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     private fun playlistIsInitialized(): Boolean =
         playlist.notShuffled.isNotEmpty()
 
+    private fun whenServiceKilled() {
+        //store player state
+        storeSongPositionInQueue()
+        storeQueue()
+        storeIsPlayingState()
+        stopPlayer()
+        restartService()
+    }
+
     private fun restartService() {
         val broadcastIntent = Intent()
         broadcastIntent.action = "RestartMiniPlayerGeneralService"
@@ -443,7 +449,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             sendInfoToUI(song)
             //store pos
             storeSongPositionInQueue()
-        } ?: pathIsWrong(path!!)
+        } ?: pathIsWrong(path ?: "")
     }
 
     private fun pathIsWrong(path: String) {
