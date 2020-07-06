@@ -12,6 +12,7 @@ import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Song
+import velord.university.model.file.FileNameParser
 import velord.university.ui.widget.AudlayerWidget
 
 class WidgetService : Service(),
@@ -37,6 +38,13 @@ class WidgetService : Service(),
 
             song?.let {
                 val songIcon = getSongIconValue(song)
+
+                AudlayerWidget.widgetArtist = FileNameParser.getSongArtist(it.file)
+                AudlayerWidget.widgetTitle =  FileNameParser.getSongTitle(it.file)
+
+                this@WidgetService.mayInvokeGeneral {
+                    AudlayerWidget.invokeUpdate(this@WidgetService)
+                }
                 changeIcon(songIcon)
             }
         }
@@ -115,31 +123,19 @@ class WidgetService : Service(),
         }
     }
 
+    //not need
     override val songArtistF: (Intent?) -> Unit = { intent ->
         intent?.apply {
             val extra = AppBroadcastHub.Extra.songArtistUI
             val songArtist = getStringExtra(extra)
-            AudlayerWidget.widgetArtist = songArtist
-
-            this@WidgetService.mayInvokeGeneral {
-                AudlayerWidget.invokeUpdate(this@WidgetService)
-            }
         }
     }
-
     override val songNameF: (Intent?) -> Unit = { intent ->
         intent?.apply {
             val extra = AppBroadcastHub.Extra.songNameUI
             val value = getStringExtra(extra)
-            AudlayerWidget.widgetTitle = value
-
-            this@WidgetService.mayInvokeGeneral {
-                AudlayerWidget.invokeUpdate(this@WidgetService)
-            }
         }
     }
-
-    //not need
     override val showRadioUIF: (Intent?) -> Unit = {
         it?.apply {
         }

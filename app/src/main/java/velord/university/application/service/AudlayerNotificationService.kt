@@ -12,6 +12,7 @@ import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.application.notification.MiniPlayerNotification
 import velord.university.interactor.SongPlaylistInteractor
+import velord.university.model.file.FileNameParser
 
 class AudlayerNotificationService : Service(),
     MiniPlayerUIReceiver,
@@ -36,8 +37,13 @@ class AudlayerNotificationService : Service(),
 
             song?.let {
                 val songIcon = WidgetService.getSongIconValue(song)
+                val artist = FileNameParser.getSongArtist(it.file)
+                val title = FileNameParser.getSongTitle(it.file)
+
                 MiniPlayerNotification
                     .updateIcon(this@AudlayerNotificationService, songIcon, true)
+                MiniPlayerNotification
+                    .updateArtistAndTitle(this@AudlayerNotificationService, artist, title)
             }
         }
     }
@@ -110,31 +116,19 @@ class AudlayerNotificationService : Service(),
         }
     }
 
+    //not need
     override val songArtistF: (Intent?) -> Unit = { intent ->
         intent?.apply {
             val extra = AppBroadcastHub.Extra.songArtistUI
             val value = getStringExtra(extra)
-
-            this@AudlayerNotificationService.mayInvokeGeneral {
-                MiniPlayerNotification
-                    .updateSongArtist(this@AudlayerNotificationService, value)
-            }
         }
     }
-
     override val songNameF: (Intent?) -> Unit = { intent ->
         intent?.apply {
             val extra = AppBroadcastHub.Extra.songNameUI
             val value = getStringExtra(extra)
-
-            this@AudlayerNotificationService.mayInvokeGeneral {
-                MiniPlayerNotification
-                    .updateSongTitle(this@AudlayerNotificationService, value)
-            }
         }
     }
-
-    //not need
     override val showRadioUIF: (Intent?) -> Unit = {
         it?.apply {
         }

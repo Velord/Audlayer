@@ -15,7 +15,6 @@ import com.bumptech.glide.request.target.NotificationTarget
 import velord.university.R
 import velord.university.application.broadcast.MiniPlayerNotificationBroadcastReceiver
 import velord.university.ui.util.DrawableIcon
-import velord.university.ui.widget.AudlayerWidget
 
 
 object MiniPlayerNotification {
@@ -82,7 +81,13 @@ object MiniPlayerNotification {
         notificationManager = context.getSystemService(
             Context.NOTIFICATION_SERVICE) as NotificationManager
         //build notification
-        updatePlayOrStop(context, isPlaying)
+        updateNotification(
+            context,
+            updateSongTitleF,
+            updateSongArtistF,
+            updatePlayOrStopF
+        )
+        updateIcon(context, icon, iconIsSong)
     }
 
     fun dismiss() {
@@ -90,44 +95,47 @@ object MiniPlayerNotification {
             notificationManager.cancel(id)
     }
 
+    private val updatePlayOrStopF: (RemoteViews, NotificationCompat.Builder) -> Unit = { view, _ ->
+        when (this.isPlaying) {
+            true -> {
+                view.setImageViewResource(
+                    R.id.notification_play_or_stop,
+                    R.drawable.pause
+                )
+            }
+            false -> {
+                view.setImageViewResource(
+                    R.id.notification_play_or_stop,
+                    R.drawable.play
+                )
+            }
+        }
+    }
+
+    private val updateSongTitleF: (RemoteViews, NotificationCompat.Builder) -> Unit = { view, _ ->
+        view.setTextViewText(R.id.notification_title, title)
+    }
+
+    private val updateSongArtistF: (RemoteViews, NotificationCompat.Builder) -> Unit = { view, _ ->
+        view.setTextViewText(R.id.notification_artist, artist)
+    }
+
     fun updatePlayOrStop(context: Context,
                          isPlaying: Boolean) {
         this.isPlaying = isPlaying
-        val f: (RemoteViews, NotificationCompat.Builder) -> Unit = { view, _ ->
-            when (this.isPlaying) {
-                true -> {
-                    view.setImageViewResource(
-                        R.id.notification_play_or_stop,
-                        R.drawable.pause
-                    )
-                }
-                false -> {
-                    view.setImageViewResource(
-                        R.id.notification_play_or_stop,
-                        R.drawable.play
-                    )
-                }
-            }
-        }
-        updateNotification(context, f)
+        updateNotification(context, updatePlayOrStopF)
     }
 
     fun updateSongTitle(context: Context,
                         title: String) {
         this.title = title
-        val f: (RemoteViews, NotificationCompat.Builder) -> Unit = { view, _ ->
-            view.setTextViewText(R.id.notification_title, title)
-        }
-        updateNotification(context, f)
+        updateNotification(context, updateSongTitleF)
     }
 
     fun updateSongArtist(context: Context,
                          artist: String) {
         this.artist = artist
-        val f: (RemoteViews, NotificationCompat.Builder) -> Unit = { view, _ ->
-            view.setTextViewText(R.id.notification_artist, artist)
-        }
-        updateNotification(context, f)
+        updateNotification(context, updateSongArtistF)
     }
 
     fun updateIcon(context: Context,
@@ -146,11 +154,7 @@ object MiniPlayerNotification {
                              title: String) {
         this.artist = artist
         this.title = title
-        val f: (RemoteViews, NotificationCompat.Builder) -> Unit = { view, _ ->
-            view.setTextViewText(R.id.notification_artist, artist)
-            view.setTextViewText(R.id.notification_title, title)
-        }
-        updateNotification(context, f)
+        updateNotification(context, updateSongArtistF, updateSongTitleF)
     }
 
     private fun loadIcon(context: Context,
@@ -175,8 +179,8 @@ object MiniPlayerNotification {
                             .placeholder(R.drawable.song_item_black)
                             .into(notificationTarget)
                     else view.setImageViewResource(
-                        R.id.audlayer_widget_image,
-                        AudlayerWidget.widgetIcon.toInt()
+                        R.id.notification_image,
+                        icon.toInt()
                     )
                 }
                 false -> {
@@ -193,12 +197,12 @@ object MiniPlayerNotification {
         }
     }
 
-    private inline fun updateNotification(context: Context,
-                                          f: (RemoteViews, NotificationCompat.Builder) -> Unit) {
+    private fun updateNotification(context: Context,
+                                   vararg f: (RemoteViews, NotificationCompat.Builder) -> Unit) {
         //create builder
         val builder = getNotificationBuilder(context)
         //change view
-        f(view, builder)
+        f.forEach { it(view, builder) }
         //notify
         if (managerInitialized())
             notificationManager.notify(id, builder.build())

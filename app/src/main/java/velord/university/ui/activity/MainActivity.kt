@@ -54,28 +54,6 @@ class MainActivity : AppCompatActivity(),
             startApp()
     }
 
-    private fun startApp() {
-        try {
-            //hide virtual buttons
-            hideVirtualButtons()
-            //start app
-            AudlayerApp.initApp(baseContext)
-            //self view
-            setContentView(R.layout.main_activity)
-            //fragment
-            initFragment(
-                fm,
-                MainFragment(),
-                R.id.main_container
-            )
-            //
-            viewModel
-        }
-        catch(e: Exception) {
-            startApp()
-        }
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -99,6 +77,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onStart() {
+        Log.d(TAG, "called onStart")
         scopeNotification.launch {
             dismissNotification()
         }
@@ -106,6 +85,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onPause() {
+        Log.d(TAG, "called onPause")
         super.onPause()
         initNotification()
     }
@@ -188,6 +168,28 @@ class MainActivity : AppCompatActivity(),
         toZeroAndOpenAddToPlaylist()
     }
 
+    private fun startApp() {
+        try {
+            //hide virtual buttons
+            hideVirtualButtons()
+            //start app
+            AudlayerApp.initApp(baseContext)
+            //self view
+            setContentView(R.layout.main_activity)
+            //fragment
+            initFragment(
+                fm,
+                MainFragment(),
+                R.id.main_container
+            )
+            //
+            viewModel
+        }
+        catch(e: Exception) {
+            startApp()
+        }
+    }
+
     private fun initNotification() {
         scopeNotification.cancel()
         scopeNotification = CoroutineScope(Job() + Dispatchers.Default)
@@ -196,7 +198,7 @@ class MainActivity : AppCompatActivity(),
 
     private tailrec suspend fun dismissNotification() {
         MiniPlayerNotification.dismiss()
-        delay(1000)
+        delay(500)
         dismissNotification()
     }
 
