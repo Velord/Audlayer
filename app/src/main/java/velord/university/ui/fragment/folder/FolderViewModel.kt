@@ -67,6 +67,8 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
     fun playAudio(value: Song) {
         //don't remember for SongPlaylistInteractor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(value)
+
+
         AppBroadcastHub.apply {
             app.playByPathService(value.file.path)
             app.loopService()
@@ -93,6 +95,8 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
     fun playAudioFile(value: Song) {
         AppBroadcastHub.apply {
            SongPlaylistInteractor.songs = fileList
+               .filter { FileExtension.isAudio(it.file.extension) }
+               .toTypedArray()
 
            app.playByPathService(value.file.path)
        }
