@@ -92,7 +92,31 @@ class MainFragment :
         }
         //based on 15th scale
         //min is zero(0), max is fifteenth(15)
-        private fun changeVolumeForSeekBar(volume: Int): Int =
+        //TODO() must check headset plug in or off
+        //cause when headset on must return 10 scale
+        private fun getVolumeForSeekBar(volume: Int,
+                                        headsetOn: Boolean): Int =
+            when(headsetOn) {
+                true -> tenthScale(volume)
+                false -> fifteenthScale(volume)
+            }
+
+        private fun tenthScale(volume: Int): Int =
+            when(volume) {
+                0 -> 10
+                1 -> 20
+                2 -> 30
+                3 -> 40
+                4 -> 50
+                5 -> 60
+                6 -> 70
+                7 -> 80
+                8 -> 90
+                9 -> 100
+                else -> 100
+            }
+
+        private fun fifteenthScale(volume: Int): Int =
             when(volume) {
                 0 -> 0
                 1 -> 7
@@ -110,21 +134,20 @@ class MainFragment :
                 14 -> 87
                 13 -> 93
                 15 -> 100
-                else -> 0
+                else -> 100
             }
 
-        override fun deliverSelfNotifications(): Boolean {
-            return super.deliverSelfNotifications()
-        }
-
-        private fun changeVolume(volume: Int) {
+        private fun changeVolume(volume: Int,
+                                 headsetOn: Boolean) {
             //reassignment and cancel scope
             scopeVolume.cancel()
-            scopeVolume = CoroutineScope(Job() + Dispatchers.Default)
+            scopeVolume =
+                CoroutineScope(Job() + Dispatchers.Default)
             //show seekbar
             changeVolumeSB.visibility = View.VISIBLE
             //change volume
-            changeVolumeSB.progress = changeVolumeForSeekBar(volume)
+            changeVolumeSB.progress =
+                getVolumeForSeekBar(volume, headsetOn)
             //after change hide seekbar
             scopeVolume.launch {
                 repeat(3) {
@@ -149,7 +172,8 @@ class MainFragment :
                 Log.d(TAG, "Increased to: $currentVolume")
             }
 
-            changeVolume(currentVolume)
+            val headsetPlug = audio.isWiredHeadsetOn
+            changeVolume(currentVolume, headsetPlug)
         }
     }
 }

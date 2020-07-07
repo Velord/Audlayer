@@ -79,6 +79,8 @@ class MainActivity : AppCompatActivity(),
     override fun onStart() {
         Log.d(TAG, "called onStart")
 
+        hideVirtualButtons()
+
         scopeNotification.launch {
             dismissNotification()
         }

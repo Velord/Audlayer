@@ -44,7 +44,9 @@ class AudlayerApp : Application() {
         fun startService(context: Context,
                                  service: Service) =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(Intent(context, service::class.java))
+                context.startService(Intent(context, service::class.java))
+                //crashes
+                //context.startForegroundService(Intent(context, service::class.java))
             } else {
                 context.startService(Intent(context, service::class.java))
             }
