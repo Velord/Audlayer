@@ -1,12 +1,14 @@
 package velord.university.application.service.audioFocus
 
 import android.app.Service
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.IBinder
 import android.util.Log
+import velord.university.application.broadcast.MediaButtonEventReceiver
 
 abstract class AudioFocusListenerService : Service(),
     MediaPlayer.OnCompletionListener {
@@ -59,6 +61,17 @@ abstract class AudioFocusListenerService : Service(),
             AudioManager.STREAM_MUSIC,
             AudioManager.AUDIOFOCUS_GAIN
         )
+        registerMediaButtonEventReceiver()
         Log.d(TAG, "Music request focus, result: $requestResult")
+    }
+
+    protected fun registerMediaButtonEventReceiver() {
+        val component = ComponentName(this, MediaButtonEventReceiver::class.java)
+        audioManager.registerMediaButtonEventReceiver(component)
+    }
+
+    protected fun unregisterMediaButtonEventReceiver() {
+        val component = ComponentName(this, MediaButtonEventReceiver::class.java)
+        audioManager.unregisterMediaButtonEventReceiver(component)
     }
 }

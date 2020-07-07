@@ -10,6 +10,7 @@ import velord.university.application.broadcast.*
 import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
+import velord.university.application.broadcast.restarter.RestarterNotificationService
 import velord.university.application.notification.MiniPlayerNotification
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.file.FileNameParser

@@ -94,7 +94,7 @@
        </receiver>
 
         <receiver
-            android:name=".application.broadcast.RestarterMiniPlayerGeneralService"
+            android:name=".application.broadcast.restarter.RestarterMiniPlayerGeneralService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -103,7 +103,7 @@
         </receiver>
 
         <receiver
-            android:name=".application.broadcast.RestarterRadioService"
+            android:name=".application.broadcast.restarter.RestarterRadioService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -112,7 +112,7 @@
         </receiver>
 
         <receiver
-            android:name=".application.broadcast.RestarterWidgetService"
+            android:name=".application.broadcast.restarter.RestarterWidgetService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -121,11 +121,18 @@
         </receiver>
 
         <receiver
-            android:name=".application.broadcast.RestarterNotificationService"
+            android:name=".application.broadcast.restarter.RestarterNotificationService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="RestartNotificationService" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".application.broadcast.MediaButtonEventReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
 

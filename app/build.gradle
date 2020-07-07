@@ -74,7 +74,7 @@ dependencies {
     implementation("com.squareup.moshi:moshi:1.9.2")
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
     // swipe pull refresh
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 }
 
 

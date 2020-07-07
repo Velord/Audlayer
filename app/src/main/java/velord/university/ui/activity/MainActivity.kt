@@ -78,9 +78,11 @@ class MainActivity : AppCompatActivity(),
 
     override fun onStart() {
         Log.d(TAG, "called onStart")
+
         scopeNotification.launch {
             dismissNotification()
         }
+
         super.onStart()
     }
 

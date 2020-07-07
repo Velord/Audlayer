@@ -10,7 +10,7 @@ import android.widget.Toast
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.AppBroadcastHub.iconRadioUI
-import velord.university.application.broadcast.RestarterRadioService
+import velord.university.application.broadcast.restarter.RestarterRadioService
 import velord.university.application.service.audioFocus.AudioFocusChangeF
 import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.miniPlayer.RadioServicePreference
@@ -38,6 +38,8 @@ abstract class RadioService : AudioFocusListenerService() {
                     //rearward playing state
                     storeIsPlayingStateTrue()
                 }
+
+                unregisterMediaButtonEventReceiver()
             },
             {
                 if (player.isPlaying) {
@@ -50,10 +52,10 @@ abstract class RadioService : AudioFocusListenerService() {
                 player.setVolume(0.5f, 0.5f)
             },
             {
-                if (RadioServicePreference(this).isPlaying) {
+                if (RadioServicePreference(this).isPlaying)
                     playRadioIfCan()
-                    player.setVolume(1.0f, 1.0f)
-                }
+
+                player.setVolume(1.0f, 1.0f)
             }
         )
 

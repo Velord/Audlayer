@@ -1,4 +1,4 @@
-package velord.university.application.broadcast
+package velord.university.application.broadcast.restarter
 
 import android.content.BroadcastReceiver
 import android.content.Context

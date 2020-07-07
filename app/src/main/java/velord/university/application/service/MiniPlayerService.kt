@@ -8,7 +8,7 @@ import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
-import velord.university.application.broadcast.RestarterMiniPlayerGeneralService
+import velord.university.application.broadcast.restarter.RestarterMiniPlayerGeneralService
 import velord.university.application.service.audioFocus.AudioFocusChangeF
 import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.AppPreference
@@ -28,7 +28,6 @@ import velord.university.repository.transaction.ServiceTransaction
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import java.io.File
 
-
 abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private val playlist = ServicePlaylist()
@@ -45,6 +44,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
                     //rearward playing state
                     storeIsPlayingStateTrue()
                 }
+
+                unregisterMediaButtonEventReceiver()
             },
             {
                 if (player.isPlaying) {
@@ -57,10 +58,10 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
                 player.setVolume(0.5f, 0.5f)
             },
             {
-                if (MiniPlayerServicePreferences(this).isPlaying) {
+                if (MiniPlayerServicePreferences(this).isPlaying)
                     playSongAfterCreatedPlayer()
-                    player.setVolume(1.0f, 1.0f)
-                }
+
+                player.setVolume(1.0f, 1.0f)
             }
         )
 

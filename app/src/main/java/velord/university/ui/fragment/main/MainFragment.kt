@@ -144,11 +144,10 @@ class MainFragment :
             if (delta > 0) {
                 Log.d(TAG, "Decreased to: $currentVolume")
                 previousVolume = currentVolume
-
-            } else if (delta < 0) {
+            }
+            else if (delta < 0) {
                 Log.d(TAG, "Increased to: $currentVolume")
             }
-
 
             changeVolume(currentVolume)
         }
