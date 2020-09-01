@@ -52,7 +52,7 @@ class AudlayerNotificationService : Service(),
     override val nameRadioUIF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.radioNameUI
-            val value = getStringExtra(extra)
+            val value = getStringExtra(extra)!!
 
             this@AudlayerNotificationService.mayInvokeRadio {
                 MiniPlayerNotification
@@ -64,7 +64,7 @@ class AudlayerNotificationService : Service(),
     override val artistRadioUIF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.radioArtistUI
-            val value = getStringExtra(extra)
+            val value = getStringExtra(extra)!!
 
             this@AudlayerNotificationService.mayInvokeRadio {
                 MiniPlayerNotification
@@ -88,7 +88,7 @@ class AudlayerNotificationService : Service(),
     override val iconRadioUIF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.iconRadioUI
-            val value = getStringExtra(extra)
+            val value = getStringExtra(extra)!!
 
            MiniPlayerNotification
                .updateIcon(this@AudlayerNotificationService, value, false)
@@ -98,7 +98,7 @@ class AudlayerNotificationService : Service(),
     override val iconF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.iconUI
-            val value = getStringExtra(extra)
+            val value = getStringExtra(extra)!!
 
             MiniPlayerNotification
                 .updateIcon(this@AudlayerNotificationService, value, true)

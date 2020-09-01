@@ -70,7 +70,7 @@ object RadioRepository {
             val file = getJsonDataFromAsset(
                 context,
                 "DefaultRadioStation"
-            )
+            )!!
             Log.i("AudlayerApp", file)
 
             val moshi = Moshi.Builder().build()

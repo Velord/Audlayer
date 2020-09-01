@@ -223,7 +223,7 @@ open class MiniPlayerGeneralFragment :
     override val iconF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.iconUI
-            val value = getStringExtra(extra)
+            val value = getStringExtra(extra)!!
 
             loadIcon(value)
         }

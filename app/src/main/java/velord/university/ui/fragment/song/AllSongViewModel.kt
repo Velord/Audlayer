@@ -75,7 +75,7 @@ class AllSongViewModel(private val app: Application) : AndroidViewModel(app) {
                             .setDataSource(it.file.absolutePath)
 
                         val durationStr = mediaMetadataRetriever
-                            .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                            .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
                         durationStr.toLong()
                     }
                 }

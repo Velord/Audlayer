@@ -169,7 +169,7 @@ class FolderFragment : ActionBarFragment(),
         { nullableIntent ->
             nullableIntent?.apply {
                 val extra = AppBroadcastHub.Extra.songPathUI
-                val songPath = getStringExtra(extra)
+                val songPath = getStringExtra(extra)!!
                 scope.launch {
                     changeRVItem(songPath)
                 }

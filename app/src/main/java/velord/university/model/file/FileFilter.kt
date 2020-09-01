@@ -65,7 +65,7 @@ object FileFilter {
         metaRetriever.setDataSource(song.path)
         val duration = metaRetriever
             .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-        duration.toLong()
+        duration!!.toLong()
     }
 
     val getSize: (File) -> Long = {

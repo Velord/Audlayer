@@ -53,7 +53,7 @@ class MiniPlayerServiceBroadcastReceiver :
         scope.launch {
             it?.let {
                 val extra = AppBroadcastHub.Extra.playByPathService
-                val path = it.getStringExtra(extra)
+                val path = it.getStringExtra(extra)!!
                 super<MiniPlayerService>.playByPath(path)
             }
         }
@@ -151,7 +151,7 @@ class MiniPlayerServiceBroadcastReceiver :
             it?.let {
                 val extra =
                     AppBroadcastHub.Extra.folderPathService
-                val path = it.getStringExtra(extra)
+                val path = it.getStringExtra(extra)!!
                 super<MiniPlayerService>.playAllInFolder(path)
             }
         }
@@ -162,7 +162,7 @@ class MiniPlayerServiceBroadcastReceiver :
             it?.let {
                 val extra =
                     AppBroadcastHub.Extra.folderPathService
-                val path = it.getStringExtra(extra)
+                val path = it.getStringExtra(extra)!!
                 super<MiniPlayerService>.playNextAllInFolder(path)
             }
         }
@@ -173,7 +173,7 @@ class MiniPlayerServiceBroadcastReceiver :
             it?.let {
                 val extra =
                     AppBroadcastHub.Extra.folderPathService
-                val path = it.getStringExtra(extra)
+                val path = it.getStringExtra(extra)!!
                 super<MiniPlayerService>.shuffleAndPlayAllInFolder(path)
             }
         }
@@ -184,7 +184,7 @@ class MiniPlayerServiceBroadcastReceiver :
             it?.let {
                 val extra =
                     AppBroadcastHub.Extra.folderPathService
-                val path = it.getStringExtra(extra)
+                val path = it.getStringExtra(extra)!!
                 super.addToQueueOneSong(path)
             }
         }

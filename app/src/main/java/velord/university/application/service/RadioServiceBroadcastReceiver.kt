@@ -50,7 +50,7 @@ class RadioServiceBroadcastReceiver :
         scope.launch {
             it?.let {
                 val extra = AppBroadcastHub.Extra.radioStationUrlService
-                val path = it.getStringExtra(extra)
+                val path = it.getStringExtra(extra)!!
                 super<RadioService>.playByUrl(path)
             }
         }

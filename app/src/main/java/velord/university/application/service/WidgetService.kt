@@ -54,7 +54,7 @@ class WidgetService : Service(),
     override val nameRadioUIF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.radioNameUI
-            val value = getStringExtra(extra)
+            val value = getStringExtra(extra)!!
             AudlayerWidget.widgetTitle = value
 
             this@WidgetService.mayInvokeRadio {
@@ -66,7 +66,7 @@ class WidgetService : Service(),
     override val artistRadioUIF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.radioArtistUI
-            val value = getStringExtra(extra)
+            val value = getStringExtra(extra)!!
             AudlayerWidget.widgetArtist = value
 
             this@WidgetService.mayInvokeRadio {
@@ -86,7 +86,7 @@ class WidgetService : Service(),
     override val iconRadioUIF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.iconRadioUI
-            val value = getStringExtra(extra)
+            val value = getStringExtra(extra)!!
 
             AudlayerWidget.iconIsSong = false
             AudlayerWidget.widgetIcon = value
@@ -102,7 +102,7 @@ class WidgetService : Service(),
     override val iconF: (Intent?) -> Unit = {
         it?.apply {
             val extra = AppBroadcastHub.Extra.iconUI
-            val value = getStringExtra(extra)
+            val value = getStringExtra(extra)!!
 
             changeIcon(value)
         }
