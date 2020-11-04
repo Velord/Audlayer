@@ -13,23 +13,31 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.statuscasellc.statuscase.model.coroutine.getScope
+import com.statuscasellc.statuscase.model.coroutine.onMain
+import com.statuscasellc.statuscase.model.exception.ViewDestroyed
+import com.statuscasellc.statuscase.ui.util.view.deactivate
 import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.databinding.AddToPlaylistFragmentBinding
+import velord.university.databinding.GeneralRvBinding
+import velord.university.databinding.SelectSongFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
 import velord.university.model.entity.Song
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.ui.backPressed.BackPressedHandlerSecond
+import velord.university.ui.fragment.addToPlaylist.select.SelectSongFragment
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
 import java.io.File
 
-class AddToPlaylist :
+class AddToPlaylistFragment :
     LoggerSelfLifecycleFragment(),
     BackPressedHandlerSecond {
     //Required interface for hosting activities
     interface Callbacks {
+
         fun openCreateNewPlaylistDialogFragment()
 
         fun closeAddToPlaylistFragment()
@@ -43,10 +51,6 @@ class AddToPlaylist :
     }
 
     private val scope = getScope()
-
-    private lateinit var layoutCS: ConstraintLayout
-    private lateinit var rv: RecyclerView
-    private lateinit var createNew: Button
 
     private val songsToPlaylist = SongPlaylistInteractor.songsPath
 
@@ -63,42 +67,46 @@ class AddToPlaylist :
     override fun onDetach() {
         super.onDetach()
         callbacks = null
+
+        scope.cancel()
     }
+
+    //view
+    private var _binding: AddToPlaylistFragmentBinding? = null
+    private var _bindingRv: GeneralRvBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
+    private val bindingRv get() = _bindingRv ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(
-            R.layout.add_to_playlist_fragment,
-            container, false).apply {
-            initViews(this)
-            setupAdapter()
+    ): View? = inflater.inflate(
+        R.layout.add_to_playlist_fragment,
+        container, false).run {
+        //bind
+        _binding = AddToPlaylistFragmentBinding.bind(this)
+        _bindingRv = binding.generalRvInclude
+        scope.launch {
+            onMain {
+                initViews()
+                setupAdapter()
+            }
         }
+
+        binding.root
     }
 
-    private fun initViews(view: View) {
-        initCreateNew(view)
-        initRV(view)
-        initCS(view)
-    }
-
-    private fun initCS(view: View) {
-        layoutCS = view.findViewById(R.id.add_to_playlist_CS)
-        //if you now cause this lambda is blank -> you cool
-        layoutCS.setOnClickListener {  }
-    }
-
-    private fun initCreateNew(view: View) {
-        createNew = view.findViewById(R.id.add_to_playlist_create_new)
-        createNew.setOnClickListener {
+    private fun initViews() {
+        binding.addToPlaylistContainer.deactivate()
+        binding.createNew.setOnClickListener {
             callbacks?.openCreateNewPlaylistDialogFragment()
         }
-    }
-
-    private fun initRV(view: View) {
-        rv = view.findViewById(R.id.fast_scroll_rv)
-        rv.layoutManager = LinearLayoutManager(activity)
+        bindingRv.fastScrollRv.layoutManager =
+            LinearLayoutManager(requireActivity())
     }
 
     private fun setupAdapter() {
@@ -106,8 +114,8 @@ class AddToPlaylist :
             val playlist = Playlist.otherAndFavourite(
                 PlaylistTransaction.getAllPlaylist()).toTypedArray()
 
-            withContext(Dispatchers.Main) {
-                rv.adapter = PlaylistAdapter(playlist)
+            onMain {
+                bindingRv.fastScrollRv.adapter = PlaylistAdapter(playlist)
             }
         }
     }
@@ -115,9 +123,12 @@ class AddToPlaylist :
     private inner class PlaylistHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val pathTextView: TextView = itemView.findViewById(R.id.general_item_path)
-        private val actionImageButton: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
-        private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
+        private val pathTextView: TextView =
+            itemView.findViewById(R.id.general_item_path)
+        private val actionImageButton: ImageButton =
+            itemView.findViewById(R.id.general_action_ImageButton)
+        private val actionFrame: FrameLayout =
+            itemView.findViewById(R.id.general_action_frame)
 
         private fun updatePlaylist(playlist: Playlist) {
                 val filtered = songsToPlaylist.filter {

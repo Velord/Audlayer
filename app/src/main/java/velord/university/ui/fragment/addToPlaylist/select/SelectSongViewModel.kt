@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.addToPlaylist
+package velord.university.ui.fragment.addToPlaylist.select
 
 import android.app.Activity
 import android.app.Application

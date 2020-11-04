@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/add_to_playlist_CS"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
     android:background="@drawable/railway_evening"
-    android:layout_height="match_parent">
+    android:id="@+id/add_to_playlist_container"
+    style="@style/MatchParent"
+    >
 
     <TextView
-        android:id="@+id/add_to_playlist_hint"
+        android:id="@+id/hint"
         style="@style/AddToPlaylist"
         android:text="@string/add_to_playlist_hint"
         app:layout_constraintEnd_toEndOf="parent"
@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/add_to_playlist_create_new"
+        android:id="@+id/create_new"
         style="@style/AddToPlaylist"
         android:layout_width="match_parent"
         android:background="@color/deepPurpleA200"
@@ -26,23 +26,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_to_playlist_hint" />
+        app:layout_constraintTop_toBottomOf="@+id/hint" />
 
-    <FrameLayout
-        android:id="@+id/add_to_playlist_rv_frame"
-        style="@style/AddToPlaylist"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="64dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_to_playlist_create_new">
 
-        <include layout="@layout/general_rv">
+        <include
+            android:id="@+id/general_rv_include"
+            layout="@layout/general_rv"
+            style="@style/AddToPlaylist"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="64dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/create_new">
+
         </include>
-
-    </FrameLayout>
 
     <TextView
         android:id="@+id/textView"
@@ -51,5 +50,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_to_playlist_rv_frame" />
+        app:layout_constraintTop_toBottomOf="@+id/general_rv_include" />
 </androidx.constraintlayout.widget.ConstraintLayout>

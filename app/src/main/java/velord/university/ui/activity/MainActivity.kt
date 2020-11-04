@@ -19,9 +19,9 @@ import velord.university.ui.backPressed.BackPressedHandler
 import velord.university.ui.backPressed.BackPressedHandlerFirst
 import velord.university.ui.backPressed.BackPressedHandlerSecond
 import velord.university.ui.backPressed.BackPressedHandlerZero
-import velord.university.ui.fragment.addToPlaylist.AddToPlaylist
+import velord.university.ui.fragment.addToPlaylist.AddToPlaylistFragment
 import velord.university.ui.fragment.addToPlaylist.CreateNewPlaylistDialogFragment
-import velord.university.ui.fragment.addToPlaylist.SelectSongFragment
+import velord.university.ui.fragment.addToPlaylist.select.SelectSongFragment
 import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.main.MainFragment
 import velord.university.ui.fragment.song.AllSongFragment
@@ -32,7 +32,7 @@ import velord.university.ui.util.*
 class MainActivity : AppCompatActivity(),
     FolderFragment.Callbacks,
     SelectSongFragment.Callbacks,
-    AddToPlaylist.Callbacks,
+    AddToPlaylistFragment.Callbacks,
     CreateNewPlaylistDialogFragment.Callbacks,
     AllSongFragment.Callbacks,
     VKFragment.Callbacks {
@@ -215,7 +215,7 @@ class MainActivity : AppCompatActivity(),
     private fun openAddToPlaylistFragment() {
         addFragment(
             fm,
-            AddToPlaylist(),
+            AddToPlaylistFragment(),
             R.id.main_container
         )
     }

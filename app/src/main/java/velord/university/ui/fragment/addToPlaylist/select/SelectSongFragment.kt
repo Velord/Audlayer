@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.addToPlaylist
+package velord.university.ui.fragment.addToPlaylist.select
 
 import android.content.Context
 import android.os.Bundle
@@ -75,35 +75,11 @@ class SelectSongFragment :
     }
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = {
         when (it.itemId) {
-            R.id.sort_by_name -> {
-                SortByPreference(requireContext()).sortBySelectSongFragment = 0
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                super.rearwardActionButton()
-                true
-            }
-            R.id.sort_by_artist -> {
-                SortByPreference(requireContext()).sortBySelectSongFragment = 1
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                super.rearwardActionButton()
-                true
-            }
-            R.id.sort_by_date_added -> {
-                SortByPreference(requireContext()).sortBySelectSongFragment = 2
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                super.rearwardActionButton()
-                true                        }
-            R.id.sort_by_ascending_order -> {
-                SortByPreference(requireContext()).ascDescSelectSongFragment = 0
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                super.rearwardActionButton()
-                true
-            }
-            R.id.sort_by_descending_order -> {
-                SortByPreference(requireContext()).ascDescSelectSongFragment = 1
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                super.rearwardActionButton()
-                true
-            }
+            R.id.sort_by_name -> sortBy(0)
+            R.id.sort_by_artist -> sortBy(1)
+            R.id.sort_by_date_added -> sortBy(2)
+            R.id.sort_by_ascending_order -> sortByAscDesc(0)
+            R.id.sort_by_descending_order -> sortByAscDesc(1)
             else -> {
                 false
             }
@@ -191,12 +167,25 @@ class SelectSongFragment :
         binding.root
     }
 
-
     private fun initView() {
         super.initActionBar()
         initSelectAll()
         initContinue()
         initRV()
+    }
+
+    private fun sortBy(index: Int): Boolean {
+        SortByPreference(requireContext()).sortBySelectSongFragment = index
+        updateAdapterBySearchQuery(viewModel.currentQuery)
+        super.rearwardActionButton()
+        return true
+    }
+
+    private fun sortByAscDesc(index: Int): Boolean {
+        SortByPreference(requireContext()).ascDescSelectSongFragment = index
+        updateAdapterBySearchQuery(viewModel.currentQuery)
+        super.rearwardActionButton()
+        return true
     }
 
     private fun initSelectAll() {
