@@ -330,7 +330,7 @@ class FolderFragment : ActionBarFragment(),
     }
 
     private fun initRV(view: View) {
-        rv = view.findViewById(R.id.general_RecyclerView)
+        rv = view.findViewById(R.id.fast_scroll_rv)
         rv.layoutManager = LinearLayoutManager(activity)
         //controlling action bar frame visibility when recycler view is scrolling
         super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)

@@ -43,7 +43,6 @@ class AlbumFragment :
     private val viewModel: AlbumViewModel by viewModels()
 
     private val scope = getScope()
-
     //view
     private var _binding: AlbumFragmentBinding? = null
     override var _bindingActionBar: ActionBarSearchBinding? = null

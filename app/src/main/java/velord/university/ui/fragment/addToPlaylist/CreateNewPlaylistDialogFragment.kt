@@ -21,12 +21,14 @@ import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleDialogFragment
 
 
-class CreateNewPlaylistDialogFragment : LoggerSelfLifecycleDialogFragment() {
+class CreateNewPlaylistDialogFragment :
+    LoggerSelfLifecycleDialogFragment() {
 
     override val TAG: String = "CreateNewPlaylistDialogFragment"
 
     //Required interface for hosting activities
     interface Callbacks {
+
         fun success()
     }
 

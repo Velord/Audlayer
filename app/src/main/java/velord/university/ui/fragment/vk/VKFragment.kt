@@ -362,7 +362,7 @@ class VKFragment : ActionBarFragment(),
     }
 
     private fun initRV(view: View) {
-        rv = view.findViewById(R.id.general_RecyclerView)
+        rv = view.findViewById(R.id.fast_scroll_rv)
         rv.apply {
             isNestedScrollingEnabled = false
             layoutManager = LinearLayoutManager(activity)

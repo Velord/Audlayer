@@ -1,12 +1,12 @@
 <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-    android:id="@+id/general_RecyclerView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:id="@+id/fast_scroll_rv"
+    style="@style/WrapHeightMatchWidth"
     app:fastScrollAutoHide="true"
     app:fastScrollAutoHideDelay="1500"
     app:fastScrollPopupBgColor="@color/fragmentBackgroundDarkerOpacity"
     app:fastScrollPopupTextColor="@android:color/primary_text_dark"
     app:fastScrollThumbColor="@color/fragmentBackgroundDarkerOpacity"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
 </com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView>

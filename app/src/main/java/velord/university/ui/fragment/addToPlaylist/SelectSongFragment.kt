@@ -9,24 +9,32 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.PopupMenu
-import androidx.lifecycle.ViewModelProviders
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.statuscasellc.statuscase.model.coroutine.getScope
+import com.statuscasellc.statuscase.model.coroutine.onMain
+import com.statuscasellc.statuscase.model.exception.ViewDestroyed
+import com.statuscasellc.statuscase.ui.util.activity.hideVirtualButtons
 import com.statuscasellc.statuscase.ui.util.view.makeCheck
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.settings.SortByPreference
+import velord.university.databinding.ActionBarSearchBinding
+import velord.university.databinding.GeneralRvBinding
+import velord.university.databinding.SelectSongFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Song
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
 import velord.university.ui.backPressed.BackPressedHandlerFirst
-import velord.university.ui.fragment.actionBar.ActionBarFragment
+import velord.university.ui.fragment.actionBar.ActionBarSearch
 import java.io.File
 
 class SelectSongFragment :
-    ActionBarFragment(),
+    ActionBarSearch(),
     BackPressedHandlerFirst {
     //Required interface for hosting activities
     interface Callbacks {
@@ -42,15 +50,20 @@ class SelectSongFragment :
         fun newInstance() = SelectSongFragment()
     }
 
-    private val viewModel by lazy {
-        ViewModelProviders.of(this).get(SelectSongViewModel::class.java)
-    }
+    private val viewModel: SelectSongViewModel by viewModels()
 
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+    private val scope = getScope()
+    //view
+    private var _binding: SelectSongFragmentBinding? = null
+    override var _bindingActionBar: ActionBarSearchBinding? = null
+    private var _bindingRv: GeneralRvBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
+    private val bindingRv get() = _bindingRv ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
 
-    private lateinit var rv: RecyclerView
-    private lateinit var selectAllButton: Button
-    private lateinit var continueButton: Button
     // action bar overriding
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         val correctQuery =
@@ -133,7 +146,8 @@ class SelectSongFragment :
             else -> {}
         }
     }
-    override val actionBarPopUp: (ImageButton) -> Unit = {}
+    override val actionBarPopUp: (ImageButton) -> Unit = {  }
+    override val actionSearchView: (SearchView) -> Unit = {  }
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
@@ -153,25 +167,40 @@ class SelectSongFragment :
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.select_song_fragment, container, false).apply {
-            initViews(this)
-            //observe changes in search view
-            super.observeSearchQuery()
-            setupAdapter()
+    ): View? = inflater.inflate(R.layout.select_song_fragment,
+        container, false).run {
+        //bind
+        _binding = SelectSongFragmentBinding.bind(this)
+        _bindingActionBar = binding.actionBarInclude
+        _bindingRv = binding.generalRvInclude
+        scope.launch {
+            onMain {
+                //init action bar
+                super.initActionBar()
+                super.changeUIAfterSubmitTextInSearchView(
+                    super.bindingActionBar.search
+                )
+                //init self view
+                initView()
+                //observe changes in search view
+                super.observeSearchQuery()
+                setupAdapter()
+            }
         }
+        requireActivity().hideVirtualButtons()
+        binding.root
     }
 
-    private fun initViews(view: View) {
-        super.initActionBar(view)
-        initSelectAll(view)
-        initContinue(view)
-        initRV(view)
+
+    private fun initView() {
+        super.initActionBar()
+        initSelectAll()
+        initContinue()
+        initRV()
     }
 
-    private fun initSelectAll(view: View) {
-        selectAllButton = view.findViewById(R.id.add_song_select_all)
-        selectAllButton.setOnClickListener {
+    private fun initSelectAll() {
+        binding.actionSelectAll.setOnClickListener {
             scope.launch {
                 val checkedAll = viewModel.checked.size == viewModel.fileList.size
                 viewModel.checked.clear()
@@ -187,9 +216,8 @@ class SelectSongFragment :
         }
     }
 
-    private fun initContinue(view: View) {
-        continueButton = view.findViewById(R.id.add_song_continue)
-        continueButton.setOnClickListener {
+    private fun initContinue() {
+        binding.actionContinue.setOnClickListener {
             callbacks?.let { it ->
                 if (viewModel.checked.isNotEmpty()) {
                     SongPlaylistInteractor.songs =
@@ -205,11 +233,12 @@ class SelectSongFragment :
         }
     }
 
-    private fun initRV(view: View) {
-        rv = view.findViewById(R.id.general_RecyclerView)
-        rv.layoutManager = LinearLayoutManager(activity)
+    private fun initRV() {
+        bindingRv.fastScrollRv.layoutManager = LinearLayoutManager(activity)
         //controlling action bar frame visibility when recycler view is scrolling
-        super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
+        super.setScrollListenerByRecyclerViewScrolling(
+            bindingRv.fastScrollRv, 50, -5
+        )
     }
 
     private fun updateAdapterBySearchQuery(searchTerm: String) {
@@ -222,7 +251,7 @@ class SelectSongFragment :
             //apply all filters to recycler view
             val filteredAndSortered =
                 viewModel.filterAndSortFiles(requireContext(), filter, searchTerm)
-            rv.adapter = FileAdapter(filteredAndSortered)
+            bindingRv.fastScrollRv.adapter = FileAdapter(filteredAndSortered)
         }
 
         if (searchTerm.isNotEmpty()) {
