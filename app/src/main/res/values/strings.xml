@@ -105,4 +105,6 @@
     <integer name="com_vk_sdk_AppId">7360134</integer>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
+    <string name="please_type_playlist_name">Please Type Playlist Name</string>
+    <string name="choose_anyone_song">Choose anyone song</string>
 </resources>

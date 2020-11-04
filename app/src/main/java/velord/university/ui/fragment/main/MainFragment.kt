@@ -11,7 +11,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.statuscasellc.statuscase.ui.util.activity.hideVirtualButtons
+import com.statuscasellc.statuscase.ui.util.view.gone
+import com.statuscasellc.statuscase.ui.util.view.visible
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.ui.backPressed.BackPressedHandlerZero
@@ -28,9 +32,7 @@ class MainFragment :
         fun newInstance() = MainFragment()
     }
 
-    private val viewModel by lazy {
-        ViewModelProvider(this).get(MainViewModel::class.java)
-    }
+    private val viewModel: MainViewModel by viewModels()
 
     private lateinit var changeVolumeSB: SeekBar
 
@@ -38,8 +40,10 @@ class MainFragment :
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
-        return PressedBackLogic
-            .pressOccur(requireActivity(), menuMemberViewPager, fragmentHashMap)
+        return PressedBackLogic.pressOccur(
+            requireActivity(),
+            menuMemberViewPager, fragmentHashMap
+        )
     }
 
     override fun onCreateView(
@@ -55,6 +59,8 @@ class MainFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        requireActivity().hideVirtualButtons()
 
         volumeContentObserver =
             VolumeContentObserver(requireContext(), Handler())
@@ -144,7 +150,7 @@ class MainFragment :
             scopeVolume =
                 CoroutineScope(Job() + Dispatchers.Default)
             //show seekbar
-            changeVolumeSB.visibility = View.VISIBLE
+            changeVolumeSB.visible()
             //change volume
             changeVolumeSB.progress =
                 getVolumeForSeekBar(volume, headsetOn)
@@ -154,7 +160,7 @@ class MainFragment :
                     delay(400)
                 }
                 withContext(Dispatchers.Main) {
-                    changeVolumeSB.visibility = View.GONE
+                    changeVolumeSB.gone()
                 }
             }
         }

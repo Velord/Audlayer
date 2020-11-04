@@ -2,14 +2,14 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/edit_name"
-    android:layout_width="wrap_content"
     android:background="@color/deepPurpleA400"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center">
+    style="@style/WrapContent"
+    android:layout_gravity="center"
+    android:id="@+id/create_new_playlist_container"
+    >
 
     <TextView
-        android:id="@+id/create_new_playlist_hint"
+        android:id="@+id/hint"
         android:layout_width="300dp"
         android:layout_height="50dp"
         android:background="@color/fragmentBackgroundDarkestPurple"
@@ -22,7 +22,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/create_new_playlist_txt_your_name"
+        android:id="@+id/txt_your_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -32,24 +32,24 @@
         android:imeOptions="actionDone"
         android:inputType="text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/create_new_playlist_name"
-        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_hint"
+        app:layout_constraintStart_toEndOf="@+id/name"
+        app:layout_constraintTop_toBottomOf="@+id/hint"
         android:autofillHints="" />
 
     <TextView
-        android:id="@+id/create_new_playlist_name"
+        android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:textSize="16sp"
         android:text="@string/create_new_playlist_name"
-        app:layout_constraintBottom_toBottomOf="@+id/create_new_playlist_txt_your_name"
+        app:layout_constraintBottom_toBottomOf="@+id/txt_your_name"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_hint" />
+        app:layout_constraintTop_toBottomOf="@+id/hint" />
 
     <LinearLayout
-        android:id="@+id/create_new_playlist_cancel_layout"
+        android:id="@+id/cancel_layout"
         style="@style/CreateNewPlaylistLinearLayout"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
@@ -57,23 +57,23 @@
         android:background="@drawable/dark_border_shape"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_txt_your_name">
+        app:layout_constraintTop_toBottomOf="@+id/txt_your_name">
 
         <ImageButton
-            android:id="@+id/create_new_playlist_cancel"
+            android:id="@+id/cancel_icon"
             style="@style/CreateNewPlaylistButton"
             android:contentDescription="@string/create_new_playlist_cancel"
             android:src="@drawable/round_cancel_presentation_red_a200_48dp" />
 
         <TextView
-            android:id="@+id/create_new_playlist_cancel_msg"
+            android:id="@+id/cancel_msg"
             style="@style/CreateNewPlaylistTextView"
             android:text="@string/create_new_playlist_cancel" />
 
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/create_new_playlist_apply_layout"
+        android:id="@+id/apply_layout"
         style="@style/CreateNewPlaylistLinearLayout"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
@@ -81,16 +81,16 @@
         android:background="@drawable/dark_border_shape"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/create_new_playlist_txt_your_name">
+        app:layout_constraintTop_toBottomOf="@+id/txt_your_name">
 
         <ImageButton
-            android:id="@+id/create_new_playlist_apply"
+            android:id="@+id/apply_icon"
             style="@style/CreateNewPlaylistButton"
             android:contentDescription="@string/create_new_playlist_apply"
             android:src="@drawable/apply" />
 
         <TextView
-            android:id="@+id/create_new_playlist_apply_msg"
+            android:id="@+id/apply_msg"
             style="@style/CreateNewPlaylistTextView"
             android:text="@string/create_new_playlist_apply" />
 

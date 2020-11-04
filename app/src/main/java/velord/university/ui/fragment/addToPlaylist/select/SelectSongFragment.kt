@@ -18,6 +18,7 @@ import com.statuscasellc.statuscase.model.coroutine.getScope
 import com.statuscasellc.statuscase.model.coroutine.onMain
 import com.statuscasellc.statuscase.model.exception.ViewDestroyed
 import com.statuscasellc.statuscase.ui.util.activity.hideVirtualButtons
+import com.statuscasellc.statuscase.ui.util.activity.toastInfo
 import com.statuscasellc.statuscase.ui.util.view.makeCheck
 import kotlinx.coroutines.*
 import velord.university.R
@@ -138,6 +139,8 @@ class SelectSongFragment :
     override fun onDetach() {
         super.onDetach()
         callbacks = null
+
+        scope.cancel()
     }
 
     override fun onCreateView(
@@ -216,8 +219,9 @@ class SelectSongFragment :
 
                     it.onAddToPlaylistFromAddSongFragment()
                 }
-                else Toast.makeText(requireContext(),
-                        "Choose anyone song", Toast.LENGTH_SHORT).show()
+                else requireActivity().toastInfo(
+                    requireContext().getString(R.string.choose_anyone_song)
+                )
             }
         }
     }

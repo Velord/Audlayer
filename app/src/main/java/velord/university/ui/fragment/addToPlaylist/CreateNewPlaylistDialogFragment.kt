@@ -7,15 +7,15 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.TextView
 import android.widget.Toast
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import com.statuscasellc.statuscase.model.coroutine.getScope
+import com.statuscasellc.statuscase.model.coroutine.onMain
+import com.statuscasellc.statuscase.model.exception.ViewDestroyed
+import com.statuscasellc.statuscase.ui.util.activity.toastInfo
+import kotlinx.coroutines.*
 import velord.university.R
+import velord.university.databinding.CreateNewPlaylistDialogBinding
+import velord.university.databinding.GeneralRvBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleDialogFragment
@@ -34,13 +34,14 @@ class CreateNewPlaylistDialogFragment :
 
     private var callbacks: Callbacks? =  null
 
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+    private val scope = getScope()
 
-    private lateinit var editText: EditText
-    private lateinit var cancel: TextView
-    private lateinit var cancelImage: ImageButton
-    private lateinit var apply: TextView
-    private lateinit var applyImage: ImageButton
+    //view
+    private var _binding: CreateNewPlaylistDialogBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
 
     private val songsToPlaylist = SongPlaylistInteractor.songsPath
 
@@ -54,27 +55,33 @@ class CreateNewPlaylistDialogFragment :
     override fun onDetach() {
         super.onDetach()
         callbacks = null
+
+        scope.cancel()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.create_new_playlist_dialog, container).apply {
-            initViews(this)
+    ): View? = inflater.inflate(
+        R.layout.create_new_playlist_dialog, container).run {
+        //bind
+        _binding = CreateNewPlaylistDialogBinding.bind(this)
+        scope.launch {
+            onMain { initView() }
         }
+        binding.root
     }
 
-    private fun initViews(view: View) {
-        initEditText(view)
-        initCancel(view)
-        initApply(view)
+
+    private fun initView() {
+        initEditText()
+        initCancel()
+        initApply()
     }
 
-    private fun initEditText(view: View) {
-        editText = view.findViewById(R.id.create_new_playlist_txt_your_name)
-        editText.addTextChangedListener(object : TextWatcher {
+    private fun initEditText() {
+        binding.txtYourName.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {}
             override fun beforeTextChanged(
                 s: CharSequence, start: Int,
@@ -90,31 +97,16 @@ class CreateNewPlaylistDialogFragment :
         })
     }
 
-    private fun initCancel(view: View) {
-        cancel = view.findViewById(R.id.create_new_playlist_cancel_msg)
-        cancelImage =  view.findViewById(R.id.create_new_playlist_cancel)
-        cancel.setOnClickListener {
-            close()
-        }
-        cancelImage.setOnClickListener {
-            close()
-        }
+    private fun initCancel() {
+        binding.cancelLayout.setCloseDialog()
+        binding.cancelIcon.setCloseDialog()
+        binding.cancelMsg.setCloseDialog()
     }
 
-    private fun close() {
-        dismiss()
-        callbacks?.success()
-    }
-
-    private fun initApply(view: View) {
-        apply = view.findViewById(R.id.create_new_playlist_apply_msg)
-        applyImage = view.findViewById(R.id.create_new_playlist_apply)
-        apply.setOnClickListener {
-            createNewPlaylist()
-        }
-        applyImage.setOnClickListener {
-            createNewPlaylist()
-        }
+    private fun initApply() {
+        binding.applyLayout.setNewPlaylist()
+        binding.applyIcon.setNewPlaylist()
+        binding.applyMsg.setNewPlaylist()
     }
 
     private fun createNewPlaylist() {
@@ -123,7 +115,17 @@ class CreateNewPlaylistDialogFragment :
                 PlaylistTransaction.createNewPlaylist(playlistName, songsToPlaylist.toList())
             }
             dismiss()
-        } else Toast.makeText(requireContext(),
-            "Please Type Playlist Name", Toast.LENGTH_SHORT).show()
+        } else requireActivity().toastInfo(
+            requireContext().getString(R.string.please_type_playlist_name)
+        )
     }
+
+    private fun View.setNewPlaylist() =
+        this.setOnClickListener { createNewPlaylist() }
+
+    private fun View.setCloseDialog() =
+        this.setOnClickListener {
+            dismiss()
+            callbacks?.success()
+        }
 }
