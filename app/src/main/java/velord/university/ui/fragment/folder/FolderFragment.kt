@@ -23,6 +23,7 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.statuscasellc.statuscase.model.coroutine.getScope
 import com.statuscasellc.statuscase.model.coroutine.onMain
 import com.statuscasellc.statuscase.model.exception.ViewDestroyed
+import com.statuscasellc.statuscase.ui.util.activity.toastError
 import com.statuscasellc.statuscase.ui.util.activity.toastWarning
 import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
 import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
@@ -98,7 +99,16 @@ class FolderFragment :
                 TODO()
             }
             R.id.action_folder_show_incompatible_files -> {
-                TODO()
+                //TODO()
+                requireActivity().toastError(
+                    requireContext().run {
+                        getString(
+                            R.string.not_implemented_operation,
+                            this.getString(R.string.show_incompatible_files)
+                        )
+                    }
+                )
+                true
             }
             R.id.song_fragment_sort_by -> {
                 val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
@@ -145,9 +155,6 @@ class FolderFragment :
                     actionBarPopUpMenu(it)
                 }
 
-                //TODO() rid if not need anymore
-//                //invoke immediately popup menu
-//                super.bindingActionBar.action.callOnClick()
                 true
             }
             R.id.action_folder_add_to_playlist -> {
@@ -364,9 +371,7 @@ class FolderFragment :
         openCreatePlaylistFragment(songs)
     }
 
-    private fun initView() {
-        initRV()
-    }
+    private fun initView() { initRV() }
 
     private fun initRV() {
         bindingRv.fastScrollRv.layoutManager =

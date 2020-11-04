@@ -108,4 +108,6 @@
     <string name="please_type_playlist_name">Please Type Playlist Name</string>
     <string name="choose_anyone_song">Choose anyone song</string>
     <string name="no_one_song">No one Song</string>
+    <string name="not_implemented_operation">Operation not implemented: %1$s</string>
+    <string name="show_incompatible_files">Show incompatible files</string>
 </resources>
