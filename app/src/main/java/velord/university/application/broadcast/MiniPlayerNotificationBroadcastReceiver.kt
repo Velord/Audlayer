@@ -8,7 +8,7 @@ import velord.university.application.notification.MiniPlayerNotification.NOTIFIC
 import velord.university.application.notification.MiniPlayerNotification.NOTIFICATION_ACTION_NEXT
 import velord.university.application.notification.MiniPlayerNotification.NOTIFICATION_ACTION_PLAY_OR_STOP
 import velord.university.application.notification.MiniPlayerNotification.NOTIFICATION_ACTION_PREVIUOS
-import velord.university.repository.MiniPlayerRepository
+import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 
 class MiniPlayerNotificationBroadcastReceiver : BroadcastReceiver() {

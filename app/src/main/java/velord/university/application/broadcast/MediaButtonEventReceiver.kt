@@ -11,7 +11,7 @@ import android.view.KeyEvent.ACTION_DOWN
 import android.view.KeyEvent.ACTION_UP
 import android.widget.Toast
 import kotlinx.coroutines.*
-import velord.university.repository.MiniPlayerRepository
+import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 
 

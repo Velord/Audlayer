@@ -6,7 +6,7 @@ import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import velord.university.application.AudlayerApp
-import velord.university.application.service.RadioServiceBroadcastReceiver
+import velord.university.application.service.radio.RadioServiceBroadcastReceiver
 
 class RestarterRadioService : BroadcastReceiver() {
 
@@ -16,6 +16,7 @@ class RestarterRadioService : BroadcastReceiver() {
 
 
         AudlayerApp.startService(
-            context, RadioServiceBroadcastReceiver())
+            context, RadioServiceBroadcastReceiver()
+        )
     }
 }

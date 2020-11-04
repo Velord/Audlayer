@@ -233,7 +233,7 @@ open class MiniPlayerGeneralFragment :
         it?.apply {
             //wait and request info
             scope.launch {
-                delay(1000)
+                delay(4000)
                 getInfoFromServiceWhenStart()
             }
         }

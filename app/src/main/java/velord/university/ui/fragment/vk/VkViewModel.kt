@@ -15,11 +15,12 @@ import velord.university.model.entity.Song
 import velord.university.model.entity.vk.VkAlbum
 import velord.university.model.entity.vk.VkPlaylist
 import velord.university.model.entity.vk.VkSong
+import velord.university.model.entity.vk.VkSongFetch
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
-import velord.university.repository.FolderRepository
-import velord.university.repository.VkRepository
-import velord.university.repository.transaction.PlaylistTransaction
+import velord.university.repository.hub.FolderRepository
+import velord.university.repository.hub.VkRepository
+import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.ui.util.RVSelection
 import java.io.File
 
@@ -123,10 +124,9 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     suspend fun pathIsWrong(path: String) {
-        val song = vkSongList.find {
-            it.path == path
+        vkSongList.find { it.path == path }?.let {
+            applyNewPath(it, "")
         }
-        applyNewPath(song!!, "")
     }
 
     suspend fun deleteSong(vkSong: VkSong) {
@@ -146,7 +146,6 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         //from vk
         val byTokenSongs = repository
             .getPlaylistByToken(app)
-            .getOrElse(VkPlaylist(0, arrayOf()))
             .items
         //from db
         val fromDbSongs = repository.getSongsFromDb()
@@ -271,7 +270,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         return repository.download(app, webView, vkSong)
     }
 
-    private suspend fun getNoExistInDbSong(byTokenSongs: Array<VkSong>,
+    private suspend fun getNoExistInDbSong(byTokenSongs: Array<VkSongFetch>,
                                            fromDbSongs: List<VkSong>): List<VkSong> {
         val fromDbSongsId = fromDbSongs.map { it.id }
         val allSongFromDb = Playlist
@@ -280,7 +279,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         val allSongName = allSongFromDb.map { FileNameParser.removeExtension(it) }
         return byTokenSongs.fold(mutableListOf<VkSong>()) { notExist, byToken ->
             if (fromDbSongsId.contains(byToken.id).not())
-                notExist.add(byToken)
+                notExist.add(byToken.toVkSong())
             notExist
         }.map {
             if (it.album?.id != 0)
@@ -295,7 +294,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private suspend fun compareAndInsert(byTokenSongs: Array<VkSong>,
+    private suspend fun compareAndInsert(byTokenSongs: Array<VkSongFetch>,
                                          fromDbSongs: List<VkSong>) {
         if (byTokenSongs.isEmpty()) return
         //song
@@ -312,7 +311,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         )
     }
 
-    private suspend fun compareAndDelete(byTokenSongs: Array<VkSong>,
+    private suspend fun compareAndDelete(byTokenSongs: Array<VkSongFetch>,
                                          fromDbSongs: List<VkSong>) {
         if (byTokenSongs.isEmpty()) return
 

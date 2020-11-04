@@ -137,7 +137,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
     private fun getFilesInCurrentFolder(): Array<Song> {
         val path = currentFolder.path
         val file = File(path)
-        val filesInFolder = file.listFiles()
+        val filesInFolder: Array<File> = file.listFiles() ?: arrayOf()
         return filesInFolder
             .map {
                 Song(it, "", DrawableIcon.getRandomFolderSongIconName)

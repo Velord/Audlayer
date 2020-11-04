@@ -13,9 +13,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -23,18 +21,24 @@ import velord.university.model.converter.transliterate
 import velord.university.model.entity.vk.VkDownloadFile
 import velord.university.model.entity.vk.VkSong
 
+fun getScope(): CoroutineScope =
+    CoroutineScope(Job() + Dispatchers.Default)
+
 //https://imusic.я.wiki
 data class IMusicFetch(private val context: Context,
                        val webView: WebView,
                        val song: VkSong) {
 
-    private val TAG = "SefonFetchSequential"
+    private val TAG = "IMusicFetchSequential"
     private var directSearchLink: String = ""
+    private var directDownloadFileLink: String = ""
+
+    private val scope = getScope()
 
     @SuppressLint("SetJavaScriptEnabled")
-    private suspend fun fetchDirectSearchLink() =
+    private suspend fun interceptDirectSearchLink() =
         withContext(Dispatchers.Main) {
-            val searchLink = "https://imusic.я.wiki/search/"
+            val searchLink = "https://rmusic.я.wiki/search/"
             val fullUrl = "$searchLink${song.artist}-${song.title}"
             webView.apply {
                 visibility = View.VISIBLE
@@ -58,9 +62,47 @@ data class IMusicFetch(private val context: Context,
             }
         }
 
-    private suspend fun fetchSong(url: String): String?
-            = withContext(Dispatchers.IO) {
+    @SuppressLint("SetJavaScriptEnabled")
+    suspend fun interceptDirectFileLink(url: String) =
+        withContext(Dispatchers.Main) {
+            val fullUrl = url
+            webView.apply {
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                val js = "javascript:(function(){" +
+                        "l=document.getElementsByClassName('download-button')[0];" +
+                        "l.click();" +
+                        "})()"
+                webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        view!!.evaluateJavascript(js) {
+                                s -> val result = s
+                        }
+                    }
+
+                    override fun shouldInterceptRequest(
+                        view: WebView?,
+                        request: WebResourceRequest?
+                    ): WebResourceResponse? {
+                        val url = request!!.url.toString()
+                        if (url.contains("download.xn--41a.wiki/download_")) {
+                            Log.d(TAG, url)
+                            directDownloadFileLink = url
+                        }
+                        return super.shouldInterceptRequest(view, request)
+                    }
+
+                }
+                loadUrl(fullUrl)
+            }
+        }
+
+    private suspend fun fetchSong(url: String): String? =
+        withContext(Dispatchers.IO) {
         //register receiver on download completed
+        val sdfsdds = url
+        val sdfsdsss = url
         var downloaded = false
         val onComplete = object : BroadcastReceiver() {
             override fun onReceive(ctxt: Context, intent: Intent) {
@@ -70,8 +112,7 @@ data class IMusicFetch(private val context: Context,
         context.registerReceiver(onComplete,
             IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
         //ready steady go
-        val vkDownloadFile =
-            VkDownloadFile(song)
+        val vkDownloadFile = VkDownloadFile(song)
         Log.d(TAG, "To path: ${vkDownloadFile.fullPath}")
         //build
         val req = DownloadManager.Request(Uri.parse(url))
@@ -90,7 +131,7 @@ data class IMusicFetch(private val context: Context,
         // enqueue puts the download request in the queue.
         downloadManager.enqueue(req)
         //wait 10 sec to download
-        repeat(10) {
+        repeat(15) {
             if (downloaded.not()) delay(1000)
             else return@repeat
         }
@@ -138,9 +179,9 @@ data class IMusicFetch(private val context: Context,
                 .filter { it.isNotBlank() }
         }
 
-    suspend fun getSearchLinkList(): List<String> {
+    private suspend fun getSearchLinkList(): List<String> {
         //intercept link
-        fetchDirectSearchLink()
+        interceptDirectSearchLink()
         //wait
         while (directSearchLink.isBlank())
             delay(500)
@@ -148,19 +189,24 @@ data class IMusicFetch(private val context: Context,
         return fetchSearchLink(directSearchLink)
     }
 
-    private fun createDirectFileLink(link: String): String =
-        "https://imusic.xn--41a.wiki/$link"
-
-    suspend fun downloadFileByLink(link: String): String? =
-        fetchSong(createDirectFileLink(link))
-
+    private fun createDownloadFileLink(link: String): String =
+        "https://pmusic.я.wiki$link".replace("id", "link")
 
     suspend fun download(): String? {
         val searchLinkList = getSearchLinkList()
         //what we should do in next step ->
         //download or return
         if (searchLinkList.isNotEmpty()) {
-            return downloadFileByLink(searchLinkList[0])
+            val downloadLink = createDownloadFileLink(searchLinkList.first())
+            interceptDirectFileLink(downloadLink)
+
+            repeat(15) {
+                if (directDownloadFileLink == "") delay(1000)
+                else return@repeat
+            }
+            if (directDownloadFileLink == "") return null
+
+            return fetchSong(directDownloadFileLink)
         }
         return null
     }

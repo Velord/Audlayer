@@ -11,10 +11,10 @@ class ActionBarViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         //need retrieve from shared preferences
-        mutableSearchTerm.value = "-1"
+        mutableSearchTerm.postValue("-1")
     }
 
     fun setupSearchQuery(query: String) {
-        mutableSearchTerm.value = query
+        mutableSearchTerm.postValue(query)
     }
 }

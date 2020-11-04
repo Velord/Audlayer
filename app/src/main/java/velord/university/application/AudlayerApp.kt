@@ -11,13 +11,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import velord.university.application.service.AudlayerNotificationService
 import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
-import velord.university.application.service.RadioServiceBroadcastReceiver
+import velord.university.application.service.radio.RadioServiceBroadcastReceiver
 import velord.university.application.service.WidgetService
-import velord.university.repository.FolderRepository
-import velord.university.repository.RadioRepository
-import velord.university.repository.factory.AppDatabase
-import velord.university.repository.factory.buildAppDatabase
-import velord.university.repository.transaction.PlaylistTransaction
+import velord.university.repository.hub.FolderRepository
+import velord.university.repository.hub.RadioRepository
+import velord.university.repository.db.factory.AppDatabase
+import velord.university.repository.db.factory.buildAppDatabase
+import velord.university.repository.db.transaction.PlaylistTransaction
 
 class AudlayerApp : Application() {
 
@@ -44,7 +44,7 @@ class AudlayerApp : Application() {
         fun startService(context: Context,
                                  service: Service) =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startService(Intent(context, service::class.java))
+                context.startForegroundService(Intent(context, service::class.java))
                 //crashes
                 //context.startForegroundService(Intent(context, service::class.java))
             } else {

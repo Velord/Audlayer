@@ -22,9 +22,9 @@ import velord.university.model.entity.MiniPlayerServiceSong
 import velord.university.model.entity.Song
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
-import velord.university.repository.MiniPlayerRepository
-import velord.university.repository.transaction.PlaylistTransaction
-import velord.university.repository.transaction.ServiceTransaction
+import velord.university.repository.hub.MiniPlayerRepository
+import velord.university.repository.db.transaction.PlaylistTransaction
+import velord.university.repository.db.transaction.ServiceTransaction
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import java.io.File
 
@@ -358,14 +358,18 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     private fun applySong(songsToPlaylist: List<File>) {
         val duration = MiniPlayerServicePreferences(this).currentDuration
         val path = restoreSongPath(songsToPlaylist)
+        if (path.isEmpty()) return
+
         playNext(path, true)
         rewindPlayer(duration)
         pausePlayer()
-        player.setVolume(1.0f, 1.0f)
+        if (playerIsInitialized())
+            player.setVolume(1.0f, 1.0f)
     }
 
     private fun restoreSongPath(songsToPlaylist: List<File>): String {
         var posWasPlayedSong = MiniPlayerServicePreferences(this).currentPos
+        if (posWasPlayedSong == -1) return ""
         if (posWasPlayedSong > songsToPlaylist.lastIndex)
             posWasPlayedSong = songsToPlaylist.lastIndex
         return playlist.notShuffled[posWasPlayedSong].path
@@ -399,6 +403,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             storeIsPlayingState()
             stopSendRewind()
         }
+        if (::rewindJob.isInitialized)
+            stopSendRewind()
         //send command to change ui
         mayInvoke {
             AppBroadcastHub.apply { stopUI() }
@@ -511,10 +517,12 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private fun storeSongPositionInQueue() {
-        val posInQueue = playlist.getSong()
-        val pos = playlist.notShuffled.indexOf(posInQueue)
-        MiniPlayerServicePreferences(this).currentPos = pos
-        Log.d(TAG, "store pos: $pos")
+        if (playlistIsInitialized()) {
+            val posInQueue = playlist.getSong()
+            val pos = playlist.notShuffled.indexOf(posInQueue)
+            MiniPlayerServicePreferences(this).currentPos = pos
+            Log.d(TAG, "store pos: $pos")
+        }
     }
 
     private fun storeCurrentDuration(duration: Int = player.currentPosition) {

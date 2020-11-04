@@ -14,9 +14,9 @@ import velord.university.model.entity.Album
 import velord.university.model.entity.Playlist
 import velord.university.model.entity.Song
 import velord.university.model.file.FileFilter
-import velord.university.repository.FolderRepository
-import velord.university.repository.transaction.AlbumTransaction
-import velord.university.repository.transaction.PlaylistTransaction
+import velord.university.repository.hub.FolderRepository
+import velord.university.repository.db.transaction.AlbumTransaction
+import velord.university.repository.db.transaction.PlaylistTransaction
 import java.io.File
 
 const val MAX_LAST_PLAYED: Int = 50
@@ -160,10 +160,14 @@ class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
         favourite =  PlaylistTransaction.getFavouriteSongs()
         Log.d(TAG, "favourite playlist retrieved")
         //downloaded
-        val filesAppDir = FolderRepository.getApplicationDir().listFiles()
-        val filesVkDir = FolderRepository.getApplicationVkDir().listFiles()
-        downloaded =  FileFilter.filterOnlyAudio(
-            filesAppDir + filesVkDir).map { it.path }
+        val filesAppDir: Array<out File> = FolderRepository
+            .getApplicationDir()
+            .listFiles() ?: arrayOf()
+        val filesVkDir: Array<out File> = FolderRepository
+            .getApplicationVkDir()
+            .listFiles() ?: arrayOf()
+        val allFiles = (filesAppDir.toList() + filesVkDir).toTypedArray()
+        downloaded =  FileFilter.filterOnlyAudio(allFiles).map { it.path }
         Log.d(TAG, "downloaded playlist retrieved")
         //other
         other = Playlist.other(allPlaylist)

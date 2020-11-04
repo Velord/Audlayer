@@ -1,7 +1,9 @@
 package velord.university.model.entity.vk
 
 import androidx.room.ColumnInfo
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class VkThumb(
     val width: Int?,
     val height: Int?,

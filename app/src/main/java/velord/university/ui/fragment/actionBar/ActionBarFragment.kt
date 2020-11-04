@@ -147,8 +147,7 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
 
     protected fun observeSearchQuery() {
        viewModelActionBar.mutableSearchTerm.observe(
-            viewLifecycleOwner,
-            Observer { searchTerm ->
+            viewLifecycleOwner, { searchTerm ->
                 actionBarObserveSearchQuery(searchTerm)
             }
        )

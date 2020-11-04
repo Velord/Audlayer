@@ -179,6 +179,7 @@ class VKFragment : ActionBarFragment(),
             //update files list
             updateAdapterBySearchQuery(searchQuery)
         }
+        else viewModel.storeSearchQuery("")
     }
 
     private val receivers = receiverList() +
@@ -328,8 +329,8 @@ class VKFragment : ActionBarFragment(),
         }
         viewModel.refreshByToken()
         //update ui
-        updateAdapterBySearchQuery()
-        viewModel.rvResolver.scroll(rv)
+        updateAdapterBySearchQuery("")
+        //viewModel.rvResolver.scroll(rv)
     }
 
     private fun sortBy(index: Int): Boolean {
@@ -417,11 +418,8 @@ class VKFragment : ActionBarFragment(),
                     scope.launch {
                         withContext(Dispatchers.Main) {
                             updateAdapterBySearchQuery()
-                            Toast.makeText(
-                                requireContext(),
-                                "Song success downloaded",
-                                Toast.LENGTH_LONG
-                            ).show()
+                            Toast.makeText(requireContext(),
+                                "Song success downloaded", Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -439,11 +437,8 @@ class VKFragment : ActionBarFragment(),
                 viewModel.downloadThenPlay(song, webView, onSuccess, onFailure)
             }
         }
-        else Toast.makeText(
-            requireContext(),
-            "Don't need download",
-            Toast.LENGTH_SHORT
-        ).show()
+        else Toast.makeText(requireContext(),
+            "Don't need download", Toast.LENGTH_SHORT).show()
     }
 
     private fun getRecyclerViewResolver(

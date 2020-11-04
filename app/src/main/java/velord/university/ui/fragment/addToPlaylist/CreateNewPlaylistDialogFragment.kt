@@ -17,7 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import velord.university.R
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.repository.transaction.PlaylistTransaction
+import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleDialogFragment
 
 

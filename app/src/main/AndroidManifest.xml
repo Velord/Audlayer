@@ -25,6 +25,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
 
         <service
@@ -40,13 +41,13 @@
         </service>
 
         <service
-            android:name=".application.service.RadioService"
+            android:name=".application.service.radio.RadioService"
             android:enabled="true"
             android:exported="true">
         </service>
 
         <service
-            android:name=".application.service.RadioServiceBroadcastReceiver"
+            android:name=".application.service.radio.RadioServiceBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
         </service>

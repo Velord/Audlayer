@@ -4,12 +4,12 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
 @Entity(
     indices = [Index("name", "url")]
 )
-@JsonClass(generateAdapter = true)
+@Serializable
 data class RadioStation(
     @ColumnInfo(name = "name")
     val name: String,

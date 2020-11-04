@@ -1,7 +1,7 @@
 package velord.university.application.service
 
 import android.content.Context
-import velord.university.repository.MiniPlayerRepository
+import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 
 fun Context.mayInvokeRadio(f: () -> Unit) =
