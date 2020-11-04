@@ -1,39 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/folder_fragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/folder_fragment_container"
+    style="@style/MatchParent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
 
-    <FrameLayout
-        android:id="@+id/action_bar_frame_layout"
-        android:layout_width="match_parent"
-        android:layout_height="35dp"
-        android:background="@color/fragmentBackgroundDarkerOpacity"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-        <include layout="@layout/action_bar_search">
+
+        <include
+            android:id="@+id/action_bar_include"
+            layout="@layout/action_bar_search"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="@color/fragmentBackgroundDarkerOpacity"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
         </include>
 
-    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/current_folder_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/WrapHeightMatchWidth"
         android:background="@drawable/current_folder_layout_shape"
         android:minHeight="24dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/action_bar_frame_layout">
+        app:layout_constraintTop_toBottomOf="@+id/action_bar_include">
 
         <TextView
             android:id="@+id/current_folder_textView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            style="@style/WrapHeightMatchWidth"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
@@ -42,18 +40,16 @@
             android:textColor="@color/gray" />
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/folder_fragment_rv_frame"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+
+    <include
+        android:id="@+id/rv_include"
+        layout="@layout/general_rv"
+        style="@style/Layout0dpMargin16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/current_folder_layout">
-
-        <include layout="@layout/general_rv">
-        </include>
-    </FrameLayout>
+    </include>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

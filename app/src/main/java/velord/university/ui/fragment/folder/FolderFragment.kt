@@ -15,10 +15,15 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.statuscasellc.statuscase.model.coroutine.getScope
+import com.statuscasellc.statuscase.model.coroutine.onMain
+import com.statuscasellc.statuscase.model.exception.ViewDestroyed
+import com.statuscasellc.statuscase.ui.util.activity.toastWarning
 import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
 import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
 import kotlinx.coroutines.*
@@ -30,6 +35,10 @@ import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
+import velord.university.databinding.ActionBarSearchBinding
+import velord.university.databinding.FolderFragmentBinding
+import velord.university.databinding.GeneralRvBinding
+import velord.university.databinding.SelectSongFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
@@ -40,22 +49,35 @@ import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
 import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarFragment
+import velord.university.ui.fragment.actionBar.ActionBarSearch
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 import java.io.File
 
-class FolderFragment : ActionBarFragment(),
+class FolderFragment :
+    ActionBarSearch(),
     BackPressedHandlerZero,
     SongPathReceiver,
     MiniPlayerIconClickReceiver {
+
+    override fun onBackPressed(): Boolean {
+        Log.d(TAG, "onBackPressed")
+
+        val newFile =  viewModel.currentFolder.parentFile!!
+        setupAdapter(newFile)
+        return true
+    }
+
     //Required interface for hosting activities
     interface Callbacks {
+
         fun onCreatePlaylist()
 
         fun onAddToPlaylist()
 
         fun onAddToPlaylistFromFolderFragment()
     }
+
     private var callbacks: Callbacks? =  null
 
     override val TAG: String = "FolderFragment"
@@ -68,10 +90,7 @@ class FolderFragment : ActionBarFragment(),
         ViewModelProvider(this).get(FolderViewModel::class.java)
     }
 
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
-
-    private lateinit var rv: RecyclerView
-    private lateinit var currentFolderTextView: TextView
+    private val scope = getScope()
 
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = { it ->
         when (it.itemId) {
@@ -117,7 +136,7 @@ class FolderFragment : ActionBarFragment(),
                     }
                 }
 
-                super.actionButton.setupPopupMenuOnClick(
+                super.bindingActionBar.action.setupAndShowPopupMenuOnClick(
                     requireContext(),
                     initActionMenuStyle,
                     initActionMenuLayout,
@@ -126,8 +145,9 @@ class FolderFragment : ActionBarFragment(),
                     actionBarPopUpMenu(it)
                 }
 
-                //invoke immediately popup menu
-                super.actionButton.callOnClick()
+                //TODO() rid if not need anymore
+//                //invoke immediately popup menu
+//                super.bindingActionBar.action.callOnClick()
                 true
             }
             R.id.action_folder_add_to_playlist -> {
@@ -166,6 +186,9 @@ class FolderFragment : ActionBarFragment(),
     }
     override val actionBarPopUp: (ImageButton) -> Unit = { }
 
+
+    override val actionSearchView: (SearchView) -> Unit = {  }
+
     private val receivers = songPathReceiverList() +
             getIconClickedReceiverList()
 
@@ -183,7 +206,7 @@ class FolderFragment : ActionBarFragment(),
     override val iconClicked: (Intent?) -> Unit = {
         it?.apply {
             scope.launch {
-                viewModel.rvResolver.scroll(rv)
+                viewModel.rvResolver.scroll(bindingRv.fastScrollRv)
             }
         }
     }
@@ -199,7 +222,7 @@ class FolderFragment : ActionBarFragment(),
                 val containF: (Song) -> Boolean = {
                     it == file
                 }
-                refreshAndScroll(fileList, rv, containF)
+                refreshAndScroll(fileList, bindingRv.fastScrollRv, containF)
                 //send new icon
                 viewModel.sendIconToMiniPlayer(file)
             }
@@ -228,6 +251,8 @@ class FolderFragment : ActionBarFragment(),
             requireActivity()
                 .unregisterBroadcastReceiver(it.first)
         }
+
+        scope.cancel()
     }
 
     override fun onAttach(context: Context) {
@@ -238,31 +263,44 @@ class FolderFragment : ActionBarFragment(),
     override fun onDetach() {
         super.onDetach()
         callbacks = null
+
+        scope.cancel()
     }
+    //view
+    private var _binding: FolderFragmentBinding? = null
+    override var _bindingActionBar: ActionBarSearchBinding? = null
+    private var _bindingRv: GeneralRvBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
+    private val bindingRv get() = _bindingRv ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.folder_fragment,
-            container, false).apply {
-            //init action bar
-            super.initActionBar(this)
-            super.changeUIAfterSubmitTextInSearchView(super.searchView)
-            //init self view
-            initViews(this)
-            //observe changes in search view
-            super.observeSearchQuery()
-            setupAdapter(viewModel.currentFolder)
+    ): View? = inflater.inflate(R.layout.folder_fragment,
+        container, false).run {
+        //bind
+        _binding = FolderFragmentBinding.bind(this)
+        _bindingActionBar = binding.actionBarInclude
+        _bindingRv = binding.rvInclude
+        scope.launch {
+            onMain {
+                //init action bar
+                super.initActionBar()
+                super.changeUIAfterSubmitTextInSearchView(
+                    super.bindingActionBar.search
+                )
+                //init self view
+                initView()
+                //observe changes in search view
+                super.observeSearchQuery()
+                setupAdapter(viewModel.currentFolder)
+            }
         }
-    }
-
-    override fun onBackPressed(): Boolean {
-        Log.d(TAG, "onBackPressed")
-
-        val newFile =  viewModel.currentFolder.parentFile!!
-        setupAdapter(newFile)
-        return true
+        binding.root
     }
 
     private fun openAddToPlaylistFragment(songs: Array<Song>) {
@@ -271,8 +309,9 @@ class FolderFragment : ActionBarFragment(),
                 SongPlaylistInteractor.songs = songs
                 it.onAddToPlaylist()
             }
-            else Toast.makeText(requireContext(),
-                    "No one Song", Toast.LENGTH_SHORT).show()
+            else requireActivity().toastWarning(
+                requireContext().getString(R.string.no_one_song)
+            )
         }
     }
 
@@ -282,8 +321,9 @@ class FolderFragment : ActionBarFragment(),
                 SongPlaylistInteractor.songs = songs
                 it.onCreatePlaylist()
             }
-            else Toast.makeText(requireContext(),
-                    "No one Song", Toast.LENGTH_SHORT).show()
+            else requireActivity().toastWarning(
+                requireContext().getString(R.string.no_one_song)
+            )
         }
     }
 
@@ -324,16 +364,18 @@ class FolderFragment : ActionBarFragment(),
         openCreatePlaylistFragment(songs)
     }
 
-    private fun initViews(view: View) {
-        initRV(view)
-        currentFolderTextView = view.findViewById(R.id.current_folder_textView)
+    private fun initView() {
+        initRV()
     }
 
-    private fun initRV(view: View) {
-        rv = view.findViewById(R.id.fast_scroll_rv)
-        rv.layoutManager = LinearLayoutManager(activity)
+    private fun initRV() {
+        bindingRv.fastScrollRv.layoutManager =
+            LinearLayoutManager(requireActivity())
         //controlling action bar frame visibility when recycler view is scrolling
-        super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
+        super.setScrollListenerByRecyclerViewScrolling(
+            bindingRv.fastScrollRv,
+            50, -5
+        )
     }
 
     private fun sortBy(index: Int): Boolean {
@@ -360,7 +402,7 @@ class FolderFragment : ActionBarFragment(),
             //apply all filters to recycler view
             viewModel.fileList =
                 viewModel.filterAndSortFiles(filter, searchQuery)
-            rv.adapter = FileAdapter(viewModel.fileList)
+            bindingRv.fastScrollRv.adapter = FileAdapter(viewModel.fileList)
         }
 
         if (searchQuery.isNotEmpty()) {
@@ -373,12 +415,12 @@ class FolderFragment : ActionBarFragment(),
     private fun setupAdapter(file: File) {
         viewModel.currentFolder = file
         val query = viewModel.getSearchQuery()
-        super.viewModelActionBar.setupSearchQuery(query)
+        super.viewModelActionBarSearch.setupSearchQuery(query)
     }
 
     private fun changeCurrentTextView(file: File) {
         val pathToUI = FileNameParser.slashReplaceArrow(file.path)
-        currentFolderTextView.text = pathToUI
+        binding.currentFolderTextView.text = pathToUI
     }
 
     fun focusOnMe(): Boolean {
@@ -387,7 +429,7 @@ class FolderFragment : ActionBarFragment(),
             false
         else {
             //hide searchView
-            super.changeUIAfterSubmitTextInSearchView(super.searchView)
+            super.changeUIAfterSubmitTextInSearchView(super.bindingActionBar.search)
             true
         }
     }
