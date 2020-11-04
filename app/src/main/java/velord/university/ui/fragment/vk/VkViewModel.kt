@@ -1,9 +1,11 @@
 package velord.university.ui.fragment.vk
 
 import android.app.Application
+import android.util.Log
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
+import com.statuscasellc.statuscase.model.coroutine.onDef
 import kotlinx.coroutines.*
 import org.apache.commons.text.similarity.LevenshteinDistance
 import velord.university.application.broadcast.AppBroadcastHub
@@ -143,18 +145,23 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     suspend fun refreshByToken() {
-        //from vk
-        val byTokenSongs = repository
-            .getPlaylistByToken(app)
-            .items
-        //from db
-        val fromDbSongs = repository.getSongsFromDb()
-        //compare with existed and insert
-        compareAndInsert(byTokenSongs, fromDbSongs)
-        //compare with existed and delete
-        compareAndDelete(byTokenSongs, fromDbSongs)
-        //create vkPlaylist
-        initVkPlaylist()
+        try {
+            //from vk
+            val byTokenSongs = repository
+                .getPlaylistByToken(app)
+                .items
+            //from db
+            val fromDbSongs = repository.getSongsFromDb()
+            //compare with existed and insert
+            compareAndInsert(byTokenSongs, fromDbSongs)
+            //compare with existed and delete
+            compareAndDelete(byTokenSongs, fromDbSongs)
+            //create vkPlaylist
+            initVkPlaylist()
+        }
+        catch (e: Exception) {
+            Log.d(TAG, e.message.toString())
+        }
     }
 
     suspend fun downloadAll(webView: WebView) {
@@ -180,7 +187,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
         vkSongList = repository.getSongsFromDb()
     }
 
-    suspend fun filterByQuery(query: String): List<VkSong> = withContext(Dispatchers.Default) {
+    suspend fun filterByQuery(query: String): List<VkSong> = onDef {
         val filtered = vkSongList.filter {
             FileFilter.filterBySearchQuery("${it.artist} - ${it.title}", query)
         }
@@ -211,7 +218,7 @@ class VkViewModel(private val app: Application) : AndroidViewModel(app) {
             else -> sorted
         }
 
-        return@withContext ordered
+        ordered
     }
 
     private fun addToInteractor() {

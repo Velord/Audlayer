@@ -7,22 +7,32 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.lifecycle.ViewModelProviders
+import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.statuscasellc.statuscase.model.coroutine.getScope
+import com.statuscasellc.statuscase.model.coroutine.onMain
+import com.statuscasellc.statuscase.model.exception.ViewDestroyed
+import com.statuscasellc.statuscase.ui.util.view.makeCheck
+import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
+import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.settings.SortByPreference
+import velord.university.databinding.ActionBarSearchBinding
+import velord.university.databinding.AlbumFragmentBinding
 import velord.university.model.entity.Album
 import velord.university.model.entity.Playlist
 import velord.university.ui.backPressed.BackPressedHandlerZero
-import velord.university.ui.fragment.actionBar.ActionBarFragment
-import velord.university.ui.util.setupAndShowPopupMenuOnClick
-import velord.university.ui.util.setupPopupMenuOnClick
+import velord.university.ui.fragment.actionBar.ActionBarSearch
 
 
-class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
+class AlbumFragment :
+    ActionBarSearch(),
+    BackPressedHandlerZero {
 
     override val TAG: String = "AlbumFragment"
 
@@ -30,20 +40,17 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         fun newInstance() = AlbumFragment()
     }
 
-    private val viewModel by lazy {
-        ViewModelProviders.of(this).get(AlbumViewModel::class.java)
-    }
+    private val viewModel: AlbumViewModel by viewModels()
 
-    val scope = CoroutineScope(Job() + Dispatchers.Default)
+    private val scope = getScope()
 
-    private lateinit var albumArticle: TextView
-    private lateinit var playlistArticle: TextView
-    private lateinit var albumFrame: LinearLayout
-    private lateinit var playlistFrame: LinearLayout
-    private lateinit var albumRV: RecyclerView
-    private lateinit var playlistRV: RecyclerView
-    private lateinit var playlistRefresh: TextView
-    private lateinit var albumRefresh: TextView
+    //view
+    private var _binding: AlbumFragmentBinding? = null
+    override var _bindingActionBar: ActionBarSearchBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
@@ -76,16 +83,16 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
         val nameArtistDateOrder =
             SortByPreference(requireContext()).sortByAlbumFragment
         when(nameArtistDateOrder) {
-            0 -> { menuItem.getItem(0).isChecked = true }
-            1 -> { menuItem.getItem(1).isChecked = true }
-            2 -> { menuItem.getItem(2).isChecked = true }
-            3 -> { menuItem.getItem(3).isChecked = true }
+            0 -> { menuItem.makeCheck(0) }
+            1 -> { menuItem.makeCheck(1) }
+            2 -> { menuItem.makeCheck(2) }
+            3 -> { menuItem.makeCheck(3) }
         }
 
         val ascDescOrder = SortByPreference(requireContext()).ascDescAlbumFragment
         when(ascDescOrder) {
-            0 -> { menuItem.getItem(4).isChecked = true }
-            1 -> { menuItem.getItem(5).isChecked = true }
+            0 -> { menuItem.makeCheck(4) }
+            1 -> { menuItem.makeCheck(5) }
             else -> {}
         }
     }
@@ -100,50 +107,51 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
             //update files list
             updateAdapterBySearchQuery(correctQuery)
     }
+    override val actionSearchView: (SearchView) -> Unit = {  }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.album_fragment, container, false).apply {
-            scope.launch {
-                launch {
-                    viewModel.retrievePlaylistFromDb()
-                    viewModel.retrieveAlbumFromDb()
-                }
-                withContext(Dispatchers.Main) {
-                    //init action bar
-                    super.initActionBar(this@apply)
-                    super.changeUIAfterSubmitTextInSearchView(super.searchView)
-                    //init self view
-                    initViews(this@apply)
-                    //observe changes in search view
-                    super.observeSearchQuery()
-                    //setup adapter by invoke change in search view
-                    setupAdapter()
-                }
+    ): View? = inflater.inflate(R.layout.album_fragment,
+        container, false).run {
+        //bind
+        _binding = AlbumFragmentBinding.bind(this)
+        _bindingActionBar = binding.actionBarInclude
+        scope.launch {
+            launch {
+                viewModel.retrievePlaylistFromDb()
+                viewModel.retrieveAlbumFromDb()
+            }
+            onMain {
+                //init action bar
+                super.initActionBar()
+                super.changeUIAfterSubmitTextInSearchView(
+                    super.bindingActionBar.search
+                )
+                //init self view
+                initView()
+                //observe changes in search view
+                super.observeSearchQuery()
+                //setup adapter by invoke change in search view
+                setupAdapter()
             }
         }
+        binding.root
     }
 
-    private fun initViews(view: View) {
-        initPlaylist(view)
-        initAlbums(view)
+    private fun initView() {
+        initPlaylist()
+        initAlbums()
     }
 
-    private fun initAlbums(view: View) {
-        albumArticle = view.findViewById(R.id.album_fragment_album_article)
-        albumFrame = view.findViewById(R.id.album_fragment_album_rv_frame)
-        albumRV = view.findViewById(R.id.album_RV)
-        albumRefresh = view.findViewById(R.id.album_refresh)
-
-        albumArticle.setOnClickListener {
-            albumRV.visibility =
-                if (albumRV.visibility == View.GONE) View.VISIBLE
+    private fun initAlbums() {
+        binding.albumArticle.setOnClickListener {
+            binding.albumRV.visibility =
+                if (binding.albumRV.visibility == View.GONE) View.VISIBLE
                 else View.GONE
         }
 
-        albumRefresh.setOnClickListener {
+        binding.albumRefresh.setOnClickListener {
             scope.launch {
                 withContext(Dispatchers.Main) {
                     val refresh = it as TextView
@@ -158,26 +166,23 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
             }
         }
 
-        albumRV.apply {
+        binding.albumRV.apply {
             isNestedScrollingEnabled = false
             layoutManager = LinearLayoutManager(activity)
         }
         //controlling action bar frame visibility when recycler view is scrolling
-        super.setScrollListenerByRecyclerViewScrolling(albumRV, 50, -5)
+        super.setScrollListenerByRecyclerViewScrolling(
+            binding.albumRV, 50, -5
+        )
     }
 
-    private fun initPlaylist(view: View) {
-        playlistArticle =  view.findViewById(R.id.album_fragment_playlist_article)
-        playlistFrame = view.findViewById(R.id.album_fragment_playlist_rv_frame)
-        playlistRV = view.findViewById(R.id.playlist_RV)
-        playlistRefresh = view.findViewById(R.id.playlist_refresh)
-
-        playlistArticle.setOnClickListener {
-            playlistRV.visibility =
-                if (playlistRV.visibility == View.GONE) View.VISIBLE
+    private fun initPlaylist() {
+        binding.playlistArticle.setOnClickListener {
+            binding.playlistRV.visibility =
+                if (binding.playlistRV.visibility == View.GONE) View.VISIBLE
                 else View.GONE
         }
-        playlistRefresh.setOnClickListener {
+        binding.playlistRefresh.setOnClickListener {
             scope.launch {
                 withContext(Dispatchers.Main) {
                     val refresh = it as TextView
@@ -191,12 +196,14 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
                 }
             }
         }
-        playlistRV.apply {
+        binding.playlistRV.apply {
             isNestedScrollingEnabled = false
             layoutManager = LinearLayoutManager(activity)
         }
         //controlling action bar frame visibility when recycler view is scrolling
-        super.setScrollListenerByRecyclerViewScrolling(playlistRV, 50, -5)
+        super.setScrollListenerByRecyclerViewScrolling(
+            binding.playlistRV, 50, -5
+        )
     }
 
     private fun sortBy(index: Int): Boolean {
@@ -220,7 +227,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
                     val playlistFiltered =
                         viewModel.filterByQueryPlaylist(searchQuery).toTypedArray()
                     withContext(Dispatchers.Main) {
-                        playlistRV.adapter = PlaylistAdapter(playlistFiltered)
+                        binding.playlistRV.adapter = PlaylistAdapter(playlistFiltered)
                     }
                 }
             }
@@ -228,7 +235,7 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
                 if (viewModel.albumsIsInitialized()) {
                     val albums = viewModel.albums.toTypedArray()
                     withContext(Dispatchers.Main) {
-                        albumRV.adapter = AlbumAdapter(albums)
+                        binding.albumRV.adapter = AlbumAdapter(albums)
                     }
                 }
             }
@@ -237,16 +244,20 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
 
     private fun setupAdapter() {
         val query = viewModel.getSearchQuery()
-        super.viewModelActionBar.setupSearchQuery(query)
+        super.viewModelActionBarSearch.setupSearchQuery(query)
     }
 
     private inner class AlbumHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val pathTextView: TextView = itemView.findViewById(R.id.general_item_path)
-        private val actionImageButton: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
-        private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
-        private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
+        private val pathTextView: TextView =
+            itemView.findViewById(R.id.general_item_path)
+        private val actionImageButton: ImageButton =
+            itemView.findViewById(R.id.general_action_ImageButton)
+        private val actionFrame: FrameLayout =
+            itemView.findViewById(R.id.general_action_frame)
+        private val icon: ImageButton =
+            itemView.findViewById(R.id.general_item_icon)
 
         private fun openAlbum(album: Album) {
             viewModel.playSongs(album.songs.toTypedArray())
@@ -339,10 +350,14 @@ class AlbumFragment : ActionBarFragment(), BackPressedHandlerZero {
     private inner class PlaylistHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val pathTextView: TextView = itemView.findViewById(R.id.general_item_path)
-        private val actionImageButton: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
-        private val actionFrame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
-        private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
+        private val pathTextView: TextView =
+            itemView.findViewById(R.id.general_item_path)
+        private val actionImageButton: ImageButton =
+            itemView.findViewById(R.id.general_action_ImageButton)
+        private val actionFrame: FrameLayout =
+            itemView.findViewById(R.id.general_action_frame)
+        private val icon: ImageButton =
+            itemView.findViewById(R.id.general_item_icon)
 
         private fun openPlaylist(playlist: Playlist) {
             viewModel.playSongs(playlist.songs.toTypedArray())

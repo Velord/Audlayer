@@ -2,10 +2,10 @@ package velord.university.repository.hub
 
 import android.content.Context
 import android.util.Log
+import com.statuscasellc.statuscase.model.coroutine.getScope
 import com.statuscasellc.statuscase.model.coroutine.onIO
 import kotlinx.coroutines.launch
 import velord.university.application.AudlayerApp
-import velord.university.repository.fetch.getScope
 
 abstract class BaseRepository {
 

@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.*
+import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +18,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
+import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
@@ -36,8 +39,6 @@ import velord.university.model.file.FileFilter
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.RVSelection
-import velord.university.ui.util.setupAndShowPopupMenuOnClick
-import velord.university.ui.util.setupPopupMenuOnClick
 import java.io.File
 
 class VKFragment : ActionBarFragment(),

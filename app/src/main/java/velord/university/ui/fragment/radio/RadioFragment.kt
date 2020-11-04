@@ -9,10 +9,13 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
+import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
@@ -27,8 +30,6 @@ import velord.university.model.entity.RadioStation
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
-import velord.university.ui.util.setupAndShowPopupMenuOnClick
-import velord.university.ui.util.setupPopupMenuOnClick
 
 class RadioFragment : ActionBarFragment(),
     RadioNameArtistUIReceiver,
@@ -320,11 +321,16 @@ class RadioFragment : ActionBarFragment(),
     private inner class RadioHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val text: TextView = itemView.findViewById(R.id.radio_item_name)
-        private val action: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
-        private val frame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
-        private val icon: ImageButton = itemView.findViewById(R.id.radio_item_icon)
-        private val pb: ProgressBar = itemView.findViewById(R.id.radio_item_pb)
+        private val text: TextView =
+            itemView.findViewById(R.id.radio_item_name)
+        private val action: ImageButton =
+            itemView.findViewById(R.id.general_action_ImageButton)
+        private val frame: FrameLayout =
+            itemView.findViewById(R.id.general_action_frame)
+        private val icon: ImageButton =
+            itemView.findViewById(R.id.radio_item_icon)
+        private val pb: ProgressBar =
+            itemView.findViewById(R.id.radio_item_pb)
 
         private val selectedGeneral: (RadioStation) -> Array<() -> Unit> = { radio ->
             arrayOf(

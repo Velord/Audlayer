@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/top_menu_CS"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/current_folder_layout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/action_bar_container"
+    style="@style/MatchParent"
+    >
 
     <ImageButton
-        android:id="@+id/action_bar_settings"
+        android:id="@+id/settings"
         style="@style/TopMenuImageButtons"
         android:layout_width="50dp"
         android:layout_marginStart="8dp"
@@ -22,7 +19,7 @@
         app:srcCompat="@drawable/round_format_list_bulleted_deep_purple_a200_48dp" />
 
     <ImageButton
-        android:id="@+id/action_bar_action"
+        android:id="@+id/action"
         style="@style/TopMenuImageButtons"
         android:layout_width="30dp"
         android:layout_marginEnd="10dp"
@@ -32,24 +29,21 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/arrow_down_deep_purple_a200" />
 
-    <SearchView
-        android:id="@+id/action_bar_searchView"
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search"
+        android:layout_width="0dp"
         style="@style/TopMenuImageButtons"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="0dp"
+        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:maxWidth="250dp"
         android:queryHint="@string/action_bar_hint_search_view"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/action_bar_action"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/action_bar_hint"
+        app:layout_constraintEnd_toStartOf="@+id/action"
+        app:layout_constraintStart_toEndOf="@+id/settings"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        />
 
     <TextView
-        android:id="@+id/action_bar_hint"
+        android:id="@+id/hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="17sp"

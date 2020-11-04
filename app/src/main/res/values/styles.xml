@@ -45,15 +45,6 @@
         <item name="android:background">@null</item>
     </style>
 
-    <style name="TopMenuImageButtons" parent="Widget.AppCompat.ImageButton">
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_marginTop">8dp</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_marginBottom">8dp</item>
-        <item name="android:scaleType">fitCenter</item>
-        <item name="android:background">@null</item>
-    </style>
-
     <style name="MenuButtonsLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
@@ -78,13 +69,6 @@
         <item name="android:textColor">@color/gray</item>
         <item name="android:textSize">20sp</item>
         <item name="android:textAlignment">center</item>
-    </style>
-
-    <style name="PopupMenuOverlapAnchor" parent="Widget.AppCompat.PopupMenu">
-        <item name="android:overlapAnchor">true</item>
-        <item name="android:popupBackground">@null</item>
-        <item name="android:dropDownVerticalOffset">0dp</item>
-        <item name="android:dropDownHorizontalOffset">0dp</item>
     </style>
 
     <style name="PopupMenuOverlapAnchorFolder" parent="PopupMenuOverlapAnchor">
@@ -186,5 +170,205 @@
         <item name="android:layout_marginBottom">16dp</item>
         <item name="android:orientation">horizontal</item>
     </style>
+
+    <style name="WrapContent" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
+
+    <style name="WrapHeightMatchWidth" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="WrapHeightMatchWidthMargin32" parent="Margin32dp">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="WrapHeightMatchWidthMargin24" parent="Margin24dp">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="WrapHeightMatchWidthMargin16" parent="Margin16dp">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="WrapHeightMatchWidthMargin8" parent="Margin8dp">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="Wrap.Margin8dp" parent="Margin8dp">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
+
+    <style name="Wrap.Margin32dp" parent="WrapContent">
+        <item name="android:layout_marginTop">32dp</item>
+        <item name="android:layout_marginBottom">32dp</item>
+        <item name="android:layout_marginStart">32dp</item>
+        <item name="android:layout_marginEnd">32dp</item>
+    </style>
+
+    <style name="Wrap.Margin16dp" parent="WrapContent">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+    </style>
+
+    <style name="Margin24dp" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:layout_marginBottom">24dp</item>
+        <item name="android:layout_marginStart">24dp</item>
+        <item name="android:layout_marginEnd">24dp</item>
+    </style>
+
+    <style name="Margin8dp" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+    </style>
+
+    <style name="WrapGone" parent="WrapContent">
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="MatchParent" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="MatchParentMargin16" parent="Margin16dp">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="Layout0dp" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_width">0dp</item>
+    </style>
+
+    <style name="Layout0dpMargin8dp" parent="Margin8dp">
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_width">0dp</item>
+    </style>
+
+    <style name="Layout0dpMargin16dp" parent="Margin16dp">
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_width">0dp</item>
+    </style>
+
+    <style name="Layout0dpMargin24dp" parent="Margin24dp">
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_width">0dp</item>
+    </style>
+
+    <style name="Layout0dpMargin32dp" parent="Margin32dp">
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_width">0dp</item>
+    </style>
+
+    <style name="Layout40dp" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_width">40dp</item>
+    </style>
+
+    <style name="Margin16dp" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+    </style>
+
+    <style name="Margin32dp" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_marginTop">32dp</item>
+        <item name="android:layout_marginBottom">32dp</item>
+        <item name="android:layout_marginStart">32dp</item>
+        <item name="android:layout_marginEnd">32dp</item>
+    </style>
+
+    <style name="Margin32dpText" parent="Margin32dp">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+    </style>
+
+    <style name="PopupMenuOverlapAnchor" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:overlapAnchor">true</item>
+        <item name="android:popupBackground">@null</item>
+        <item name="android:dropDownVerticalOffset">0dp</item>
+        <item name="android:dropDownHorizontalOffset">0dp</item>
+    </style>
+
+
+    <style name="TopMenuImageButtons" parent="Widget.AppCompat.ImageButton">
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_width">55dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">@null</item>
+    </style>
+
+
+    <style name="ScanUsbBleContainer" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+
+    <style name="UserHomeChart" parent="Margin16dp">
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="AuthDesignLineBrown" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_height">2dp</item>
+        <item name="android:layout_width">0dp</item>
+    </style>
+
+    <style name="AuthDesignTextInput" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+    </style>
+
+
+    <style name="NavigationView"  parent="Base.Theme.AppCompat">
+        <item name="android:listDivider">@color/white</item>
+    </style>
+
+    <style name="HorizontalLine1dp"  parent="Widget.AppCompat.TextView">
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+
+    <style name="NavBottomItem" parent="WrapContent">
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+    </style>
+
+    <style name="NavHeaderItem" parent="NavBottomItem">
+    </style>
+
+    <style name="CutInfoContainer" parent="WrapHeightMatchWidth">
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <style name="RvItemHorizontalLineOrange" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+    </style>
+
 
 </resources>

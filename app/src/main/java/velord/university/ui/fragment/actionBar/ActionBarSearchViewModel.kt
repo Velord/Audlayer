@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 
-class ActionBarViewModel(app: Application) : AndroidViewModel(app) {
+class ActionBarSearchViewModel(app: Application) : AndroidViewModel(app) {
     val mutableSearchTerm = MutableLiveData<String>()
     val searchTerm: String
         get() = mutableSearchTerm.value ?: ""

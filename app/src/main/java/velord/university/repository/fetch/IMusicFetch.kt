@@ -13,6 +13,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.statuscasellc.statuscase.model.coroutine.getScope
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -20,9 +21,6 @@ import org.jsoup.select.Elements
 import velord.university.model.converter.transliterate
 import velord.university.model.entity.vk.VkDownloadFile
 import velord.university.model.entity.vk.VkSong
-
-fun getScope(): CoroutineScope =
-    CoroutineScope(Job() + Dispatchers.Default)
 
 //https://imusic.я.wiki
 data class IMusicFetch(private val context: Context,

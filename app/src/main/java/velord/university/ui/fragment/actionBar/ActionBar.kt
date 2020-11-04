@@ -3,22 +3,24 @@ package velord.university.ui.fragment.actionBar
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.ImageButton
+import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
+import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
 import velord.university.R
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
-import velord.university.ui.util.setupPopupMenuOnClick
-
 
 abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
 
     override val TAG: String = "ActionBarFragment"
 
-    protected val viewModelActionBar by lazy {
-        ViewModelProviders.of(this).get(ActionBarViewModel::class.java)
-    }
+    protected val viewModelActionBar: ActionBarSearchViewModel by viewModels()
 
     protected lateinit var actionBarFrame: FrameLayout
     protected lateinit var menu: ImageButton
@@ -49,17 +51,17 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
     abstract val actionBarPopUp: (ImageButton) -> Unit
 
     private fun initHint(view: View) {
-        hint = view.findViewById(R.id.action_bar_hint)
+        hint = view.findViewById(R.id.hint)
         actionBarHintArticle(hint)
     }
 
     private fun initMenuButton(view: View) {
-        menu = view.findViewById(R.id.action_bar_settings)
+        menu = view.findViewById(R.id.settings)
         actionBarLeftMenu(menu)
     }
 
     private fun initActionButton(view: View) {
-        actionButton = view.findViewById(R.id.action_bar_action)
+        actionButton = view.findViewById(R.id.action)
         actionBarPopUp(actionButton)
         rearwardActionButton()
     }
@@ -76,7 +78,7 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
     }
 
     private fun initSearchView(view: View) {
-        searchView = view.findViewById(R.id.action_bar_searchView)
+        searchView = view.findViewById(R.id.search)
         searchView.apply {
 
             setOnCloseListener {
@@ -146,10 +148,10 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
     }
 
     protected fun observeSearchQuery() {
-       viewModelActionBar.mutableSearchTerm.observe(
+        viewModelActionBar.mutableSearchTerm.observe(
             viewLifecycleOwner, { searchTerm ->
                 actionBarObserveSearchQuery(searchTerm)
             }
-       )
+        )
     }
 }

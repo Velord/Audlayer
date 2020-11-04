@@ -10,12 +10,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
-import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
+import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
@@ -35,8 +37,6 @@ import velord.university.model.file.FileNameParser
 import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
-import velord.university.ui.util.setupAndShowPopupMenuOnClick
-import velord.university.ui.util.setupPopupMenuOnClick
 
 class AllSongFragment :
     ActionBarFragment(),

@@ -1,49 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/album_fragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    style="@style/MatchParent"
+    >
 
-    <FrameLayout
-        android:id="@+id/action_bar_frame_layout"
+    <include
+        android:id="@+id/action_bar_include"
+        layout="@layout/action_bar_search"
         android:layout_width="match_parent"
         android:layout_height="35dp"
         android:background="@color/fragmentBackgroundDarkerOpacity"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-        <include layout="@layout/action_bar">
-        </include>
+        app:layout_constraintTop_toTopOf="parent"
 
-    </FrameLayout>
+        >
+
+    </include>
+
 
     <androidx.core.widget.NestedScrollView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        style="@style/Layout0dp"
         android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/action_bar_frame_layout">
+        app:layout_constraintTop_toBottomOf="@+id/action_bar_include"
+        >
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            style="@style/WrapHeightMatchWidth"
+            android:orientation="vertical"
+            >
 
             <LinearLayout
-                android:id="@+id/album_fragment_playlist_rv_frame"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/dark_border_shape">
+                android:id="@+id/playlist_rv_frame"
+                style="@style/WrapHeightMatchWidth"
+                android:background="@drawable/dark_border_shape"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/album_fragment_playlist_article"
+                    android:id="@+id/playlist_article"
                     style="@style/AlbumPlaylistArticle"
-                    android:text="@string/album_playlist"
-                    android:height="40dp" />
+                    android:height="40dp"
+                    android:text="@string/album_playlist" />
 
                 <TextView
                     android:id="@+id/playlist_refresh"
@@ -54,26 +56,27 @@
 
             <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
                 android:id="@+id/playlist_RV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                style="@style/WrapHeightMatchWidth"
                 android:visibility="gone"
                 app:fastScrollAutoHide="true"
                 app:fastScrollAutoHideDelay="1500"
                 app:fastScrollPopupBgColor="@color/fragmentBackgroundDarkerOpacity"
                 app:fastScrollPopupTextColor="@android:color/primary_text_dark"
-                app:fastScrollThumbColor="@color/fragmentBackgroundDarkerOpacity">
+                app:fastScrollThumbColor="@color/fragmentBackgroundDarkerOpacity"
+
+                >
+
             </com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView>
 
 
             <LinearLayout
-                android:id="@+id/album_fragment_album_rv_frame"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:id="@+id/album_rv_frame"
+                style="@style/WrapHeightMatchWidth"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/dark_border_shape">
 
                 <TextView
-                    android:id="@+id/album_fragment_album_article"
+                    android:id="@+id/album_article"
                     style="@style/AlbumPlaylistArticle"
                     android:text="@string/album_album" />
 
@@ -87,14 +90,16 @@
 
             <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
                 android:id="@+id/album_RV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:fastScrollAutoHide="true"
+                style="@style/WrapHeightMatchWidth"
                 android:visibility="gone"
+                app:fastScrollAutoHide="true"
                 app:fastScrollAutoHideDelay="1500"
                 app:fastScrollPopupBgColor="@color/fragmentBackgroundDarkerOpacity"
                 app:fastScrollPopupTextColor="@android:color/primary_text_dark"
-                app:fastScrollThumbColor="@color/fragmentBackgroundDarkerOpacity">
+                app:fastScrollThumbColor="@color/fragmentBackgroundDarkerOpacity"
+
+                >
+
             </com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView>
 
         </LinearLayout>

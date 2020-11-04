@@ -12,6 +12,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.statuscasellc.statuscase.model.coroutine.getScope
+import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
@@ -21,7 +23,6 @@ import velord.university.model.entity.Song
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.ui.backPressed.BackPressedHandlerSecond
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
-import velord.university.ui.util.setupAndShowPopupMenuOnClick
 import java.io.File
 
 class AddToPlaylist :
@@ -41,7 +42,7 @@ class AddToPlaylist :
         fun newInstance() = SelectSongFragment()
     }
 
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+    private val scope = getScope()
 
     private lateinit var layoutCS: ConstraintLayout
     private lateinit var rv: RecyclerView

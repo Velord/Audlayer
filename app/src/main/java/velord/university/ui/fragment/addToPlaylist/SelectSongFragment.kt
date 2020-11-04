@@ -8,10 +8,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.statuscasellc.statuscase.ui.util.view.makeCheck
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.settings.SortByPreference
@@ -120,14 +122,14 @@ class SelectSongFragment :
         val nameArtistDateOrder =
             SortByPreference(requireContext()).sortBySelectSongFragment
         when(nameArtistDateOrder) {
-            0 -> { menuItem.getItem(0).isChecked = true }
-            1 -> { menuItem.getItem(1).isChecked = true }
-            2 -> { menuItem.getItem(2).isChecked = true }
+            0 -> { menuItem.makeCheck(0) }
+            1 -> { menuItem.makeCheck(1) }
+            2 -> { menuItem.makeCheck(2) }
         }
 
         when(SortByPreference(requireContext()).ascDescSelectSongFragment) {
-            0 -> { menuItem.getItem(3).isChecked = true }
-            1 -> { menuItem.getItem(4).isChecked = true }
+            0 -> { menuItem.makeCheck(3) }
+            1 -> { menuItem.makeCheck(4) }
             else -> {}
         }
     }
@@ -241,9 +243,12 @@ class SelectSongFragment :
     private inner class FileHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val fileIconImageButton: ImageButton = itemView.findViewById(R.id.add_song_item_icon)
-        private val pathTextView: TextView = itemView.findViewById(R.id.add_song_item_path)
-        private val fileCheckBox: CheckBox = itemView.findViewById(R.id.add_song_item_checkBox)
+        private val fileIconImageButton: ImageButton =
+            itemView.findViewById(R.id.add_song_item_icon)
+        private val pathTextView: TextView =
+            itemView.findViewById(R.id.add_song_item_path)
+        private val fileCheckBox: CheckBox =
+            itemView.findViewById(R.id.add_song_item_checkBox)
 
         private fun setOnClickAndImageResource(file: File) {
             fileIconImageButton.apply {
