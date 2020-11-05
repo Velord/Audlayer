@@ -166,7 +166,6 @@ class SelectSongFragment :
                 setupAdapter()
             }
         }
-        requireActivity().hideVirtualButtons()
         binding.root
     }
 

@@ -100,7 +100,7 @@ class RadioFragment : ActionBarFragment(),
                 ).also {
                     actionBarPopUpMenu(it)
                 }
-                //invoke immediately popup menu
+                //invoke immediately popup bottom_menu
                 super.actionButton.callOnClick()
                 true
             }

@@ -166,7 +166,7 @@ class AllSongFragment :
                 ).also {
                     actionBarPopUpMenu(it)
                 }
-                //invoke immediately popup menu
+                //invoke immediately popup bottom_menu
                 super.actionButton.callOnClick()
                 true
             }
@@ -229,7 +229,7 @@ class AllSongFragment :
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.song_fragment,
+        return inflater.inflate(R.layout.all_song_fragment,
             container, false).apply {
             scope.launch {
                 viewModel

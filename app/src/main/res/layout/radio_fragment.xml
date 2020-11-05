@@ -3,19 +3,24 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/radio_fragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    style="@style/MatchParent"
+    >
 
     <FrameLayout
-        android:id="@+id/action_bar_frame_layout"
-        android:layout_width="match_parent"
-        android:layout_height="35dp"
+        android:id="@+id/action_bar_frame"
+        style="@style/WrapHeightMatchWidth"
         android:background="@color/fragmentBackgroundDarkerOpacity"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
 
-        <include layout="@layout/action_bar_search">
+        >
+
+        <include
+            android:id="@+id/action_bar_include"
+            layout="@layout/action_bar_search"
+            >
+
         </include>
 
     </FrameLayout>
@@ -28,7 +33,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/action_bar_frame_layout">
+        app:layout_constraintTop_toBottomOf="@+id/action_bar_frame">
 
         <include layout="@layout/general_rv">
         </include>

@@ -29,7 +29,7 @@ abstract class ActionBarFragment : LoggerSelfLifecycleFragment() {
     protected lateinit var hint: TextView
 
     protected fun initActionBar(view: View) {
-        actionBarFrame = view.findViewById(R.id.action_bar_frame_layout)
+        actionBarFrame = view.findViewById(R.id.action_bar_frame)
 
         initMenuButton(view)
 

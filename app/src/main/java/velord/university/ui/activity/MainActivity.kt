@@ -8,12 +8,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProviders
+import com.statuscasellc.statuscase.ui.util.activity.hideStatusBarAndNoTitle
 import com.statuscasellc.statuscase.ui.util.activity.hideVirtualButtons
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.AudlayerApp
 import velord.university.application.notification.MiniPlayerNotification
 import velord.university.application.permission.PermissionChecker
+import velord.university.application.permission.PermissionChecker.checkReadWriteExternalStoragePermission
 import velord.university.application.settings.AppPreference
 import velord.university.ui.backPressed.BackPressedHandler
 import velord.university.ui.backPressed.BackPressedHandlerFirst
@@ -51,7 +53,9 @@ class MainActivity : AppCompatActivity(),
         Log.d(TAG, "called onCreate")
         super.onCreate(savedInstanceState)
 
-        if(PermissionChecker.checkReadWriteExternalStoragePermission(baseContext, this))
+        hideStatusBarAndNoTitle()
+
+        if(baseContext.checkReadWriteExternalStoragePermission(this))
             startApp()
     }
 
@@ -67,7 +71,7 @@ class MainActivity : AppCompatActivity(),
             //start activity
             startApp()
         } else {
-            PermissionChecker.checkReadWriteExternalStoragePermission(baseContext, this)
+            baseContext.checkReadWriteExternalStoragePermission(this)
         }
     }
 
@@ -80,7 +84,6 @@ class MainActivity : AppCompatActivity(),
     override fun onStart() {
         Log.d(TAG, "called onStart")
 
-        hideVirtualButtons()
 
         scopeNotification.launch {
             dismissNotification()
@@ -176,7 +179,6 @@ class MainActivity : AppCompatActivity(),
     private fun startApp() {
         try {
             //hide virtual buttons
-            hideVirtualButtons()
             //start app
             AudlayerApp.initApp(baseContext)
             //self view

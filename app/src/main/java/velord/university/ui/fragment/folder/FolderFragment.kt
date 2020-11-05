@@ -23,8 +23,10 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.statuscasellc.statuscase.model.coroutine.getScope
 import com.statuscasellc.statuscase.model.coroutine.onMain
 import com.statuscasellc.statuscase.model.exception.ViewDestroyed
+import com.statuscasellc.statuscase.ui.util.activity.hideVirtualButtons
 import com.statuscasellc.statuscase.ui.util.activity.toastError
 import com.statuscasellc.statuscase.ui.util.activity.toastWarning
+import com.statuscasellc.statuscase.ui.util.view.makeCheck
 import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
 import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
 import kotlinx.coroutines.*
@@ -130,18 +132,19 @@ class FolderFragment :
                     //set up checked item
                     val menuItem = popUpMenu.menu
 
-                    val nameArtistDateOrder =
-                        SortByPreference(requireContext()).sortByFolderFragment
+                    val nameArtistDateOrder = SortByPreference(
+                        requireContext()).sortByFolderFragment
                     when(nameArtistDateOrder) {
-                        0 -> { menuItem.getItem(0).isChecked = true }
-                        1 -> { menuItem.getItem(1).isChecked = true }
-                        2 -> { menuItem.getItem(2).isChecked = true }
+                        0 -> { menuItem.makeCheck(0) }
+                        1 -> { menuItem.makeCheck(1) }
+                        2 -> { menuItem.makeCheck(2) }
                     }
 
-                    val ascDescOrder = SortByPreference(requireContext()).ascDescFolderFragment
+                    val ascDescOrder = SortByPreference(
+                        requireContext()).ascDescFolderFragment
                     when(ascDescOrder) {
-                        0 -> { menuItem.getItem(3).isChecked = true }
-                        1 -> { menuItem.getItem(4).isChecked = true }
+                        0 -> { menuItem.makeCheck(3) }
+                        1 -> { menuItem.makeCheck(4) }
                         else -> {}
                     }
                 }

@@ -6,17 +6,24 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     >
 
+    <FrameLayout
+        android:id="@+id/action_bar_frame"
+        style="@style/WrapHeightMatchWidth"
+        android:background="@color/fragmentBackgroundDarkerOpacity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+
+        >
 
         <include
             android:id="@+id/action_bar_include"
             layout="@layout/action_bar_search"
-            android:layout_width="match_parent"
-            android:layout_height="35dp"
-            android:background="@color/fragmentBackgroundDarkerOpacity"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            >
+
         </include>
+
+    </FrameLayout>
 
 
     <LinearLayout
@@ -27,7 +34,7 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/action_bar_include">
+        app:layout_constraintTop_toBottomOf="@+id/action_bar_frame">
 
         <TextView
             android:id="@+id/current_folder_textView"

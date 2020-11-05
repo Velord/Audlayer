@@ -8,7 +8,8 @@
     <permission
         android:name="velord.university.PERM_PRIVATE_RADIO"
         android:protectionLevel="signature" />
-    
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -20,6 +21,7 @@
     
     <application
         android:name=".application.AudlayerApp"
+        android:hardwareAccelerated="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -68,13 +70,23 @@
 
         <activity
             android:name=".ui.activity.VkLoginActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity android:name=".ui.activity.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+        <activity
+            android:configChanges="orientation"
+            android:name=".ui.activity.MainActivity">
+
+            <intent-filter>
+                <action
+                    android:name="android.intent.action.MAIN"
+                    />
+
+                <category
+                    android:name="android.intent.category.LAUNCHER"
+                    />
             </intent-filter>
+
         </activity>
 
         <receiver android:name=".ui.widget.AudlayerWidget">

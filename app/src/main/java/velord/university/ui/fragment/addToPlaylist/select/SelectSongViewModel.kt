@@ -5,13 +5,16 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import velord.university.application.permission.PermissionChecker
+import velord.university.application.permission.PermissionChecker.checkReadWriteExternalStoragePermission
 import velord.university.application.settings.SortByPreference
 import velord.university.model.file.FileFilter
 import java.io.File
 
-class SelectSongViewModel(private val app: Application) : AndroidViewModel(app) {
+class SelectSongViewModel(
+    private val app: Application
+) : AndroidViewModel(app) {
 
-    val TAG = "AddSongViewModel"
+    val TAG = "SelectSongViewModel"
 
     lateinit var fileList: Array<File>
 
@@ -46,6 +49,5 @@ class SelectSongViewModel(private val app: Application) : AndroidViewModel(app) 
     }
 
     fun checkPermission(activity: Activity): Boolean =
-        PermissionChecker
-            .checkReadWriteExternalStoragePermission(app, activity)
+        app.checkReadWriteExternalStoragePermission(activity)
 }

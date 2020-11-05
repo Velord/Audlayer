@@ -173,9 +173,9 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
                 changeMainFragmentBackground(background)
             }
         }
-        //main fragment menu button
+        //main fragment bottom_menu button
         changeButtonToStandardBackground(buttonPressed)
-        //main fragment menu button
+        //main fragment bottom_menu button
         buttonPressed = position
         changeButtonToNewBackground(position)
     }

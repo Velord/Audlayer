@@ -2,69 +2,64 @@
 <com.jem.liquidswipe.layout.LiquidSwipeConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main_fragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/star_sky_night">
+    android:id="@+id/main_fragment_container"
+    style="@style/MatchParent"
+    android:background="@drawable/star_sky_night"
+    >
 
     <FrameLayout
-        android:id="@+id/menu_frame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/menuFragmentBackgroundDarkestOpacity"
+        android:id="@+id/bottom_menu_frame"
+        style="@style/WrapHeightMatchWidth"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="@color/menuFragmentBackgroundDarkestOpacity"
+        >
 
-        <include layout="@layout/menu" />
+        <include
+            android:id="@+id/bottom_menu_include"
+            layout="@layout/bottom_menu"
+            />
+
     </FrameLayout>
+
 
     <SeekBar
         android:id="@+id/change_volume_seekBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/WrapHeightMatchWidth"
         android:paddingStart="0dp"
         android:paddingEnd="0dp"
         android:visibility="gone"
         android:progressTint="@color/amberA400"
         android:thumb="@android:color/transparent"
-        app:layout_constraintBottom_toTopOf="@+id/menu_frame"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_menu_frame"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <com.jem.liquidswipe.layout.LiquidSwipeFrameLayout
         android:id="@+id/mini_player_frame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="2dp"
+        style="@style/WrapHeightMatchWidth"
         android:background="@null"
-        app:layout_constraintBottom_toTopOf="@+id/menu_frame"
+        app:layout_constraintBottom_toTopOf="@+id/change_volume_seekBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <velord.university.ui.util.viewPager.LiquidSwipeDynamicHeightViewPager
             android:id="@+id/mini_player_viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </com.jem.liquidswipe.layout.LiquidSwipeFrameLayout>
+            style="@style/MatchParent"
 
-    <FrameLayout
-        android:id="@+id/top_panel"
-        android:layout_width="match_parent"
-        android:layout_height="24dp"
-        android:background="@color/fragmentBackgroundDarkerOpacity"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-    </FrameLayout>
+            />
+
+    </com.jem.liquidswipe.layout.LiquidSwipeFrameLayout>
 
     <com.jem.liquidswipe.LiquidSwipeViewPager
         android:id="@+id/menu_member_viewPager"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        style="@style/Layout0dp"
         app:layout_constraintBottom_toTopOf="@+id/mini_player_frame"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/top_panel" />
+        app:layout_constraintTop_toTopOf="parent"
+
+        />
 
 </com.jem.liquidswipe.layout.LiquidSwipeConstraintLayout>

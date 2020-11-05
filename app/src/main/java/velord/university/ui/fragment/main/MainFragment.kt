@@ -50,7 +50,8 @@ class MainFragment :
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.main_fragment, container, false).apply {
+        return inflater.inflate(R.layout.main_fragment, container,
+            false).apply {
             super.initMenuFragmentView(this)
             super.initMiniPlayerFragmentView(this)
             initView(this)
@@ -60,7 +61,6 @@ class MainFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        requireActivity().hideVirtualButtons()
 
         volumeContentObserver =
             VolumeContentObserver(requireContext(), Handler())
