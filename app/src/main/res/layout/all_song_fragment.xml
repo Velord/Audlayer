@@ -25,21 +25,16 @@
 
     </FrameLayout>
 
-
-    <FrameLayout
-        android:id="@+id/folder_fragment_rv_frame"
+    <include
+        android:id="@+id/rv_include"
+        layout="@layout/general_rv"
         style="@style/Layout0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/action_bar_frame">
 
-        <include
-            layout="@layout/general_rv"
-            >
-
-        </include>
-    </FrameLayout>
+    </include>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

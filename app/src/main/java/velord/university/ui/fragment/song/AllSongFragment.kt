@@ -12,10 +12,14 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.statuscasellc.statuscase.model.coroutine.getScope
+import com.statuscasellc.statuscase.model.coroutine.onMain
+import com.statuscasellc.statuscase.model.exception.ViewDestroyed
 import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
 import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
 import kotlinx.coroutines.*
@@ -27,6 +31,10 @@ import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
+import velord.university.databinding.ActionBarSearchBinding
+import velord.university.databinding.AlbumFragmentBinding
+import velord.university.databinding.AllSongFragmentBinding
+import velord.university.databinding.GeneralRvBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
@@ -35,32 +43,65 @@ import velord.university.model.entity.Song
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
 import velord.university.ui.fragment.actionBar.ActionBarFragment
+import velord.university.ui.fragment.actionBar.ActionBarSearch
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 
 class AllSongFragment :
-    ActionBarFragment(),
+    ActionBarSearch(),
     SongPathReceiver,
     MiniPlayerIconClickReceiver {
+
+    override val TAG: String = "AllSongFragment"
+
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromSongFragment()
     }
+
     private var callbacks: Callbacks? =  null
 
-    override val TAG: String = "SongFragment"
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+
+        scope.cancel()
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        receivers.forEach {
+            requireActivity()
+                .registerBroadcastReceiver(
+                    it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER
+                )
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        receivers.forEach {
+            requireActivity()
+                .unregisterBroadcastReceiver(it.first)
+        }
+    }
 
     companion object {
         fun newInstance() = AllSongFragment()
     }
 
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+    private val scope = getScope()
 
     private val viewModel by lazy {
         ViewModelProviders.of(this).get(AllSongViewModel::class.java)
     }
-
-    private lateinit var rv: RecyclerView
 
     private val receivers = songPathReceiverList() +
             getIconClickedReceiverList()
@@ -78,7 +119,7 @@ class AllSongFragment :
     override val iconClicked: (Intent?) -> Unit = {
         it?.apply {
             scope.launch {
-                viewModel.rvResolver.scroll(rv)
+                viewModel.rvResolver.scroll(bindingRv.fastScrollRv)
             }
         }
     }
@@ -96,7 +137,7 @@ class AllSongFragment :
                 val containF: (Song) -> Boolean = {
                     it == song
                 }
-                refreshAndScroll(songList, rv, containF)
+                refreshAndScroll(songList, bindingRv.fastScrollRv, containF)
                 //send new icon
                 //this covers case when app is launch
                 viewModel.sendIconToMiniPlayer(song)
@@ -158,7 +199,7 @@ class AllSongFragment :
                     }
                 }
 
-                super.actionButton.setupPopupMenuOnClick(
+                super.bindingActionBar.action.setupAndShowPopupMenuOnClick(
                     requireContext(),
                     initActionMenuStyle,
                     initActionMenuLayout,
@@ -166,8 +207,6 @@ class AllSongFragment :
                 ).also {
                     actionBarPopUpMenu(it)
                 }
-                //invoke immediately popup bottom_menu
-                super.actionButton.callOnClick()
                 true
             }
             else -> false
@@ -194,69 +233,57 @@ class AllSongFragment :
         }
     }
     override val actionBarPopUp: (ImageButton) -> Unit = { }
+    override val actionSearchView: (SearchView) -> Unit = {  }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callbacks = context as Callbacks?
-    }
+    //view
+    private var _binding: AllSongFragmentBinding? = null
+    override var _bindingActionBar: ActionBarSearchBinding? = null
+    private var _bindingRv: GeneralRvBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
+    private val bindingRv get() = _bindingRv ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
 
-    override fun onDetach() {
-        super.onDetach()
-        callbacks = null
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        receivers.forEach {
-            requireActivity()
-                .registerBroadcastReceiver(
-                    it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER
-                )
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        receivers.forEach {
-            requireActivity()
-                .unregisterBroadcastReceiver(it.first)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        return inflater.inflate(R.layout.all_song_fragment,
-            container, false).apply {
-            scope.launch {
-                viewModel
-                withContext(Dispatchers.Main) {
-                    //init action bar
-                    super.initActionBar(this@apply)
-                    super.changeUIAfterSubmitTextInSearchView(super.searchView)
-                    //init self view
-                    initViews(this@apply)
-                    //observe changes in search view
-                    super.observeSearchQuery()
-                    //setup adapter by invoke change in search view
-                    setupAdapter()
-                }
+    ): View = inflater.inflate(R.layout.all_song_fragment,
+        container, false).run {
+        //bind
+        _binding = AllSongFragmentBinding.bind(this)
+        _bindingActionBar = binding.actionBarInclude
+        _bindingRv = binding.rvInclude
+        scope.launch {
+            viewModel
+            onMain {
+                //init action bar
+                super.initActionBar()
+                super.changeUIAfterSubmitTextInSearchView(
+                    super.bindingActionBar.search
+                )
+                //init self view
+                initView()
+                //observe changes in search view
+                super.observeSearchQuery()
+                //setup adapter by invoke change in search view
+                setupAdapter()
             }
         }
+        binding.root
     }
 
-    private fun initViews(view: View) {
-        rv = view.findViewById(R.id.fast_scroll_rv)
-
-        rv.apply {
+    private fun initView() {
+        bindingRv.fastScrollRv.apply {
             isNestedScrollingEnabled = false
             layoutManager = LinearLayoutManager(activity)
         }
         //controlling action bar frame visibility when recycler view is scrolling
-        super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
+        super.setScrollListenerByRecyclerViewScrolling(
+            bindingRv.fastScrollRv, 50, -5
+        )
     }
 
     private fun sortBy(index: Int): Boolean {
@@ -275,7 +302,7 @@ class AllSongFragment :
 
     private fun setupAdapter() {
         val query = viewModel.getSearchQuery()
-        super.viewModelActionBar.setupSearchQuery(query)
+        super.viewModelActionBarSearch.setupSearchQuery(query)
     }
 
     private fun updateAdapterBySearchQuery(searchQuery: String) {
@@ -284,7 +311,7 @@ class AllSongFragment :
                 val songsFiltered =
                     viewModel.filterByQuery(searchQuery).toTypedArray()
                 withContext(Dispatchers.Main) {
-                    rv.adapter = SongAdapter(songsFiltered)
+                    bindingRv.fastScrollRv.adapter = SongAdapter(songsFiltered)
                 }
             }
         }
@@ -293,7 +320,7 @@ class AllSongFragment :
     private fun updateAdapterWithShuffled() {
         if (viewModel.songsIsInitialized()) {
             val shuffled = viewModel.shuffle()
-            rv.adapter = SongAdapter(shuffled)
+            bindingRv.fastScrollRv.adapter = SongAdapter(shuffled)
         }
     }
 
