@@ -9,8 +9,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
-import android.widget.*
+import android.widget.ImageButton
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,8 +22,15 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.statuscasellc.statuscase.model.coroutine.getScope
+import com.statuscasellc.statuscase.model.coroutine.onMain
+import com.statuscasellc.statuscase.model.exception.ViewDestroyed
+import com.statuscasellc.statuscase.ui.util.activity.toastInfo
+import com.statuscasellc.statuscase.ui.util.activity.toastSuccess
+import com.statuscasellc.statuscase.ui.util.view.gone
 import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
 import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
+import com.statuscasellc.statuscase.ui.util.view.visible
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
@@ -30,6 +41,10 @@ import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.application.settings.VkPreference
+import velord.university.databinding.ActionBarSearchBinding
+import velord.university.databinding.FolderFragmentBinding
+import velord.university.databinding.GeneralRvBinding
+import velord.university.databinding.VkFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
@@ -38,35 +53,58 @@ import velord.university.model.entity.vk.VkSong
 import velord.university.model.file.FileFilter
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarFragment
+import velord.university.ui.fragment.actionBar.ActionBarSearch
 import velord.university.ui.util.RVSelection
 import java.io.File
 
-class VKFragment : ActionBarFragment(),
+class VKFragment :
+    ActionBarSearch(),
     VkReceiver,
     MiniPlayerIconClickReceiver {
+    override val TAG: String = "VKFragment"
     //Required interface for hosting activities
     interface Callbacks {
         fun onAddToPlaylistFromVkFragment()
     }
     private var callbacks: Callbacks? =  null
 
-    override val TAG: String = "VKFragment"
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+
+        scope.cancel()
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        receivers.forEach {
+            requireActivity()
+                .registerBroadcastReceiver(
+                    it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER
+                )
+        }
+
+        scope.launch {  checkToken() }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        receivers.forEach {
+            requireActivity()
+                .unregisterBroadcastReceiver(it.first)
+        }
+    }
 
     companion object {
         fun newInstance() = VKFragment()
     }
-
-    private val viewModel by lazy {
-        ViewModelProvider(this).get(VkViewModel::class.java)
-    }
-
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
-
-    private lateinit var rv: RecyclerView
-    private lateinit var login: Button
-    private lateinit var pb: ProgressBar
-    private lateinit var webView: WebView
-    private lateinit var swipeContainer: SwipeRefreshLayout
 
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = { it ->
         when (it.itemId) {
@@ -123,7 +161,7 @@ class VKFragment : ActionBarFragment(),
                     }
                 }
 
-                super.actionButton.setupPopupMenuOnClick(
+                super.bindingActionBar.action.setupAndShowPopupMenuOnClick(
                     requireContext(),
                     initActionMenuStyle,
                     initActionMenuLayout,
@@ -131,8 +169,6 @@ class VKFragment : ActionBarFragment(),
                 ).also {
                     actionBarPopUpMenu(it)
                 }
-                //invoke immediately popup bottom_menu
-                super.actionButton.callOnClick()
                 true
             }
             R.id.vk_fragment_log_out -> {
@@ -142,7 +178,7 @@ class VKFragment : ActionBarFragment(),
             }
             R.id.vk_fragment_download_all -> {
                 scope.launch {
-                    viewModel.downloadAll(webView)
+                    viewModel.downloadAll(binding.webView)
                 }
                 true
             }
@@ -169,9 +205,6 @@ class VKFragment : ActionBarFragment(),
         it.setImageResource(R.drawable.round_format_list_bulleted_amber_a400_48dp)
     }
     override val actionBarPopUpMenu: (PopupMenu) -> Unit = {  }
-    override val actionBarPopUp: (ImageButton) -> Unit = {
-        it.setImageResource(R.drawable.arrow_down_amber_a400)
-    }
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
         if (searchQuery != "-1") {
@@ -182,6 +215,10 @@ class VKFragment : ActionBarFragment(),
         }
         else viewModel.storeSearchQuery("")
     }
+    override val actionBarPopUp: (ImageButton) -> Unit = {
+        it.setImageResource(R.drawable.arrow_down_amber_a400)
+    }
+    override val actionSearchView: (SearchView) -> Unit = {  }
 
     private val receivers = receiverList() +
             getIconClickedReceiverList()
@@ -212,7 +249,7 @@ class VKFragment : ActionBarFragment(),
     override val iconClicked: (Intent?) -> Unit = {
         it?.apply {
             scope.launch {
-                viewModel.rvResolver.scroll(rv)
+                viewModel.rvResolver.scroll(bindingRv.fastScrollRv)
             }
         }
     }
@@ -231,7 +268,7 @@ class VKFragment : ActionBarFragment(),
                 val containF: (VkSong) -> Boolean = {
                     it == song
                 }
-                refreshAndScroll(files, rv, containF)
+                refreshAndScroll(files, bindingRv.fastScrollRv, containF)
                 //send new icon
                 //this covers case when app is launch
                 viewModel.sendIconToMiniPlayer(song)
@@ -243,91 +280,69 @@ class VKFragment : ActionBarFragment(),
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callbacks = context as Callbacks?
-    }
+    private val viewModel: VkViewModel by viewModels()
 
-    override fun onDetach() {
-        super.onDetach()
-        callbacks = null
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        receivers.forEach {
-            requireActivity()
-                .registerBroadcastReceiver(
-                    it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER
-                )
-        }
-
-        scope.launch {  checkToken() }
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        receivers.forEach {
-            requireActivity()
-                .unregisterBroadcastReceiver(it.first)
-        }
-    }
+    private val scope = getScope()
+    //view
+    private var _binding: VkFragmentBinding? = null
+    override var _bindingActionBar: ActionBarSearchBinding? = null
+    private var _bindingRv: GeneralRvBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
+    private val bindingRv get() = _bindingRv ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        return inflater.inflate(R.layout.vk_fragment,
-            container, false).apply {
-            scope.launch {
-                withContext(Dispatchers.Main) {
-                    //init action bar
-                    super.initActionBar(this@apply)
-                    super.changeUIAfterSubmitTextInSearchView(super.searchView)
-                    //init self view
-                    initViews(this@apply)
-                    //observe changes in search view
-                    super.observeSearchQuery()
-                    //setup adapter by invoke change in search view
-                    setupAdapter()
-                    checkToken()
-                }
+    ): View = inflater.inflate(R.layout.vk_fragment,
+        container, false).run {
+        //bind
+        _binding = VkFragmentBinding.bind(this)
+        _bindingActionBar = binding.actionBarInclude
+        _bindingRv = binding.rvInclude
+        scope.launch {
+            onMain {
+                //init action bar
+                super.initActionBar()
+                super.changeUIAfterSubmitTextInSearchView(
+                    super.bindingActionBar.search
+                )
+                initView()
+                //observe changes in search view
+                super.observeSearchQuery()
+                //setup adapter by invoke change in search view
+                setupAdapter()
+                checkToken()
             }
         }
+        binding.root
     }
+
 
     private suspend fun checkToken() {
-        withContext(Dispatchers.Main) {
-            swipeContainer.isRefreshing = true
+        onMain {
+            binding.swipeRefresh.isRefreshing = true
         }
-        if (::login.isInitialized) {
-            val token = VkPreference(requireContext()).accessToken
-            if (token.isBlank()) tokenIsBlank()
-            else tokenIsCorrect()
-        }
+        val token = VkPreference(requireContext()).accessToken
+        if (token.isBlank()) tokenIsBlank()
+        else tokenIsCorrect()
         //Now we call setRefreshing(false) to signal refresh has finished
-        withContext(Dispatchers.Main) {
-            swipeContainer.isRefreshing = false
+        onMain {
+            binding.swipeRefresh.isRefreshing = false
         }
     }
 
-    private suspend fun tokenIsBlank() =
-        withContext(Dispatchers.Main) {
-            rv.adapter = SongAdapter(arrayOf())
-            login.visibility = View.VISIBLE
-            Toast.makeText(
-                requireContext(),
-                "Login to continue", Toast.LENGTH_SHORT
-            ).show()
-        }
+    private suspend fun tokenIsBlank() = onMain {
+        bindingRv.fastScrollRv.adapter = SongAdapter(arrayOf())
+        binding.vkLogin.visible()
+    }
 
     private suspend fun tokenIsCorrect() {
         //hide login button
-        withContext(Dispatchers.Main) {
-            login.visibility = View.GONE
-        }
+        onMain { binding.vkLogin.gone() }
         viewModel.refreshByToken()
         //update ui
         updateAdapterBySearchQuery("")
@@ -348,32 +363,25 @@ class VKFragment : ActionBarFragment(),
         return true
     }
 
-    private fun initViews(view: View) {
-        pb = view.findViewById(R.id.vk_pb)
-        webView = view.findViewById(R.id.web_view)
-        initSwipeRefresh(view)
-        initRV(view)
-        initLogin(view)
+    private fun initView() {
+        initSwipeAndRv()
+        initLogin()
     }
 
-    private fun initSwipeRefresh(view: View) {
-        swipeContainer = view.findViewById(R.id.vk_fragment_swipeContainer)
-        swipeContainer.setOnRefreshListener { scope.launch { checkToken() } }
-    }
-
-    private fun initRV(view: View) {
-        rv = view.findViewById(R.id.fast_scroll_rv)
-        rv.apply {
+    private fun initSwipeAndRv() {
+        binding.swipeRefresh.setOnRefreshListener { scope.launch { checkToken() } }
+        bindingRv.fastScrollRv.apply {
             isNestedScrollingEnabled = false
             layoutManager = LinearLayoutManager(activity)
         }
         //controlling action bar frame visibility when recycler view is scrolling
-        super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
+        super.setScrollListenerByRecyclerViewScrolling(
+            bindingRv.fastScrollRv, 50, -5
+        )
     }
 
-    private fun initLogin(view: View) {
-        login = view.findViewById(R.id.vk_login)
-        login.setOnClickListener {
+    private fun initLogin() {
+        binding.vkLogin.setOnClickListener {
             openLoginActivity()
         }
     }
@@ -387,19 +395,21 @@ class VKFragment : ActionBarFragment(),
         scope.launch {
             viewModel.initVkPlaylist()
             val query = viewModel.getSearchQuery()
-            withContext(Dispatchers.Main) {
-                super.viewModelActionBar.setupSearchQuery(query)
+            onMain {
+                super.viewModelActionBarSearch.setupSearchQuery(query)
             }
         }
     }
 
     private fun updateAdapterBySearchQuery(
-        searchQuery: String = viewModel.currentQuery) {
+        searchQuery: String = viewModel.currentQuery
+    ) {
         if (viewModel.vkPlaylistIsInitialized()) {
             scope.launch {
                 val songsFiltered = viewModel.filterByQuery(searchQuery)
-                withContext(Dispatchers.Main) {
-                    rv.adapter = SongAdapter(songsFiltered.toTypedArray())
+                onMain {
+                    bindingRv.fastScrollRv.adapter =
+                        SongAdapter(songsFiltered.toTypedArray())
                 }
             }
         }
@@ -408,7 +418,7 @@ class VKFragment : ActionBarFragment(),
     private fun updateAdapterWithShuffled() {
         if (viewModel.vkPlaylistIsInitialized()) {
             val shuffled = viewModel.shuffle()
-            rv.adapter = SongAdapter(shuffled)
+            bindingRv.fastScrollRv.adapter = SongAdapter(shuffled)
         }
     }
 
@@ -417,10 +427,12 @@ class VKFragment : ActionBarFragment(),
             scope.launch {
                 val onSuccess: (VkSong, CoroutineScope) -> Unit = { song, scope ->
                     scope.launch {
-                        withContext(Dispatchers.Main) {
+                        onMain {
                             updateAdapterBySearchQuery()
-                            Toast.makeText(requireContext(),
-                                "Song success downloaded", Toast.LENGTH_LONG).show()
+                            requireActivity().toastSuccess(
+                                requireContext().
+                                getString(R.string.song_success_downloaded)
+                            )
                         }
                     }
                 }
@@ -435,11 +447,13 @@ class VKFragment : ActionBarFragment(),
                         }
                     }
                 }
-                viewModel.downloadThenPlay(song, webView, onSuccess, onFailure)
+                viewModel.downloadThenPlay(song, binding.webView, onSuccess, onFailure)
             }
         }
-        else Toast.makeText(requireContext(),
-            "Don't need download", Toast.LENGTH_SHORT).show()
+        else requireActivity().toastInfo(
+            requireContext().
+            getString(R.string.don_not_need_download)
+        )
     }
 
     private fun getRecyclerViewResolver(
@@ -459,10 +473,12 @@ class VKFragment : ActionBarFragment(),
     private inner class SongHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val text: TextView = itemView.findViewById(R.id.general_item_path)
-        private val action: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
-        private val frame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
-        private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
+        private val text: TextView =
+            itemView.findViewById(R.id.general_item_path)
+        private val action: ImageButton =
+            itemView.findViewById(R.id.general_action_ImageButton)
+        private val icon: ImageButton =
+            itemView.findViewById(R.id.general_item_icon)
 
         private inline fun needDownload(song: VkSong,
                                         need: () -> Unit,
@@ -639,7 +655,8 @@ class VKFragment : ActionBarFragment(),
         }
 
         private fun setOnClickAndImageResource(song: VkSong,
-                                               rvSelectResolver: RVSelection<VkSong>) {
+                                               rvSelectResolver: RVSelection<VkSong>
+        ) {
             itemView.setOnClickListener {
                 play(song, rvSelectResolver)
             }
@@ -657,9 +674,6 @@ class VKFragment : ActionBarFragment(),
                     actionPopUpMenu(song)
                 }
                 needDownload(song, need, notNeed)
-            }
-            frame.setOnClickListener {
-                actionPopUpMenu(song)
             }
         }
 

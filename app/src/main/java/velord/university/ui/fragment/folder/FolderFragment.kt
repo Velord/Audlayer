@@ -183,7 +183,7 @@ class FolderFragment :
         R.style.PopupMenuOverlapAnchorFolder
     }
     override val actionBarLeftMenu: (ImageButton) -> Unit = {  }
-    override val actionBarPopUpMenu: (PopupMenu) -> Unit = {}
+    override val actionBarPopUpMenu: (PopupMenu) -> Unit = {  }
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
         val correctQuery =
@@ -195,8 +195,6 @@ class FolderFragment :
         updateAdapterBySearchQuery(correctQuery)
     }
     override val actionBarPopUp: (ImageButton) -> Unit = { }
-
-
     override val actionSearchView: (SearchView) -> Unit = {  }
 
     private val receivers = songPathReceiverList() +
