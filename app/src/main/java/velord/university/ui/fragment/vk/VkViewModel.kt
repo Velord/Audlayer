@@ -27,7 +27,9 @@ import velord.university.ui.util.RVSelection
 import java.io.File
 
 
-class VkViewModel(private val app: Application) : AndroidViewModel(app) {
+class VkViewModel(
+    private val app: Application
+) : AndroidViewModel(app) {
 
     private val TAG = "VkViewModel"
 

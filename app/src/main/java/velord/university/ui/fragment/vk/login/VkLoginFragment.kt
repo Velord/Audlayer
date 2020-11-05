@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.vk
+package velord.university.ui.fragment.vk.login
 
 import android.content.Context
 import android.os.Bundle

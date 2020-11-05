@@ -22,8 +22,9 @@ object VkRepository : BaseRepository() {
     suspend fun getSongsFromDb(): List<VkSong> =
         VkSongTransaction.getSongs()
 
-    suspend fun getPlaylistByToken(context: Context): VkPlaylist =
-        onIO { VkFetch.fetchPlaylist(context) }
+    suspend fun getPlaylistByToken(context: Context): VkPlaylist = onIO {
+            VkFetch.fetchPlaylist(context)
+        }
 //            val gson = Gson()
 //            val response = music.makeRequestViaOkHttp()
 //

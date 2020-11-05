@@ -11,8 +11,8 @@ import velord.university.R
 import velord.university.ui.backPressed.BackPressedHandler
 import velord.university.ui.backPressed.BackPressedHandlerVkFirst
 import velord.university.ui.backPressed.BackPressedHandlerVkZero
-import velord.university.ui.fragment.vk.VkAccessTokenFragment
-import velord.university.ui.fragment.vk.VkLoginFragment
+import velord.university.ui.fragment.vk.login.VkAccessTokenFragment
+import velord.university.ui.fragment.vk.login.VkLoginFragment
 import velord.university.ui.util.addFragment
 import velord.university.ui.util.initFragment
 
