@@ -1,4 +1,4 @@
-package com.statuscasellc.statuscase.ui.util.activity
+package velord.university.ui.util.activity
 
 import android.app.Activity
 import android.content.Context

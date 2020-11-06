@@ -1,9 +1,8 @@
-package com.statuscasellc.statuscase.ui.util.view
+package velord.university.ui.util.view
 
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.graphics.Color.red
 import android.os.Build
 import android.util.Log
 import android.view.View
@@ -12,8 +11,8 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.statuscasellc.statuscase.model.coroutine.onMain
-import com.statuscasellc.statuscase.ui.util.activity.toastError
+import velord.university.model.coroutine.onMain
+import velord.university.ui.util.activity.toastError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

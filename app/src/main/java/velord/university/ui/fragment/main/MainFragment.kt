@@ -11,11 +11,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import com.statuscasellc.statuscase.model.coroutine.getScope
-import com.statuscasellc.statuscase.model.coroutine.onMain
-import com.statuscasellc.statuscase.model.exception.ViewDestroyed
-import com.statuscasellc.statuscase.ui.util.view.gone
-import com.statuscasellc.statuscase.ui.util.view.visible
+import velord.university.model.coroutine.getScope
+import velord.university.model.coroutine.onMain
+import velord.university.model.exception.ViewDestroyed
+import velord.university.ui.util.view.gone
+import velord.university.ui.util.view.visible
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.databinding.*
@@ -41,15 +41,15 @@ class MainFragment :
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
-        return PressedBackLogic.pressOccur(
+
+        return MainFragmentPressedBackLogic.pressOccur(
             requireActivity(),
-            binding.menuMemberViewPager, fragmentHashMap
+            binding, fragmentHashMap
         )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
         volumeContentObserver =
             VolumeContentObserver(requireContext(), Handler())

@@ -2,20 +2,16 @@ package velord.university.ui.fragment.main.initializer
 
 import android.util.Log
 import android.util.SparseArray
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.TextView
 import androidx.core.util.set
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
-import com.statuscasellc.statuscase.model.coroutine.getScope
-import com.statuscasellc.statuscase.model.coroutine.onMain
+import velord.university.model.coroutine.getScope
+import velord.university.model.coroutine.onMain
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.databinding.BottomMenuBinding
 import velord.university.databinding.MainFragmentBinding
 import velord.university.ui.fragment.album.AlbumFragment
 import velord.university.ui.fragment.folder.FolderFragment

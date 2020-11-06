@@ -8,9 +8,8 @@ import android.os.IBinder
 
 
 class KillNotificationsService : Service() {
-    inner class KillBinder(service: Service) : Binder() {
-        val service: Service = service
-    }
+
+    inner class KillBinder(val service: Service) : Binder()
 
     private lateinit var notificationManager: NotificationManager
 

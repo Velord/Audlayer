@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProviders
-import com.statuscasellc.statuscase.ui.util.activity.hideStatusBarAndNoTitle
+import velord.university.ui.util.activity.hideStatusBarAndNoTitle
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.AudlayerApp

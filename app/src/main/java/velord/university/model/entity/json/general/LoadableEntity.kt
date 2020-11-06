@@ -1,4 +1,4 @@
-package com.statuscasellc.statuscase.model.json.general
+package velord.university.model.entity.json.general
 
 data class Loadable <T> (
     private val loadF: suspend () -> T

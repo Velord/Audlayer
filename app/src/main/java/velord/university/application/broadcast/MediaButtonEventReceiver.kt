@@ -23,6 +23,7 @@ class MediaButtonEventReceiver: BroadcastReceiver() {
         val intentAction = intent.action
         Log.d(TAG, "onReceive action: $intentAction")
 
+        //wtf? 6.11.2020
         if (intentAction == AudioManager.ACTION_AUDIO_BECOMING_NOISY) { }
 
         if (Intent.ACTION_MEDIA_BUTTON == intentAction) {
@@ -95,19 +96,19 @@ object MediaButtonEventHeadSeatHook {
         }
 
     private fun skipNext(context: Context) {
-        val playerState = MiniPlayerRepository.getState(context!!)
+        val playerState = MiniPlayerRepository.getState(context)
         if (playerState == MiniPlayerLayoutState.GENERAL)
             AppBroadcastHub.run { context.skipNextService() }
     }
 
     private fun skipPrev(context: Context) {
-        val playerState = MiniPlayerRepository.getState(context!!)
+        val playerState = MiniPlayerRepository.getState(context)
         if (playerState == MiniPlayerLayoutState.GENERAL)
             AppBroadcastHub.run { context.skipPrevService() }
     }
 
     private fun playOrStop(context: Context) {
-        when (MiniPlayerRepository.getState(context!!)) {
+        when (MiniPlayerRepository.getState(context)) {
             MiniPlayerLayoutState.GENERAL ->
                 AppBroadcastHub.run { context.playOrStopService() }
             MiniPlayerLayoutState.RADIO ->

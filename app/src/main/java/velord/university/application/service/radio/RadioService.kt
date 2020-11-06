@@ -7,8 +7,8 @@ import android.net.Uri
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
-import com.statuscasellc.statuscase.model.coroutine.getScope
-import com.statuscasellc.statuscase.model.coroutine.onIO
+import velord.university.model.coroutine.getScope
+import velord.university.model.coroutine.onIO
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.AppBroadcastHub.iconRadioUI

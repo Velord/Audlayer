@@ -1,10 +1,6 @@
 package velord.university.model.entity.vk
 
 import androidx.room.*
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-
 
 @Entity(
     indices = [Index("artist", "title", "path", "album_id")]

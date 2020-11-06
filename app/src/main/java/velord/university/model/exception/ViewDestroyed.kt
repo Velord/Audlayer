@@ -1,4 +1,4 @@
-package com.statuscasellc.statuscase.model.exception
+package velord.university.model.exception
 
 open class ViewDestroyed(
     message: String

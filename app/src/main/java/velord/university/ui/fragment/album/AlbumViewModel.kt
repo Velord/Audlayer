@@ -22,7 +22,9 @@ import java.io.File
 const val MAX_LAST_PLAYED: Int = 50
 const val MAX_MOST_PLAYED: Int = 50
 
-class AlbumViewModel(private val app: Application) : AndroidViewModel(app) {
+class AlbumViewModel(
+    private val app: Application
+) : AndroidViewModel(app) {
 
     private val TAG = "AlbumViewModel"
 

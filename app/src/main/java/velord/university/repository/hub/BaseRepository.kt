@@ -2,8 +2,8 @@ package velord.university.repository.hub
 
 import android.content.Context
 import android.util.Log
-import com.statuscasellc.statuscase.model.coroutine.getScope
-import com.statuscasellc.statuscase.model.coroutine.onIO
+import velord.university.model.coroutine.getScope
+import velord.university.model.coroutine.onIO
 import kotlinx.coroutines.launch
 import velord.university.application.AudlayerApp
 

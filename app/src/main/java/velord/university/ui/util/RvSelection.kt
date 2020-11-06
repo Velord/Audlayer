@@ -1,7 +1,7 @@
 package velord.university.ui.util
 
 import androidx.recyclerview.widget.RecyclerView
-import com.statuscasellc.statuscase.model.coroutine.onMain
+import velord.university.model.coroutine.onMain
 import kotlinx.coroutines.*
 
 data class RvSelectionOld<T>(var adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>,

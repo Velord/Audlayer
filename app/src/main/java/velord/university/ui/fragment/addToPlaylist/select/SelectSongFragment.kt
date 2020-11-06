@@ -14,11 +14,11 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-import com.statuscasellc.statuscase.model.coroutine.getScope
-import com.statuscasellc.statuscase.model.coroutine.onMain
-import com.statuscasellc.statuscase.model.exception.ViewDestroyed
-import com.statuscasellc.statuscase.ui.util.activity.toastInfo
-import com.statuscasellc.statuscase.ui.util.view.makeCheck
+import velord.university.model.coroutine.getScope
+import velord.university.model.coroutine.onMain
+import velord.university.model.exception.ViewDestroyed
+import velord.university.ui.util.activity.toastInfo
+import velord.university.ui.util.view.makeCheck
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.settings.SortByPreference

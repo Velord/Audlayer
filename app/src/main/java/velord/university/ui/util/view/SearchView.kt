@@ -1,4 +1,4 @@
-package com.statuscasellc.statuscase.ui.util.view
+package velord.university.ui.util.view
 
 import android.util.Log
 import android.widget.TextView

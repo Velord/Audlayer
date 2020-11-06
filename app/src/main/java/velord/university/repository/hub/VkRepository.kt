@@ -2,7 +2,7 @@ package velord.university.repository.hub
 
 import android.content.Context
 import android.webkit.WebView
-import com.statuscasellc.statuscase.model.coroutine.onIO
+import velord.university.model.coroutine.onIO
 import velord.university.application.notification.VkDownloadNotification
 import velord.university.model.entity.vk.VkAlbum
 import velord.university.model.entity.vk.fetch.VkPlaylist
@@ -22,14 +22,8 @@ object VkRepository : BaseRepository() {
         VkSongTransaction.getSongs()
 
     suspend fun getPlaylistByToken(context: Context): VkPlaylist = onIO {
-            VkFetch.fetchPlaylist(context)
-        }
-//            val gson = Gson()
-//            val response = music.makeRequestViaOkHttp()
-//
-//            val json = JSONObject(response).getJSONObject("response")
-//
-//            gson.fromJson(json.toString(), VkPlaylist::class.java)
+        VkFetch.fetchPlaylist(context)
+    }
 
     suspend fun getVkPlaylist() = VkSongTransaction.getPlaylist()
 

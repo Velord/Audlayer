@@ -134,7 +134,7 @@ class IcyStreamMeta {
             val metadata: MutableMap<String?, String?> = HashMap()
             val metaParts = metaString.split(";").toTypedArray()
             val p =
-                Pattern.compile("^([a-zA-Z]+)=\\'([^\\']*)\\'$")
+                Pattern.compile("^([a-zA-Z]+)='([^']*)'$")
             var m: Matcher
             for (i in metaParts.indices) {
                 m = p.matcher(metaParts[i])

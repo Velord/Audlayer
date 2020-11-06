@@ -90,8 +90,7 @@ object VkFetch : FetchJson() {
                 "&username=$login" +
                 "&password=$PASSWORD" +
                 "&v=$version"
-        val response = makeResponse<AuthVk>(url, dataPart)
-        return response
+        return makeResponse<AuthVk>(url, dataPart)
     }
 
     private fun getPretendableDataPart(): Array<MultipartBody.Part> {

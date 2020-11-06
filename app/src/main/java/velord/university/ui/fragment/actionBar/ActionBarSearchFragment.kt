@@ -7,12 +7,13 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
-import com.statuscasellc.statuscase.model.exception.ViewDestroyed
-import com.statuscasellc.statuscase.ui.util.view.*
-import velord.university.R
+import velord.university.model.exception.ViewDestroyed
 import velord.university.databinding.ActionBarSearchBinding
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
-
+import velord.university.ui.util.view.gone
+import velord.university.ui.util.view.initSearchWithHint
+import velord.university.ui.util.view.setupPopupMenuOnClick
+import velord.university.ui.util.view.visible
 
 abstract class ActionBarSearchFragment :
     LoggerSelfLifecycleFragment() {

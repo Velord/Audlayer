@@ -12,15 +12,13 @@ import android.widget.*
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-import com.statuscasellc.statuscase.model.coroutine.getScope
-import com.statuscasellc.statuscase.model.coroutine.onMain
-import com.statuscasellc.statuscase.model.exception.ViewDestroyed
-import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
-import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
+import velord.university.model.coroutine.getScope
+import velord.university.model.coroutine.onMain
+import velord.university.model.exception.ViewDestroyed
+import velord.university.ui.util.view.setupAndShowPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
@@ -34,8 +32,6 @@ import velord.university.application.settings.SortByPreference
 import velord.university.databinding.*
 import velord.university.model.entity.RadioStation
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
-import velord.university.ui.fragment.actionBar.ActionBarSearchViewModel
-import velord.university.ui.fragment.album.AlbumViewModel
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 

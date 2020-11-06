@@ -5,7 +5,7 @@ import android.util.Log
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
-import com.statuscasellc.statuscase.model.coroutine.onDef
+import velord.university.model.coroutine.onDef
 import kotlinx.coroutines.*
 import org.apache.commons.text.similarity.LevenshteinDistance
 import velord.university.application.broadcast.AppBroadcastHub

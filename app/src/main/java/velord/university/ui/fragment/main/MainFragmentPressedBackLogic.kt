@@ -9,20 +9,21 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import velord.university.R
+import velord.university.databinding.MainFragmentBinding
 import velord.university.ui.fragment.folder.FolderFragment
 
-object PressedBackLogic {
+object MainFragmentPressedBackLogic {
 
     private var backPressedCount = 0
 
-    //if folder fragment on focus
-    //if not center fragment -> set it
-    //if center fragment -> make toast
-    //if center fragment and toast was made less 5 seconds ago -> close app
+    //if folder fragment is current -> on focus
+    //if current fragment is not in center -> set it
+    //if current fragment is center -> make toast
+    //if current fragment is center and toast was made less 5 seconds ago -> close app
     fun pressOccur(activity: Context,
-                   menuMemberFragment: ViewPager,
+                   binding: MainFragmentBinding,
                    fragmentHashMap: SparseArray<Fragment>): Boolean {
-        if (menuMemberFragment.currentItem == 0) {
+        if (binding.menuMemberViewPager.currentItem == 0) {
             val folderFragment = fragmentHashMap[0] as FolderFragment
             if (folderFragment.focusOnMe()) {
                 folderFragment.onBackPressed()
@@ -30,8 +31,8 @@ object PressedBackLogic {
                 return true
             }
         }
-        if (menuMemberFragment.currentItem != 2) {
-            menuMemberFragment.currentItem = 2
+        if (binding.menuMemberViewPager.currentItem != 2) {
+            binding.bottomNavigation.selectedItemId = R.id.action_all
             backPressedCount = 0
             return true
         }
@@ -46,4 +47,5 @@ object PressedBackLogic {
         backPressedCount = 0
         return false
     }
+
 }

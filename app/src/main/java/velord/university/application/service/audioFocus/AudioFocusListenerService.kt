@@ -17,8 +17,8 @@ abstract class AudioFocusListenerService : Service(),
     //how service should react to focus change
     abstract val onAudioFocusChange: AudioFocusChangeF
 
-    protected lateinit var audioManager: AudioManager
-    protected lateinit var afListenerMusic: AudioFocusListener
+    private lateinit var audioManager: AudioManager
+    private lateinit var afListenerMusic: AudioFocusListener
     protected lateinit var player: MediaPlayer
 
     override fun onBind(intent: Intent?): IBinder? {

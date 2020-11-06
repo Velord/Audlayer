@@ -11,11 +11,11 @@ import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-import com.statuscasellc.statuscase.model.coroutine.getScope
-import com.statuscasellc.statuscase.model.coroutine.onMain
-import com.statuscasellc.statuscase.model.exception.ViewDestroyed
-import com.statuscasellc.statuscase.ui.util.view.deactivate
-import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
+import velord.university.model.coroutine.getScope
+import velord.university.model.coroutine.onMain
+import velord.university.model.exception.ViewDestroyed
+import velord.university.ui.util.view.deactivate
+import velord.university.ui.util.view.setupAndShowPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub

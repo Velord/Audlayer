@@ -1,4 +1,4 @@
-package com.statuscasellc.statuscase.ui.util.view
+package velord.university.ui.util.view
 
 import android.content.Context
 import android.view.Menu

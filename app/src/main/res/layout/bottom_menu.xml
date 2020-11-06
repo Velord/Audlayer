@@ -24,7 +24,7 @@
 
             <ImageButton
                 android:id="@+id/folder"
-                style="@style/MenuButtons"
+                style="@style/MatchFit"
                 android:contentDescription="@string/open_folder"
                 android:src="@drawable/menu_folder_selector" />
 
@@ -41,7 +41,7 @@
 
             <ImageButton
                 android:id="@+id/album"
-                style="@style/MenuButtons"
+                style="@style/MatchFit"
                 android:contentDescription="@string/open_album"
                 android:src="@drawable/menu_album_selector" />
 
@@ -58,7 +58,7 @@
 
             <ImageButton
                 android:id="@+id/song"
-                style="@style/MenuButtons"
+                style="@style/MatchFit"
                 android:contentDescription="@string/open_songs"
                 android:src="@drawable/menu_song_selector" />
 
@@ -75,7 +75,7 @@
 
             <ImageButton
                 android:id="@+id/radio"
-                style="@style/MenuButtons"
+                style="@style/MatchFit"
                 android:contentDescription="@string/open_radio"
                 android:src="@drawable/menu_radio_selector" />
 
@@ -92,7 +92,7 @@
 
             <ImageButton
                 android:id="@+id/vk"
-                style="@style/MenuButtons"
+                style="@style/MatchFit"
                 android:contentDescription="@string/open_vk"
                 android:src="@drawable/menu_vk_selector" />
 

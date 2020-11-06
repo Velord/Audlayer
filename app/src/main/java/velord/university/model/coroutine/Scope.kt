@@ -1,4 +1,4 @@
-package com.statuscasellc.statuscase.model.coroutine
+package velord.university.model.coroutine
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
