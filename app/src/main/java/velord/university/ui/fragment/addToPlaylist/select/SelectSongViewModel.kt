@@ -4,10 +4,9 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
-import velord.university.application.permission.PermissionChecker
 import velord.university.application.permission.PermissionChecker.checkReadWriteExternalStoragePermission
 import velord.university.application.settings.SortByPreference
-import velord.university.model.file.FileFilter
+import velord.university.model.entity.file.FileFilter
 import java.io.File
 
 class SelectSongViewModel(

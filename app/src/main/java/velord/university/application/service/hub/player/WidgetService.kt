@@ -1,4 +1,4 @@
-package velord.university.application.service
+package velord.university.application.service.hub.player
 
 import android.app.Service
 import android.content.Intent
@@ -11,9 +11,11 @@ import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.application.broadcast.restarter.RestarterWidgetService
+import velord.university.application.service.mayInvokeGeneral
+import velord.university.application.service.mayInvokeRadio
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.music.Song
-import velord.university.model.file.FileNameParser
+import velord.university.model.entity.file.FileNameParser
 import velord.university.ui.widget.AudlayerWidget
 
 class WidgetService : Service(),

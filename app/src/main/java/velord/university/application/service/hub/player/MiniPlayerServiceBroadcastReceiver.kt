@@ -1,4 +1,4 @@
-package velord.university.application.service
+package velord.university.application.service.hub.player
 
 import android.content.Intent
 import android.content.IntentFilter

@@ -1,4 +1,4 @@
-package velord.university.application.service
+package velord.university.application.service.hub.other
 
 import android.app.NotificationManager
 import android.app.Service

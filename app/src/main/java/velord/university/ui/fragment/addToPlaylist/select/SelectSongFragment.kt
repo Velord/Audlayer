@@ -27,8 +27,8 @@ import velord.university.databinding.GeneralRvBinding
 import velord.university.databinding.SelectSongFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.music.Song
-import velord.university.model.file.FileFilter
-import velord.university.model.file.FileNameParser
+import velord.university.model.entity.file.FileFilter
+import velord.university.model.entity.file.FileNameParser
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerFirst
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import java.io.File

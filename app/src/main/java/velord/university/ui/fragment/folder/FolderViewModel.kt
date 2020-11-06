@@ -9,8 +9,8 @@ import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.music.Song
-import velord.university.model.file.FileExtension
-import velord.university.model.file.FileFilter
+import velord.university.model.entity.file.FileExtension
+import velord.university.model.entity.file.FileFilter
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 import java.io.File
@@ -38,7 +38,7 @@ class FolderViewModel(
     fun getSearchQuery(): String =
         SearchQueryPreferences.getStoredQueryFolder(app, currentFile.path)
 
-    fun onlyAudio(file: File): Array<Song> =
+    fun onlyAudio(file: File = currentFile): Array<Song> =
         FileFilter
             .filterOnlyAudio(file)
             .map { Song(it) }

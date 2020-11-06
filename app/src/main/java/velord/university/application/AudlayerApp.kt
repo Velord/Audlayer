@@ -9,10 +9,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import velord.university.application.service.AudlayerNotificationService
-import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
+import velord.university.application.service.hub.player.MiniPlayerServiceBroadcastReceiver
 import velord.university.application.service.radio.RadioServiceBroadcastReceiver
-import velord.university.application.service.WidgetService
+import velord.university.model.coroutine.getScope
 import velord.university.repository.hub.FolderRepository
 import velord.university.repository.hub.RadioRepository
 import velord.university.repository.db.factory.AppDatabase
@@ -30,23 +29,21 @@ class AudlayerApp : Application() {
         //service mini player radio
         startService(this, RadioServiceBroadcastReceiver())
         //service widget
-        startService(this, WidgetService())
-        //service notification
-        startService(this, AudlayerNotificationService())
+        //for undefined times comment this 6.11.2020
+//        startService(this, WidgetService())
+//        //service notification
+//        startService(this, AudlayerNotificationService())
     }
 
     companion object {
         var db: AppDatabase? = null
 
-        private val scope: CoroutineScope =
-            CoroutineScope(Job() + Dispatchers.Default)
+        private val scope: CoroutineScope = getScope()
 
         fun startService(context: Context,
-                                 service: Service) =
+                         service: Service) =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(Intent(context, service::class.java))
-                //crashes
-                //context.startForegroundService(Intent(context, service::class.java))
             } else {
                 context.startService(Intent(context, service::class.java))
             }

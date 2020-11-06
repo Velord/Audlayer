@@ -42,10 +42,10 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.entity.music.Song
-import velord.university.model.file.FileExtension
-import velord.university.model.file.FileExtensionModifier
-import velord.university.model.file.FileFilter
-import velord.university.model.file.FileNameParser
+import velord.university.model.entity.file.FileExtension
+import velord.university.model.entity.file.FileExtensionModifier
+import velord.university.model.entity.file.FileFilter
+import velord.university.model.entity.file.FileNameParser
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
@@ -179,7 +179,7 @@ class FolderFragment :
                 true
             }
             R.id.action_folder_create_playlist -> {
-                val songs = viewModel.filterAndSortFiles()
+                val songs = viewModel.onlyAudio()
                 openCreatePlaylistFragment(songs)
                 true
             }
@@ -335,15 +335,13 @@ class FolderFragment :
     }
 
     private fun openCreatePlaylistFragment(songs: Array<Song>) {
-        callbacks?.let {
-            if (songs.isNotEmpty()) {
-                SongPlaylistInteractor.songs = songs
-                it.openCreateNewPlaylistFragment()
-            }
-            else requireActivity().toastWarning(
-                requireContext().getString(R.string.no_one_song)
-            )
+        if (songs.isNotEmpty()) {
+            SongPlaylistInteractor.songs = songs
+            callbacks?.openCreateNewPlaylistFragment()
         }
+        else requireActivity().toastWarning(
+            requireContext().getString(R.string.no_one_song)
+        )
     }
 
     private fun openAddToPlaylistFragmentByQuery() {

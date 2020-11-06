@@ -1,4 +1,4 @@
-package velord.university.application.service
+package velord.university.application.service.hub.player
 
 import android.content.Intent
 import android.media.MediaPlayer
@@ -20,8 +20,8 @@ import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.SongTimeConverter
 import velord.university.model.entity.MiniPlayerServiceSong
 import velord.university.model.entity.music.Song
-import velord.university.model.file.FileFilter
-import velord.university.model.file.FileNameParser
+import velord.university.model.entity.file.FileFilter
+import velord.university.model.entity.file.FileNameParser
 import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.repository.db.transaction.ServiceTransaction

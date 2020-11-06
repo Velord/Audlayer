@@ -18,7 +18,7 @@ import velord.university.application.service.audioFocus.AudioFocusListenerServic
 import velord.university.application.settings.miniPlayer.RadioServicePreference
 import velord.university.interactor.RadioInteractor
 import velord.university.model.entity.RadioStation
-import velord.university.model.isyStreamMeta.IcyStreamMeta
+import velord.university.model.entity.isyStreamMeta.IcyStreamMeta
 import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.repository.hub.RadioRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState

@@ -13,7 +13,7 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Album
 import velord.university.model.entity.Playlist
 import velord.university.model.entity.music.Song
-import velord.university.model.file.FileFilter
+import velord.university.model.entity.file.FileFilter
 import velord.university.repository.hub.FolderRepository
 import velord.university.repository.db.transaction.AlbumTransaction
 import velord.university.repository.db.transaction.PlaylistTransaction

@@ -1,4 +1,4 @@
-package velord.university.model.isyStreamMeta
+package velord.university.model.entity.isyStreamMeta
 
 import android.util.Log
 import java.io.IOException

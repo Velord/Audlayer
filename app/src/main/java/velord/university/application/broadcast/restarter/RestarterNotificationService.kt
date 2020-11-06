@@ -6,7 +6,7 @@ import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import velord.university.application.AudlayerApp
-import velord.university.application.service.AudlayerNotificationService
+import velord.university.application.service.hub.player.PlayerNotificationService
 
 class RestarterNotificationService : BroadcastReceiver() {
 
@@ -16,7 +16,7 @@ class RestarterNotificationService : BroadcastReceiver() {
 
 
         AudlayerApp.startService(
-            context!!, AudlayerNotificationService()
+            context!!, PlayerNotificationService()
         )
     }
 }

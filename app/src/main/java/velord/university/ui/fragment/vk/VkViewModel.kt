@@ -17,8 +17,8 @@ import velord.university.model.entity.music.Song
 import velord.university.model.entity.vk.VkAlbum
 import velord.university.model.entity.vk.VkSong
 import velord.university.model.entity.vk.fetch.VkSongFetch
-import velord.university.model.file.FileFilter
-import velord.university.model.file.FileNameParser
+import velord.university.model.entity.file.FileFilter
+import velord.university.model.entity.file.FileNameParser
 import velord.university.repository.hub.FolderRepository
 import velord.university.repository.hub.VkRepository
 import velord.university.repository.db.transaction.PlaylistTransaction

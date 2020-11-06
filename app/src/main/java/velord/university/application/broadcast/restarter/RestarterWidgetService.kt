@@ -6,7 +6,7 @@ import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import velord.university.application.AudlayerApp
-import velord.university.application.service.WidgetService
+import velord.university.application.service.hub.player.WidgetService
 
 class RestarterWidgetService : BroadcastReceiver() {
 

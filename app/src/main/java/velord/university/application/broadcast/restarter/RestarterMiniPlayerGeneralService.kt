@@ -6,7 +6,7 @@ import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import velord.university.application.AudlayerApp
-import velord.university.application.service.MiniPlayerServiceBroadcastReceiver
+import velord.university.application.service.hub.player.MiniPlayerServiceBroadcastReceiver
 
 
 class RestarterMiniPlayerGeneralService : BroadcastReceiver() {
@@ -16,6 +16,7 @@ class RestarterMiniPlayerGeneralService : BroadcastReceiver() {
         Toast.makeText(context, "Service restarted: $intent", Toast.LENGTH_SHORT).show()
 
         AudlayerApp.startService(
-            context, MiniPlayerServiceBroadcastReceiver())
+            context, MiniPlayerServiceBroadcastReceiver()
+        )
     }
 }

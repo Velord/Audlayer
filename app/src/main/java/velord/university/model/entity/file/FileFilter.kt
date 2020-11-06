@@ -1,4 +1,4 @@
-package velord.university.model.file
+package velord.university.model.entity.file
 
 import android.media.MediaMetadataRetriever
 import java.io.File

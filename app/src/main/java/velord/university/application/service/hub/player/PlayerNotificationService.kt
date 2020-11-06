@@ -1,4 +1,4 @@
-package velord.university.application.service
+package velord.university.application.service.hub.player
 
 import android.app.Service
 import android.content.Intent
@@ -12,10 +12,11 @@ import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.application.broadcast.restarter.RestarterNotificationService
 import velord.university.application.notification.MiniPlayerNotification
+import velord.university.application.service.mayInvokeRadio
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.file.FileNameParser
+import velord.university.model.entity.file.FileNameParser
 
-class AudlayerNotificationService : Service(),
+class PlayerNotificationService : Service(),
     MiniPlayerUIReceiver,
     RadioUIReceiver,
     SongPathReceiver {
@@ -42,9 +43,9 @@ class AudlayerNotificationService : Service(),
                 val title = FileNameParser.getSongTitle(it.file)
 
                 MiniPlayerNotification
-                    .updateIcon(this@AudlayerNotificationService, songIcon, true)
+                    .updateIcon(this@PlayerNotificationService, songIcon, true)
                 MiniPlayerNotification
-                    .updateArtistAndTitle(this@AudlayerNotificationService, artist, title)
+                    .updateArtistAndTitle(this@PlayerNotificationService, artist, title)
             }
         }
     }
@@ -54,9 +55,9 @@ class AudlayerNotificationService : Service(),
             val extra = AppBroadcastHub.Extra.radioNameUI
             val value = getStringExtra(extra)!!
 
-            this@AudlayerNotificationService.mayInvokeRadio {
+            this@PlayerNotificationService.mayInvokeRadio {
                 MiniPlayerNotification
-                    .updateSongTitle(this@AudlayerNotificationService, value)
+                    .updateSongTitle(this@PlayerNotificationService, value)
             }
         }
     }
@@ -66,9 +67,9 @@ class AudlayerNotificationService : Service(),
             val extra = AppBroadcastHub.Extra.radioArtistUI
             val value = getStringExtra(extra)!!
 
-            this@AudlayerNotificationService.mayInvokeRadio {
+            this@PlayerNotificationService.mayInvokeRadio {
                 MiniPlayerNotification
-                    .updateSongArtist(this@AudlayerNotificationService, value)
+                    .updateSongArtist(this@PlayerNotificationService, value)
             }
         }
     }
@@ -91,7 +92,7 @@ class AudlayerNotificationService : Service(),
             val value = getStringExtra(extra)!!
 
            MiniPlayerNotification
-               .updateIcon(this@AudlayerNotificationService, value, false)
+               .updateIcon(this@PlayerNotificationService, value, false)
         }
     }
 
@@ -101,7 +102,7 @@ class AudlayerNotificationService : Service(),
             val value = getStringExtra(extra)!!
 
             MiniPlayerNotification
-                .updateIcon(this@AudlayerNotificationService, value, true)
+                .updateIcon(this@PlayerNotificationService, value, true)
         }
     }
 

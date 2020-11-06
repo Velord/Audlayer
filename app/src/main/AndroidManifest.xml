@@ -31,13 +31,13 @@
         android:theme="@style/AppTheme">
 
         <service
-            android:name=".application.service.MiniPlayerService"
+            android:name=".application.service.hub.player.MiniPlayerService"
             android:enabled="true"
             android:exported="true">
         </service>
 
         <service
-            android:name=".application.service.MiniPlayerServiceBroadcastReceiver"
+            android:name=".application.service.hub.player.MiniPlayerServiceBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
         </service>
@@ -55,15 +55,15 @@
         </service>
 
         <service
-            android:name=".application.service.KillNotificationsService">
+            android:name=".application.service.hub.other.KillNotificationsService">
         </service>
 
-        <service android:name=".application.service.WidgetService"
+        <service android:name=".application.service.hub.player.WidgetService"
             android:enabled="true"
             android:exported="true">
         </service>
 
-        <service android:name=".application.service.AudlayerNotificationService"
+        <service android:name=".application.service.hub.player.PlayerNotificationService"
             android:enabled="true"
             android:exported="true">
         </service>

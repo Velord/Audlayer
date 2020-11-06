@@ -25,10 +25,7 @@ class CreateNewPlaylistDialogFragment :
     override val TAG: String = "CreateNewPlaylistDialogFragment"
 
     //Required interface for hosting activities
-    interface Callbacks {
-
-        fun toZeroLevel()
-    }
+    interface Callbacks {  }
 
     private var callbacks: Callbacks? =  null
 
@@ -122,8 +119,5 @@ class CreateNewPlaylistDialogFragment :
         this.setOnClickListener { createNewPlaylist() }
 
     private fun View.setCloseDialog() =
-        this.setOnClickListener {
-            dismiss()
-            callbacks?.toZeroLevel()
-        }
+        this.setOnClickListener { dismiss() }
 }
