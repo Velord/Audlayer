@@ -7,22 +7,22 @@
     android:background="@drawable/star_sky_night"
     >
 
-    <FrameLayout
-        android:id="@+id/bottom_menu_frame"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
         style="@style/WrapHeightMatchWidth"
+        android:background=
+            "@color/fragmentBackgroundDarkestOpacity"
+        app:menu="@menu/bottom_nav_menu"
+        android:visibility="visible"
+        app:itemIconTint="@color/gray"
+        app:itemTextColor="@color/white"
+        app:elevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:background="@color/menuFragmentBackgroundDarkestOpacity"
         >
 
-        <include
-            android:id="@+id/bottom_menu_include"
-            layout="@layout/bottom_menu"
-            />
-
-    </FrameLayout>
-
+    </com.google.android.material.bottomnavigation.BottomNavigationView>
 
     <SeekBar
         android:id="@+id/change_volume_seekBar"
@@ -32,14 +32,13 @@
         android:visibility="gone"
         android:progressTint="@color/amberA400"
         android:thumb="@android:color/transparent"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_menu_frame"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <com.jem.liquidswipe.layout.LiquidSwipeFrameLayout
         android:id="@+id/mini_player_frame"
         style="@style/WrapHeightMatchWidth"
-        android:background="@null"
         app:layout_constraintBottom_toTopOf="@+id/change_volume_seekBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">

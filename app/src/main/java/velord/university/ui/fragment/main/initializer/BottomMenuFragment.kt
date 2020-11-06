@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
+import com.statuscasellc.statuscase.model.coroutine.getScope
+import com.statuscasellc.statuscase.model.coroutine.onMain
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.databinding.BottomMenuBinding
@@ -23,10 +25,10 @@ import velord.university.ui.fragment.song.AllSongFragment
 import velord.university.ui.fragment.vk.VKFragment
 
 
-abstract class MenuInitializerFragment :
+abstract class BottomMenuFragment :
     LoggerSelfLifecycleFragment() {
 
-    override val TAG: String = "MenuNowPlayingFragment"
+    override val TAG: String = "BottomMenuFragment"
 
     private var buttonPressed: Int = 2
 
@@ -34,22 +36,52 @@ abstract class MenuInitializerFragment :
         requireActivity().supportFragmentManager
     }
 
-    //view
-    abstract val bindingMenu: BottomMenuBinding
-    abstract val binding: MainFragmentBinding
-    private lateinit var selfView: View
+    private val scope = getScope()
 
-    protected val fragmentHashMap = SparseArray<Fragment>()
+    override fun onDetach() {
+        super.onDetach()
 
-
-    protected fun initMenuFragmentView(view: View) {
-        selfView = view
-        initMenuButtons()
+        scope.cancel()
     }
 
-    private fun initMenuButtons() {
-        initMenuTextAndImageButtons()
+    //view
+    abstract val binding: MainFragmentBinding
+    protected val fragmentHashMap = SparseArray<Fragment>()
+
+    private fun initBottomMenu() {
+        binding.bottomNavigation.apply {
+            //for work custom selectors on icon
+            itemIconTintList = null
+            //onclick
+            setOnNavigationItemSelectedListener {
+                when (it.itemId) {
+                    R.id.action_folder -> {
+                        openFolderFragment()
+                    }
+                    R.id.action_album -> {
+                        openAlbumFragment()
+                    }
+                    R.id.action_all -> {
+                        openSongFragment()
+                    }
+                    R.id.action_radio -> {
+                        openRadioFragment()
+                    }
+                    R.id.action_vk -> {
+                        openVKFragment()
+                    }
+                }
+
+                true
+            }
+            //init
+            selectedItemId = R.id.action_all
+        }
+    }
+
+    protected fun initViewPagerAndBottomMenu() {
         initViewPager()
+        initBottomMenu()
     }
 
     private fun initViewPager() {
@@ -97,31 +129,15 @@ abstract class MenuInitializerFragment :
                 }
             }
         })
-        binding.menuMemberViewPager.currentItem = 2
-    }
-
-    private fun initMenuTextAndImageButtons() {
-        //text
-        bindingMenu.folderTextView.setOnClickListener { openFolderFragment() }
-        bindingMenu.albumTextView.setOnClickListener { openAlbumFragment() }
-        bindingMenu.songTextView.setOnClickListener { openSongFragment() }
-        bindingMenu.radioTextView.setOnClickListener { openRadioFragment() }
-        bindingMenu.vkTextView.setOnClickListener { openVKFragment() }
-        //image
-        bindingMenu.folder.setOnClickListener { openFolderFragment() }
-        bindingMenu.album.setOnClickListener { openAlbumFragment() }
-        bindingMenu.song.setOnClickListener { openSongFragment() }
-        bindingMenu.radio.setOnClickListener { openRadioFragment() }
-        bindingMenu.vk.setOnClickListener { openVKFragment() }
     }
 
     private fun openFolderFragment() {
         Log.d(TAG, "opening FolderFragment")
         binding.menuMemberViewPager.currentItem = 0
         //when user press on folder and current folder is not default pressed back should occur
-        val folderFragment = fragmentHashMap[0] as FolderFragment
-        if(folderFragment.focusOnMe())
-                folderFragment.onBackPressed()
+//        val folderFragment = fragmentHashMap[0] as FolderFragment
+//        if(folderFragment.focusOnMe())
+//                folderFragment.onBackPressed()
     }
 
     private fun openAlbumFragment() {
@@ -145,65 +161,17 @@ abstract class MenuInitializerFragment :
     }
 
     private fun changeUI(background: Int, position: Int) {
-        // main fragment background
-        GlobalScope.launch {
-            withContext(Dispatchers.Main) {
-                changeMainFragmentBackground(background)
-            }
-        }
-        //main fragment bottom_menu button
-        changeButtonToStandardBackground(buttonPressed)
-        //main fragment bottom_menu button
         buttonPressed = position
-        changeButtonToNewBackground(position)
-    }
-
-    private fun changeButtonToStandardBackground(position: Int) =
-        when (position) {
-            0 -> {
-                bindingMenu.folder.setImageResource(R.drawable.outline_folder_grey_600_48dp)
-            }
-            1 -> {
-                bindingMenu.album.setImageResource(R.drawable.baseline_album_grey_600_48dp)
-            }
-            2 -> {
-                bindingMenu.song.setImageResource(R.drawable.song_gray)
-            }
-            3 -> {
-                bindingMenu.radio.setImageResource(R.drawable.round_radio_grey_600_48dp)
-            }
-            4 -> {
-                bindingMenu.vk.setImageResource(R.drawable.vk_gray)
-            }
-            else -> {
-                bindingMenu.song.setImageResource(R.drawable.song_gray)
-            }
-    }
-
-    private fun changeButtonToNewBackground(position: Int) =
-        when (position) {
-            0 -> {
-                bindingMenu.folder.setImageResource(R.drawable.baseline_folder_teal_a700_48dp)
-            }
-            1 -> {
-                bindingMenu.album.setImageResource(R.drawable.baseline_album_red_a400_48dp)
-            }
-            2 -> {
-                bindingMenu.song.setImageResource(R.drawable.song_pressed)
-            }
-            3 -> {
-                bindingMenu.radio.setImageResource(R.drawable.round_radio_orange_a700_48dp)
-            }
-            4 -> {
-                bindingMenu.vk.setImageResource(R.drawable.vk_pressed)
-            }
-            else -> {
-                bindingMenu.song.setImageResource(R.drawable.song_pressed)
+        // main fragment background
+        scope.launch {
+            onMain {
+                binding.mainFragmentContainer.setBackgroundResource(background)
             }
         }
-
-    private  fun CoroutineScope.changeMainFragmentBackground(background: Int) {
-       this.launch {  selfView.setBackgroundResource(background) }
+        //main fragment bottom_menu button
+//        changeButtonToStandardBackground(buttonPressed)
+//        //main fragment bottom_menu button
+//        changeButtonToNewBackground(position)
     }
 
     private inner class MenuMemberPagerAdapter(

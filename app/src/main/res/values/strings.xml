@@ -112,4 +112,6 @@
     <string name="show_incompatible_files">Show incompatible files</string>
     <string name="don_not_need_download">Don\'t need download</string>
     <string name="song_success_downloaded">Song success downloaded</string>
+    <string name="album">Album</string>
+    <string name="all">All</string>
 </resources>

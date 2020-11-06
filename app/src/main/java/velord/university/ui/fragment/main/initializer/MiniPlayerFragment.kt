@@ -3,7 +3,6 @@ package velord.university.ui.fragment.main.initializer
 import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
-import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -11,13 +10,11 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.statuscasellc.statuscase.ui.util.view.gone
 import com.statuscasellc.statuscase.ui.util.view.visible
-import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.MiniPlayerBroadcastReceiverShowAndHider
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
-import velord.university.databinding.MainFragmentBinding
 import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.ui.fragment.miniPlayer.MiniPlayerRadioGeneralFragment
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
@@ -26,8 +23,8 @@ import velord.university.ui.fragment.miniPlayer.miniPlayerStopAndHide.MiniPlayer
 import velord.university.ui.util.viewPager.LiquidSwipeDynamicHeightViewPager
 
 
-abstract class MenuMiniPlayerInitializerFragment :
-    MenuInitializerFragment(),
+abstract class MiniPlayerFragment :
+    BottomMenuFragment(),
     MiniPlayerBroadcastReceiverShowAndHider {
 
     override val TAG: String = "MenuNowPlayingFragment"
@@ -58,7 +55,7 @@ abstract class MenuMiniPlayerInitializerFragment :
         }
     }
 
-    protected fun initViewPager() {
+    protected fun initMiniPlayer() {
         //init viewPager
         binding.miniPlayerViewPager.adapter = MiniPlayerPagerAdapter(fm)
         binding.miniPlayerViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
