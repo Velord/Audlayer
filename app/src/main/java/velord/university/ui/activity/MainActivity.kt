@@ -5,9 +5,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.ViewModelProviders
 import velord.university.ui.util.activity.hideStatusBarAndNoTitle
 import kotlinx.coroutines.*
 import velord.university.R
@@ -15,10 +15,12 @@ import velord.university.application.AudlayerApp
 import velord.university.application.notification.MiniPlayerNotification
 import velord.university.application.permission.PermissionChecker.checkReadWriteExternalStoragePermission
 import velord.university.application.settings.AppPreference
-import velord.university.ui.backPressed.BackPressedHandler
-import velord.university.ui.backPressed.BackPressedHandlerFirst
-import velord.university.ui.backPressed.BackPressedHandlerSecond
-import velord.university.ui.backPressed.BackPressedHandlerZero
+import velord.university.model.coroutine.getScope
+import velord.university.ui.behaviour.backPressed.BackPressedHandler
+import velord.university.ui.behaviour.backPressed.BackPressedHandlerFirst
+import velord.university.ui.behaviour.backPressed.BackPressedHandlerSecond
+import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
+import velord.university.ui.behaviour.supervisor.BackPressSupervisor
 import velord.university.ui.fragment.addToPlaylist.AddToPlaylistFragment
 import velord.university.ui.fragment.addToPlaylist.CreateNewPlaylistDialogFragment
 import velord.university.ui.fragment.addToPlaylist.select.SelectSongFragment
@@ -41,11 +43,9 @@ class MainActivity : AppCompatActivity(),
 
     private val fm = supportFragmentManager
 
-    private var scopeNotification = CoroutineScope(Job() + Dispatchers.Default)
+    private var scopeNotification = getScope()
 
-    private val viewModel by lazy {
-        ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
-    }
+    private val viewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "called onCreate")
@@ -76,7 +76,10 @@ class MainActivity : AppCompatActivity(),
     override fun onDestroy() {
         Log.d(TAG, "called onDestroy")
         super.onDestroy()
+
         AppPreference(this).appIsDestroyed = false
+
+        scopeNotification.cancel()
     }
 
     override fun onStart() {
@@ -96,23 +99,6 @@ class MainActivity : AppCompatActivity(),
         initNotification()
     }
 
-    override fun onBackPressed() {
-        Log.d(TAG, "onBackPressed")
-
-        if (backPressedSecondLevel())
-            return
-        if (backPressedFirstLevel())
-            return
-
-        //not -> cause MainFragment control this
-        if (backPressedZeroLevel().not()) {
-            //Because single activity architecture
-            //When first invoke onBackPressed occurred we returned to MainActivity
-            //But we need close app, for this goal we invoke onBackPressed again
-            super.onBackPressed()
-            super.onBackPressed()
-        }
-    }
     //main fragment handle this
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean =
         when (event.keyCode) {
@@ -126,53 +112,6 @@ class MainActivity : AppCompatActivity(),
             }
             else -> super.onKeyDown(keyCode, event)
         }
-
-    override fun onAddToPlaylist() {
-        addFragment(
-            fm,
-            SelectSongFragment(),
-            R.id.main_container
-        )
-    }
-
-    override fun onCreatePlaylist() {
-        toZeroLevel()
-        openCreateNewPlaylistDialogFragment()
-    }
-
-    override fun onAddToPlaylistFromAddSongFragment() {
-        toZeroLevel()
-        openAddToPlaylistFragment()
-    }
-
-    override fun openCreateNewPlaylistDialogFragment() {
-        CreateNewPlaylistDialogFragment()
-            .show(fm, "CreateNewPlaylistDialogFragment")
-    }
-
-    override fun success() {
-        toZeroLevel()
-    }
-
-    override fun closeAddToPlaylistFragment() {
-        toZeroLevel()
-    }
-
-    override fun onAddToPlaylistFromFolderFragment() {
-        toZeroAndOpenAddToPlaylist()
-    }
-
-    override fun onAddToPlaylistFromVkFragment() {
-        toZeroAndOpenAddToPlaylist()
-    }
-
-    override fun toZeroLevelFromSelectSongFragment() {
-        toZeroLevel()
-    }
-
-    override fun onAddToPlaylistFromSongFragment() {
-        toZeroAndOpenAddToPlaylist()
-    }
 
     private fun startApp() {
         try {
@@ -197,7 +136,7 @@ class MainActivity : AppCompatActivity(),
 
     private fun initNotification() {
         scopeNotification.cancel()
-        scopeNotification = CoroutineScope(Job() + Dispatchers.Default)
+        scopeNotification = getScope()
         MiniPlayerNotification.initNotificationManager(this)
     }
 
@@ -207,12 +146,10 @@ class MainActivity : AppCompatActivity(),
         dismissNotification()
     }
 
-    private fun toZeroAndOpenAddToPlaylist() {
-        toZeroLevel()
-        openAddToPlaylistFragment()
-    }
+    override fun toZeroLevel() =
+        backPressShell().backPressToZeroLevel()
 
-    private fun openAddToPlaylistFragment() {
+    override fun openAddToPlaylistFragment() {
         addFragment(
             fm,
             AddToPlaylistFragment(),
@@ -220,38 +157,31 @@ class MainActivity : AppCompatActivity(),
         )
     }
 
-    private fun toZeroLevel() {
-        backPressedSecondLevel()
-        backPressedFirstLevel()
+    override fun openCreateNewPlaylistFragment() {
+        toZeroLevel()
+        openCreateNewPlaylistDialogFragment()
     }
 
-    private fun backPressedSecondLevel(): Boolean =
-        checkFragmentBackStack<BackPressedHandlerSecond> {
-            it.popBackStackImmediate()
-            true
-        }
+    override fun openCreateNewPlaylistDialogFragment() =
+        CreateNewPlaylistDialogFragment()
+            .show(fm, "CreateNewPlaylistDialogFragment")
 
-    private fun backPressedFirstLevel(): Boolean =
-        checkFragmentBackStack<BackPressedHandlerFirst> {
-            it.popBackStackImmediate()
-            true
-        }
+    override fun onBackPressed() {
+        Log.d(TAG, "onBackPressed")
 
-    private fun backPressedZeroLevel(): Boolean =
-        checkFragmentBackStack<BackPressedHandlerZero> { true }
+        if (backPressShell().backPressedSecondLevel()) return
+        if (backPressShell().backPressedFirstLevel()) return
 
-    private inline fun <reified T: BackPressedHandler>
-            checkFragmentBackStack(f: (FragmentManager) -> Boolean): Boolean {
-        var handled = false
-        fm.apply {
-            fragments.forEach {
-                if (it is T) {
-                    handled = it.onBackPressed()
-                    return f(this)
-                }
-            }
+        //not -> cause MainFragment control this
+        if (backPressShell().backPressedZeroLevel().not()) {
+            //Because single activity architecture
+            //When first invoke onBackPressed occurred we returned to MainActivity
+            //But we need close app, for this goal we invoke onBackPressed again
+            super.onBackPressed()
+            super.onBackPressed()
         }
-        return handled
     }
+
+    private fun backPressShell() = BackPressSupervisor(TAG, fm)
 }
 

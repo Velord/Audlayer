@@ -25,7 +25,7 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
 import velord.university.model.entity.music.Song
 import velord.university.repository.db.transaction.PlaylistTransaction
-import velord.university.ui.backPressed.BackPressedHandlerSecond
+import velord.university.ui.behaviour.backPressed.BackPressedHandlerSecond
 import velord.university.ui.fragment.addToPlaylist.select.SelectSongFragment
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
 import java.io.File
@@ -38,7 +38,7 @@ class AddToPlaylistFragment :
 
         fun openCreateNewPlaylistDialogFragment()
 
-        fun closeAddToPlaylistFragment()
+        fun toZeroLevel()
     }
     private var callbacks: Callbacks? =  null
 
@@ -143,7 +143,7 @@ class AddToPlaylistFragment :
                     Toast.LENGTH_SHORT
                 ).show()
                 //back pressed
-                callbacks?.closeAddToPlaylistFragment()
+                callbacks?.toZeroLevel()
         }
 
         private val actionPopUpMenu: (Playlist) -> Unit = { playlist ->

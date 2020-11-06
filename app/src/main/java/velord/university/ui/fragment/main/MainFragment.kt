@@ -21,7 +21,7 @@ import velord.university.R
 import velord.university.databinding.*
 import velord.university.model.converter.VolumeConverter.fifteenthScale
 import velord.university.model.converter.VolumeConverter.tenthScale
-import velord.university.ui.backPressed.BackPressedHandlerZero
+import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.main.initializer.MiniPlayerFragment
 
 

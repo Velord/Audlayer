@@ -53,7 +53,8 @@ class AllSongFragment :
 
     //Required interface for hosting activities
     interface Callbacks {
-        fun onAddToPlaylistFromSongFragment()
+
+        fun openAddToPlaylistFragment()
     }
 
     private var callbacks: Callbacks? =  null
@@ -405,7 +406,7 @@ class AllSongFragment :
                     R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
                         callbacks?.let { callback ->
                             SongPlaylistInteractor.songs = arrayOf(song)
-                            callback.onAddToPlaylistFromSongFragment()
+                            callback.openAddToPlaylistFragment()
                         }
                         true
                     }

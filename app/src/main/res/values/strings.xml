@@ -114,4 +114,5 @@
     <string name="song_success_downloaded">Song success downloaded</string>
     <string name="album">Album</string>
     <string name="all">All</string>
+    <string name="not_implemented_from_this_place">Not implemented from this place</string>
 </resources>

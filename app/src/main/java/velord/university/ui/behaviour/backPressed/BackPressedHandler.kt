@@ -1,4 +1,4 @@
-package velord.university.ui.backPressed
+package velord.university.ui.behaviour.backPressed
 
 interface BackPressedHandler {
 

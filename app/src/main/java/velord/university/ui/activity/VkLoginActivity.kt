@@ -8,9 +8,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import velord.university.R
-import velord.university.ui.backPressed.BackPressedHandler
-import velord.university.ui.backPressed.BackPressedHandlerVkFirst
-import velord.university.ui.backPressed.BackPressedHandlerVkZero
+import velord.university.ui.behaviour.backPressed.BackPressedHandler
+import velord.university.ui.behaviour.backPressed.BackPressedHandlerVkFirst
+import velord.university.ui.behaviour.backPressed.BackPressedHandlerVkZero
 import velord.university.ui.fragment.vk.login.VkAccessTokenFragment
 import velord.university.ui.fragment.vk.login.VkLoginFragment
 import velord.university.ui.util.addFragment

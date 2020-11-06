@@ -27,7 +27,7 @@ class CreateNewPlaylistDialogFragment :
     //Required interface for hosting activities
     interface Callbacks {
 
-        fun success()
+        fun toZeroLevel()
     }
 
     private var callbacks: Callbacks? =  null
@@ -124,6 +124,6 @@ class CreateNewPlaylistDialogFragment :
     private fun View.setCloseDialog() =
         this.setOnClickListener {
             dismiss()
-            callbacks?.success()
+            callbacks?.toZeroLevel()
         }
 }

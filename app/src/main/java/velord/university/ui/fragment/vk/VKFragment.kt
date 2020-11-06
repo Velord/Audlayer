@@ -58,7 +58,8 @@ class VKFragment :
     override val TAG: String = "VKFragment"
     //Required interface for hosting activities
     interface Callbacks {
-        fun onAddToPlaylistFromVkFragment()
+
+        fun openAddToPlaylistFragment()
     }
     private var callbacks: Callbacks? =  null
 
@@ -582,7 +583,7 @@ class VKFragment :
                         callbacks?.let { callback ->
 
                             SongPlaylistInteractor.songs = arrayOf(Song(File(song.path)))
-                            callback.onAddToPlaylistFromVkFragment()
+                            callback.openAddToPlaylistFragment()
 
                         }
                         true

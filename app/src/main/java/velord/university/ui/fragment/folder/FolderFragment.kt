@@ -46,7 +46,7 @@ import velord.university.model.file.FileExtension
 import velord.university.model.file.FileExtensionModifier
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
-import velord.university.ui.backPressed.BackPressedHandlerZero
+import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
@@ -82,11 +82,9 @@ class FolderFragment :
     //Required interface for hosting activities
     interface Callbacks {
 
-        fun onCreatePlaylist()
+        fun openCreateNewPlaylistFragment()
 
-        fun onAddToPlaylist()
-
-        fun onAddToPlaylistFromFolderFragment()
+        fun openAddToPlaylistFragment()
     }
 
     private var callbacks: Callbacks? =  null
@@ -328,7 +326,7 @@ class FolderFragment :
         callbacks?.let {
             if (songs.isNotEmpty()) {
                 SongPlaylistInteractor.songs = songs
-                it.onAddToPlaylist()
+                it.openAddToPlaylistFragment()
             }
             else requireActivity().toastWarning(
                 requireContext().getString(R.string.no_one_song)
@@ -340,7 +338,7 @@ class FolderFragment :
         callbacks?.let {
             if (songs.isNotEmpty()) {
                 SongPlaylistInteractor.songs = songs
-                it.onCreatePlaylist()
+                it.openCreateNewPlaylistFragment()
             }
             else requireActivity().toastWarning(
                 requireContext().getString(R.string.no_one_song)
@@ -509,7 +507,7 @@ class FolderFragment :
                                 R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
                                     callbacks?.let { callback ->
                                         SongPlaylistInteractor.songs = arrayOf(value)
-                                        callback.onAddToPlaylistFromFolderFragment()
+                                        callback.openAddToPlaylistFragment()
                                     }
                                     true
                                 }

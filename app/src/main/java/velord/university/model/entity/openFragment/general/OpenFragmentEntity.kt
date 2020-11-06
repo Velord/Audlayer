@@ -1,0 +1,3 @@
+package velord.university.model.entity.openFragment.general
+
+interface OpenFragmentEntity

@@ -1,0 +1,3 @@
+package com.statuscasellc.statuscase.ui.navigationBehaviour.other
+
+interface BlockNavigation

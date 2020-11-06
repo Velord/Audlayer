@@ -29,7 +29,7 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.music.Song
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
-import velord.university.ui.backPressed.BackPressedHandlerFirst
+import velord.university.ui.behaviour.backPressed.BackPressedHandlerFirst
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import java.io.File
 
@@ -38,9 +38,10 @@ class SelectSongFragment :
     BackPressedHandlerFirst {
     //Required interface for hosting activities
     interface Callbacks {
-        fun onAddToPlaylistFromAddSongFragment()
 
-        fun toZeroLevelFromSelectSongFragment()
+        fun openAddToPlaylistFragment()
+
+        fun toZeroLevel()
     }
     private var callbacks: Callbacks? =  null
 
@@ -97,9 +98,7 @@ class SelectSongFragment :
     override val actionBarLeftMenu: (ImageButton) -> Unit = {
         it.apply {
             setOnClickListener {
-                callbacks?.apply {
-                    toZeroLevelFromSelectSongFragment()
-                }
+                callbacks?.toZeroLevel()
             }
             setImageResource(R.drawable.back_arrow_deep_purple_a200)
         }
@@ -215,7 +214,7 @@ class SelectSongFragment :
                             .map { Song(File(it)) }
                             .toTypedArray()
 
-                    it.onAddToPlaylistFromAddSongFragment()
+                    it.openAddToPlaylistFragment()
                 }
                 else requireActivity().toastInfo(
                     requireContext().getString(R.string.choose_anyone_song)
