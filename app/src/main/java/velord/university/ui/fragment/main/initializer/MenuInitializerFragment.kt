@@ -13,6 +13,8 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import kotlinx.coroutines.*
 import velord.university.R
+import velord.university.databinding.BottomMenuBinding
+import velord.university.databinding.MainFragmentBinding
 import velord.university.ui.fragment.album.AlbumFragment
 import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.radio.RadioFragment
@@ -21,49 +23,38 @@ import velord.university.ui.fragment.song.AllSongFragment
 import velord.university.ui.fragment.vk.VKFragment
 
 
-abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
+abstract class MenuInitializerFragment :
+    LoggerSelfLifecycleFragment() {
 
-    override val TAG: String
-        get() = "MenuNowPlayingFragment"
+    override val TAG: String = "MenuNowPlayingFragment"
 
-    lateinit var menuMemberViewPager: ViewPager
     private var buttonPressed: Int = 2
 
     private val fm by lazy {
         requireActivity().supportFragmentManager
     }
 
+    //view
+    abstract val bindingMenu: BottomMenuBinding
+    abstract val binding: MainFragmentBinding
     private lateinit var selfView: View
 
     protected val fragmentHashMap = SparseArray<Fragment>()
 
-    protected lateinit var folderImageBt: ImageButton
-    protected lateinit var albumImageBt: ImageButton
-    protected lateinit var songImageBt: ImageButton
-    protected lateinit var radioImageBt: ImageButton
-    protected lateinit var vkImageBt: ImageButton
-
-    protected lateinit var folderTextBt: TextView
-    protected lateinit var albumTextBt: TextView
-    protected lateinit var songTextBt: TextView
-    protected lateinit var radioTextBt: TextView
-    protected lateinit var vkTextBt: TextView
 
     protected fun initMenuFragmentView(view: View) {
         selfView = view
-        initMenuButtons(view)
+        initMenuButtons()
     }
 
-    private fun initMenuButtons(view: View) {
-        initMenuImageButtons(view)
-        initMenuTextButtons(view)
-        initViewPager(view)
+    private fun initMenuButtons() {
+        initMenuTextAndImageButtons()
+        initViewPager()
     }
 
-    private fun initViewPager(view: View) {
-        menuMemberViewPager = view.findViewById(R.id.menu_member_viewPager)
-        menuMemberViewPager.adapter = MenuMemberPagerAdapter(fm)
-        menuMemberViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+    private fun initViewPager() {
+        binding.menuMemberViewPager.adapter = MenuMemberPagerAdapter(fm)
+        binding.menuMemberViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
 
             override fun onPageScrollStateChanged(state: Int) { }
 
@@ -106,40 +97,27 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
                 }
             }
         })
-        menuMemberViewPager.currentItem = 2
+        binding.menuMemberViewPager.currentItem = 2
     }
 
-    private fun initMenuTextButtons(view: View) {
-        folderTextBt = view.findViewById(R.id.folder_textView)
-        albumTextBt = view.findViewById(R.id.album_textView)
-        songTextBt = view.findViewById(R.id.song_textView)
-        radioTextBt = view.findViewById(R.id.radio_textView)
-        vkTextBt = view.findViewById(R.id.vk_textView)
-
-        folderTextBt.setOnClickListener { openFolderFragment() }
-        albumTextBt.setOnClickListener { openAlbumFragment() }
-        songTextBt.setOnClickListener { openSongFragment() }
-        radioTextBt.setOnClickListener { openRadioFragment() }
-        vkTextBt.setOnClickListener { openVKFragment() }
-    }
-
-    private fun initMenuImageButtons(view: View) {
-        folderImageBt = view.findViewById(R.id.folder)
-        albumImageBt = view.findViewById(R.id.album)
-        songImageBt = view.findViewById(R.id.song)
-        radioImageBt = view.findViewById(R.id.radio)
-        vkImageBt = view.findViewById(R.id.vk)
-
-        folderImageBt.setOnClickListener { openFolderFragment() }
-        albumImageBt.setOnClickListener { openAlbumFragment() }
-        songImageBt.setOnClickListener { openSongFragment() }
-        radioImageBt.setOnClickListener { openRadioFragment() }
-        vkImageBt.setOnClickListener { openVKFragment() }
+    private fun initMenuTextAndImageButtons() {
+        //text
+        bindingMenu.folderTextView.setOnClickListener { openFolderFragment() }
+        bindingMenu.albumTextView.setOnClickListener { openAlbumFragment() }
+        bindingMenu.songTextView.setOnClickListener { openSongFragment() }
+        bindingMenu.radioTextView.setOnClickListener { openRadioFragment() }
+        bindingMenu.vkTextView.setOnClickListener { openVKFragment() }
+        //image
+        bindingMenu.folder.setOnClickListener { openFolderFragment() }
+        bindingMenu.album.setOnClickListener { openAlbumFragment() }
+        bindingMenu.song.setOnClickListener { openSongFragment() }
+        bindingMenu.radio.setOnClickListener { openRadioFragment() }
+        bindingMenu.vk.setOnClickListener { openVKFragment() }
     }
 
     private fun openFolderFragment() {
         Log.d(TAG, "opening FolderFragment")
-        menuMemberViewPager.currentItem = 0
+        binding.menuMemberViewPager.currentItem = 0
         //when user press on folder and current folder is not default pressed back should occur
         val folderFragment = fragmentHashMap[0] as FolderFragment
         if(folderFragment.focusOnMe())
@@ -148,22 +126,22 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
 
     private fun openAlbumFragment() {
         Log.d(TAG, "opening AlbumFragment")
-        menuMemberViewPager.currentItem = 1
+        binding.menuMemberViewPager.currentItem = 1
     }
 
     private fun openSongFragment() {
         Log.d(TAG, "opening SongFragment")
-        menuMemberViewPager.currentItem = 2
+        binding.menuMemberViewPager.currentItem = 2
     }
 
     private fun openRadioFragment() {
         Log.d(TAG, "opening RadioFragment")
-        menuMemberViewPager.currentItem = 3
+        binding.menuMemberViewPager.currentItem = 3
     }
 
     private fun openVKFragment() {
         Log.d(TAG, "opening VKFragment")
-        menuMemberViewPager.currentItem = 4
+        binding.menuMemberViewPager.currentItem = 4
     }
 
     private fun changeUI(background: Int, position: Int) {
@@ -183,44 +161,44 @@ abstract class MenuInitializerFragment : LoggerSelfLifecycleFragment() {
     private fun changeButtonToStandardBackground(position: Int) =
         when (position) {
             0 -> {
-                folderImageBt.setImageResource(R.drawable.outline_folder_grey_600_48dp)
+                bindingMenu.folder.setImageResource(R.drawable.outline_folder_grey_600_48dp)
             }
             1 -> {
-                albumImageBt.setImageResource(R.drawable.baseline_album_grey_600_48dp)
+                bindingMenu.album.setImageResource(R.drawable.baseline_album_grey_600_48dp)
             }
             2 -> {
-                songImageBt.setImageResource(R.drawable.song_gray)
+                bindingMenu.song.setImageResource(R.drawable.song_gray)
             }
             3 -> {
-                radioImageBt.setImageResource(R.drawable.round_radio_grey_600_48dp)
+                bindingMenu.radio.setImageResource(R.drawable.round_radio_grey_600_48dp)
             }
             4 -> {
-                vkImageBt.setImageResource(R.drawable.vk_gray)
+                bindingMenu.vk.setImageResource(R.drawable.vk_gray)
             }
             else -> {
-                songImageBt.setImageResource(R.drawable.song_gray)
+                bindingMenu.song.setImageResource(R.drawable.song_gray)
             }
     }
 
     private fun changeButtonToNewBackground(position: Int) =
         when (position) {
             0 -> {
-                folderImageBt.setImageResource(R.drawable.baseline_folder_teal_a700_48dp)
+                bindingMenu.folder.setImageResource(R.drawable.baseline_folder_teal_a700_48dp)
             }
             1 -> {
-                albumImageBt.setImageResource(R.drawable.baseline_album_red_a400_48dp)
+                bindingMenu.album.setImageResource(R.drawable.baseline_album_red_a400_48dp)
             }
             2 -> {
-                songImageBt.setImageResource(R.drawable.song_pressed)
+                bindingMenu.song.setImageResource(R.drawable.song_pressed)
             }
             3 -> {
-                radioImageBt.setImageResource(R.drawable.round_radio_orange_a700_48dp)
+                bindingMenu.radio.setImageResource(R.drawable.round_radio_orange_a700_48dp)
             }
             4 -> {
-                vkImageBt.setImageResource(R.drawable.vk_pressed)
+                bindingMenu.vk.setImageResource(R.drawable.vk_pressed)
             }
             else -> {
-                songImageBt.setImageResource(R.drawable.song_pressed)
+                bindingMenu.song.setImageResource(R.drawable.song_pressed)
             }
         }
 

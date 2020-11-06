@@ -68,6 +68,17 @@ class FolderFragment :
         return true
     }
 
+    fun focusOnMe(): Boolean {
+        val path = viewModel.currentFile.path
+        return if (path == Environment.getExternalStorageDirectory().path)
+            false
+        else {
+            //hide searchView
+            super.changeUIAfterSubmitTextInSearchView(super.bindingActionBar.search)
+            true
+        }
+    }
+
     //Required interface for hosting activities
     interface Callbacks {
 
@@ -254,8 +265,6 @@ class FolderFragment :
                     it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER
                 )
         }
-
-        setupAdapter(viewModel.currentFile)
     }
 
     override fun onStop() {
@@ -299,10 +308,20 @@ class FolderFragment :
                 initView()
                 //observe changes in search view
                 super.observeSearchQuery()
-                setupAdapter(viewModel.currentFile)
+                setupAdapter()
             }
         }
         binding.root
+    }
+
+    private fun setupAdapter(file: File = viewModel.currentFile) {
+        scope.launch {
+            viewModel.currentFile = file
+            val query = viewModel.getSearchQuery()
+            onMain {
+                super.viewModelActionBarSearch.setupSearchQuery(query)
+            }
+        }
     }
 
     private fun openAddToPlaylistFragment(songs: Array<Song>) {
@@ -342,7 +361,12 @@ class FolderFragment :
         openAddToPlaylistFragment(audio)
     }
 
-    private fun initView() { initRV() }
+    private fun initView() {
+        initRV()
+
+        if (viewModel.rvResolverIsInitialized())
+            updateAdapterBySearchQuery(viewModel.currentQuery)
+    }
 
     private fun initRV() {
         bindingRv.fastScrollRv.layoutManager =
@@ -383,26 +407,9 @@ class FolderFragment :
         bindingRv.fastScrollRv.adapter = FileAdapter(viewModel.fileList)
     }
 
-    private fun setupAdapter(file: File) {
-        viewModel.currentFile = file
-        val query = viewModel.getSearchQuery()
-        super.viewModelActionBarSearch.setupSearchQuery(query)
-    }
-
     private fun changeCurrentTextView(file: File) {
         val pathToUI = FileNameParser.slashReplaceArrow(file.path)
         binding.currentFolderTextView.text = pathToUI
-    }
-
-    fun focusOnMe(): Boolean {
-        val path = viewModel.currentFile.path
-        return if (path == Environment.getExternalStorageDirectory().path)
-            false
-        else {
-            //hide searchView
-            super.changeUIAfterSubmitTextInSearchView(super.bindingActionBar.search)
-            true
-        }
     }
 
     private fun getRecyclerViewResolver(

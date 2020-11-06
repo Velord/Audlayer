@@ -9,12 +9,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
+import com.statuscasellc.statuscase.ui.util.view.gone
+import com.statuscasellc.statuscase.ui.util.view.visible
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.MiniPlayerBroadcastReceiverShowAndHider
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
+import velord.university.databinding.MainFragmentBinding
 import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.ui.fragment.miniPlayer.MiniPlayerRadioGeneralFragment
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
@@ -28,9 +31,6 @@ abstract class MenuMiniPlayerInitializerFragment :
     MiniPlayerBroadcastReceiverShowAndHider {
 
     override val TAG: String = "MenuNowPlayingFragment"
-
-    private lateinit var viewFrame: View
-    private lateinit var miniPlayerViewPager: ViewPager
 
     private val receivers = this.miniPlayerShowAndHiderReceiverList()
 
@@ -58,16 +58,10 @@ abstract class MenuMiniPlayerInitializerFragment :
         }
     }
 
-    protected fun initMiniPlayerFragmentView(view: View) {
-        initViewPager(view)
-    }
-
-    private fun initViewPager(view: View) {
-        viewFrame = view.findViewById(R.id.mini_player_frame)
+    protected fun initViewPager() {
         //init viewPager
-        miniPlayerViewPager = view.findViewById(R.id.mini_player_viewPager)
-        miniPlayerViewPager.adapter = MiniPlayerPagerAdapter(fm)
-        miniPlayerViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        binding.miniPlayerViewPager.adapter = MiniPlayerPagerAdapter(fm)
+        binding.miniPlayerViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
 
             override fun onPageScrollStateChanged(state: Int) { }
 
@@ -99,7 +93,7 @@ abstract class MenuMiniPlayerInitializerFragment :
                 }
             }
         })
-        miniPlayerViewPager.currentItem = 1
+        binding.miniPlayerViewPager.currentItem = 1
     }
 
     private fun hideMiniPlayer() {
@@ -183,11 +177,11 @@ abstract class MenuMiniPlayerInitializerFragment :
     }
 
     override val showF: (Intent?) -> Unit = {
-        miniPlayerViewPager.currentItem = 1
-        viewFrame.visibility = View.VISIBLE
+        binding.miniPlayerViewPager.currentItem = 1
+        binding.miniPlayerFrame.visible()
     }
 
     override val hideF: (Intent?) -> Unit = {
-        viewFrame.visibility = View.GONE
+        binding.miniPlayerFrame.gone()
     }
 }

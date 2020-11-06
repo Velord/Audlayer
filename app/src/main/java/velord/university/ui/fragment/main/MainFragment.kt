@@ -13,11 +13,15 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.statuscasellc.statuscase.model.coroutine.getScope
+import com.statuscasellc.statuscase.model.coroutine.onMain
+import com.statuscasellc.statuscase.model.exception.ViewDestroyed
 import com.statuscasellc.statuscase.ui.util.activity.hideVirtualButtons
 import com.statuscasellc.statuscase.ui.util.view.gone
 import com.statuscasellc.statuscase.ui.util.view.visible
 import kotlinx.coroutines.*
 import velord.university.R
+import velord.university.databinding.*
 import velord.university.ui.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.main.initializer.MenuMiniPlayerInitializerFragment
 
@@ -34,27 +38,44 @@ class MainFragment :
 
     private val viewModel: MainViewModel by viewModels()
 
-    private lateinit var changeVolumeSB: SeekBar
-
-    private lateinit var volumeContentObserver: VolumeContentObserver
+    private val scope = getScope()
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
         return PressedBackLogic.pressOccur(
             requireActivity(),
-            menuMemberViewPager, fragmentHashMap
+            binding.menuMemberViewPager, fragmentHashMap
         )
     }
+
+    //view
+    private var _binding: MainFragmentBinding? = null
+    private var _bindingMenu: BottomMenuBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    override val binding get() = _binding ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
+    override val bindingMenu get() = _bindingMenu ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
+
+    private lateinit var volumeContentObserver: VolumeContentObserver
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.main_fragment, container,
-            false).apply {
-            super.initMenuFragmentView(this)
-            super.initMiniPlayerFragmentView(this)
-            initView(this)
+            false).run {
+            //bind
+            _binding = MainFragmentBinding.bind(this)
+            _bindingMenu = binding.bottomMenuInclude
+            scope.launch {
+                onMain {
+                    super.initMenuFragmentView(binding.root)
+                    super.initViewPager()
+                }
+            }
+            binding.root
         }
     }
 
@@ -80,10 +101,6 @@ class MainFragment :
             .unregisterContentObserver(
                 volumeContentObserver
             )
-    }
-
-    private fun initView(view: View) {
-        changeVolumeSB = view.findViewById(R.id.change_volume_seekBar)
     }
 
     inner class VolumeContentObserver(private val c: Context,
@@ -150,17 +167,15 @@ class MainFragment :
             scopeVolume =
                 CoroutineScope(Job() + Dispatchers.Default)
             //show seekbar
-            changeVolumeSB.visible()
+            binding.changeVolumeSeekBar.visible()
             //change volume
-            changeVolumeSB.progress =
+            binding.changeVolumeSeekBar.progress =
                 getVolumeForSeekBar(volume, headsetOn)
             //after change hide seekbar
             scopeVolume.launch {
-                repeat(3) {
-                    delay(400)
-                }
-                withContext(Dispatchers.Main) {
-                    changeVolumeSB.gone()
+                repeat(3) { delay(400) }
+                onMain {
+                    binding.changeVolumeSeekBar.gone()
                 }
             }
         }

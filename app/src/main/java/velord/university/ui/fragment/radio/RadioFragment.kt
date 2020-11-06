@@ -229,7 +229,6 @@ class RadioFragment :
                 .unregisterBroadcastReceiver(it.first)
         }
     }
-
     //view
     private var _binding: RadioFragmentBinding? = null
     override var _bindingActionBar: ActionBarSearchBinding? = null
