@@ -7,6 +7,8 @@ import android.net.Uri
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
+import com.statuscasellc.statuscase.model.coroutine.getScope
+import com.statuscasellc.statuscase.model.coroutine.onIO
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.broadcast.AppBroadcastHub.iconRadioUI
@@ -24,9 +26,9 @@ import java.net.URL
 
 abstract class RadioService : AudioFocusListenerService() {
 
-    private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
+    private val scope: CoroutineScope = getScope()
 
-    private var scopeArtistStream = CoroutineScope(Job() + Dispatchers.Default)
+    private var scopeArtistStream = getScope()
 
     private lateinit var currentStation: RadioStation
 
@@ -362,15 +364,14 @@ abstract class RadioService : AudioFocusListenerService() {
         }
     }
 
-    private suspend fun sendIsLiked() = withContext(Dispatchers.IO) {
-        when (RadioRepository.isLike(currentStation.url).getOrElse(null)) {
+    private suspend fun sendIsLiked() = onIO {
+        when (RadioRepository.isLike(currentStation.url)) {
             true -> mayInvoke {
                 AppBroadcastHub.apply { likeRadioUI() }
             }
             false -> mayInvoke {
                 AppBroadcastHub.apply { unlikeRadioUI() }
             }
-            else -> Log.d(TAG, "sendIsLiked is null value")
         }
     }
 

@@ -7,7 +7,6 @@ import velord.university.application.notification.VkDownloadNotification
 import velord.university.model.entity.vk.VkAlbum
 import velord.university.model.entity.vk.fetch.VkPlaylist
 import velord.university.model.entity.vk.VkSong
-import velord.university.model.functionalDataSctructure.result.Result
 import velord.university.repository.fetch.IMusicFetch
 import velord.university.repository.fetch.SefonFetchSequential
 import velord.university.repository.db.transaction.vk.VkAlbumTransaction
@@ -41,20 +40,25 @@ object VkRepository : BaseRepository() {
 
     suspend fun downloadViaSefon(context: Context,
                                  webView: WebView,
-                                 vkSong: VkSong): Result<String?> =
-        Result.ofAsync { SefonFetchSequential(context, webView, vkSong).download() }
+                                 vkSong: VkSong
+    ): String? = onIO {
+        SefonFetchSequential(context, webView, vkSong).download()
+    }
 
     suspend fun downloadViaIMusic(context: Context,
                                   webView: WebView,
-                                  vkSong: VkSong): Result<String?> =
-        Result.ofAsync { IMusicFetch(context, webView, vkSong).download() }
+                                  vkSong: VkSong
+    ): String? = onIO {
+        IMusicFetch(context, webView, vkSong).download()
+    }
 
 
     suspend fun download(context: Context,
                          webView: WebView,
-                         vkSong: VkSong): String?  =
-        downloadViaIMusic(context, webView, vkSong).getOrElse(null) ?:
-        downloadViaSefon(context, webView, vkSong).getOrElse(null)
+                         vkSong: VkSong
+    ): String?  =
+        downloadViaSefon(context, webView, vkSong) ?:
+        downloadViaIMusic(context, webView, vkSong)
 
     suspend fun updateSong(vkSong: VkSong) =
         VkSongTransaction.update(vkSong)

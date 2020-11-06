@@ -2,13 +2,12 @@ package velord.university.model.converter
 
 import android.media.MediaExtractor
 import android.media.MediaFormat
-import velord.university.model.functionalDataSctructure.result.Result
 import java.io.File
 import java.io.IOException
 
 object SongBitrate {
 
-    fun getBitrate(song: File): Result<Int> = Result.of {
+    fun getBitrate(song: File): Int {
         val mex = MediaExtractor()
         try {
             mex.setDataSource(song.absolutePath)
@@ -17,11 +16,11 @@ object SongBitrate {
         }
 
         val mf = mex.getTrackFormat(0)
-        mf.getInteger(MediaFormat.KEY_BIT_RATE)
+        return mf.getInteger(MediaFormat.KEY_BIT_RATE)
     }
 
     fun getKbps(song: File): Int {
-        val bitrate = getBitrate(song).getOrElse(0)
+        val bitrate = getBitrate(song)
 
         return bitrate / 1000
     }
