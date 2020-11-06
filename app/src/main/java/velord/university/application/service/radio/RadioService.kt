@@ -313,15 +313,20 @@ abstract class RadioService : AudioFocusListenerService() {
     private fun sendRadioArtist() {
         mayInvoke {
             scopeArtistStream.cancel()
-            scopeArtistStream = CoroutineScope(Job() + Dispatchers.Default)
+            scopeArtistStream = getScope()
             //get info
             scopeArtistStream.launch {
                 while (this.isActive) {
                     val meta = IcyStreamMeta()
-                    meta.urlStream = URL(currentStation.url)
-                    val title = meta.getArtistAndTitle()
-                    AppBroadcastHub.apply {
-                        radioArtistUI(title)
+                    try {
+                        meta.urlStream = URL(currentStation.url)
+                        val title = meta.getArtistAndTitle()
+                        AppBroadcastHub.apply {
+                            radioArtistUI(title)
+                        }
+                    }
+                    catch (e: Exception) {
+                        Log.d(TAG, e.message.toString())
                     }
                     delay(10000)
                 }

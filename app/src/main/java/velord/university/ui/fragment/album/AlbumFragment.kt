@@ -27,11 +27,11 @@ import velord.university.databinding.AlbumFragmentBinding
 import velord.university.model.entity.Album
 import velord.university.model.entity.Playlist
 import velord.university.ui.backPressed.BackPressedHandlerZero
-import velord.university.ui.fragment.actionBar.ActionBarSearch
+import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 
 
 class AlbumFragment :
-    ActionBarSearch(),
+    ActionBarSearchFragment(),
     BackPressedHandlerZero {
 
     override val TAG: String = "AlbumFragment"

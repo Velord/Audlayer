@@ -26,17 +26,14 @@
     </FrameLayout>
 
 
-    <FrameLayout
-        android:id="@+id/radio_fragment_rv_frame"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+    <include
+        android:id="@+id/rv_include"
+        layout="@layout/general_rv"
+        style="@style/Layout0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/action_bar_frame">
+    </include>
 
-        <include layout="@layout/general_rv">
-        </include>
-
-    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -15,7 +15,9 @@ import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 import java.io.File
 
-class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
+class FolderViewModel(
+    private val app: Application
+) : AndroidViewModel(app) {
 
     val TAG = "FolderViewModel"
 
@@ -26,7 +28,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
 
     lateinit var rvResolver: RVSelection<Song>
 
-    var currentFolder: File = Environment.getExternalStorageDirectory()
+    var currentFile: File = Environment.getExternalStorageDirectory()
 
     fun sendIconToMiniPlayer(song: Song) =
         AppBroadcastHub.apply { app.iconUI(song.icon.toString()) }
@@ -34,7 +36,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 
     fun getSearchQuery(): String =
-        SearchQueryPreferences.getStoredQueryFolder(app, currentFolder.path)
+        SearchQueryPreferences.getStoredQueryFolder(app, currentFile.path)
 
     fun onlyAudio(file: File): Array<Song> =
         FileFilter
@@ -87,7 +89,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
     fun storeCurrentFolderSearchQuery(query: String) {
         //store search term in shared preferences
         currentQuery = query
-        val folderPath = currentFolder.path
+        val folderPath = currentFile.path
         SearchQueryPreferences.setStoredQueryFolder(app, folderPath, currentQuery)
         Log.d(TAG, "query: $currentQuery path: $folderPath")
     }
@@ -102,13 +104,20 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
        }
     }
 
-    fun filterAndSortFiles(filter: (File, String) -> Boolean,
-                           searchTerm: String): Array<Song> {
+    fun filterAndSortFiles(filter: FileFilter.TYPE = FileFilter.TYPE.SEARCH,
+                           searchTerm: String = currentQuery
+    ): Array<Song> {
         val filesInFolder = getFilesInCurrentFolder()
         //if you would see not compatible format
         //just remove or comment 2 lines bottom
-        val compatibleFileFormat =
-            filesInFolder.filter { filter(it.file, searchTerm) }
+        val compatibleFileFormat = filesInFolder.filter {
+            when (filter) {
+                FileFilter.TYPE.EMPTY_SEARCH ->
+                    FileFilter.filterByEmptySearchQuery(it.file, searchTerm)
+                FileFilter.TYPE.SEARCH ->
+                    FileFilter.filterFileBySearchQuery(it.file, searchTerm)
+            }
+        }
         // sort by name or artist or date added
         val sortedFiles = when(SortByPreference(app).sortByFolderFragment) {
             0 ->  {
@@ -135,7 +144,7 @@ class FolderViewModel(private val app: Application) : AndroidViewModel(app) {
         FileExtension.isAudio(value.file.extension)
 
     private fun getFilesInCurrentFolder(): Array<Song> {
-        val path = currentFolder.path
+        val path = currentFile.path
         val file = File(path)
         val filesInFolder: Array<File> = file.listFiles() ?: arrayOf()
         return filesInFolder

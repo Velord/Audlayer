@@ -151,7 +151,10 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun playByPath(path: String) {
         playlist.clearQueue()
-        addToQueue(SongPlaylistInteractor.songs.map { it.file }.toList())
+        addToQueue(SongPlaylistInteractor.songs
+            .map { it.file }
+            .toTypedArray()
+        )
         playNext(path)
         //showUI
         stopElseService()
@@ -390,8 +393,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
     }
 
-    private fun addToQueue(list: List<File>) {
-        playlist.addToQueue(*list.toTypedArray())
+    private fun addToQueue(list: Array<File>) {
+        playlist.addToQueue(*list)
         //restore shuffle state
         if (QueueResolver.shuffleState) shuffleOn()
         storeQueue()

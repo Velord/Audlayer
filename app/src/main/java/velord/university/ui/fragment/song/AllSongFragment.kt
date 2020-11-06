@@ -40,12 +40,12 @@ import velord.university.model.entity.Playlist
 import velord.university.model.entity.music.Song
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
-import velord.university.ui.fragment.actionBar.ActionBarSearch
+import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 
 class AllSongFragment :
-    ActionBarSearch(),
+    ActionBarSearchFragment(),
     SongPathReceiver,
     MiniPlayerIconClickReceiver {
 

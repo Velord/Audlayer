@@ -47,12 +47,12 @@ import velord.university.model.entity.music.Song
 import velord.university.model.entity.vk.VkSong
 import velord.university.model.file.FileFilter
 import velord.university.ui.activity.VkLoginActivity
-import velord.university.ui.fragment.actionBar.ActionBarSearch
+import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.RVSelection
 import java.io.File
 
 class VKFragment :
-    ActionBarSearch(),
+    ActionBarSearchFragment(),
     VkReceiver,
     MiniPlayerIconClickReceiver {
     override val TAG: String = "VKFragment"
@@ -306,8 +306,8 @@ class VKFragment :
                 //observe changes in search view
                 super.observeSearchQuery()
                 //setup adapter by invoke change in search view
+                viewModel.initVkPlaylist()
                 setupAdapter()
-                checkToken()
             }
         }
         binding.root

@@ -15,7 +15,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
@@ -47,21 +47,23 @@ import velord.university.model.file.FileExtensionModifier
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
 import velord.university.ui.backPressed.BackPressedHandlerZero
-import velord.university.ui.fragment.actionBar.ActionBarSearch
+import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 import java.io.File
 
 class FolderFragment :
-    ActionBarSearch(),
+    ActionBarSearchFragment(),
     BackPressedHandlerZero,
     SongPathReceiver,
     MiniPlayerIconClickReceiver {
 
+    override val TAG: String = "FolderFragment"
+
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
 
-        val newFile =  viewModel.currentFolder.parentFile!!
+        val newFile = viewModel.currentFile.parentFile!!
         setupAdapter(newFile)
         return true
     }
@@ -78,15 +80,23 @@ class FolderFragment :
 
     private var callbacks: Callbacks? =  null
 
-    override val TAG: String = "FolderFragment"
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+
+        scope.cancel()
+    }
 
     companion object {
         fun newInstance() = FolderFragment()
     }
 
-    private val viewModel by lazy {
-        ViewModelProvider(this).get(FolderViewModel::class.java)
-    }
+    private val viewModel: FolderViewModel by viewModels()
 
     private val scope = getScope()
 
@@ -160,12 +170,11 @@ class FolderFragment :
                 true
             }
             R.id.action_folder_create_playlist -> {
-                openCreatePlaylistFragmentByQuery()
+                val songs = viewModel.filterAndSortFiles()
+                openCreatePlaylistFragment(songs)
                 true
             }
-            else -> {
-                false
-            }
+            else -> { false }
         }
     }
     override val actionBarHintArticle: (TextView) -> Unit = {
@@ -245,6 +254,8 @@ class FolderFragment :
                     it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER
                 )
         }
+
+        setupAdapter(viewModel.currentFile)
     }
 
     override fun onStop() {
@@ -254,18 +265,6 @@ class FolderFragment :
             requireActivity()
                 .unregisterBroadcastReceiver(it.first)
         }
-
-        scope.cancel()
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callbacks = context as Callbacks?
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        callbacks = null
 
         scope.cancel()
     }
@@ -283,8 +282,8 @@ class FolderFragment :
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.folder_fragment,
-        container, false).run {
+    ): View? = inflater.inflate(
+        R.layout.folder_fragment, container, false).run {
         //bind
         _binding = FolderFragmentBinding.bind(this)
         _bindingActionBar = binding.actionBarInclude
@@ -300,7 +299,7 @@ class FolderFragment :
                 initView()
                 //observe changes in search view
                 super.observeSearchQuery()
-                setupAdapter(viewModel.currentFolder)
+                setupAdapter(viewModel.currentFile)
             }
         }
         binding.root
@@ -330,24 +329,10 @@ class FolderFragment :
         }
     }
 
-    private fun openAddToPlaylistFragmentByFolder(file: File) {
-        val songs = viewModel.onlyAudio(file)
-        openAddToPlaylistFragment(songs)
-    }
-
-    private fun openCreatePlaylistFragmentByFolder(file: File) {
-        val songs = viewModel.onlyAudio(file)
-        openCreatePlaylistFragment(songs)
-    }
-
     private fun openAddToPlaylistFragmentByQuery() {
-        val files = viewModel
-            .filterAndSortFiles(
-                FileFilter.filterFileBySearchQuery, viewModel.currentQuery
-            )
+        val files = viewModel.filterAndSortFiles()
             .map { it.file }
             .toTypedArray()
-
 
         val audio = FileFilter
             .filterOnlyAudio(files)
@@ -355,16 +340,6 @@ class FolderFragment :
             .toTypedArray()
 
         openAddToPlaylistFragment(audio)
-    }
-
-    private fun openCreatePlaylistFragmentByQuery() {
-        val songs = viewModel
-            .filterAndSortFiles(
-                FileFilter.filterFileBySearchQuery,
-                viewModel.currentQuery
-            )
-
-        openCreatePlaylistFragment(songs)
     }
 
     private fun initView() { initRV() }
@@ -394,27 +369,22 @@ class FolderFragment :
     }
 
     private fun updateAdapterBySearchQuery(searchQuery: String) {
-        fun setupAdapter(file: File = Environment.getExternalStorageDirectory(),
-                            //default filter
-                          filter: (File, String) -> Boolean = FileFilter.filterByEmptySearchQuery
-        ) {
-            //now do everything to setup adapter
-            changeCurrentTextView(file)
-            //apply all filters to recycler view
-            viewModel.fileList =
-                viewModel.filterAndSortFiles(filter, searchQuery)
-            bindingRv.fastScrollRv.adapter = FileAdapter(viewModel.fileList)
-        }
-
-        if (searchQuery.isNotEmpty()) {
-            val f = FileFilter.filterFileBySearchQuery
-            setupAdapter(viewModel.currentFolder, f)
-        }
-        else setupAdapter(viewModel.currentFolder)
+        Log.d(TAG, "update adapter: $searchQuery")
+        //get filter type
+        val filter = if (searchQuery.isNotEmpty())
+            FileFilter.TYPE.SEARCH
+        else FileFilter.TYPE.EMPTY_SEARCH
+        //now do everything to setup adapter
+        changeCurrentTextView(viewModel.currentFile)
+        //apply all filters to recycler view
+        viewModel.fileList = viewModel
+            .filterAndSortFiles(filter, searchQuery)
+        Log.d(TAG, "update adapter count: ${viewModel.fileList.size}")
+        bindingRv.fastScrollRv.adapter = FileAdapter(viewModel.fileList)
     }
 
     private fun setupAdapter(file: File) {
-        viewModel.currentFolder = file
+        viewModel.currentFile = file
         val query = viewModel.getSearchQuery()
         super.viewModelActionBarSearch.setupSearchQuery(query)
     }
@@ -425,7 +395,7 @@ class FolderFragment :
     }
 
     fun focusOnMe(): Boolean {
-        val path = viewModel.currentFolder.path
+        val path = viewModel.currentFile.path
         return if (path == Environment.getExternalStorageDirectory().path)
             false
         else {
@@ -480,11 +450,13 @@ class FolderFragment :
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_add_to_playlist -> {
-                                    openAddToPlaylistFragmentByFolder(value.file)
+                                    val songs = viewModel.onlyAudio(value.file)
+                                    openAddToPlaylistFragment(songs)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_create_playlist -> {
-                                    openCreatePlaylistFragmentByFolder(value.file)
+                                    val songs = viewModel.onlyAudio(value.file)
+                                    openCreatePlaylistFragment(songs)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_shuffle -> {
@@ -569,26 +541,20 @@ class FolderFragment :
                                       crossinline popUpF: () -> Unit) {
             itemView.setOnClickListener {
                 scope.launch {
-                    withContext(Dispatchers.Main) {
-                        rvSelectResolver.singleSelectionPrinciple(value)
-                        f()
-                    }
+                    rvSelectResolver.singleSelectionPrinciple(value)
+                    f()
                 }
             }
             icon.setOnClickListener {
                 scope.launch {
-                    withContext(Dispatchers.Main) {
-                        rvSelectResolver.singleSelectionPrinciple(value)
-                        f()
-                    }
+                    rvSelectResolver.singleSelectionPrinciple(value)
+                    f()
                 }
             }
             path.setOnClickListener {
                 scope.launch {
-                    withContext(Dispatchers.Main) {
-                        rvSelectResolver.singleSelectionPrinciple(value)
-                        f()
-                    }
+                    rvSelectResolver.singleSelectionPrinciple(value)
+                    f()
                 }
             }
             actionImageButton.setOnClickListener {

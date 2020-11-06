@@ -1,6 +1,7 @@
 package velord.university.ui.util
 
 import androidx.recyclerview.widget.RecyclerView
+import com.statuscasellc.statuscase.model.coroutine.onMain
 import kotlinx.coroutines.*
 
 data class RvSelectionOld<T>(var adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>,
@@ -91,7 +92,7 @@ data class RVSelection<T>(
         selected.clear()
     }
 
-    suspend fun singleSelectionPrinciple(value: T) = withContext(Dispatchers.Main) {
+    suspend fun singleSelectionPrinciple(value: T) = onMain {
         state = 0
         clearAndChangeSelectedItem(value)
         adapter.notifyDataSetChanged()
@@ -102,23 +103,23 @@ data class RVSelection<T>(
         addSelected(value)
     }
 
-    suspend fun scroll(rv: RecyclerView) = withContext(Dispatchers.Main) {
+    suspend fun scroll(rv: RecyclerView) = onMain {
         rv.scrollToPosition(currentPosition)
     }
 
     suspend inline fun refreshAndScroll(items: List<T>,
                                         rv: RecyclerView,
-                                        crossinline f: (T) -> Boolean) =
-        withContext(Dispatchers.Main) {
-            adapter.notifyDataSetChanged()
-            items.forEachIndexed { index, value ->
-                if (f(value)) {
-                    rv.scrollToPosition(index)
-                    currentPosition = index
-                    return@forEachIndexed
-                }
+                                        crossinline f: (T) -> Boolean
+    ) = onMain {
+        adapter.notifyDataSetChanged()
+        items.forEachIndexed { index, value ->
+            if (f(value)) {
+                rv.scrollToPosition(index)
+                currentPosition = index
+                return@forEachIndexed
             }
         }
+    }
 
     inline fun isContains(value: T,
                           isContains: (T) -> Array<() -> Unit>,

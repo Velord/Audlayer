@@ -44,12 +44,9 @@ object RadioRepository {
         db!!.radioDao().getByUrl(url).liked
     }
 
-    suspend fun clearTable() =
-        withContext(Dispatchers.IO) {
-            db?.run {
-                radioDao().nudeTable()
-            }
-        }
+    suspend fun clearTable() = onIO {
+        db?.run { radioDao().nudeTable() }
+    }
 
     private suspend fun insertDefaultRadioStation(context: Context) = onIO {
         val stations = RadioFetch.getDefaultRadioStationList(context)

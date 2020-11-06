@@ -10,10 +10,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.statuscasellc.statuscase.model.coroutine.getScope
+import com.statuscasellc.statuscase.model.coroutine.onMain
+import com.statuscasellc.statuscase.model.exception.ViewDestroyed
 import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
 import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
 import kotlinx.coroutines.*
@@ -26,28 +31,28 @@ import velord.university.application.broadcast.behaviour.RadioUnavailableUIRecei
 import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
+import velord.university.databinding.*
 import velord.university.model.entity.RadioStation
-import velord.university.ui.fragment.actionBar.ActionBarFragment
+import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
+import velord.university.ui.fragment.actionBar.ActionBarSearchViewModel
+import velord.university.ui.fragment.album.AlbumViewModel
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 
-class RadioFragment : ActionBarFragment(),
+class RadioFragment :
+    ActionBarSearchFragment(),
     RadioNameArtistUIReceiver,
     RadioIconClickReceiver,
     RadioUnavailableUIReceiver {
 
     override val TAG: String = "RadioFragment"
 
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+    private val scope = getScope()
 
-    private lateinit var rv: RecyclerView
+    private val viewModel: RadioViewModel by viewModels()
 
     companion object {
         fun newInstance() = RadioFragment()
-    }
-
-    private val viewModel by lazy {
-        ViewModelProvider(this).get(RadioViewModel::class.java)
     }
 
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = { it ->
@@ -92,7 +97,7 @@ class RadioFragment : ActionBarFragment(),
                     }
                 }
 
-                super.actionButton.setupPopupMenuOnClick(
+                super.bindingActionBar.action.setupAndShowPopupMenuOnClick(
                     requireContext(),
                     initActionMenuStyle,
                     initActionMenuLayout,
@@ -100,8 +105,6 @@ class RadioFragment : ActionBarFragment(),
                 ).also {
                     actionBarPopUpMenu(it)
                 }
-                //invoke immediately popup bottom_menu
-                super.actionButton.callOnClick()
                 true
             }
             else -> false
@@ -133,6 +136,7 @@ class RadioFragment : ActionBarFragment(),
         //update files list
         updateAdapterBySearchQuery(correctQuery)
     }
+    override val actionSearchView: (SearchView) -> Unit = {  }
 
     private val receivers = getRadioNameArtistUIReceiverList() +
             getRadioIconReceiverList() +
@@ -152,7 +156,7 @@ class RadioFragment : ActionBarFragment(),
                         radio == station
                     }
 
-                    viewModel.rvResolver.refreshAndScroll(stations, rv, f)
+                    viewModel.rvResolver.refreshAndScroll(stations, bindingRv.fastScrollRv, f)
                 }
             }
         }
@@ -168,7 +172,7 @@ class RadioFragment : ActionBarFragment(),
     override val iconRadioClicked: (Intent?) -> Unit = {
         it?.apply {
             scope.launch {
-                viewModel.rvResolver.scroll(rv)
+                viewModel.rvResolver.scroll(bindingRv.fastScrollRv)
             }
         }
     }
@@ -197,7 +201,9 @@ class RadioFragment : ActionBarFragment(),
                             radio == station
                         }
 
-                        viewModel.rvResolver.refreshAndScroll(stations, rv, f)
+                        viewModel.rvResolver.refreshAndScroll(
+                            stations, bindingRv.fastScrollRv, f
+                        )
                     }
                 }
             }
@@ -224,49 +230,67 @@ class RadioFragment : ActionBarFragment(),
         }
     }
 
+    //view
+    private var _binding: RadioFragmentBinding? = null
+    override var _bindingActionBar: ActionBarSearchBinding? = null
+    private var _bindingRv: GeneralRvBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
+    private val bindingRv get() = _bindingRv ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.radio_fragment, container, false).apply {
-            scope.launch {
-                viewModel
-                withContext(Dispatchers.Main) {
-                    //init action bar
-                    super.initActionBar(this@apply)
-                    super.changeUIAfterSubmitTextInSearchView(super.searchView)
-                    //init self view
-                    initViews(this@apply)
-                    //observe changes in search view
-                    super.observeSearchQuery()
-                    //setup adapter by invoke change in search view
-                    setupAdapter()
-                }
+    ): View? = inflater.inflate(R.layout.radio_fragment,
+        container, false).run {
+        //bind
+        _binding = RadioFragmentBinding.bind(this)
+        _bindingActionBar = binding.actionBarInclude
+        _bindingRv = binding.rvInclude
+        scope.launch {
+            viewModel
+            onMain {
+                //init action bar
+                super.initActionBar()
+                super.changeUIAfterSubmitTextInSearchView(
+                    super.bindingActionBar.search
+                )
+                //init self view
+                initView()
+                //observe changes in search view
+                super.observeSearchQuery()
+                setupAdapter()
             }
         }
+        binding.root
     }
 
-    private fun initViews(view: View) {
-        initRV(view)
+    private fun initView() {
+        initRV()
     }
 
     private fun setupAdapter() {
         scope.launch {
             val query = viewModel.getSearchQuery()
-            withContext(Dispatchers.Main) {
-                super.viewModelActionBar.setupSearchQuery(query)
+            onMain {
+                super.viewModelActionBarSearch.setupSearchQuery(query)
             }
         }
     }
 
-    private fun initRV(view: View) {
-        rv = view.findViewById(R.id.fast_scroll_rv)
-        rv.apply {
+    private fun initRV() {
+        bindingRv.fastScrollRv.apply {
             isNestedScrollingEnabled = false
             layoutManager = LinearLayoutManager(activity)
         }
         //controlling action bar frame visibility when recycler view is scrolling
-        super.setScrollListenerByRecyclerViewScrolling(rv, 50, -5)
+        super.setScrollListenerByRecyclerViewScrolling(
+            bindingRv.fastScrollRv,
+            50, -5
+        )
     }
 
     private fun sortBy(index: Int): Boolean {
@@ -286,8 +310,9 @@ class RadioFragment : ActionBarFragment(),
     private fun updateAdapterBySearchQuery(searchQuery: String) {
         scope.launch {
             val radioStationFiltered = viewModel.filterByQuery(searchQuery)
-            withContext(Dispatchers.Main) {
-                rv.adapter = RadioAdapter(radioStationFiltered.toTypedArray())
+            onMain {
+                bindingRv.fastScrollRv.adapter =
+                    RadioAdapter(radioStationFiltered.toTypedArray())
             }
         }
     }
@@ -462,7 +487,8 @@ class RadioFragment : ActionBarFragment(),
     }
 
     private inner class RadioAdapter(val items: Array<out RadioStation>):
-        RecyclerView.Adapter<RadioHolder>(),  FastScrollRecyclerView.SectionedAdapter {
+        RecyclerView.Adapter<RadioHolder>(),
+        FastScrollRecyclerView.SectionedAdapter {
 
         private val rvSelectResolver =
             getRecyclerViewResolver(this as RecyclerView.Adapter<RecyclerView.ViewHolder>)

@@ -14,7 +14,7 @@ import velord.university.databinding.ActionBarSearchBinding
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
 
 
-abstract class ActionBarSearch :
+abstract class ActionBarSearchFragment :
     LoggerSelfLifecycleFragment() {
 
     override val TAG: String = "ActionBarFragmentDesign"
@@ -63,13 +63,12 @@ abstract class ActionBarSearch :
     private fun initSearchView() {
         actionSearchView(bindingActionBar.search)
 
-        val searchTermValue = viewModelActionBarSearch.mutableSearchTerm
         bindingActionBar.search.initSearchWithHint(
             TAG,
             bindingActionBar.hint,
-            { searchTermValue.value!! },
-            { searchTermValue.value = "" }) {
-            searchTermValue.value = it
+            { viewModelActionBarSearch.mutableSearchTerm.value!! },
+            { viewModelActionBarSearch.mutableSearchTerm.value = "" }) {
+            viewModelActionBarSearch.mutableSearchTerm.value = it
             changeUIAfterSubmitTextInSearchView(bindingActionBar.search)
         }
     }

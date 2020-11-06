@@ -9,19 +9,24 @@ private const val MAX_DATE: Long = 2678400000L // 1 month in milliseconds
 
 object FileFilter {
 
-    fun filterOnlyAudio(file: File): List<File> {
+    enum class TYPE {
+        EMPTY_SEARCH,
+        SEARCH
+    }
+
+    fun filterOnlyAudio(file: File): Array<File> {
         val filesInFolder = file.listFiles() ?: arrayOf()
         return filesInFolder.filter {
             FileExtension.getFileExtension(it) ==
                     FileExtensionModifier.AUDIO
-        }
+        }.toTypedArray()
     }
     //only work if extension exist
-    fun filterOnlyAudio(files: Array<File>): List<File> =
+    fun filterOnlyAudio(files: Array<File>): Array<File> =
         files.filter {
             FileExtension.getFileExtension(it) ==
                     FileExtensionModifier.AUDIO
-        }
+        }.toTypedArray()
 
     val filterFileBySearchQuery: (File, String) -> Boolean = { file, query ->
         val extension =

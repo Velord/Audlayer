@@ -30,11 +30,11 @@ import velord.university.model.entity.music.Song
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
 import velord.university.ui.backPressed.BackPressedHandlerFirst
-import velord.university.ui.fragment.actionBar.ActionBarSearch
+import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import java.io.File
 
 class SelectSongFragment :
-    ActionBarSearch(),
+    ActionBarSearchFragment(),
     BackPressedHandlerFirst {
     //Required interface for hosting activities
     interface Callbacks {
