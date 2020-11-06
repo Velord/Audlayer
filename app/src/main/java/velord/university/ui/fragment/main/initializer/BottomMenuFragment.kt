@@ -51,23 +51,12 @@ abstract class BottomMenuFragment :
             //onclick
             setOnNavigationItemSelectedListener {
                 when (it.itemId) {
-                    R.id.action_folder -> {
-                        openFolderFragment()
-                    }
-                    R.id.action_album -> {
-                        openAlbumFragment()
-                    }
-                    R.id.action_all -> {
-                        openSongFragment()
-                    }
-                    R.id.action_radio -> {
-                        openRadioFragment()
-                    }
-                    R.id.action_vk -> {
-                        openVKFragment()
-                    }
+                    R.id.action_folder -> openFolderFragment()
+                    R.id.action_album -> openAlbumFragment()
+                    R.id.action_all -> openSongFragment()
+                    R.id.action_radio -> openRadioFragment()
+                    R.id.action_vk -> openVKFragment()
                 }
-
                 true
             }
             //init
@@ -164,11 +153,18 @@ abstract class BottomMenuFragment :
                 binding.mainFragmentContainer.setBackgroundResource(background)
             }
         }
-        //main fragment bottom_menu button
-//        changeButtonToStandardBackground(buttonPressed)
-//        //main fragment bottom_menu button
-//        changeButtonToNewBackground(position)
+        changeCurrentBottom(position)
     }
+
+    private fun changeCurrentBottom(position: Int) =
+        when (position) {
+            0 -> binding.bottomNavigation.selectedItemId = R.id.action_folder
+            1 -> binding.bottomNavigation.selectedItemId = R.id.action_album
+            2 -> binding.bottomNavigation.selectedItemId = R.id.action_all
+            3 -> binding.bottomNavigation.selectedItemId = R.id.action_radio
+            4 -> binding.bottomNavigation.selectedItemId = R.id.action_vk
+            else -> {}
+        }
 
     private inner class MenuMemberPagerAdapter(
         fm: FragmentManager) : FragmentPagerAdapter(fm) {
@@ -196,9 +192,8 @@ abstract class BottomMenuFragment :
         }
 
         override fun getItem(pos: Int): Fragment {
-            if (fragmentHashMap[pos] != null) {
-                return fragmentHashMap[pos]!!
-            }
+            if (fragmentHashMap[pos] != null)
+                fragmentHashMap[pos]
             val fragment = whichFragment(pos)
             fragmentHashMap[pos] = fragment
             return fragment
