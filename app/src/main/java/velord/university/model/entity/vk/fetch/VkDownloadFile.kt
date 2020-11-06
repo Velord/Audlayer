@@ -1,7 +1,8 @@
-package velord.university.model.entity.vk
+package velord.university.model.entity.vk.fetch
 
 import android.net.Uri
 import android.os.Environment
+import velord.university.model.entity.vk.VkSong
 import java.io.File
 
 data class VkDownloadFile(

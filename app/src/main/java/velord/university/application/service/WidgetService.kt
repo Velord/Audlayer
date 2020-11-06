@@ -12,7 +12,7 @@ import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.application.broadcast.restarter.RestarterWidgetService
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.Song
+import velord.university.model.entity.music.Song
 import velord.university.model.file.FileNameParser
 import velord.university.ui.widget.AudlayerWidget
 

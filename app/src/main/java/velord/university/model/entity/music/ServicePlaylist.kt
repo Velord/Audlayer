@@ -1,4 +1,4 @@
-package velord.university.model
+package velord.university.model.entity.music
 
 import java.io.File
 

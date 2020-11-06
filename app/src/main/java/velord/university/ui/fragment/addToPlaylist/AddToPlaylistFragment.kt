@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
@@ -22,10 +21,9 @@ import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.databinding.AddToPlaylistFragmentBinding
 import velord.university.databinding.GeneralRvBinding
-import velord.university.databinding.SelectSongFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
-import velord.university.model.entity.Song
+import velord.university.model.entity.music.Song
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.ui.backPressed.BackPressedHandlerSecond
 import velord.university.ui.fragment.addToPlaylist.select.SelectSongFragment

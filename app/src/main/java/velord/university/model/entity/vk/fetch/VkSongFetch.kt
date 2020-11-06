@@ -1,8 +1,9 @@
-package velord.university.model.entity.vk
+package velord.university.model.entity.vk.fetch
 
-import androidx.room.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import velord.university.model.entity.vk.VkAlbum
+import velord.university.model.entity.vk.VkSong
 
 @Serializable
 data class Ads(
@@ -76,7 +77,7 @@ data class VkSongFetch(
     val subtitle: String? = null
 ) {
 
-    fun toVkSong(): VkSong = Companion.toVkSong(this)
+    fun toVkSong(): VkSong = toVkSong(this)
 
     companion object {
 

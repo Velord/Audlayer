@@ -5,7 +5,7 @@ import android.webkit.WebView
 import com.statuscasellc.statuscase.model.coroutine.onIO
 import velord.university.application.notification.VkDownloadNotification
 import velord.university.model.entity.vk.VkAlbum
-import velord.university.model.entity.vk.VkPlaylist
+import velord.university.model.entity.vk.fetch.VkPlaylist
 import velord.university.model.entity.vk.VkSong
 import velord.university.model.functionalDataSctructure.result.Result
 import velord.university.repository.fetch.IMusicFetch

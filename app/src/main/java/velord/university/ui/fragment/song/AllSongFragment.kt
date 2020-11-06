@@ -21,7 +21,6 @@ import com.statuscasellc.statuscase.model.coroutine.getScope
 import com.statuscasellc.statuscase.model.coroutine.onMain
 import com.statuscasellc.statuscase.model.exception.ViewDestroyed
 import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
-import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.AppBroadcastHub
@@ -32,17 +31,15 @@ import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.databinding.ActionBarSearchBinding
-import velord.university.databinding.AlbumFragmentBinding
 import velord.university.databinding.AllSongFragmentBinding
 import velord.university.databinding.GeneralRvBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.entity.Playlist
-import velord.university.model.entity.Song
+import velord.university.model.entity.music.Song
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
-import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.fragment.actionBar.ActionBarSearch
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection

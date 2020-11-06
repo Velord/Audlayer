@@ -17,7 +17,6 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.statuscasellc.statuscase.model.coroutine.getScope
 import com.statuscasellc.statuscase.model.coroutine.onMain
 import com.statuscasellc.statuscase.model.exception.ViewDestroyed
-import com.statuscasellc.statuscase.ui.util.activity.hideVirtualButtons
 import com.statuscasellc.statuscase.ui.util.activity.toastInfo
 import com.statuscasellc.statuscase.ui.util.view.makeCheck
 import kotlinx.coroutines.*
@@ -27,7 +26,7 @@ import velord.university.databinding.ActionBarSearchBinding
 import velord.university.databinding.GeneralRvBinding
 import velord.university.databinding.SelectSongFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.Song
+import velord.university.model.entity.music.Song
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
 import velord.university.ui.backPressed.BackPressedHandlerFirst

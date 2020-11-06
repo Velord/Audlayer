@@ -13,11 +13,10 @@ import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.Playlist
-import velord.university.model.entity.Song
+import velord.university.model.entity.music.Song
 import velord.university.model.entity.vk.VkAlbum
-import velord.university.model.entity.vk.VkPlaylist
 import velord.university.model.entity.vk.VkSong
-import velord.university.model.entity.vk.VkSongFetch
+import velord.university.model.entity.vk.fetch.VkSongFetch
 import velord.university.model.file.FileFilter
 import velord.university.model.file.FileNameParser
 import velord.university.repository.hub.FolderRepository

@@ -1,4 +1,4 @@
-package velord.university.model.entity.vk
+package velord.university.model.entity.vk.fetch
 
 import kotlinx.serialization.Serializable
 

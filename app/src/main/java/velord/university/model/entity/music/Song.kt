@@ -1,4 +1,4 @@
-package velord.university.model.entity
+package velord.university.model.entity.music
 
 import velord.university.ui.util.DrawableIcon
 import java.io.File

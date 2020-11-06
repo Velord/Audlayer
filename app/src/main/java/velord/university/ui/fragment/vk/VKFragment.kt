@@ -8,17 +8,14 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebView
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
@@ -29,7 +26,6 @@ import com.statuscasellc.statuscase.ui.util.activity.toastInfo
 import com.statuscasellc.statuscase.ui.util.activity.toastSuccess
 import com.statuscasellc.statuscase.ui.util.view.gone
 import com.statuscasellc.statuscase.ui.util.view.setupAndShowPopupMenuOnClick
-import com.statuscasellc.statuscase.ui.util.view.setupPopupMenuOnClick
 import com.statuscasellc.statuscase.ui.util.view.visible
 import kotlinx.coroutines.*
 import velord.university.R
@@ -42,17 +38,15 @@ import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.application.settings.VkPreference
 import velord.university.databinding.ActionBarSearchBinding
-import velord.university.databinding.FolderFragmentBinding
 import velord.university.databinding.GeneralRvBinding
 import velord.university.databinding.VkFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
-import velord.university.model.entity.Song
+import velord.university.model.entity.music.Song
 import velord.university.model.entity.vk.VkSong
 import velord.university.model.file.FileFilter
 import velord.university.ui.activity.VkLoginActivity
-import velord.university.ui.fragment.actionBar.ActionBarFragment
 import velord.university.ui.fragment.actionBar.ActionBarSearch
 import velord.university.ui.util.RVSelection
 import java.io.File
@@ -89,8 +83,6 @@ class VKFragment :
                     it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER
                 )
         }
-
-        scope.launch {  checkToken() }
     }
 
     override fun onStop() {

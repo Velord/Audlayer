@@ -25,7 +25,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import velord.university.model.converter.transliterate
-import velord.university.model.entity.vk.VkDownloadFile
+import velord.university.model.entity.vk.fetch.VkDownloadFile
 import velord.university.model.entity.vk.VkSong
 import java.io.File
 import java.util.*
