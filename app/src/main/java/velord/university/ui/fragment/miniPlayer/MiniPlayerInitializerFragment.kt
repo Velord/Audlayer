@@ -5,7 +5,7 @@ import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import velord.university.R
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
-import velord.university.ui.util.setAutoScrollable
+import velord.university.ui.util.view.setAutoScrollable
 
 abstract class MiniPlayerInitializerFragment : LoggerSelfLifecycleFragment() {
 

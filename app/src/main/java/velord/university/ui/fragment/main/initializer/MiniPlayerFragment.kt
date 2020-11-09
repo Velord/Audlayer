@@ -5,9 +5,10 @@ import android.content.IntentFilter
 import android.util.Log
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentActivity
 import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import velord.university.ui.util.view.gone
 import velord.university.ui.util.view.visible
 import velord.university.application.broadcast.AppBroadcastHub
@@ -20,7 +21,6 @@ import velord.university.ui.fragment.miniPlayer.MiniPlayerRadioGeneralFragment
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import velord.university.ui.fragment.miniPlayer.miniPlayerHide.MiniPlayerHideFragment
 import velord.university.ui.fragment.miniPlayer.miniPlayerStopAndHide.MiniPlayerStopAndHideFragment
-import velord.university.ui.util.viewPager.LiquidSwipeDynamicHeightViewPager
 
 
 abstract class MiniPlayerFragment :
@@ -57,8 +57,9 @@ abstract class MiniPlayerFragment :
 
     protected fun initMiniPlayer() {
         //init viewPager
-        binding.miniPlayerViewPager.adapter = MiniPlayerPagerAdapter(fm)
-        binding.miniPlayerViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        binding.miniPlayerViewPager.adapter = MiniPlayerPagerAdapter(requireActivity())
+        binding.miniPlayerViewPager.registerOnPageChangeCallback(
+            object : ViewPager2.OnPageChangeCallback() {
 
             override fun onPageScrollStateChanged(state: Int) { }
 
@@ -114,29 +115,10 @@ abstract class MiniPlayerFragment :
     }
 
     private inner class MiniPlayerPagerAdapter(
-        fm: FragmentManager) : FragmentPagerAdapter(fm) {
+        fa: FragmentActivity
+    ) : FragmentStateAdapter(fa) {
 
-        private var currentPosition = -1
-
-        override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-            super.destroyItem(container, position, `object`)
-            when(position) {
-                0 -> {  Log.d(TAG, "Destroy StopAndCloseFragment1") }
-                1 -> {  Log.d(TAG, "Destroy MiniPlayerFragment") }
-                2 -> {  Log.d(TAG, "Destroy StopAndCloseFragment2") }
-            }
-        }
-
-        override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            when(position) {
-                0 -> {  Log.d(TAG, "Instantiate StopAndCloseFragment1") }
-                1 -> {  Log.d(TAG, "Instantiate MiniPlayerFragment") }
-                2 -> {  Log.d(TAG, "Instantiate StopAndCloseFragment2") }
-            }
-            return super.instantiateItem(container, position)
-        }
-
-        override fun getItem(pos: Int): Fragment =
+        override fun createFragment(pos: Int): Fragment =
             when (pos) {
                 // Fragment # 0 - This will show FirstFragment
                 0 -> {
@@ -157,20 +139,7 @@ abstract class MiniPlayerFragment :
                 }
             }
 
-        override fun getCount(): Int = 3
-
-        override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
-            super.setPrimaryItem(container, position, `object`)
-
-            if (position != currentPosition && container is LiquidSwipeDynamicHeightViewPager) {
-                val fragment = `object` as Fragment?
-                if (fragment != null && fragment.view != null) {
-                    currentPosition = position
-                    val view = fragment.requireView()
-                    container.measureCurrentView(view)
-                }
-            }
-        }
+        override fun getItemCount(): Int = 3
     }
 
     override val showF: (Intent?) -> Unit = {

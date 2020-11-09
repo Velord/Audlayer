@@ -109,8 +109,10 @@ suspend inline fun SwipeRefreshLayout.between(activity: Activity,
             activity.toastError(e.message.toString())
         }
     }
-    onMain {
-        this.isRefreshing = false
+    finally {
+        onMain {
+            this.isRefreshing = false
+        }
     }
 }
 
@@ -128,8 +130,10 @@ suspend inline fun <T> ProgressBar.between(activity: Activity,
             activity.toastError(e.message.toString())
         }
     }
-    onMain {
-        this.visibility = View.GONE
+    finally {
+        onMain {
+            this.visibility = View.GONE
+        }
     }
 
     return entity

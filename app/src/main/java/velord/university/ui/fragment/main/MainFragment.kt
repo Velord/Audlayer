@@ -44,7 +44,8 @@ class MainFragment :
 
         return MainFragmentPressedBackLogic.pressOccur(
             requireActivity(),
-            binding, fragmentHashMap
+            binding,
+            requireFragmentManager()
         )
     }
 

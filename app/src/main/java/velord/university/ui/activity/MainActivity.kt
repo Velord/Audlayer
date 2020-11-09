@@ -7,7 +7,6 @@ import android.view.KeyEvent
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentManager
 import velord.university.ui.util.activity.hideStatusBarAndNoTitle
 import kotlinx.coroutines.*
 import velord.university.R
@@ -16,10 +15,6 @@ import velord.university.application.notification.MiniPlayerNotification
 import velord.university.application.permission.PermissionChecker.checkReadWriteExternalStoragePermission
 import velord.university.application.settings.AppPreference
 import velord.university.model.coroutine.getScope
-import velord.university.ui.behaviour.backPressed.BackPressedHandler
-import velord.university.ui.behaviour.backPressed.BackPressedHandlerFirst
-import velord.university.ui.behaviour.backPressed.BackPressedHandlerSecond
-import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
 import velord.university.ui.behaviour.supervisor.BackPressSupervisor
 import velord.university.ui.fragment.addToPlaylist.AddToPlaylistFragment
 import velord.university.ui.fragment.addToPlaylist.CreateNewPlaylistDialogFragment
@@ -29,6 +24,8 @@ import velord.university.ui.fragment.main.MainFragment
 import velord.university.ui.fragment.song.AllSongFragment
 import velord.university.ui.fragment.vk.VKFragment
 import velord.university.ui.util.*
+import velord.university.ui.util.view.VolumeEvent
+import velord.university.ui.util.view.hideDefaultChangeVolumeBar
 
 
 class MainActivity : AppCompatActivity(),

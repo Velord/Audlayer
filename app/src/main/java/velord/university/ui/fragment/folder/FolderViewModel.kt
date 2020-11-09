@@ -28,7 +28,11 @@ class FolderViewModel(
 
     lateinit var rvResolver: RVSelection<Song>
 
-    var currentFile: File = Environment.getExternalStorageDirectory()
+    lateinit var currentFile: File
+
+    fun initViewModel() {
+        currentFile = Environment.getExternalStorageDirectory()
+    }
 
     fun sendIconToMiniPlayer(song: Song) =
         AppBroadcastHub.apply { app.iconUI(song.icon.toString()) }

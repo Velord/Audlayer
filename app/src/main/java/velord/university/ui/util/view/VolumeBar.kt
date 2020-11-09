@@ -1,10 +1,11 @@
-package velord.university.ui.util
+package velord.university.ui.util.view
 
 import android.content.Context
 import android.media.AudioManager
 
 fun hideDefaultChangeVolumeBar(context: Context,
-                               volumeEvent: VolumeEvent) {
+                               volumeEvent: VolumeEvent
+) {
     val manager = context
         .getSystemService(Context.AUDIO_SERVICE) as AudioManager
     manager.adjustStreamVolume(

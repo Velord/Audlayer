@@ -47,8 +47,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     //coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
-    //slide ui
-    implementation 'com.github.Chrisvin:LiquidSwipe:1.3'
+    //slide ui deprecated 9.11.20
+    //implementation 'com.github.Chrisvin:LiquidSwipe:1.3'
     //animation recycler view
     //For control over item selection of both touch and mouse driven selection
     //scrollbar

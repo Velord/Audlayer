@@ -2,12 +2,11 @@ package velord.university.ui.fragment.main.initializer
 
 import android.util.Log
 import android.util.SparseArray
-import android.view.ViewGroup
-import androidx.core.util.set
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentActivity
 import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import velord.university.model.coroutine.getScope
 import velord.university.model.coroutine.onMain
 import kotlinx.coroutines.*
@@ -19,6 +18,8 @@ import velord.university.ui.fragment.radio.RadioFragment
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
 import velord.university.ui.fragment.song.AllSongFragment
 import velord.university.ui.fragment.vk.VKFragment
+import velord.university.ui.util.findBy
+import velord.university.ui.util.firstAs
 
 
 abstract class BottomMenuFragment :
@@ -27,10 +28,6 @@ abstract class BottomMenuFragment :
     override val TAG: String = "BottomMenuFragment"
 
     private var buttonPressed: Int = 2
-
-    private val fm by lazy {
-        requireActivity().supportFragmentManager
-    }
 
     private val scope = getScope()
 
@@ -42,7 +39,6 @@ abstract class BottomMenuFragment :
 
     //view
     abstract val binding: MainFragmentBinding
-    protected val fragmentHashMap = SparseArray<Fragment>()
 
     private fun initBottomMenu() {
         binding.bottomNavigation.apply {
@@ -70,10 +66,10 @@ abstract class BottomMenuFragment :
     }
 
     private fun initViewPager() {
-        binding.menuMemberViewPager.adapter = MenuMemberPagerAdapter(fm)
-        binding.menuMemberViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-
-            override fun onPageScrollStateChanged(state: Int) { }
+        binding.menuMemberViewPager.adapter =
+            MenuMemberPagerAdapter(requireActivity())
+        binding.menuMemberViewPager.registerOnPageChangeCallback(
+            object : ViewPager2.OnPageChangeCallback() {
 
             override fun onPageScrolled(
                 position: Int,
@@ -81,11 +77,11 @@ abstract class BottomMenuFragment :
                 positionOffsetPixels: Int
             ) {
                 when(position) {
-                    0 -> {  Log.d(TAG, "onPageScrolled FolderFragment") }
-                    1 -> {  Log.d(TAG, "onPageScrolled AlbumFragment") }
-                    2 -> {  Log.d(TAG, "onPageScrolled SongFragment") }
-                    3 -> {  Log.d(TAG, "onPageScrolled RadioFragment") }
-                    4 -> {  Log.d(TAG, "onPageScrolled VKFragment") }
+                    0 -> Log.d(TAG, "onPageScrolled FolderFragment")
+                    1 -> Log.d(TAG, "onPageScrolled AlbumFragment")
+                    2 -> Log.d(TAG, "onPageScrolled SongFragment")
+                    3 -> Log.d(TAG, "onPageScrolled RadioFragment")
+                    4 -> Log.d(TAG, "onPageScrolled VKFragment")
                 }
             }
 
@@ -118,11 +114,19 @@ abstract class BottomMenuFragment :
 
     private fun openFolderFragment() {
         Log.d(TAG, "opening FolderFragment")
-        binding.menuMemberViewPager.currentItem = 0
-        //when user press on folder and current folder is not default pressed back should occur
-//        val folderFragment = fragmentHashMap[0] as FolderFragment
-//        if(folderFragment.focusOnMe())
-//                folderFragment.onBackPressed()
+        //when user press on folder icon
+        //need check current folder and if it
+        //is not default pressed back should occur
+        if (binding.bottomNavigation.selectedItemId == R.id.action_folder) {
+            try {
+                requireFragmentManager()
+                    .findBy<FolderFragment>()
+                    .onBackPressed()
+            } catch (e: Exception) {
+                Log.d(TAG, e.message.toString())
+            }
+        }
+        else binding.menuMemberViewPager.currentItem = 0
     }
 
     private fun openAlbumFragment() {
@@ -167,42 +171,16 @@ abstract class BottomMenuFragment :
         }
 
     private inner class MenuMemberPagerAdapter(
-        fm: FragmentManager) : FragmentPagerAdapter(fm) {
+        fa: FragmentActivity
+    ) : FragmentStateAdapter(fa) {
 
-        override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-            super.destroyItem(container, position, `object`)
-            when(position) {
-                0 -> {  Log.d(TAG, "Destroy FolderFragment") }
-                1 -> {  Log.d(TAG, "Destroy AlbumFragment") }
-                2 -> {  Log.d(TAG, "Destroy SongFragment") }
-                3 -> {  Log.d(TAG, "Destroy RadioFragment") }
-                4 -> {  Log.d(TAG, "Destroy VKFragment") }
-            }
-        }
+        override fun createFragment(pos: Int): Fragment =
+            createNewFragment(pos)
 
-        override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            when(position) {
-                0 -> {  Log.d(TAG, "Instantiate FolderFragment") }
-                1 -> {  Log.d(TAG, "Instantiate AlbumFragment") }
-                2 -> {  Log.d(TAG, "Instantiate SongFragment") }
-                3 -> {  Log.d(TAG, "Instantiate RadioFragment") }
-                4 -> {  Log.d(TAG, "Instantiate VKFragment") }
-            }
-            return super.instantiateItem(container, position)
-        }
-
-        override fun getItem(pos: Int): Fragment {
-            if (fragmentHashMap[pos] != null)
-                fragmentHashMap[pos]
-            val fragment = whichFragment(pos)
-            fragmentHashMap[pos] = fragment
-            return fragment
-        }
-
-        override fun getCount(): Int = 5
+        override fun getItemCount(): Int = 5
     }
 
-    private fun whichFragment(position: Int): Fragment =
+    private fun createNewFragment(position: Int): Fragment =
         when (position) {
             // Fragment # 0 - This will show FirstFragment
             0 -> {

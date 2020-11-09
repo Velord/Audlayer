@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.jem.liquidswipe.layout.LiquidSwipeConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_fragment_container"
@@ -36,22 +36,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.jem.liquidswipe.layout.LiquidSwipeFrameLayout
+    <FrameLayout
         android:id="@+id/mini_player_frame"
         style="@style/WrapHeightMatchWidth"
         app:layout_constraintBottom_toTopOf="@+id/change_volume_seekBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <velord.university.ui.util.viewPager.LiquidSwipeDynamicHeightViewPager
+        <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/mini_player_viewPager"
             style="@style/MatchParent"
 
             />
 
-    </com.jem.liquidswipe.layout.LiquidSwipeFrameLayout>
+    </FrameLayout>
 
-    <com.jem.liquidswipe.LiquidSwipeViewPager
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/menu_member_viewPager"
         style="@style/Layout0dp"
         app:layout_constraintBottom_toTopOf="@+id/mini_player_frame"
@@ -61,4 +61,4 @@
 
         />
 
-</com.jem.liquidswipe.layout.LiquidSwipeConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

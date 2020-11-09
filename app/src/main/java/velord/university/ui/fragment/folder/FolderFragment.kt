@@ -50,6 +50,7 @@ import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
+import velord.university.ui.util.view.between
 import java.io.File
 
 class FolderFragment :
@@ -62,20 +63,13 @@ class FolderFragment :
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
-
-        val newFile = viewModel.currentFile.parentFile!!
-        setupAdapter(newFile)
-        return true
-    }
-
-    fun focusOnMe(): Boolean {
         val path = viewModel.currentFile.path
         return if (path == Environment.getExternalStorageDirectory().path)
-            false
-        else {
-            //hide searchView
-            super.changeUIAfterSubmitTextInSearchView(super.bindingActionBar.search)
             true
+        else {
+            val newFile = viewModel.currentFile.parentFile!!
+            setupAdapter(newFile)
+            false
         }
     }
 
@@ -289,30 +283,44 @@ class FolderFragment :
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(
-        R.layout.folder_fragment, container, false).run {
+    ): View? = inflater.inflate(R.layout.folder_fragment,
+        container, false).run {
         //bind
         _binding = FolderFragmentBinding.bind(this)
         _bindingActionBar = binding.actionBarInclude
         _bindingRv = binding.rvInclude
         scope.launch {
-            onMain {
-                //init action bar
-                super.initActionBar()
-                super.changeUIAfterSubmitTextInSearchView(
-                    super.bindingActionBar.search
-                )
-                //init self view
-                initView()
-                //observe changes in search view
-                super.observeSearchQuery()
-                setupAdapter()
+            between("onCreateView") {
+                initViewModel()
+                onMain {
+                    //init action bar
+                    super.initActionBar()
+                    super.changeUIAfterSubmitTextInSearchView(
+                        super.bindingActionBar.search
+                    )
+                    //init self view
+                    initView()
+                    //observe changes in search view
+                    super.observeSearchQuery()
+                    setupAdapter(viewModel.currentFile)
+                }
             }
         }
         binding.root
     }
 
-    private fun setupAdapter(file: File = viewModel.currentFile) {
+    private fun initViewModel() {
+        viewModel.initViewModel()
+    }
+
+    private fun initView() {
+        initSwipeAndRv()
+
+        if (viewModel.rvResolverIsInitialized())
+            updateAdapterBySearchQuery(viewModel.currentQuery)
+    }
+
+    private fun setupAdapter(file: File) {
         scope.launch {
             viewModel.currentFile = file
             val query = viewModel.getSearchQuery()
@@ -357,14 +365,8 @@ class FolderFragment :
         openAddToPlaylistFragment(audio)
     }
 
-    private fun initView() {
-        initRV()
-
-        if (viewModel.rvResolverIsInitialized())
-            updateAdapterBySearchQuery(viewModel.currentQuery)
-    }
-
-    private fun initRV() {
+    private fun initSwipeAndRv() {
+        bindingRv.fastScrollSwipe.setOnRefreshListener { refreshValue() }
         bindingRv.fastScrollRv.layoutManager =
             LinearLayoutManager(requireActivity())
         //controlling action bar frame visibility when recycler view is scrolling
@@ -372,6 +374,10 @@ class FolderFragment :
             bindingRv.fastScrollRv,
             50, -5
         )
+    }
+
+    private fun refreshValue() {
+        updateAdapterBySearchQuery(viewModel.currentQuery)
     }
 
     private fun sortBy(index: Int): Boolean {
@@ -389,24 +395,33 @@ class FolderFragment :
     }
 
     private fun updateAdapterBySearchQuery(searchQuery: String) {
-        Log.d(TAG, "update adapter: $searchQuery")
-        //get filter type
-        val filter = if (searchQuery.isNotEmpty())
-            FileFilter.TYPE.SEARCH
-        else FileFilter.TYPE.EMPTY_SEARCH
-        //now do everything to setup adapter
-        changeCurrentTextView(viewModel.currentFile)
-        //apply all filters to recycler view
-        viewModel.fileList = viewModel
-            .filterAndSortFiles(filter, searchQuery)
-        Log.d(TAG, "update adapter count: ${viewModel.fileList.size}")
-        bindingRv.fastScrollRv.adapter = FileAdapter(viewModel.fileList)
+        scope.launch {
+            between("updateAdapterBySearchQuery") {
+                //get filter type
+                val filter = if (searchQuery.isNotEmpty())
+                    FileFilter.TYPE.SEARCH
+                else FileFilter.TYPE.EMPTY_SEARCH
+                //now do everything to setup adapter
+                changeCurrentTextView(viewModel.currentFile)
+                //apply all filters to recycler view
+                viewModel.fileList = viewModel
+                    .filterAndSortFiles(filter, searchQuery)
+                //change ui
+                onMain {
+                    bindingRv.fastScrollRv.adapter = FileAdapter(viewModel.fileList)
+                }
+            }
+        }
     }
 
     private fun changeCurrentTextView(file: File) {
         val pathToUI = FileNameParser.slashReplaceArrow(file.path)
         binding.currentFolderTextView.text = pathToUI
     }
+
+    private suspend fun between(tag: String,
+                                f: suspend () -> Unit) =
+        bindingRv.fastScrollSwipe.between(requireActivity(), tag, f)
 
     private fun getRecyclerViewResolver(
         adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>

@@ -1,4 +1,4 @@
-package velord.university.ui.util
+package velord.university.ui.util.view
 
 import android.widget.TextView
 
