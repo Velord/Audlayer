@@ -8,6 +8,8 @@ class VkPreference(context: Context)  {
         private const val PREF_VK_LOGIN_PAGE_ID = "vkLoginPageId"
         private const val PREF_VK_LOGIN_EMAIL = "vkLoginEmail"
         private const val PREF_VK_LOGIN_ACCESS_TOKEN = "vkLoginAccessToken"
+        private const val PREF_VK_LOGIN = "vkLogin"
+        private const val PREF_VK_LOGIN_PASSWORD = "vkLoginPassword"
     }
 
     var pageId: Int by PreferencesDelegate(
@@ -25,6 +27,18 @@ class VkPreference(context: Context)  {
     var accessToken: String by PreferencesDelegate(
         context,
         PREF_VK_LOGIN_ACCESS_TOKEN,
+        ""
+    )
+
+    var login: String by PreferencesDelegate(
+        context,
+        PREF_VK_LOGIN,
+        ""
+    )
+
+    var password: String by PreferencesDelegate(
+        context,
+        PREF_VK_LOGIN_PASSWORD,
         ""
     )
 }

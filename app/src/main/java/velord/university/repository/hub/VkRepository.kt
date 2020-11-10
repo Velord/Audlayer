@@ -15,10 +15,10 @@ import velord.university.repository.fetch.VkFetch
 
 object VkRepository : BaseRepository() {
 
-    suspend fun getAlbumsFromDb(): List<VkAlbum> =
+    suspend fun getAlbumsFromDb(): Array<VkAlbum> =
         VkAlbumTransaction.getAlbums()
 
-    suspend fun getSongsFromDb(): List<VkSong> =
+    suspend fun getSongsFromDb(): Array<VkSong> =
         VkSongTransaction.getSongs()
 
     suspend fun getPlaylistByToken(context: Context): VkPlaylist = onIO {

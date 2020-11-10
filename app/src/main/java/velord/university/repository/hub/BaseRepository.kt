@@ -13,7 +13,7 @@ abstract class BaseRepository {
 
     private val scope = getScope()
 
-    protected val db = AudlayerApp.db!!
+    protected val db = AudlayerApp.db
 
     protected suspend fun <T> Context.fetchByToken(
         tag: String,
@@ -26,10 +26,6 @@ abstract class BaseRepository {
         }
         catch (e: Exception) {
             val message = e.message.toString()
-            checkTokenSessionIsExpired(
-                this@fetchByToken,
-                message
-            )
             Log.d("$TAG-$tag", message)
             throw e
         }
@@ -44,17 +40,6 @@ abstract class BaseRepository {
             val message = e.message.toString()
             Log.d("$TAG-$tag", message)
             throw e
-        }
-    }
-
-    fun checkTokenSessionIsExpired(context: Context,
-                                   error: String) {
-        scope.launch {
-            //todo
-//            if (error == "TOKEN IS EXPIRED")
-//                BroadcastHub.apply {
-//                    context.sendTokenSessionIsExpired()
-//                }
         }
     }
 }

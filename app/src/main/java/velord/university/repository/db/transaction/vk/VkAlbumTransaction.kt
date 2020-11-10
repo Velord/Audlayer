@@ -4,26 +4,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import velord.university.application.AudlayerApp
 import velord.university.model.entity.vk.entity.VkAlbum
+import velord.university.repository.db.transaction.BaseTransaction
 
-object VkAlbumTransaction {
+object VkAlbumTransaction : BaseTransaction() {
 
-    suspend fun getAlbums(): List<VkAlbum> = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.run {
-            vkAlbumDao().getAll()
-        } ?: listOf()
-    }
+    suspend fun getAlbums(): Array<VkAlbum> =
+        makeTransaction { vkAlbumDao().getAll().toTypedArray() }
 
-    suspend fun addAlbum(vararg album: VkAlbum) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.run {
-            vkAlbumDao().insertAll(*album)
-        }
-    }
+    suspend fun addAlbum(vararg album: VkAlbum) =
+        makeTransaction { vkAlbumDao().insertAll(*album) }
 
-    suspend fun deleteAll() = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.run {
-            vkAlbumDao().nukeTable()
-        }
-    }
-
-
+    suspend fun deleteAll() =
+        makeTransaction { vkAlbumDao().nukeTable() }
 }

@@ -1,6 +1,7 @@
 package velord.university.model.entity.vk.entity
 
 import androidx.room.*
+import velord.university.model.entity.fileType.file.FileFilter
 
 @Entity(
     indices = [Index("artist", "title", "path", "album_id")]
@@ -37,5 +38,26 @@ data class VkSong(
         }
         return null
     }
+
+    companion object {
+
+        fun Array<VkSong>.mapWithAlbum(
+            album: Array<VkAlbum>
+        ): List<VkSong> = map { song ->
+            song.albumId?.let { albumId ->
+                val indexAlbum = album.find { it.id == albumId }
+                indexAlbum?.let { song.album = it }
+            }
+            song
+        }
+
+        fun Array<VkSong>.filterByQuery(
+            query: String
+        ): List<VkSong> = filter {
+            FileFilter.filterBySearchQuery("${it.artist} - ${it.title}", query)
+        }
+
+    }
+
 }
 

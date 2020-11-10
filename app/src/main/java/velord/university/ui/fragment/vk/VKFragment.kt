@@ -48,7 +48,9 @@ import velord.university.model.entity.vk.entity.VkSong
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
+import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
+import velord.university.ui.util.view.between
 import java.io.File
 
 class VKFragment :
@@ -247,11 +249,11 @@ class VKFragment :
         }
     }
 
-    private tailrec suspend fun changeRVItem(songPath: String) {
+    private suspend fun changeRVItem(songPath: String) {
         if (viewModel.rvResolverIsInitialized() &&
             viewModel.orderedIsInitialized()) {
             viewModel.rvResolver.apply {
-                val song = viewModel.vkSongList.find {
+                val song = viewModel.vkSongList.get().find {
                     it.path == songPath
                 } ?: return
 
@@ -261,15 +263,14 @@ class VKFragment :
                 val containF: (VkSong) -> Boolean = {
                     it == song
                 }
-                refreshAndScroll(files, bindingRv.fastScrollRv, containF)
+                refreshAndScroll(
+                    files.toList(),
+                    bindingRv.fastScrollRv, containF
+                )
                 //send new icon
                 //this covers case when app is launch
                 viewModel.sendIconToMiniPlayer(song)
             }
-            return
-        } else {
-            delay(500)
-            changeRVItem(songPath)
         }
     }
 
@@ -307,24 +308,19 @@ class VKFragment :
                 //observe changes in search view
                 super.observeSearchQuery()
                 //setup adapter by invoke change in search view
-                viewModel.initVkPlaylist()
                 setupAdapter()
             }
         }
         binding.root
     }
 
-
-    private suspend fun checkToken() {
-        onMain {
-            binding.swipeRefresh.isRefreshing = true
-        }
-        val token = VkPreference(requireContext()).accessToken
-        if (token.isBlank()) tokenIsBlank()
-        else tokenIsCorrect()
-        //Now we call setRefreshing(false) to signal refresh has finished
-        onMain {
-            binding.swipeRefresh.isRefreshing = false
+    private fun checkToken() {
+        scope.launch {
+            between("checkToken") {
+                val token = VkPreference(requireContext()).accessToken
+                if (token.isBlank()) tokenIsBlank()
+                else tokenIsCorrect()
+            }
         }
     }
 
@@ -362,7 +358,7 @@ class VKFragment :
     }
 
     private fun initSwipeAndRv() {
-        binding.swipeRefresh.setOnRefreshListener { scope.launch { checkToken() } }
+        binding.swipeRefresh.setOnRefreshListener { checkToken() }
         bindingRv.fastScrollRv.apply {
             isNestedScrollingEnabled = false
             layoutManager = LinearLayoutManager(activity)
@@ -385,33 +381,29 @@ class VKFragment :
     }
 
     private fun setupAdapter() {
-        scope.launch {
-            viewModel.initVkPlaylist()
-            val query = viewModel.getSearchQuery()
-            onMain {
-                super.viewModelActionBarSearch.setupSearchQuery(query)
-            }
-        }
+        val query = viewModel.getSearchQuery()
+        super.viewModelActionBarSearch.setupSearchQuery(query)
     }
 
     private fun updateAdapterBySearchQuery(
         searchQuery: String = viewModel.currentQuery
     ) {
-        if (viewModel.vkPlaylistIsInitialized()) {
-            scope.launch {
+        scope.launch {
+            between("updateAdapterBySearchQuery") {
                 val songsFiltered = viewModel.filterByQuery(searchQuery)
                 onMain {
-                    bindingRv.fastScrollRv.adapter =
-                        SongAdapter(songsFiltered.toTypedArray())
+                    bindingRv.fastScrollRv.adapter = SongAdapter(songsFiltered)
                 }
             }
         }
     }
 
     private fun updateAdapterWithShuffled() {
-        if (viewModel.vkPlaylistIsInitialized()) {
-            val shuffled = viewModel.shuffle()
-            bindingRv.fastScrollRv.adapter = SongAdapter(shuffled)
+        scope.launch {
+            between("updateAdapterWithShuffled") {
+                val shuffled = viewModel.shuffle()
+                bindingRv.fastScrollRv.adapter = SongAdapter(shuffled)
+            }
         }
     }
 
@@ -448,6 +440,10 @@ class VKFragment :
             getString(R.string.don_not_need_download)
         )
     }
+
+    private suspend fun between(tag: String,
+                                f: suspend () -> Unit) =
+        bindingRv.fastScrollSwipe.between(requireActivity(), tag, f)
 
     private fun getRecyclerViewResolver(
         adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
@@ -517,10 +513,10 @@ class VKFragment :
                 }, {
                     scope.launch {
                         val songIcon = song.getAlbumIcon()
-                        withContext(Dispatchers.Main) {
+                        onMain {
                             Glide.with(requireActivity())
                                 .load(songIcon)
-                                .placeholder(R.drawable.song_item_black)
+                                .placeholder(DrawableIcon.getRandomSongIconName())
                                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                                 .into(icon)
                         }

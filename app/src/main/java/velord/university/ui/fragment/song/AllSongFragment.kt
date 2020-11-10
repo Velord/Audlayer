@@ -362,10 +362,14 @@ class AllSongFragment :
     private inner class SongHolder(itemView: View):
         RecyclerView.ViewHolder(itemView) {
 
-        private val text: TextView = itemView.findViewById(R.id.general_item_path)
-        private val action: ImageButton = itemView.findViewById(R.id.general_action_ImageButton)
-        private val frame: FrameLayout = itemView.findViewById(R.id.general_action_frame)
-        private val icon: ImageButton = itemView.findViewById(R.id.general_item_icon)
+        private val text: TextView =
+            itemView.findViewById(R.id.general_item_path)
+        private val action: ImageButton =
+            itemView.findViewById(R.id.general_action_ImageButton)
+        private val frame: FrameLayout =
+            itemView.findViewById(R.id.general_action_frame)
+        private val icon: ImageButton =
+            itemView.findViewById(R.id.general_item_icon)
 
         val selected:  (Song) -> Array<() -> Unit> = { song ->
             arrayOf(
@@ -482,14 +486,13 @@ class AllSongFragment :
             frame.setOnClickListener {
                 actionPopUpMenu(song)
             }
-
         }
 
         private fun setIconView(song: Song,
                                 rvSelectResolver: RVSelection<Song>) {
             icon.setOnClickListener {
                 scope.launch {
-                    withContext(Dispatchers.Main) {
+                    onMain {
                         rvSelectResolver.singleSelectionPrinciple(song)
                         playSong(song)
                     }
