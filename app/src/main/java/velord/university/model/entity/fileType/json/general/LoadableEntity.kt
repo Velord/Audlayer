@@ -26,4 +26,6 @@ data class Loadable <T> (
     ): Loadable<T> = Loadable { newLoadF() }
 
     fun getUnsafe(): T = entity!!
+
+    fun getWithNull(): T? = entity
 }

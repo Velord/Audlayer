@@ -3,60 +3,50 @@ package velord.university.repository.db.transaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import velord.university.application.AudlayerApp
+import velord.university.model.coroutine.onIO
 import velord.university.model.entity.music.playlist.Playlist
 
-object PlaylistTransaction {
+object PlaylistTransaction : BaseTransaction() {
 
-    private val context = Dispatchers.IO
+    suspend fun getAllPlaylist(): List<Playlist> =
+        makeTransaction { playlistDao().getAll() }
 
-    suspend fun getAllPlaylist(): List<Playlist> = withContext(context) {
-        return@withContext AudlayerApp.db?.run {
-            playlistDao().getAll()
+    suspend fun getPlayedSongs(): List<String> =
+        makeTransaction {
+            playlistDao().getByName("Played")
+                .songs.reversed()
+                .filter { it.isNotEmpty() }
         }
-    } ?: listOf()
 
-    suspend fun getPlayedSongs(): List<String> = withContext(context) {
-        return@withContext AudlayerApp.db?.run {
-            playlistDao().getByName("Played").songs.reversed().filter { it.isNotEmpty() }
-        }
-    } ?: listOf()
-
-    suspend fun getPlayed(): Playlist = withContext(Dispatchers.IO) {
-        return@withContext AudlayerApp.db?.run {
+    suspend fun getPlayed(): Playlist =
+        makeTransaction {
             playlistDao().getByName("Played")
         }
-    } ?: Playlist("Played", listOf())
 
-    suspend fun getFavouriteSongs(): List<String> = withContext(Dispatchers.IO) {
-        return@withContext AudlayerApp.db?.run {
-            playlistDao().getByName("Favourite").songs.reversed().filter { it.isNotEmpty() }
-        }
-    } ?: listOf()
-
-    suspend fun getFavourite(): Playlist = withContext(Dispatchers.IO) {
-        return@withContext AudlayerApp.db?.run {
+    suspend fun getFavouriteSongs(): List<String> =
+        makeTransaction {
             playlistDao().getByName("Favourite")
+                .songs.reversed()
+                .filter { it.isNotEmpty() }
         }
-    } ?: Playlist("Favourite", listOf())
 
-    suspend fun deletePlaylist(playlist: Playlist) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.apply {
+    suspend fun getFavourite(): Playlist =
+        makeTransaction { playlistDao().getByName("Favourite") }
+
+    suspend fun deletePlaylist(playlist: Playlist) =
+        makeTransaction {
             playlistDao().deletePlaylistByName(playlist.name)
         }
-    }
 
-    suspend fun createNewPlaylist(name: String, songs: List<String>) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.apply {
+    suspend fun createNewPlaylist(name: String, songs: List<String>) =
+        makeTransaction {
             val playlist = Playlist(name, songs)
             playlistDao().insertAll(playlist)
         }
-    }
 
-    suspend fun update(playlist: Playlist) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.apply {
-            playlistDao().update(playlist)
-        }
-    }
+    suspend fun update(playlist: Playlist) =
+        makeTransaction { playlistDao().update(playlist) }
+
 
     suspend fun updateFavourite(changeSongsF: (List<String>) -> List<String>) {
         val favourite = getFavourite()
@@ -64,7 +54,7 @@ object PlaylistTransaction {
         update(favourite)
     }
 
-    suspend fun updatePlayedSong(path: String) = withContext(Dispatchers.IO) {
+    suspend fun updatePlayedSong(path: String) = onIO {
         //retrieve from Db
         val playedSongs = getPlayed()
         //add new path
@@ -75,22 +65,19 @@ object PlaylistTransaction {
         update(playedSongs)
     }
 
-    suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.apply {
-            playlistDao().deletePlaylistById(id)
-        }
-    }
+    suspend fun delete(id: Long) =
+        makeTransaction { playlistDao().deletePlaylistById(id) }
 
-    suspend fun whichAlbum(path: String): String = withContext(Dispatchers.IO) {
+    suspend fun whichAlbum(path: String): String = onIO {
         Playlist.other(getAllPlaylist()).forEach {
             if(it.songs.contains(path))
-                return@withContext it.name
+                return@onIO it.name
         }
-        return@withContext ""
+        return@onIO ""
     }
 
-    suspend fun checkDbTableColumn() = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.apply {
+    suspend fun checkDbTableColumn() =
+        makeTransaction {
             val playlist = getAllPlaylist()
 
             var favouriteExist = false
@@ -115,5 +102,4 @@ object PlaylistTransaction {
             if (downloadedExist.not())
                 playlistDao().insertAll(Playlist("Downloaded", listOf()))
         }
-    }
 }

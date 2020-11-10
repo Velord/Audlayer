@@ -143,7 +143,8 @@ class AlbumViewModel(
         val allPlaylist =  PlaylistTransaction.getAllPlaylist()
         Log.d(TAG, "all playlist retrieved")
         //unique songs
-        allSongRemovedDuplicate = Playlist.allSongFromPlaylist(allPlaylist)
+        allSongRemovedDuplicate = Playlist
+            .allSongFromPlaylist(allPlaylist.toList()).toList()
         Log.d(TAG, "all song retrieved")
         //1 month
         recentlyModified = FileFilter

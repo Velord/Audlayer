@@ -41,7 +41,7 @@ data class Playlist(
                 }
                 .distinct()
                 .map { File(it) }
-                .filter { it.path.isNotEmpty() }.toList()
+                .filter { it.path.isNotEmpty() }
 
         fun getMostPlayed(playlist: List<String>) =
             playlist
@@ -62,7 +62,8 @@ data class Playlist(
                 .map { it.first }
                 .take(MAX_MOST_PLAYED)
 
-        fun whichPlaylist(playlist: List<Playlist>, path: String): String  {
+        fun whichPlaylist(playlist: List<Playlist>,
+                          path: String): String  {
             other(playlist).forEach {
                 if(it.songs.contains(path))
                     return it.name

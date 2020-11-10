@@ -43,6 +43,8 @@ import velord.university.model.entity.fileType.file.FileNameParser
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
+import velord.university.ui.util.view.between
+import velord.university.ui.util.view.makeCheck
 
 class AllSongFragment :
     ActionBarSearchFragment(),
@@ -122,10 +124,10 @@ class AllSongFragment :
         }
     }
 
-    private tailrec suspend fun changeRVItem(songPath: String) {
+    private suspend fun changeRVItem(songPath: String) {
         if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.apply {
-                val song = viewModel.songs.find {
+                val song = viewModel.allSong.get().find {
                     it.file.absolutePath == songPath
                 } ?: return
 
@@ -135,15 +137,14 @@ class AllSongFragment :
                 val containF: (Song) -> Boolean = {
                     it == song
                 }
-                refreshAndScroll(songList, bindingRv.fastScrollRv, containF)
+                refreshAndScroll(
+                    songList.toList(),
+                    bindingRv.fastScrollRv, containF
+                )
                 //send new icon
                 //this covers case when app is launch
                 viewModel.sendIconToMiniPlayer(song)
             }
-            return
-        } else {
-            delay(500)
-            changeRVItem(songPath)
         }
     }
 
@@ -182,18 +183,18 @@ class AllSongFragment :
                     val sortBy =
                         SortByPreference(requireContext()).sortByAllSongFragment
                     when(sortBy) {
-                        0 -> { menuItem.getItem(0).isChecked = true }
-                        1 -> { menuItem.getItem(1).isChecked = true }
-                        2 -> { menuItem.getItem(2).isChecked = true }
-                        3 -> { menuItem.getItem(3).isChecked = true }
-                        4 -> { menuItem.getItem(4).isChecked = true }
+                        0 -> { menuItem.makeCheck(0) }
+                        1 -> { menuItem.makeCheck(1) }
+                        2 -> { menuItem.makeCheck(2) }
+                        3 -> { menuItem.makeCheck(3) }
+                        4 -> { menuItem.makeCheck(4) }
                     }
 
                     val ascDescOrder =
                         SortByPreference(requireContext()).ascDescAllSongFragment
                     when(ascDescOrder) {
-                        0 -> { menuItem.getItem(5).isChecked = true }
-                        1 -> { menuItem.getItem(6).isChecked = true }
+                        0 -> { menuItem.makeCheck(5) }
+                        1 -> { menuItem.makeCheck(6) }
                     }
                 }
 
@@ -223,12 +224,13 @@ class AllSongFragment :
     override val actionBarPopUpMenu: (PopupMenu) -> Unit = {  }
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
-        if (searchQuery != "-1") {
+        val query =
+            if (searchQuery != "-1") searchQuery
+            else ""
             //store search term in shared preferences
-            viewModel.storeSearchQuery(searchQuery)
+            viewModel.storeSearchQuery(query)
             //update files list
-            updateAdapterBySearchQuery(searchQuery)
-        }
+            updateAdapterBySearchQuery(query)
     }
     override val actionBarPopUp: (ImageButton) -> Unit = { }
     override val actionSearchView: (SearchView) -> Unit = {  }
@@ -244,7 +246,6 @@ class AllSongFragment :
     private val bindingRv get() = _bindingRv ?:
     throw ViewDestroyed("Don't touch view when it is destroyed")
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -255,7 +256,7 @@ class AllSongFragment :
         _bindingActionBar = binding.actionBarInclude
         _bindingRv = binding.rvInclude
         scope.launch {
-            viewModel
+            initViewModel()
             onMain {
                 //init action bar
                 super.initActionBar()
@@ -273,7 +274,18 @@ class AllSongFragment :
         binding.root
     }
 
+    private fun initViewModel() {
+        viewModel
+    }
+
     private fun initView() {
+        initSwipeAndRv()
+    }
+
+    private fun initSwipeAndRv() {
+        bindingRv.fastScrollSwipe.setOnRefreshListener {
+            refreshValue()
+        }
         bindingRv.fastScrollRv.apply {
             isNestedScrollingEnabled = false
             layoutManager = LinearLayoutManager(activity)
@@ -282,6 +294,17 @@ class AllSongFragment :
         super.setScrollListenerByRecyclerViewScrolling(
             bindingRv.fastScrollRv, 50, -5
         )
+
+    }
+
+    private fun refreshValue() {
+        scope.launch {
+            between("refreshValue") {
+                viewModel.allPlaylist.load()
+                viewModel.allSong.load()
+                updateAdapterBySearchQuery("")
+            }
+        }
     }
 
     private fun sortBy(index: Int): Boolean {
@@ -304,11 +327,11 @@ class AllSongFragment :
     }
 
     private fun updateAdapterBySearchQuery(searchQuery: String) {
-        if (viewModel.songsIsInitialized()) {
-            scope.launch {
+        scope.launch {
+            between("updateAdapterBySearchQuery") {
                 val songsFiltered =
-                    viewModel.filterByQuery(searchQuery).toTypedArray()
-                withContext(Dispatchers.Main) {
+                    viewModel.filterByQuery(searchQuery)
+                onMain {
                     bindingRv.fastScrollRv.adapter = SongAdapter(songsFiltered)
                 }
             }
@@ -316,11 +339,19 @@ class AllSongFragment :
     }
 
     private fun updateAdapterWithShuffled() {
-        if (viewModel.songsIsInitialized()) {
-            val shuffled = viewModel.shuffle()
-            bindingRv.fastScrollRv.adapter = SongAdapter(shuffled)
+        scope.launch {
+            between("updateAdapterWithShuffled") {
+                val shuffled = viewModel.shuffle()
+                onMain {
+                    bindingRv.fastScrollRv.adapter = SongAdapter(shuffled)
+                }
+            }
         }
     }
+
+    private suspend fun between(tag: String,
+                                f: suspend () -> Unit) =
+        bindingRv.fastScrollSwipe.between(requireActivity(), tag, f)
 
     private fun getRecyclerViewResolver(
         adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
@@ -351,7 +382,9 @@ class AllSongFragment :
                 },
                 {
                     val album = Playlist.whichPlaylist(
-                        viewModel.allPlaylist, song.file.path)
+                        viewModel.allPlaylist.getWithNull()?.toList() ?: listOf(),
+                        song.file.path
+                    )
 
                     val size: Double = roundOfDecimalToUp(
                             (FileFilter.getSize(song.file).toDouble() / 1024)
