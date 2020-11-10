@@ -7,6 +7,7 @@ import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
+import velord.university.model.entity.fileType.directory.DirectoryResolver
 import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.fileType.file.FileExtension
 import velord.university.model.entity.fileType.file.FileFilter
@@ -106,7 +107,7 @@ class FolderViewModel(
     fun filterAndSortFiles(filter: FileFilter.TYPE = FileFilter.TYPE.SEARCH,
                            searchTerm: String = currentQuery
     ): Array<Song> {
-        val filesInFolder = getFilesInCurrentFolder()
+        val filesInFolder = getSongListInCurrentFolder()
         //if you would see not compatible format
         //just remove or comment 2 lines bottom
         val compatibleFileFormat = filesInFolder.filter {
@@ -142,15 +143,10 @@ class FolderViewModel(
     fun isAudio(value: Song): Boolean =
         FileExtension.isAudio(value.file.extension)
 
-    private fun getFilesInCurrentFolder(): Array<Song> {
-        val path = directory.getPath()
-        val file = File(path)
-        val filesInFolder: Array<File> = file.listFiles() ?: arrayOf()
-        return filesInFolder
+    private fun getSongListInCurrentFolder(): Array<Song> =
+        directory.getFilesInDirectory()
             .map {
                 Song(it, "", DrawableIcon.getRandomFolderSongIconName)
             }
             .toTypedArray()
-
-    }
 }

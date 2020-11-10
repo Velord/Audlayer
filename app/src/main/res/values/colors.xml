@@ -43,7 +43,9 @@
     <color name="tealA700">#00BFA5</color>
     <color name="grey800">#424242</color>
     <color name="amber500">#FFC107</color>
-    <color name="amberA400">#FFC400</color>
+    <color name="amberA400">#FFC400</color>#FFD740
+    <color name="amberA200">#FFD740</color>
+    <color name="amberA100">#FFE57F</color>
     <color name="yellow800">#F9A825</color>
     <color name="teal700">#00796B</color>
     <color name="orangeA700">#FF6D00</color>

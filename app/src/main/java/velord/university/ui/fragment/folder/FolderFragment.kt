@@ -312,9 +312,26 @@ class FolderFragment :
 
     private fun initView() {
         initSwipeAndRv()
+        initDirectoryPath()
 
         if (viewModel.rvResolverIsInitialized())
             updateAdapterBySearchQuery(viewModel.currentQuery)
+    }
+
+    private fun initDirectoryPath() {
+        binding.currentDirectory.setOnClickListener {
+            //change ui
+            if (viewModel.directory.isRoot()) binding
+                .currentDirectoryLayout
+                .setBackgroundResource(R.color.amberA100)
+            else binding
+                .currentDirectoryLayout
+                .setBackgroundResource(R.drawable.current_folder_layout_shape)
+            //change root
+            viewModel.directory.changeRoot(requireContext())
+            //implement
+            refreshValue()
+        }
     }
 
     private fun setupAdapter(file: File) {
@@ -413,7 +430,7 @@ class FolderFragment :
 
     private fun changeCurrentTextView(file: File) {
         val pathToUI = FileNameParser.slashReplaceArrow(file.path)
-        binding.currentFolderTextView.text = pathToUI
+        binding.currentDirectory.text = pathToUI
     }
 
     private suspend fun between(tag: String,
