@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
-import velord.university.model.entity.MiniPlayerServiceSong
+import velord.university.model.entity.music.song.MiniPlayerServiceSong
 
 @Dao
 interface MiniPlayerServiceSongDao {

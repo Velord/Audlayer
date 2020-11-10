@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -41,11 +40,11 @@ import velord.university.databinding.GeneralRvBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
-import velord.university.model.entity.music.Song
-import velord.university.model.entity.file.FileExtension
-import velord.university.model.entity.file.FileExtensionModifier
-import velord.university.model.entity.file.FileFilter
-import velord.university.model.entity.file.FileNameParser
+import velord.university.model.entity.music.song.Song
+import velord.university.model.entity.fileType.file.FileExtension
+import velord.university.model.entity.fileType.file.FileExtensionModifier
+import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.fileType.file.FileNameParser
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
@@ -63,11 +62,9 @@ class FolderFragment :
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
-        val path = viewModel.currentFile.path
-        return if (path == Environment.getExternalStorageDirectory().path)
-            true
+        return if (viewModel.directory.isRoot()) true
         else {
-            val newFile = viewModel.currentFile.parentFile!!
+            val newFile = viewModel.directory.setParent()
             setupAdapter(newFile)
             false
         }
@@ -302,7 +299,7 @@ class FolderFragment :
                     initView()
                     //observe changes in search view
                     super.observeSearchQuery()
-                    setupAdapter(viewModel.currentFile)
+                    setupAdapter(viewModel.directory.getDirectory())
                 }
             }
         }
@@ -310,7 +307,7 @@ class FolderFragment :
     }
 
     private fun initViewModel() {
-        viewModel.initViewModel()
+        viewModel
     }
 
     private fun initView() {
@@ -322,7 +319,7 @@ class FolderFragment :
 
     private fun setupAdapter(file: File) {
         scope.launch {
-            viewModel.currentFile = file
+            viewModel.directory.setDirectory(file)
             val query = viewModel.getSearchQuery()
             onMain {
                 super.viewModelActionBarSearch.setupSearchQuery(query)
@@ -402,7 +399,7 @@ class FolderFragment :
                     FileFilter.TYPE.SEARCH
                 else FileFilter.TYPE.EMPTY_SEARCH
                 //now do everything to setup adapter
-                changeCurrentTextView(viewModel.currentFile)
+                changeCurrentTextView(viewModel.directory.getDirectory())
                 //apply all filters to recycler view
                 viewModel.fileList = viewModel
                     .filterAndSortFiles(filter, searchQuery)

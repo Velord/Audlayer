@@ -4,9 +4,9 @@ import android.content.Context
 import android.webkit.WebView
 import velord.university.model.coroutine.onIO
 import velord.university.application.notification.VkDownloadNotification
-import velord.university.model.entity.vk.VkAlbum
+import velord.university.model.entity.vk.entity.VkAlbum
 import velord.university.model.entity.vk.fetch.VkPlaylist
-import velord.university.model.entity.vk.VkSong
+import velord.university.model.entity.vk.entity.VkSong
 import velord.university.repository.fetch.IMusicFetch
 import velord.university.repository.fetch.SefonFetchSequential
 import velord.university.repository.db.transaction.vk.VkAlbumTransaction

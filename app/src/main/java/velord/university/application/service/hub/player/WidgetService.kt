@@ -14,8 +14,8 @@ import velord.university.application.broadcast.restarter.RestarterWidgetService
 import velord.university.application.service.mayInvokeGeneral
 import velord.university.application.service.mayInvokeRadio
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.music.Song
-import velord.university.model.entity.file.FileNameParser
+import velord.university.model.entity.music.song.Song
+import velord.university.model.entity.fileType.file.FileNameParser
 import velord.university.ui.widget.AudlayerWidget
 
 class WidgetService : Service(),

@@ -22,8 +22,8 @@ import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.databinding.AddToPlaylistFragmentBinding
 import velord.university.databinding.GeneralRvBinding
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.Playlist
-import velord.university.model.entity.music.Song
+import velord.university.model.entity.music.playlist.Playlist
+import velord.university.model.entity.music.song.Song
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerSecond
 import velord.university.ui.fragment.addToPlaylist.select.SelectSongFragment

@@ -3,7 +3,7 @@ package velord.university.repository.db.transaction.vk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import velord.university.application.AudlayerApp
-import velord.university.model.entity.vk.VkSong
+import velord.university.model.entity.vk.entity.VkSong
 
 object VkSongTransaction {
 

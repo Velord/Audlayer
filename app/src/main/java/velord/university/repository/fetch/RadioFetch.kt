@@ -2,8 +2,8 @@ package velord.university.repository.fetch
 
 import android.content.Context
 import android.util.Log
-import velord.university.model.entity.RadioStation
-import velord.university.model.entity.file.getJsonDataFromAsset
+import velord.university.model.entity.music.RadioStation
+import velord.university.model.entity.fileType.json.general.getJsonDataFromAsset
 
 object RadioFetch : FetchJson() {
 

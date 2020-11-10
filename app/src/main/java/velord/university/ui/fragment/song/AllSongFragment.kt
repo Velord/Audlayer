@@ -36,10 +36,10 @@ import velord.university.databinding.GeneralRvBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
-import velord.university.model.entity.Playlist
-import velord.university.model.entity.music.Song
-import velord.university.model.entity.file.FileFilter
-import velord.university.model.entity.file.FileNameParser
+import velord.university.model.entity.music.playlist.Playlist
+import velord.university.model.entity.music.song.Song
+import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.fileType.file.FileNameParser
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection

@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import velord.university.model.entity.vk.VkAlbum
+import velord.university.model.entity.vk.entity.VkAlbum
 
 @Dao
 interface VkAlbumDao {

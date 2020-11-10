@@ -1,6 +1,6 @@
 package velord.university.interactor
 
-import velord.university.model.entity.music.Song
+import velord.university.model.entity.music.song.Song
 
 object SongPlaylistInteractor {
     lateinit var songs: Array<Song>

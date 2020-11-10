@@ -1,16 +1,15 @@
 package velord.university.ui.fragment.folder
 
 import android.app.Application
-import android.os.Environment
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.music.Song
-import velord.university.model.entity.file.FileExtension
-import velord.university.model.entity.file.FileFilter
+import velord.university.model.entity.music.song.Song
+import velord.university.model.entity.fileType.file.FileExtension
+import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 import java.io.File
@@ -28,11 +27,7 @@ class FolderViewModel(
 
     lateinit var rvResolver: RVSelection<Song>
 
-    lateinit var currentFile: File
-
-    fun initViewModel() {
-        currentFile = Environment.getExternalStorageDirectory()
-    }
+    val directory: DirectoryResolver = DirectoryResolver()
 
     fun sendIconToMiniPlayer(song: Song) =
         AppBroadcastHub.apply { app.iconUI(song.icon.toString()) }
@@ -40,9 +35,9 @@ class FolderViewModel(
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 
     fun getSearchQuery(): String =
-        SearchQueryPreferences.getStoredQueryFolder(app, currentFile.path)
+        SearchQueryPreferences.getStoredQueryFolder(app, directory.getPath())
 
-    fun onlyAudio(file: File = currentFile): Array<Song> =
+    fun onlyAudio(file: File = directory.getDirectory()): Array<Song> =
         FileFilter
             .filterOnlyAudio(file)
             .map { Song(it) }
@@ -93,7 +88,7 @@ class FolderViewModel(
     fun storeCurrentFolderSearchQuery(query: String) {
         //store search term in shared preferences
         currentQuery = query
-        val folderPath = currentFile.path
+        val folderPath = directory.getPath()
         SearchQueryPreferences.setStoredQueryFolder(app, folderPath, currentQuery)
         Log.d(TAG, "query: $currentQuery path: $folderPath")
     }
@@ -148,7 +143,7 @@ class FolderViewModel(
         FileExtension.isAudio(value.file.extension)
 
     private fun getFilesInCurrentFolder(): Array<Song> {
-        val path = currentFile.path
+        val path = directory.getPath()
         val file = File(path)
         val filesInFolder: Array<File> = file.listFiles() ?: arrayOf()
         return filesInFolder

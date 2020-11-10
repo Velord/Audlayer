@@ -3,7 +3,7 @@ package velord.university.repository.db.transaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import velord.university.application.AudlayerApp
-import velord.university.model.entity.Playlist
+import velord.university.model.entity.music.playlist.Playlist
 
 object PlaylistTransaction {
 

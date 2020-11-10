@@ -20,12 +20,13 @@ import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import velord.university.model.converter.transliterate
 import velord.university.model.entity.vk.fetch.VkDownloadFile
-import velord.university.model.entity.vk.VkSong
+import velord.university.model.entity.vk.entity.VkSong
 
 //https://imusic.я.wiki
 data class IMusicFetch(private val context: Context,
                        val webView: WebView,
-                       val song: VkSong) {
+                       val song: VkSong
+) {
 
     private val TAG = "IMusicFetchSequential"
     private var directSearchLink: String = ""

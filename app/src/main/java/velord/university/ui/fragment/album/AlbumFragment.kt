@@ -24,8 +24,8 @@ import velord.university.R
 import velord.university.application.settings.SortByPreference
 import velord.university.databinding.ActionBarSearchBinding
 import velord.university.databinding.AlbumFragmentBinding
-import velord.university.model.entity.Album
-import velord.university.model.entity.Playlist
+import velord.university.model.entity.music.Album
+import velord.university.model.entity.music.playlist.Playlist
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 

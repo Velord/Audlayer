@@ -14,7 +14,7 @@ import velord.university.application.broadcast.restarter.RestarterNotificationSe
 import velord.university.application.notification.MiniPlayerNotification
 import velord.university.application.service.mayInvokeRadio
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.file.FileNameParser
+import velord.university.model.entity.fileType.file.FileNameParser
 
 class PlayerNotificationService : Service(),
     MiniPlayerUIReceiver,

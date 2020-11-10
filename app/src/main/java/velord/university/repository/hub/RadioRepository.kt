@@ -3,7 +3,7 @@ package velord.university.repository.hub
 import android.content.Context
 import velord.university.model.coroutine.onIO
 import velord.university.application.AudlayerApp.Companion.db
-import velord.university.model.entity.RadioStation
+import velord.university.model.entity.music.RadioStation
 import velord.university.repository.fetch.RadioFetch
 
 object RadioRepository {

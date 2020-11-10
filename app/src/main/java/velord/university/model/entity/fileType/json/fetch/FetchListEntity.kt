@@ -1,4 +1,4 @@
-package velord.university.model.entity.json.fetch
+package velord.university.model.entity.fileType.json.fetch
 
 import com.statuscasellc.statuscase.model.json.general.FromJson
 import kotlinx.serialization.Serializable

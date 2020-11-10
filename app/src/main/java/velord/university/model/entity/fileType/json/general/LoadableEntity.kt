@@ -1,4 +1,4 @@
-package velord.university.model.entity.json.general
+package velord.university.model.entity.fileType.json.general
 
 data class Loadable <T> (
     private val loadF: suspend () -> T

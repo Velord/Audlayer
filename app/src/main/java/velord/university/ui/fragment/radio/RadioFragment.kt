@@ -30,7 +30,7 @@ import velord.university.application.broadcast.registerBroadcastReceiver
 import velord.university.application.broadcast.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.databinding.*
-import velord.university.model.entity.RadioStation
+import velord.university.model.entity.music.RadioStation
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection

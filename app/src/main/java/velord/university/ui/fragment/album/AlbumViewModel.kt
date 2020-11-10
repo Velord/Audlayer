@@ -10,10 +10,10 @@ import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.Album
-import velord.university.model.entity.Playlist
-import velord.university.model.entity.music.Song
-import velord.university.model.entity.file.FileFilter
+import velord.university.model.entity.music.Album
+import velord.university.model.entity.music.playlist.Playlist
+import velord.university.model.entity.music.song.Song
+import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.repository.hub.FolderRepository
 import velord.university.repository.db.transaction.AlbumTransaction
 import velord.university.repository.db.transaction.PlaylistTransaction

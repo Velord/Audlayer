@@ -1,4 +1,4 @@
-package velord.university.model.entity.file
+package velord.university.model.entity.fileType.json.general
 
 import android.content.Context
 import java.io.IOException

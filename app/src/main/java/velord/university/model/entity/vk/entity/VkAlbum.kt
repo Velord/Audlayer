@@ -1,4 +1,4 @@
-package velord.university.model.entity.vk
+package velord.university.model.entity.vk.entity
 
 import androidx.room.*
 import kotlinx.serialization.Serializable

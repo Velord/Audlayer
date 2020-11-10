@@ -2,8 +2,8 @@ package velord.university.model.entity.vk.fetch
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import velord.university.model.entity.vk.VkAlbum
-import velord.university.model.entity.vk.VkSong
+import velord.university.model.entity.vk.entity.VkAlbum
+import velord.university.model.entity.vk.entity.VkSong
 
 @Serializable
 data class Ads(

@@ -43,9 +43,9 @@ import velord.university.databinding.VkFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
-import velord.university.model.entity.music.Song
-import velord.university.model.entity.vk.VkSong
-import velord.university.model.entity.file.FileFilter
+import velord.university.model.entity.music.song.Song
+import velord.university.model.entity.vk.entity.VkSong
+import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.RVSelection

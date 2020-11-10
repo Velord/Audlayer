@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import velord.university.model.entity.Playlist
+import velord.university.model.entity.music.playlist.Playlist
 
 @Dao
 interface PlaylistDao {
