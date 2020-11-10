@@ -1,20 +1,10 @@
 package velord.university.repository.db.transaction
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import velord.university.application.AudlayerApp
-import velord.university.model.entity.music.song.MiniPlayerServiceSong
+import velord.university.repository.db.dao.MiniPlayerServiceSongDao
+import velord.university.repository.db.transaction.hub.BaseTransaction
 
-object ServiceTransaction {
-    suspend fun clearAndInsert(songs: Array<MiniPlayerServiceSong>) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.apply {
-            serviceDao().updateData(songs)
-        }
-    }
+object ServiceTransaction : BaseTransaction() {
 
-    suspend fun getPlaylist(): List<MiniPlayerServiceSong> = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.run {
-            serviceDao().getAll()
-        }
-    } ?: listOf()
+    override val TAG: String = "ServiceTransaction"
+
 }

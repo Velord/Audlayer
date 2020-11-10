@@ -1,32 +1,32 @@
 package velord.university.repository.db.transaction.vk
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import velord.university.application.AudlayerApp
 import velord.university.model.entity.vk.entity.VkSong
-import velord.university.model.entity.vk.fetch.VkPlaylist
-import velord.university.repository.db.transaction.BaseTransaction
+import velord.university.repository.db.dao.AlbumDao
+import velord.university.repository.db.dao.vk.VkSongDao
+import velord.university.repository.db.transaction.hub.BaseTransaction
+import velord.university.repository.db.transaction.hub.HubTransaction.vkSongTransaction
 
 object VkSongTransaction : BaseTransaction() {
 
-    suspend fun getSongs(): Array<VkSong> =
-       makeTransaction { vkSongDao().getAll().toTypedArray() }
+    override val TAG: String = "VkSongTransaction"
+
+    suspend fun getAllSong(): Array<VkSong> =
+        vkSongTransaction("getSongs") { getAll().toTypedArray() }
 
     suspend fun addSong(vararg song: VkSong) =
-        makeTransaction { vkSongDao().insertAll(*song) }
+        vkSongTransaction("addSong") { insertAll(*song) }
 
     suspend fun update(vararg song: VkSong) =
-        makeTransaction { vkSongDao().update(*song) }
+        vkSongTransaction("update") { update(*song) }
 
-    suspend fun delete(vararg song: VkSong) = makeTransaction {
-        song.forEach {
-            vkSongDao().deleteById(it.id)
+    suspend fun delete(vararg song: VkSong) =
+        vkSongTransaction("delete") {
+            song.forEach { deleteById(it.id) }
         }
-    }
 
     suspend fun deleteAll() =
-        makeTransaction { vkSongDao().nukeTable() }
+        vkSongTransaction("deleteAll") { nukeTable() }
 
     suspend fun getPlaylist(): Array<VkSong> =
-        makeTransaction { vkSongDao().getVkPlaylist().toTypedArray() }
+        vkSongTransaction("getPlaylist") { getVkPlaylist().toTypedArray() }
 }

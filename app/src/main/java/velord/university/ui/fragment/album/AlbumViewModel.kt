@@ -5,11 +5,13 @@ import android.media.MediaMetadataRetriever
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
+import velord.university.model.coroutine.onIO
 import velord.university.model.entity.music.Album
 import velord.university.model.entity.music.playlist.Playlist
 import velord.university.model.entity.music.song.Song
@@ -17,6 +19,7 @@ import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.repository.hub.FolderRepository
 import velord.university.repository.db.transaction.AlbumTransaction
 import velord.university.repository.db.transaction.PlaylistTransaction
+import velord.university.repository.db.transaction.hub.HubTransaction
 import java.io.File
 
 const val MAX_LAST_PLAYED: Int = 50
@@ -27,8 +30,6 @@ class AlbumViewModel(
 ) : AndroidViewModel(app) {
 
     private val TAG = "AlbumViewModel"
-
-    private val scope = CoroutineScope(Job() + Dispatchers.IO)
 
     lateinit var currentQuery: String
 
@@ -104,25 +105,27 @@ class AlbumViewModel(
         Log.d(TAG, "stored: $currentQuery")
     }
 
-    suspend fun deletePlaylist(playlist: Playlist) = withContext(Dispatchers.IO) {
-        PlaylistTransaction.deletePlaylist(playlist)
+    suspend fun deletePlaylist(playlist: Playlist) {
+        HubTransaction.playlistTransaction("deletePlaylist") {
+            deletePlaylistByName(playlist.name)
+        }
         //refresh playlist
         getDefaultAndUserPlaylist()
     }
 
-    suspend fun retrievePlaylistFromDb() = withContext(Dispatchers.IO) {
+    suspend fun retrievePlaylistFromDb() = onIO {
         playlist = getDefaultAndUserPlaylist()
         Log.d(TAG, "all playlist collected")
     }
 
-    suspend fun retrieveAlbumFromDb() = withContext(Dispatchers.IO) {
-        albums = AlbumTransaction.getAlbums()
+    suspend fun retrieveAlbumFromDb() {
+        albums =  HubTransaction.albumTransaction("retrieveAlbumFromDb") { getAll() }
         Log.d(TAG, "all albums collected")
     }
 
     suspend fun refreshAllAlbum() = withContext(Dispatchers.IO) {
         albums = getAlbumBasedOnAllSong()
-        scope.launch { AlbumTransaction.saveAlbum(albums) }
+        viewModelScope.launch { AlbumTransaction.clearThenSave(albums) }
         Log.d(TAG, "all album collected")
     }
 
@@ -185,8 +188,8 @@ class AlbumViewModel(
         return allSongRemovedDuplicate
             .fold(hashMapOf()) { albums: HashMap<String, Album>, song: File ->
                 metaRetriever.setDataSource(song.path)
-                scope.launch {
-                    val name = withContext(Dispatchers.IO) {
+                viewModelScope.launch {
+                    val name = onIO {
                         metaRetriever
                             .extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
                     }
@@ -210,5 +213,11 @@ class AlbumViewModel(
                 Log.d(TAG, "check album on ${song.path}")
                 albums
             }.toList().map { it.second }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+
+        viewModelScope.cancel()
     }
 }

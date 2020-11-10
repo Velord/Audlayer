@@ -15,17 +15,9 @@ import velord.university.repository.fetch.VkFetch
 
 object VkRepository : BaseRepository() {
 
-    suspend fun getAlbumsFromDb(): Array<VkAlbum> =
-        VkAlbumTransaction.getAlbums()
-
-    suspend fun getSongsFromDb(): Array<VkSong> =
-        VkSongTransaction.getSongs()
-
     suspend fun getPlaylistByToken(context: Context): VkPlaylist = onIO {
         VkFetch.fetchPlaylist(context)
     }
-
-    suspend fun getVkPlaylist() = VkSongTransaction.getPlaylist()
 
     suspend fun deleteAllTables() {
         VkAlbumTransaction.deleteAll()
@@ -35,14 +27,14 @@ object VkRepository : BaseRepository() {
     suspend fun downloadViaSefon(context: Context,
                                  webView: WebView,
                                  vkSong: VkSong
-    ): String? = onIO {
+    ): String? = fetch("downloadViaSefon") {
         SefonFetchSequential(context, webView, vkSong).download()
     }
 
     suspend fun downloadViaIMusic(context: Context,
                                   webView: WebView,
                                   vkSong: VkSong
-    ): String? = onIO {
+    ): String? = fetch("downloadViaIMusic") {
         IMusicFetch(context, webView, vkSong).download()
     }
 
@@ -50,21 +42,16 @@ object VkRepository : BaseRepository() {
     suspend fun download(context: Context,
                          webView: WebView,
                          vkSong: VkSong
-    ): String?  =
+    ): String? = fetch("download") {
         downloadViaSefon(context, webView, vkSong) ?:
         downloadViaIMusic(context, webView, vkSong)
-
-    suspend fun updateSong(vkSong: VkSong) =
-        VkSongTransaction.update(vkSong)
+    }
 
     suspend fun insertAlbumAndSong(album: Array<VkAlbum>,
                                    song: Array<VkSong>) {
         VkAlbumTransaction.addAlbum(*album)
         VkSongTransaction.addSong(*song)
     }
-
-    suspend fun deleteSong(song: Array<VkSong>) =
-        VkSongTransaction.delete(*song)
 
     suspend fun downloadAll(context: Context,
                             webView: WebView,

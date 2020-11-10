@@ -1,19 +1,21 @@
 package velord.university.repository.db.transaction.vk
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import velord.university.application.AudlayerApp
 import velord.university.model.entity.vk.entity.VkAlbum
-import velord.university.repository.db.transaction.BaseTransaction
+import velord.university.repository.db.dao.vk.VkAlbumDao
+import velord.university.repository.db.dao.vk.VkSongDao
+import velord.university.repository.db.transaction.hub.BaseTransaction
+import velord.university.repository.db.transaction.hub.HubTransaction.vkAlbumTransaction
 
 object VkAlbumTransaction : BaseTransaction() {
 
+    override val TAG: String = "VkAlbumTransaction"
+
     suspend fun getAlbums(): Array<VkAlbum> =
-        makeTransaction { vkAlbumDao().getAll().toTypedArray() }
+        vkAlbumTransaction("getAlbums") { getAll().toTypedArray() }
 
     suspend fun addAlbum(vararg album: VkAlbum) =
-        makeTransaction { vkAlbumDao().insertAll(*album) }
+        vkAlbumTransaction("addAlbum") { insertAll(*album) }
 
     suspend fun deleteAll() =
-        makeTransaction { vkAlbumDao().nukeTable() }
+        vkAlbumTransaction("deleteAll") { nukeTable() }
 }

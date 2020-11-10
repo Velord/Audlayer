@@ -193,13 +193,9 @@ class VKFragment :
     override val actionBarPopUpMenuLayout: () -> Int = {
         R.menu.vk_fragment_pop_up
     }
-    override val actionBarPopUpMenuStyle: () -> Int = {
-        R.style.PopupMenuOverlapAnchorFolder
-    }
     override val actionBarLeftMenu: (ImageButton) -> Unit = {
         it.setImageResource(R.drawable.round_format_list_bulleted_amber_a400_48dp)
     }
-    override val actionBarPopUpMenu: (PopupMenu) -> Unit = {  }
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
         if (searchQuery != "-1") {
@@ -213,7 +209,6 @@ class VKFragment :
     override val actionBarPopUp: (ImageButton) -> Unit = {
         it.setImageResource(R.drawable.arrow_down_amber_a400)
     }
-    override val actionSearchView: (SearchView) -> Unit = {  }
 
     private val receivers = receiverList() +
             getIconClickedReceiverList()
@@ -508,9 +503,8 @@ class VKFragment :
 
         val general: (VkSong) -> Array<() -> Unit> = { song ->
             arrayOf(
+                { needDownloadAction(song) },
                 {
-                    needDownloadAction(song)
-                }, {
                     scope.launch {
                         val songIcon = song.getAlbumIcon()
                         onMain {
@@ -521,9 +515,8 @@ class VKFragment :
                                 .into(icon)
                         }
                     }
-                }, {
-                    text.setTextColor(resources.getColor(R.color.white_opacity_80))
-                }
+                },
+                { text.setTextColor(resources.getColor(R.color.white_opacity_80)) }
             )
         }
 
@@ -544,9 +537,8 @@ class VKFragment :
                         size.toString(),
                         bitrate
                     )
-                }, {
-                    itemView.setBackgroundResource(R.color.sapphire_opacity_40)
-                }
+                },
+                { itemView.setBackgroundResource(R.color.sapphire_opacity_40) }
             )
         }
 
@@ -556,9 +548,9 @@ class VKFragment :
                     val album = song.album?.title?.let { "Album: $it" } ?: ""
                     text.text = getString(R.string.vk_rv_item_not_selected,
                         song.artist, song.title, album)
-                }, {
-                    needDownloadBackground(song)
-                }, {
+                },
+                { needDownloadBackground(song) },
+                {
                     if (viewModel.needDownload(song)) {
                         text.setTextColor(resources.getColor(R.color.white_opacity_65))
                     }

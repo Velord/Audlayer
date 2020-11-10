@@ -36,9 +36,11 @@ class AudlayerApp : Application() {
     }
 
     companion object {
-        var db: AppDatabase? = null
+        private var db: AppDatabase? = null
 
         private val scope: CoroutineScope = getScope()
+
+        fun getDatabase(): AppDatabase? = db
 
         fun startService(context: Context,
                          service: Service) =

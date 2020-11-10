@@ -4,7 +4,7 @@ import android.content.Context
 import velord.university.application.settings.miniPlayer.MiniPlayerUIPreference
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 
-object MiniPlayerRepository {
+object MiniPlayerRepository : BaseRepository() {
 
     fun getState(context: Context): MiniPlayerLayoutState =
         when(MiniPlayerUIPreference(context).state) {

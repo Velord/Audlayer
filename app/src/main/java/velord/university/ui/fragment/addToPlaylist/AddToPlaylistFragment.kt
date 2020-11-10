@@ -25,6 +25,7 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.music.playlist.Playlist
 import velord.university.model.entity.music.song.Song
 import velord.university.repository.db.transaction.PlaylistTransaction
+import velord.university.repository.db.transaction.hub.HubTransaction
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerSecond
 import velord.university.ui.fragment.addToPlaylist.select.SelectSongFragment
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
@@ -169,10 +170,10 @@ class AddToPlaylistFragment :
                     }
                     R.id.playlist_item_delete -> {
                         scope.launch {
-                            PlaylistTransaction.delete(playlist.id)
-                            withContext(Dispatchers.Main) {
-                                setupAdapter()
+                            HubTransaction.playlistTransaction("playlist_item_delete") {
+                                deletePlaylistById(playlist.id)
                             }
+                            onMain { setupAdapter() }
                         }
                         true
                     }

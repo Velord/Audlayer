@@ -26,6 +26,9 @@ import velord.university.model.entity.vk.entity.VkSong.Companion.mapWithAlbum
 import velord.university.repository.hub.FolderRepository
 import velord.university.repository.hub.VkRepository
 import velord.university.repository.db.transaction.PlaylistTransaction
+import velord.university.repository.db.transaction.hub.HubTransaction
+import velord.university.repository.db.transaction.vk.VkAlbumTransaction
+import velord.university.repository.db.transaction.vk.VkSongTransaction
 import velord.university.repository.hub.HubRepository.vkRepository
 import velord.university.ui.util.RVSelection
 import java.io.File
@@ -38,9 +41,11 @@ class VkViewModel(
     private val TAG = "VkViewModel"
 
     val vkSongList: Loadable<Array<VkSong>> = Loadable {
-        val vkAlbumList = app.vkRepository { getAlbumsFromDb() }
-        app.vkRepository {
-            getSongsFromDb()
+        val vkAlbumList = HubTransaction.vkAlbumTransaction("vkSongList") {
+            getAll().toTypedArray()
+        }
+        HubTransaction.vkSongTransaction("vkSongList") {
+            getAll().toTypedArray()
                 .mapWithAlbum(vkAlbumList)
                 .toTypedArray()
         }
@@ -266,7 +271,7 @@ class VkViewModel(
         val orderedIndex = ordered.indexOf(song)
         ordered[orderedIndex].path = path
 
-        app.vkRepository { updateSong(song) }
+        VkSongTransaction.update(song)
     }
 
     private suspend fun download(vkSong: VkSong,
@@ -308,7 +313,7 @@ class VkViewModel(
         //song
         val notExistSong = getNoExistInDbSong(byTokenSongs, fromDbSongs)
         //album
-        val fromDbAlbums = app.vkRepository { getAlbumsFromDb() }
+        val fromDbAlbums = VkAlbumTransaction.getAlbums()
         val fromDbAlbumsTitle = fromDbAlbums.map { it.title }
         val notExistAlbum =
             getNoExistInDbAlbum(notExistSong, fromDbAlbumsTitle)
@@ -330,7 +335,7 @@ class VkViewModel(
             if (byTokenSongs.find { it.id == fromDb.id } == null)
                 toDelete.add(fromDb)
         }
-        app.vkRepository { deleteSong(toDelete.toTypedArray()) }
+        VkSongTransaction.delete(*toDelete.toTypedArray())
     }
 
     override fun onCleared() {

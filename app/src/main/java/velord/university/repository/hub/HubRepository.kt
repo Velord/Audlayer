@@ -9,4 +9,22 @@ object HubRepository {
     ): T = VkRepository.run {
         f(this@vkRepository)
     }
+
+    inline fun <T> Context.radioRepository(
+        f: RadioRepository.(Context) -> T
+    ): T = RadioRepository.run {
+        f(this@radioRepository)
+    }
+
+    inline fun <T> Context.miniPlayerRepository(
+        f: MiniPlayerRepository.(Context) -> T
+    ): T = MiniPlayerRepository.run {
+        f(this@miniPlayerRepository)
+    }
+
+    inline fun <T> Context.folderRepository(
+        f: FolderRepository.(Context) -> T
+    ): T = FolderRepository.run {
+        f(this@folderRepository)
+    }
 }

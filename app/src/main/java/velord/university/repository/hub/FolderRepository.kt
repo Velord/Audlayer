@@ -3,7 +3,7 @@ package velord.university.repository.hub
 import android.os.Environment
 import java.io.File
 
-object FolderRepository {
+object FolderRepository : BaseRepository() {
 
     fun getApplicationDir() =
         File(Environment.getExternalStorageDirectory(), "Audlayer")

@@ -24,7 +24,7 @@ import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.file.FileNameParser
 import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.repository.db.transaction.PlaylistTransaction
-import velord.university.repository.db.transaction.ServiceTransaction
+import velord.university.repository.db.transaction.hub.HubTransaction
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import java.io.File
 
@@ -326,7 +326,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private suspend fun restoreState() {
-        val songsFromDb = ServiceTransaction.getPlaylist()
+        val songsFromDb: List<MiniPlayerServiceSong> =
+            HubTransaction.serviceTransaction("restoreState") { getAll() }
         val songsToPlaylist = MiniPlayerServiceSong.getSongsToPlaylist(songsFromDb)
 
         if (songsToPlaylist.isNotEmpty()) {
@@ -538,7 +539,10 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         scope.launch {
             val songsToDb =
                 MiniPlayerServiceSong.getSongsToDb(playlist.notShuffled)
-            ServiceTransaction.clearAndInsert(songsToDb)
+            //db
+            HubTransaction.serviceTransaction("storeQueue") {
+                updateData(songsToDb)
+            }
         }
         Log.d(TAG, "store queue")
     }

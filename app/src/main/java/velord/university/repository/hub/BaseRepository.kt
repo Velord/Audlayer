@@ -13,7 +13,7 @@ abstract class BaseRepository {
 
     private val scope = getScope()
 
-    protected val db = AudlayerApp.db
+    protected val db = AudlayerApp.getDatabase()
 
     protected suspend fun <T> Context.fetchByToken(
         tag: String,

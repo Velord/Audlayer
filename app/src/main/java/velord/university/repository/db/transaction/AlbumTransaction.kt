@@ -1,22 +1,18 @@
 package velord.university.repository.db.transaction
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import velord.university.application.AudlayerApp
 import velord.university.model.entity.music.Album
+import velord.university.repository.db.dao.AlbumDao
+import velord.university.repository.db.dao.PlaylistDao
+import velord.university.repository.db.transaction.hub.BaseTransaction
+import velord.university.repository.db.transaction.hub.HubTransaction.albumTransaction
 
-object AlbumTransaction {
+object AlbumTransaction : BaseTransaction() {
 
-    suspend fun saveAlbum(album: List<Album>) = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.apply {
-            albumDao().nukeTable()
-            albumDao().insertAll(*(album.toTypedArray()))
+    override val TAG: String = "AlbumTransaction"
+
+    suspend fun clearThenSave(album: List<Album>) =
+        albumTransaction("saveAlbum") {
+            nukeTable()
+            insertAll(*(album.toTypedArray()))
         }
-    }
-
-    suspend fun getAlbums(): List<Album> = withContext(Dispatchers.IO) {
-        AudlayerApp.db?.run {
-            albumDao().getAll()
-        } ?: listOf()
-    }
 }

@@ -8,6 +8,7 @@ import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.RadioInteractor
 import velord.university.model.entity.music.RadioStation
+import velord.university.repository.db.transaction.hub.HubTransaction
 import velord.university.repository.hub.RadioRepository
 import velord.university.ui.util.RVSelection
 
@@ -84,6 +85,8 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
         }
 
     private suspend fun reassignmentRadioPlaylist() {
-        radioPlaylist = RadioRepository.getAll()
+        radioPlaylist = HubTransaction.radioTransaction("reassignmentRadioPlaylist") {
+            getAll()
+        }
     }
 }

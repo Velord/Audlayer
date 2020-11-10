@@ -11,6 +11,7 @@ import velord.university.model.coroutine.getScope
 import velord.university.model.coroutine.onIO
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.AppBroadcastHub.addToQueueService
 import velord.university.application.broadcast.AppBroadcastHub.iconRadioUI
 import velord.university.application.broadcast.restarter.RestarterRadioService
 import velord.university.application.service.audioFocus.AudioFocusChangeF
@@ -19,6 +20,7 @@ import velord.university.application.settings.miniPlayer.RadioServicePreference
 import velord.university.interactor.RadioInteractor
 import velord.university.model.entity.music.RadioStation
 import velord.university.model.entity.isyStreamMeta.IcyStreamMeta
+import velord.university.repository.db.transaction.hub.HubTransaction
 import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.repository.hub.RadioRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
@@ -159,10 +161,8 @@ abstract class RadioService : AudioFocusListenerService() {
     }
 
     private suspend fun changeLikeInDB(isLike: Boolean) =
-        withContext(Dispatchers.IO) {
-            if (isLike) RadioRepository.likeByUrl(currentStation.url)
-            else RadioRepository.unlikeByUrl(currentStation.url)
-        }
+        if (isLike) RadioRepository.likeByUrl(currentStation.url)
+        else RadioRepository.unlikeByUrl(currentStation.url)
 
     private fun urlIsAvailable(mediaPlayer: MediaPlayer) {
         player = mediaPlayer
@@ -228,16 +228,18 @@ abstract class RadioService : AudioFocusListenerService() {
         Log.d(TAG, "restoreState")
         val id = RadioServicePreference(this@RadioService).currentRadioId
 
-        RadioRepository.getById(id)?.let {
-            currentStation = it
-            RadioInteractor.radioStation = currentStation
-            //cache radio
-            mayInvoke {
-                sendAllInfo()
-                playByUrl(currentStation.url)
-                pausePlayer()
-            }
-        } ?: sendRadioPlayerUnavailable()
+        HubTransaction.radioTransaction("restoreState") {
+            getById(id)?.let {
+                currentStation = it
+                RadioInteractor.radioStation = currentStation
+                //cache radio
+                mayInvoke {
+                    sendAllInfo()
+                    playByUrl(currentStation.url)
+                    pausePlayer()
+                }
+            } ?: sendRadioPlayerUnavailable()
+        }
     }
 
     private fun restartService() {
@@ -369,8 +371,11 @@ abstract class RadioService : AudioFocusListenerService() {
         }
     }
 
-    private suspend fun sendIsLiked() = onIO {
-        when (RadioRepository.isLike(currentStation.url)) {
+    private suspend fun sendIsLiked() {
+        val isLike = HubTransaction.radioTransaction("sendIsLiked") {
+            getByUrl(currentStation.url).liked
+        }
+        when (isLike) {
             true -> mayInvoke {
                 AppBroadcastHub.apply { likeRadioUI() }
             }

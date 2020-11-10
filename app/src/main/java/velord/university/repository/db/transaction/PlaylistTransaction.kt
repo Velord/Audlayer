@@ -1,58 +1,57 @@
 package velord.university.repository.db.transaction
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import velord.university.application.AudlayerApp
 import velord.university.model.coroutine.onIO
 import velord.university.model.entity.music.playlist.Playlist
+import velord.university.repository.db.dao.PlaylistDao
+import velord.university.repository.db.transaction.hub.BaseTransaction
+import velord.university.repository.db.transaction.hub.HubTransaction.playlistTransaction
 
 object PlaylistTransaction : BaseTransaction() {
 
+    override val TAG: String = "PlaylistTransaction"
+
     suspend fun getAllPlaylist(): List<Playlist> =
-        makeTransaction { playlistDao().getAll() }
+        playlistTransaction("getAllPlaylist") { getAll() }
+
+    suspend fun update(playlist: Playlist) =
+        playlistTransaction("update") { update(playlist) }
 
     suspend fun getPlayedSongs(): List<String> =
-        makeTransaction {
-            playlistDao().getByName("Played")
+        playlistTransaction("getPlayedSongs") {
+            getByName("Played")
                 .songs.reversed()
                 .filter { it.isNotEmpty() }
         }
 
     suspend fun getPlayed(): Playlist =
-        makeTransaction {
-            playlistDao().getByName("Played")
+        playlistTransaction("getPlayed") {
+            getByName("Played")
         }
 
     suspend fun getFavouriteSongs(): List<String> =
-        makeTransaction {
-            playlistDao().getByName("Favourite")
+        playlistTransaction("getFavouriteSongs") {
+            getByName("Favourite")
                 .songs.reversed()
                 .filter { it.isNotEmpty() }
         }
 
     suspend fun getFavourite(): Playlist =
-        makeTransaction { playlistDao().getByName("Favourite") }
-
-    suspend fun deletePlaylist(playlist: Playlist) =
-        makeTransaction {
-            playlistDao().deletePlaylistByName(playlist.name)
+        playlistTransaction("getFavourite") {
+            getByName("Favourite")
         }
 
     suspend fun createNewPlaylist(name: String, songs: List<String>) =
-        makeTransaction {
+        playlistTransaction("createNewPlaylist") {
             val playlist = Playlist(name, songs)
-            playlistDao().insertAll(playlist)
+            insertAll(playlist)
         }
 
-    suspend fun update(playlist: Playlist) =
-        makeTransaction { playlistDao().update(playlist) }
-
-
-    suspend fun updateFavourite(changeSongsF: (List<String>) -> List<String>) {
-        val favourite = getFavourite()
-        favourite.songs += changeSongsF(favourite.songs)
-        update(favourite)
-    }
+    suspend fun updateFavourite(changeSongsF: (List<String>) -> List<String>) =
+        transaction("updateFavourite") {
+            val favourite = getFavourite()
+            favourite.songs += changeSongsF(favourite.songs)
+            update(favourite)
+        }
 
     suspend fun updatePlayedSong(path: String) = onIO {
         //retrieve from Db
@@ -65,19 +64,17 @@ object PlaylistTransaction : BaseTransaction() {
         update(playedSongs)
     }
 
-    suspend fun delete(id: Long) =
-        makeTransaction { playlistDao().deletePlaylistById(id) }
-
-    suspend fun whichAlbum(path: String): String = onIO {
-        Playlist.other(getAllPlaylist()).forEach {
-            if(it.songs.contains(path))
-                return@onIO it.name
+    suspend fun whichAlbum(path: String): String =
+        transaction("whichAlbum") {
+            Playlist.other(getAllPlaylist()).forEach {
+                if(it.songs.contains(path))
+                    return@transaction it.name
+            }
+            return@transaction ""
         }
-        return@onIO ""
-    }
 
     suspend fun checkDbTableColumn() =
-        makeTransaction {
+        transaction("checkDbTableColumn") {
             val playlist = getAllPlaylist()
 
             var favouriteExist = false
@@ -93,13 +90,15 @@ object PlaylistTransaction : BaseTransaction() {
                     downloadedExist = true
             }
 
-            if (favouriteExist.not())
-                playlistDao().insertAll(Playlist("Favourite", listOf()))
+            playlistTransaction("checkDbTableColumn") {
+                if (favouriteExist.not())
+                    insertAll(Playlist("Favourite", listOf()))
 
-            if (playedSongExist.not())
-                playlistDao().insertAll(Playlist("Played", listOf()))
+                if (playedSongExist.not())
+                    insertAll(Playlist("Played", listOf()))
 
-            if (downloadedExist.not())
-                playlistDao().insertAll(Playlist("Downloaded", listOf()))
+                if (downloadedExist.not())
+                    insertAll(Playlist("Downloaded", listOf()))
+            }
         }
 }
