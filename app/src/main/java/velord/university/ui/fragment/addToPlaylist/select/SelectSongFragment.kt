@@ -89,9 +89,6 @@ class SelectSongFragment :
     override val actionBarPopUpMenuLayout: () -> Int = {
         R.menu.general_sort_by
     }
-    override val actionBarPopUpMenuStyle: () -> Int = {
-        R.style.PopupMenuOverlapAnchorFolder
-    }
     override val actionBarHintArticle: (TextView) -> Unit = {
         it.text = getString(R.string.action_bar_hint_select_song)
     }
@@ -121,8 +118,6 @@ class SelectSongFragment :
             else -> {}
         }
     }
-    override val actionBarPopUp: (ImageButton) -> Unit = {  }
-    override val actionSearchView: (SearchView) -> Unit = {  }
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")

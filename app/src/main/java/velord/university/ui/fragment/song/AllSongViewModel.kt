@@ -56,9 +56,8 @@ class AllSongViewModel(
                 FileFilter.getArtist(it.file)
             }
             //date added
-            2 -> filtered.sortedBy {
-                FileFilter.getLastDateModified(it.file)
-            }
+            //todo()
+            2 -> filtered
             //duration TODO()
             3 -> {
                 val mediaMetadataRetriever = MediaMetadataRetriever()

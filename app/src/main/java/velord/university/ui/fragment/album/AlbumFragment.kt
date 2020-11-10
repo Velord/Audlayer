@@ -70,11 +70,9 @@ class AlbumFragment :
         }
     }
     override val actionBarPopUpMenuLayout: () -> Int = { R.menu.album_fragment_pop_up }
-    override val actionBarPopUpMenuStyle: () -> Int = { R.style.PopupMenuOverlapAnchorFolder }
     override val actionBarHintArticle: (TextView) -> Unit = {
         it.text = getString(R.string.action_bar_hint_album)
     }
-    override val actionBarLeftMenu: (ImageButton) -> Unit = { }
     override val actionBarPopUpMenu: (PopupMenu) -> Unit = {
         //set up checked item
         val menuItem = it.menu
@@ -95,7 +93,6 @@ class AlbumFragment :
             else -> {}
         }
     }
-    override val actionBarPopUp: (ImageButton) -> Unit = { }
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
         val correctQuery =
@@ -106,7 +103,6 @@ class AlbumFragment :
             //update files list
             updateAdapterBySearchQuery(correctQuery)
     }
-    override val actionSearchView: (SearchView) -> Unit = {  }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

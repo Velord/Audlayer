@@ -112,13 +112,9 @@ class RadioFragment :
     override val actionBarPopUpMenuLayout: () -> Int = {
         R.menu.radio_fragment_pop_up
     }
-    override val actionBarPopUpMenuStyle: () -> Int = {
-        R.style.PopupMenuOverlapAnchorFolder
-    }
     override val actionBarLeftMenu: (ImageButton) -> Unit = {
         it.setImageResource(R.drawable.round_format_list_bulleted_deep_purple_a200_48dp)
     }
-    override val actionBarPopUpMenu: (PopupMenu) -> Unit = {  }
     override val actionBarPopUp: (ImageButton) -> Unit = {
         it.setImageResource(R.drawable.arrow_down_deep_purple_a200)
     }
@@ -132,7 +128,6 @@ class RadioFragment :
         //update files list
         updateAdapterBySearchQuery(correctQuery)
     }
-    override val actionSearchView: (SearchView) -> Unit = {  }
 
     private val receivers = getRadioNameArtistUIReceiverList() +
             getRadioIconReceiverList() +

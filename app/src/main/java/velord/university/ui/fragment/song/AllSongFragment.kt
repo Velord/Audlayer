@@ -217,24 +217,16 @@ class AllSongFragment :
     override val actionBarPopUpMenuLayout: () -> Int = {
         R.menu.song_fragment_pop_up
     }
-    override val actionBarPopUpMenuStyle: () -> Int = {
-        R.style.PopupMenuOverlapAnchorFolder
-    }
-    override val actionBarLeftMenu: (ImageButton) -> Unit = {  }
-    override val actionBarPopUpMenu: (PopupMenu) -> Unit = {  }
     override val actionBarObserveSearchQuery: (String) -> Unit = { searchQuery ->
         //-1 is default value, just ignore it
         val query =
             if (searchQuery != "-1") searchQuery
             else ""
-            //store search term in shared preferences
-            viewModel.storeSearchQuery(query)
-            //update files list
-            updateAdapterBySearchQuery(query)
+        //store search term in shared preferences
+        viewModel.storeSearchQuery(query)
+        //update files list
+        updateAdapterBySearchQuery(query)
     }
-    override val actionBarPopUp: (ImageButton) -> Unit = { }
-    override val actionSearchView: (SearchView) -> Unit = {  }
-
     //view
     private var _binding: AllSongFragmentBinding? = null
     override var _bindingActionBar: ActionBarSearchBinding? = null

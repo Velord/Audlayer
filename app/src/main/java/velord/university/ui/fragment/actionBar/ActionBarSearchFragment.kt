@@ -7,6 +7,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
+import velord.university.R
 import velord.university.model.exception.ViewDestroyed
 import velord.university.databinding.ActionBarSearchBinding
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
@@ -35,15 +36,15 @@ abstract class ActionBarSearchFragment :
         actionBarHintArticle(bindingActionBar.hint)
     }
 
-    abstract val actionBarObserveSearchQuery: (String) -> Unit
-    abstract val actionBarPopUpMenuStyle: () -> Int
-    abstract val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean
     abstract val actionBarPopUpMenuLayout: () -> Int
-    abstract val actionBarLeftMenu: (ImageButton) -> Unit
-    abstract val actionBarPopUpMenu: (PopupMenu) -> Unit
-    abstract val actionBarPopUp: (ImageButton) -> Unit
-    abstract val actionSearchView: (SearchView) -> Unit
-    abstract val actionBarHintArticle: (TextView) -> Unit
+    open val actionBarObserveSearchQuery: (String) -> Unit = {}
+    open val actionBarPopUpMenuStyle: () -> Int = { R.style.PopupMenuOverlapAnchorFolder }
+    open val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = { true }
+    open val actionBarLeftMenu: (ImageButton) -> Unit = {  }
+    open val actionBarPopUpMenu: (PopupMenu) -> Unit = {  }
+    open val actionBarPopUp: (ImageButton) -> Unit = {  }
+    open val actionSearchView: (SearchView) -> Unit = {  }
+    open val actionBarHintArticle: (TextView) -> Unit = {  }
 
     private fun initActionButton() {
         actionBarPopUp(bindingActionBar.action)
