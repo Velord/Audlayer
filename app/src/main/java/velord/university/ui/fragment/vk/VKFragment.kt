@@ -500,7 +500,7 @@ class VKFragment :
 
         private fun needDownloadBackground(song: VkSong) {
             val need: () -> Unit = {
-                itemView.setBackgroundResource(R.color.grayest_opacity)
+                itemView.setBackgroundResource(R.color.mortar_opacity_65)
             }
 
             val notNeed: () -> Unit = {
@@ -526,7 +526,7 @@ class VKFragment :
                         }
                     }
                 }, {
-                    text.setTextColor(resources.getColor(R.color.menuArticle))
+                    text.setTextColor(resources.getColor(R.color.white_opacity_80))
                 }
             )
         }
@@ -549,7 +549,7 @@ class VKFragment :
                         bitrate
                     )
                 }, {
-                    itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
+                    itemView.setBackgroundResource(R.color.sapphire_opacity_40)
                 }
             )
         }
@@ -564,7 +564,7 @@ class VKFragment :
                     needDownloadBackground(song)
                 }, {
                     if (viewModel.needDownload(song)) {
-                        text.setTextColor(resources.getColor(R.color.gray_lighter))
+                        text.setTextColor(resources.getColor(R.color.white_opacity_65))
                     }
                 }
             )

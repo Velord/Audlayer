@@ -323,7 +323,7 @@ class FolderFragment :
             //change ui
             if (viewModel.directory.isRoot()) binding
                 .currentDirectoryLayout
-                .setBackgroundResource(R.color.amberA100)
+                .setBackgroundResource(R.color.amberA200)
             else binding
                 .currentDirectoryLayout
                 .setBackgroundResource(R.drawable.current_folder_layout_shape)
@@ -618,7 +618,7 @@ class FolderFragment :
 
                 },
                 {
-                    itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
+                    itemView.setBackgroundResource(R.color.sapphire_opacity_40)
                 },
                 {
                     icon.setImageResource(R.drawable.song_item_playing)

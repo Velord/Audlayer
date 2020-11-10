@@ -12,7 +12,7 @@
         android:id="@+id/hint"
         android:layout_width="300dp"
         android:layout_height="50dp"
-        android:background="@color/fragmentBackgroundDarkestPurple"
+        android:background="@color/prussian_blue"
         android:gravity="center"
         android:text="@string/add_to_playlist_create_new"
         android:textAlignment="center"

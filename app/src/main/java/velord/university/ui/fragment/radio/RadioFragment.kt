@@ -358,7 +358,7 @@ class RadioFragment :
                     Log.d(TAG, "selectedGeneral")
                     icon.setImageResource(R.drawable.song_item_playing)
                 }, {
-                    itemView.setBackgroundResource(R.color.fragmentBackgroundOpacity)
+                    itemView.setBackgroundResource(R.color.sapphire_opacity_40)
                 }, {
                     setName(radio, text)
                 }, {

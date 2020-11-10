@@ -11,10 +11,10 @@
         android:id="@+id/bottom_navigation"
         style="@style/WrapHeightMatchWidth"
         android:background=
-            "@color/fragmentBackgroundDarkestOpacity"
+            "@color/dark_green_opacity_50"
         app:menu="@menu/bottom_nav_menu"
         android:visibility="visible"
-        app:itemIconTint="@color/gray"
+        app:itemIconTint="@color/mortar"
         app:itemTextColor="@color/white"
         app:elevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

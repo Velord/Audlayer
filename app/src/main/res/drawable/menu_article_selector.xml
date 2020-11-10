@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true"
-        android:color="@color/blue"/>
-    <item android:color="@color/menuArticle" />
+        android:color="@color/cerulean_blue"/>
+    <item android:color="@color/white_opacity_80" />
 </selector>

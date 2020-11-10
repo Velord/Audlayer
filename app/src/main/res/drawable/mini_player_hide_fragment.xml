@@ -10,7 +10,7 @@
     <item
         android:height="2dp">
         <shape android:shape="rectangle">
-            <solid android:color="@color/fragmentBackgroundDarkerOpacity"/>
+            <solid android:color="@color/dark_green_opacity_50"/>
         </shape>
     </item>
 </layer-list>

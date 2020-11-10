@@ -42,7 +42,7 @@
         android:ellipsize="marquee"
         android:maxHeight="15dp"
         android:text="@string/no_artist"
-        android:textColor="@color/gray"
+        android:textColor="@color/mortar"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
