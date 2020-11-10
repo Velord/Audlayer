@@ -7,16 +7,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import velord.university.application.broadcast.AppBroadcastHub
-import velord.university.application.broadcast.AppBroadcastHub.likeUI
-import velord.university.application.broadcast.AppBroadcastHub.skipNextUI
-import velord.university.application.broadcast.AppBroadcastHub.skipPrevUI
-import velord.university.application.broadcast.AppBroadcastHub.songDurationUI
-import velord.university.application.broadcast.AppBroadcastHub.unlikeUI
-import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
+import velord.university.application.broadcast.hub.AppBroadcastHub.skipNextUI
+import velord.university.application.broadcast.hub.AppBroadcastHub.skipPrevUI
+import velord.university.application.broadcast.hub.AppBroadcastHub.songDurationUI
 import velord.university.application.broadcast.behaviour.MiniPlayerServiceReceiver
-import velord.university.application.broadcast.registerBroadcastReceiver
-import velord.university.application.broadcast.unregisterBroadcastReceiver
+import velord.university.application.broadcast.hub.*
+import velord.university.application.broadcast.hub.BroadcastAction.likeUI
 import velord.university.model.converter.SongTimeConverter
 
 class MiniPlayerServiceBroadcastReceiver :
@@ -43,7 +39,8 @@ class MiniPlayerServiceBroadcastReceiver :
 
         receivers.forEach {
             baseContext.registerBroadcastReceiver(
-                it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER)
+                it.first, IntentFilter(it.second), PERM_PRIVATE_MINI_PLAYER
+            )
         }
 
         return START_STICKY
@@ -52,7 +49,7 @@ class MiniPlayerServiceBroadcastReceiver :
     override val playByPathF: (Intent?) -> Unit = {
         scope.launch {
             it?.let {
-                val extra = AppBroadcastHub.Extra.playByPathService
+                val extra = BroadcastExtra.playByPathService
                 val path = it.getStringExtra(extra)!!
                 super<MiniPlayerService>.playByPath(path)
             }
@@ -74,14 +71,18 @@ class MiniPlayerServiceBroadcastReceiver :
     override val likeF: (Intent?) -> Unit = {
         scope.launch {
             super.likeSong()
-            likeUI()
+            AppBroadcastHub.run {
+                doAction(BroadcastActionType.LIKE_MINI_PLAYER_UI)
+            }
         }
     }
 
     override val unlikeF: (Intent?) -> Unit = {
         scope.launch {
             super.unlikeSong()
-            unlikeUI()
+            AppBroadcastHub.run {
+                doAction(BroadcastActionType.UNLIKE_MINI_PLAYER_UI)
+            }
         }
     }
 
@@ -102,7 +103,7 @@ class MiniPlayerServiceBroadcastReceiver :
     override val rewindF: (Intent?) -> Unit = {
         scope.launch {
             it?.let {
-                val extra =AppBroadcastHub.Extra.rewindService
+                val extra =BroadcastExtra.rewindService
                 val value = it.getIntExtra(extra, 0)
                 val milliseconds = SongTimeConverter.secondsToMilliseconds(value)
                 super.rewindPlayer(milliseconds)
@@ -149,8 +150,7 @@ class MiniPlayerServiceBroadcastReceiver :
     override val playAllInFolderF: (Intent?) -> Unit = {
         scope.launch {
             it?.let {
-                val extra =
-                    AppBroadcastHub.Extra.folderPathService
+                val extra = BroadcastExtra.folderPathService
                 val path = it.getStringExtra(extra)!!
                 super<MiniPlayerService>.playAllInFolder(path)
             }
@@ -160,8 +160,7 @@ class MiniPlayerServiceBroadcastReceiver :
     override val playNextAllInFolderF: (Intent?) -> Unit = {
         scope.launch {
             it?.let {
-                val extra =
-                    AppBroadcastHub.Extra.folderPathService
+                val extra = BroadcastExtra.folderPathService
                 val path = it.getStringExtra(extra)!!
                 super<MiniPlayerService>.playNextAllInFolder(path)
             }
@@ -171,8 +170,7 @@ class MiniPlayerServiceBroadcastReceiver :
     override val shuffleAndPlayAllInFolderF: (Intent?) -> Unit = {
         scope.launch {
             it?.let {
-                val extra =
-                    AppBroadcastHub.Extra.folderPathService
+                val extra = BroadcastExtra.folderPathService
                 val path = it.getStringExtra(extra)!!
                 super<MiniPlayerService>.shuffleAndPlayAllInFolder(path)
             }
@@ -182,8 +180,7 @@ class MiniPlayerServiceBroadcastReceiver :
     override val addToQueueF: (Intent?) -> Unit = {
         scope.launch {
             it?.let {
-                val extra =
-                    AppBroadcastHub.Extra.folderPathService
+                val extra = BroadcastExtra.folderPathService
                 val path = it.getStringExtra(extra)!!
                 super.addToQueueOneSong(path)
             }

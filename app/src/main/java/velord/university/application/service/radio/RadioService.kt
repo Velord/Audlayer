@@ -8,11 +8,10 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import velord.university.model.coroutine.getScope
-import velord.university.model.coroutine.onIO
 import kotlinx.coroutines.*
-import velord.university.application.broadcast.AppBroadcastHub
-import velord.university.application.broadcast.AppBroadcastHub.addToQueueService
-import velord.university.application.broadcast.AppBroadcastHub.iconRadioUI
+import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub.iconRadioUI
+import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.application.broadcast.restarter.RestarterRadioService
 import velord.university.application.service.audioFocus.AudioFocusChangeF
 import velord.university.application.service.audioFocus.AudioFocusListenerService
@@ -264,9 +263,10 @@ abstract class RadioService : AudioFocusListenerService() {
         }
     }
 
-    private fun stopMiniPlayerService() {
-        AppBroadcastHub.apply { stopService() }
-    }
+    private fun stopMiniPlayerService() =
+        AppBroadcastHub.apply {
+            doAction(BroadcastActionType.STOP_MINI_PLAYER)
+        }
 
     private fun stopPlayer() = stopOrPausePlayer {
         player.stop()

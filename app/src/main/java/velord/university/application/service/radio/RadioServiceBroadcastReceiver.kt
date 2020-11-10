@@ -7,13 +7,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import velord.university.application.broadcast.AppBroadcastHub
-import velord.university.application.broadcast.AppBroadcastHub.likeRadioUI
-import velord.university.application.broadcast.AppBroadcastHub.unlikeRadioUI
-import velord.university.application.broadcast.PERM_PRIVATE_RADIO
+import velord.university.application.broadcast.hub.AppBroadcastHub.likeRadioUI
+import velord.university.application.broadcast.hub.AppBroadcastHub.unlikeRadioUI
 import velord.university.application.broadcast.behaviour.RadioServiceReceiver
-import velord.university.application.broadcast.registerBroadcastReceiver
-import velord.university.application.broadcast.unregisterBroadcastReceiver
+import velord.university.application.broadcast.hub.*
 
 class RadioServiceBroadcastReceiver :
     RadioService(),
@@ -49,7 +46,7 @@ class RadioServiceBroadcastReceiver :
     override val playByUrlRadioF: (Intent?) -> Unit = {
         scope.launch {
             it?.let {
-                val extra = AppBroadcastHub.Extra.radioStationUrlService
+                val extra = BroadcastExtra.radioStationUrlService
                 val path = it.getStringExtra(extra)!!
                 super<RadioService>.playByUrl(path)
             }

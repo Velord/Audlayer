@@ -4,32 +4,33 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastAction
 
 interface MiniPlayerServiceReceiver {
 
     val TAG: String
 
     fun receiverList() = arrayOf(
-        Pair(playByPath(), AppBroadcastHub.Action.playByPathService),
-        Pair(stop(), AppBroadcastHub.Action.stopService),
-        Pair(play(), AppBroadcastHub.Action.playService),
-        Pair(like(), AppBroadcastHub.Action.likeService),
-        Pair(unlike(), AppBroadcastHub.Action.unlikeService),
-        Pair(shuffle(), AppBroadcastHub.Action.shuffleService),
-        Pair(unShuffle(), AppBroadcastHub.Action.unShuffleService),
-        Pair(skipNext(), AppBroadcastHub.Action.skipNextService),
-        Pair(skipPrev(), AppBroadcastHub.Action.skipPrevService),
-        Pair(rewind(), AppBroadcastHub.Action.rewindService),
-        Pair(loop(), AppBroadcastHub.Action.loopService),
-        Pair(loopAll(), AppBroadcastHub.Action.loopAllService),
-        Pair(notLoop(), AppBroadcastHub.Action.notLoopService),
-        Pair(playAllInFolder(), AppBroadcastHub.Action.playAllInFolderService),
-        Pair(playNextAllInFolder(), AppBroadcastHub.Action.playNextAllInFolderService),
-        Pair(shuffleAndPlayAllInFolder(), AppBroadcastHub.Action.shuffleAndPlayAllInFolderService),
-        Pair(addToQueue(), AppBroadcastHub.Action.addToQueueService),
-        Pair(getInfo(), AppBroadcastHub.Action.getInfoService),
-        Pair(playOrStop(), AppBroadcastHub.Action.playOrStopService)
+        Pair(playByPath(), BroadcastAction.playByPathService),
+        Pair(stop(), BroadcastAction.stopService),
+        Pair(play(), BroadcastAction.playService),
+        Pair(like(), BroadcastAction.likeService),
+        Pair(unlike(), BroadcastAction.unlikeService),
+        Pair(shuffle(), BroadcastAction.shuffleService),
+        Pair(unShuffle(), BroadcastAction.unShuffleService),
+        Pair(skipNext(), BroadcastAction.skipNextService),
+        Pair(skipPrev(), BroadcastAction.skipPrevService),
+        Pair(rewind(), BroadcastAction.rewindService),
+        Pair(loop(), BroadcastAction.loopService),
+        Pair(loopAll(), BroadcastAction.loopAllService),
+        Pair(notLoop(), BroadcastAction.notLoopService),
+        Pair(playAllInFolder(), BroadcastAction.playAllInFolderService),
+        Pair(playNextAllInFolder(), BroadcastAction.playNextAllInFolderService),
+        Pair(shuffleAndPlayAllInFolder(), BroadcastAction.shuffleAndPlayAllInFolderService),
+        Pair(addToQueue(), BroadcastAction.addToQueueService),
+        Pair(getInfo(), BroadcastAction.getInfoService),
+        Pair(playOrStop(), BroadcastAction.playOrStopService)
     )
 
     val playByPathF: (Intent?) -> Unit

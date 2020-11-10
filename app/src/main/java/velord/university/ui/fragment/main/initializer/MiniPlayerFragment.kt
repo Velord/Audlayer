@@ -3,19 +3,14 @@ package velord.university.ui.fragment.main.initializer
 import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import velord.university.ui.util.view.gone
 import velord.university.ui.util.view.visible
-import velord.university.application.broadcast.AppBroadcastHub
-import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.MiniPlayerBroadcastReceiverShowAndHider
-import velord.university.application.broadcast.registerBroadcastReceiver
-import velord.university.application.broadcast.unregisterBroadcastReceiver
+import velord.university.application.broadcast.hub.*
 import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.ui.fragment.miniPlayer.MiniPlayerRadioGeneralFragment
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
@@ -102,10 +97,10 @@ abstract class MiniPlayerFragment :
 
     private fun stopAndHideMiniPLayer() {
         when(MiniPlayerRepository.getState(requireContext())) {
-            MiniPlayerLayoutState.GENERAL -> AppBroadcastHub.apply {
-                requireContext().stopService()
+            MiniPlayerLayoutState.GENERAL -> AppBroadcastHub.run {
+                requireContext().doAction(BroadcastActionType.STOP_MINI_PLAYER)
             }
-            MiniPlayerLayoutState.RADIO -> AppBroadcastHub.apply {
+            MiniPlayerLayoutState.RADIO -> AppBroadcastHub.run {
                 requireContext().stopRadioService()
             }
         }

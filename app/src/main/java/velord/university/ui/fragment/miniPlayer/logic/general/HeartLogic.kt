@@ -1,7 +1,8 @@
 package velord.university.ui.fragment.miniPlayer.logic.general
 
 import androidx.fragment.app.FragmentActivity
-import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 
 object HeartLogic: TwoStateLogic() {
@@ -12,11 +13,11 @@ object HeartLogic: TwoStateLogic() {
         get() = { context, state ->
             when(state) {
                 MiniPlayerLayoutState.GENERAL ->
-                    AppBroadcastHub.apply {
-                        context.unlikeService()
+                    AppBroadcastHub.run {
+                        context.doAction(BroadcastActionType.UNLIKE_MINI_PLAYER)
                     }
                 MiniPlayerLayoutState.RADIO ->
-                    AppBroadcastHub.apply {
+                    AppBroadcastHub.run {
                         context.unlikeRadioService()
                     }
             }
@@ -27,7 +28,7 @@ object HeartLogic: TwoStateLogic() {
             when(state) {
                 MiniPlayerLayoutState.GENERAL ->
                     AppBroadcastHub.apply {
-                        context.likeService()
+                        context.doAction(BroadcastActionType.LIKE_MINI_PLAYER)
                     }
                 MiniPlayerLayoutState.RADIO ->
                     AppBroadcastHub.apply {

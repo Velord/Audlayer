@@ -4,20 +4,21 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastAction
 
 interface RadioServiceReceiver {
 
     val TAG: String
 
     fun receiverServiceList() = arrayOf(
-        Pair(playByUrl(), AppBroadcastHub.Action.playByUrlRadioService),
-        Pair(stop(), AppBroadcastHub.Action.stopRadioService),
-        Pair(play(), AppBroadcastHub.Action.playRadioService),
-        Pair(like(), AppBroadcastHub.Action.likeRadioService),
-        Pair(unlike(), AppBroadcastHub.Action.unlikeRadioService),
-        Pair(getInfo(), AppBroadcastHub.Action.getInfoRadioService),
-        Pair(playOrStop(), AppBroadcastHub.Action.playOrStopRadioService)
+        Pair(playByUrl(), BroadcastAction.playByUrlRadioService),
+        Pair(stop(), BroadcastAction.stopRadioService),
+        Pair(play(), BroadcastAction.playRadioService),
+        Pair(like(), BroadcastAction.likeRadioService),
+        Pair(unlike(), BroadcastAction.unlikeRadioService),
+        Pair(getInfo(), BroadcastAction.getInfoRadioService),
+        Pair(playOrStop(), BroadcastAction.playOrStopRadioService)
     )
 
     val playByUrlRadioF: (Intent?) -> Unit

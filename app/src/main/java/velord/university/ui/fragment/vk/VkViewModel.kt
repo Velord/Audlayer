@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import velord.university.model.coroutine.onDef
 import kotlinx.coroutines.*
 import org.apache.commons.text.similarity.LevenshteinDistance
-import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor

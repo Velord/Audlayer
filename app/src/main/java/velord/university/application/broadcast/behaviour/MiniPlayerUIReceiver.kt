@@ -4,7 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastAction
 
 
 interface MiniPlayerUIReceiver {
@@ -12,25 +13,25 @@ interface MiniPlayerUIReceiver {
     val TAG: String
 
     fun miniPlayerUIReceiverList() = arrayOf(
-        Pair(stop(), AppBroadcastHub.Action.stopUI),
-        Pair(play(), AppBroadcastHub.Action.playUI),
-        Pair(like(), AppBroadcastHub.Action.likeUI),
-        Pair(unlike(), AppBroadcastHub.Action.unlikeUI),
-        Pair(shuffle(), AppBroadcastHub.Action.shuffleUI),
-        Pair(unShuffle(), AppBroadcastHub.Action.unShuffleUI),
-        Pair(skipNext(), AppBroadcastHub.Action.skipNextUI),
-        Pair(skipPrev(), AppBroadcastHub.Action.skipPrevUI),
-        Pair(rewind(), AppBroadcastHub.Action.rewindUI),
-        Pair(loop(), AppBroadcastHub.Action.loopUI),
-        Pair(loopAll(), AppBroadcastHub.Action.loopAllUI),
-        Pair(notLoop(), AppBroadcastHub.Action.notLoopUI),
-        Pair(songName(), AppBroadcastHub.Action.songNameUI),
-        Pair(songDuration(), AppBroadcastHub.Action.songDurationUI),
-        Pair(songArtist(), AppBroadcastHub.Action.songArtistUI),
-        Pair(songHQ(), AppBroadcastHub.Action.songHQUI),
-        Pair(show(), AppBroadcastHub.Action.showMiniPlayerGeneralUI),
-        Pair(icon(), AppBroadcastHub.Action.iconUI),
-        Pair(playerUnavailable(), AppBroadcastHub.Action.playerUnavailableUI)
+        Pair(stop(), BroadcastAction.stopUI),
+        Pair(play(), BroadcastAction.playUI),
+        Pair(like(), BroadcastAction.likeUI),
+        Pair(unlike(), BroadcastAction.unlikeUI),
+        Pair(shuffle(), BroadcastAction.shuffleUI),
+        Pair(unShuffle(), BroadcastAction.unShuffleUI),
+        Pair(skipNext(), BroadcastAction.skipNextUI),
+        Pair(skipPrev(), BroadcastAction.skipPrevUI),
+        Pair(rewind(), BroadcastAction.rewindUI),
+        Pair(loop(), BroadcastAction.loopUI),
+        Pair(loopAll(), BroadcastAction.loopAllUI),
+        Pair(notLoop(), BroadcastAction.notLoopUI),
+        Pair(songName(), BroadcastAction.songNameUI),
+        Pair(songDuration(), BroadcastAction.songDurationUI),
+        Pair(songArtist(), BroadcastAction.songArtistUI),
+        Pair(songHQ(), BroadcastAction.songHQUI),
+        Pair(show(), BroadcastAction.showMiniPlayerGeneralUI),
+        Pair(icon(), BroadcastAction.iconUI),
+        Pair(playerUnavailable(), BroadcastAction.playerUnavailableUI)
     )
 
     val playerUnavailableUIF: (Intent?) -> Unit

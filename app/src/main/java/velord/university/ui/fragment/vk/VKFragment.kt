@@ -12,7 +12,6 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,12 +28,9 @@ import velord.university.ui.util.view.setupAndShowPopupMenuOnClick
 import velord.university.ui.util.view.visible
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.broadcast.AppBroadcastHub
-import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.MiniPlayerIconClickReceiver
 import velord.university.application.broadcast.behaviour.VkReceiver
-import velord.university.application.broadcast.registerBroadcastReceiver
-import velord.university.application.broadcast.unregisterBroadcastReceiver
+import velord.university.application.broadcast.hub.*
 import velord.university.application.settings.SortByPreference
 import velord.university.application.settings.VkPreference
 import velord.university.databinding.ActionBarSearchBinding
@@ -215,7 +211,7 @@ class VKFragment :
 
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
-                val extra = AppBroadcastHub.Extra.songPathUI
+                val extra = BroadcastExtra.songPathUI
                 val path = getStringExtra(extra)!!
                 scope.launch {
                     changeRVItem(path)
@@ -225,7 +221,7 @@ class VKFragment :
 
     override val songPathIsWrongF: (Intent?) -> Unit = { nullableIntent ->
         nullableIntent?.apply {
-            val extra = AppBroadcastHub.Extra.songPathUI
+            val extra = BroadcastExtra.songPathUI
             val songPath = getStringExtra(extra)!!
             scope.launch {
                 viewModel.pathIsWrong(songPath)

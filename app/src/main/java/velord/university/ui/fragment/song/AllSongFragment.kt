@@ -12,7 +12,6 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
-import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,12 +22,9 @@ import velord.university.model.exception.ViewDestroyed
 import velord.university.ui.util.view.setupAndShowPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.broadcast.AppBroadcastHub
-import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.MiniPlayerIconClickReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
-import velord.university.application.broadcast.registerBroadcastReceiver
-import velord.university.application.broadcast.unregisterBroadcastReceiver
+import velord.university.application.broadcast.hub.*
 import velord.university.application.settings.SortByPreference
 import velord.university.databinding.ActionBarSearchBinding
 import velord.university.databinding.AllSongFragmentBinding
@@ -108,7 +104,7 @@ class AllSongFragment :
 
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
-                val extra = AppBroadcastHub.Extra.songPathUI
+                val extra = BroadcastExtra.songPathUI
                 val songPath = getStringExtra(extra)!!
                 scope.launch {
                     changeRVItem(songPath)

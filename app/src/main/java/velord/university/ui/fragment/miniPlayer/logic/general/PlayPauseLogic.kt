@@ -1,7 +1,8 @@
 package velord.university.ui.fragment.miniPlayer.logic.general
 
 import androidx.fragment.app.FragmentActivity
-import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 
 object PlayPauseLogic: TwoStateLogic() {
@@ -13,7 +14,7 @@ object PlayPauseLogic: TwoStateLogic() {
             when(state) {
                 MiniPlayerLayoutState.GENERAL ->
                     AppBroadcastHub.apply {
-                        context.stopService()
+                        context.doAction(BroadcastActionType.STOP_MINI_PLAYER)
                     }
                 MiniPlayerLayoutState.RADIO ->
                     AppBroadcastHub.apply {
@@ -27,7 +28,7 @@ object PlayPauseLogic: TwoStateLogic() {
             when(state) {
                 MiniPlayerLayoutState.GENERAL ->
                     AppBroadcastHub.apply {
-                        context.playService()
+                        context.doAction(BroadcastActionType.PLAY_MINI_PLAYER)
                     }
                 MiniPlayerLayoutState.RADIO ->
                     AppBroadcastHub.apply {

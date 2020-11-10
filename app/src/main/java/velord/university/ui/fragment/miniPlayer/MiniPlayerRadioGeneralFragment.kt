@@ -8,11 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.broadcast.AppBroadcastHub
-import velord.university.application.broadcast.PERM_PRIVATE_RADIO
 import velord.university.application.broadcast.behaviour.RadioUIReceiver
-import velord.university.application.broadcast.registerBroadcastReceiver
-import velord.university.application.broadcast.unregisterBroadcastReceiver
+import velord.university.application.broadcast.hub.*
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import velord.university.ui.fragment.miniPlayer.logic.general.HeartLogic
 import velord.university.ui.fragment.miniPlayer.logic.general.PlayPauseLogic
@@ -75,7 +72,7 @@ class MiniPlayerRadioGeneralFragment :
 
     override val nameRadioUIF: (Intent?) -> Unit = {
         it?.apply {
-            val extra = AppBroadcastHub.Extra.radioNameUI
+            val extra = BroadcastExtra.radioNameUI
             val value = getStringExtra(extra)
             miniPlayerRadioNameTV.text = value
         }
@@ -83,7 +80,7 @@ class MiniPlayerRadioGeneralFragment :
 
     override val artistRadioUIF: (Intent?) -> Unit = {
         it?.apply {
-            val extra = AppBroadcastHub.Extra.radioArtistUI
+            val extra = BroadcastExtra.radioArtistUI
             val value = getStringExtra(extra)
             miniPlayerRadioArtistTV.text = value
         }
@@ -122,7 +119,7 @@ class MiniPlayerRadioGeneralFragment :
 
     override val iconRadioUIF: (Intent?) -> Unit = {
         it?.apply {
-            val extra = AppBroadcastHub.Extra.iconRadioUI
+            val extra = BroadcastExtra.iconRadioUI
             val value = getStringExtra(extra)
             DrawableIcon.loadRadioIconAsset(
                 requireContext(), miniPlayerRadioIcon, value)

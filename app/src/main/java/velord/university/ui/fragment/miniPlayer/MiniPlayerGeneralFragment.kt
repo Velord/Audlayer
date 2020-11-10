@@ -11,11 +11,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.broadcast.AppBroadcastHub
-import velord.university.application.broadcast.PERM_PRIVATE_MINI_PLAYER
 import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
-import velord.university.application.broadcast.registerBroadcastReceiver
-import velord.university.application.broadcast.unregisterBroadcastReceiver
+import velord.university.application.broadcast.hub.*
 import velord.university.model.converter.SongTimeConverter
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import velord.university.ui.fragment.miniPlayer.logic.general.*
@@ -120,7 +117,7 @@ open class MiniPlayerGeneralFragment :
 
     override val songArtistF: (Intent?) -> Unit = { intent ->
         intent?.apply {
-            val extra = AppBroadcastHub.Extra.songArtistUI
+            val extra = BroadcastExtra.songArtistUI
             val songArtist = getStringExtra(extra)
             miniPlayerArtistTV.text = songArtist
         }
@@ -156,7 +153,7 @@ open class MiniPlayerGeneralFragment :
 
     override val rewindF: (Intent?) -> Unit = { intent ->
         intent?.apply {
-            val extra = AppBroadcastHub.Extra.rewindUI
+            val extra = BroadcastExtra.rewindUI
             val second = intent.getIntExtra(extra, 0)
 
             val allSeconds =
@@ -195,7 +192,7 @@ open class MiniPlayerGeneralFragment :
 
     override val songNameF: (Intent?) -> Unit = { intent ->
         intent?.apply {
-            val extra = AppBroadcastHub.Extra.songNameUI
+            val extra = BroadcastExtra.songNameUI
             val value = getStringExtra(extra)
             miniPlayerNameTV.text = value
         }
@@ -203,7 +200,7 @@ open class MiniPlayerGeneralFragment :
 
     override val songHQF: (Intent?) -> Unit = { intent ->
         intent?.apply {
-            val extra = AppBroadcastHub.Extra.songHQUI
+            val extra = BroadcastExtra.songHQUI
             val value = getBooleanExtra(extra, true)
             if (value) miniPlayerSongQualityTV.visibility = View.VISIBLE
             else miniPlayerSongQualityTV.visibility = View.GONE
@@ -212,7 +209,7 @@ open class MiniPlayerGeneralFragment :
 
     override val songDurationF: (Intent?) -> Unit = { intent ->
         intent?.apply {
-            val extra = AppBroadcastHub.Extra.songDurationUI
+            val extra = BroadcastExtra.songDurationUI
             val seconds = getIntExtra(extra, 0)
             val inMinutes = SongTimeConverter.millisecondsToSeconds(seconds)
             miniPlayerSongTimeEndTV.text =
@@ -222,7 +219,7 @@ open class MiniPlayerGeneralFragment :
 
     override val iconF: (Intent?) -> Unit = {
         it?.apply {
-            val extra = AppBroadcastHub.Extra.iconUI
+            val extra = BroadcastExtra.iconUI
             val value = getStringExtra(extra)!!
 
             loadIcon(value)

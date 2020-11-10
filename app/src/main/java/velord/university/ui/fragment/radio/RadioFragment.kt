@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.PopupMenu
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,13 +20,10 @@ import velord.university.model.exception.ViewDestroyed
 import velord.university.ui.util.view.setupAndShowPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.broadcast.AppBroadcastHub
-import velord.university.application.broadcast.PERM_PRIVATE_RADIO
 import velord.university.application.broadcast.behaviour.RadioIconClickReceiver
 import velord.university.application.broadcast.behaviour.RadioNameArtistUIReceiver
 import velord.university.application.broadcast.behaviour.RadioUnavailableUIReceiver
-import velord.university.application.broadcast.registerBroadcastReceiver
-import velord.university.application.broadcast.unregisterBroadcastReceiver
+import velord.university.application.broadcast.hub.*
 import velord.university.application.settings.SortByPreference
 import velord.university.databinding.*
 import velord.university.model.entity.music.RadioStation
@@ -135,7 +131,7 @@ class RadioFragment :
 
     override val nameRadioUIF: (Intent?) -> Unit = {
         it?.apply {
-            val extra = AppBroadcastHub.Extra.radioNameUI
+            val extra = BroadcastExtra.radioNameUI
             val radioName = getStringExtra(extra)
 
             if (viewModel.rvResolverIsInitialized()) {
@@ -155,7 +151,7 @@ class RadioFragment :
 
     override val artistRadioUIF: (Intent?) -> Unit = {
         it?.apply {
-            val extra = AppBroadcastHub.Extra.radioArtistUI
+            val extra = BroadcastExtra.radioArtistUI
             val value = getStringExtra(extra)
         }
     }
@@ -180,7 +176,7 @@ class RadioFragment :
     override val radioUrlIsWrongUIF: (Intent?) -> Unit = {
         it?.apply {
             scope.launch {
-                val extra = AppBroadcastHub.Extra.radioStationUrlUI
+                val extra = BroadcastExtra.radioStationUrlUI
                 val radioUrl = getStringExtra(extra)
 
                 if (viewModel.rvResolverIsInitialized()) {

@@ -4,15 +4,16 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastAction
 
 interface MiniPlayerBroadcastReceiverShowAndHider {
 
     val TAG: String
 
     fun miniPlayerShowAndHiderReceiverList() = arrayOf(
-        Pair(show(), AppBroadcastHub.Action.showUI),
-        Pair(hide(), AppBroadcastHub.Action.hideUI)
+        Pair(show(), BroadcastAction.showUI),
+        Pair(hide(), BroadcastAction.hideUI)
     )
 
     val showF: (Intent?) -> Unit

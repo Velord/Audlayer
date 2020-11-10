@@ -4,15 +4,16 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastAction
 
 interface RadioNameArtistUIReceiver {
 
     val TAG: String
 
     fun getRadioNameArtistUIReceiverList() = arrayOf(
-        Pair(nameRadio(), AppBroadcastHub.Action.radioNameUI),
-        Pair(artistRadio(), AppBroadcastHub.Action.radioArtistUI)
+        Pair(nameRadio(), BroadcastAction.radioNameUI),
+        Pair(artistRadio(), BroadcastAction.radioArtistUI)
     )
 
     val nameRadioUIF: (Intent?) -> Unit

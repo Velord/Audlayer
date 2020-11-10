@@ -7,7 +7,8 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.*
-import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.application.broadcast.restarter.RestarterMiniPlayerGeneralService
 import velord.university.application.service.audioFocus.AudioFocusChangeF
 import velord.university.application.service.audioFocus.AudioFocusListenerService
@@ -316,7 +317,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     private fun sendInfoWhenPlay() {
         //send command to change ui
         mayInvoke {
-            AppBroadcastHub.run { playUI() }
+            AppBroadcastHub.run {
+                doAction(BroadcastActionType.PLAY_MINI_PLAYER_UI)
+            }
         }
     }
 
@@ -411,7 +414,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             stopSendRewind()
         //send command to change ui
         mayInvoke {
-            AppBroadcastHub.apply { stopUI() }
+            AppBroadcastHub.run {
+                doAction(BroadcastActionType.STOP_MINI_PLAYER_UI)
+            }
         }
     }
 
@@ -575,10 +580,12 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     private fun sendIsPlayed() {
         mayInvoke {
             if (playerIsInitialized()) {
-                if(player.isPlaying)
-                    AppBroadcastHub.apply { playUI() }
-                else
-                    AppBroadcastHub.run { stopUI() }
+                if(player.isPlaying) AppBroadcastHub.run {
+                    doAction(BroadcastActionType.PLAY_MINI_PLAYER_UI)
+                }
+                else AppBroadcastHub.run {
+                    doAction(BroadcastActionType.STOP_MINI_PLAYER_UI)
+                }
             }
         }
     }
@@ -625,12 +632,18 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
     }
 
-    private suspend fun sendIsLoved(song: File) = withContext(Dispatchers.IO) {
+    private suspend fun sendIsLoved(song: File) {
         val favourite = PlaylistTransaction.getFavouriteSongs()
-        if (favourite.contains(song.path))
-            mayInvoke { AppBroadcastHub.run { likeUI() } }
-        else
-            mayInvoke { AppBroadcastHub.run { unlikeUI() } }
+        if (favourite.contains(song.path)) mayInvoke {
+            AppBroadcastHub.run {
+                doAction(BroadcastActionType.LIKE_MINI_PLAYER_UI)
+            }
+        }
+        else mayInvoke {
+            AppBroadcastHub.run {
+                doAction(BroadcastActionType.UNLIKE_MINI_PLAYER_UI)
+            }
+        }
     }
 
     private fun sendPathIsWrong(path: String) =

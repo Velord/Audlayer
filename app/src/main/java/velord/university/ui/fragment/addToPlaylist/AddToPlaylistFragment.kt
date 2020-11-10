@@ -18,7 +18,7 @@ import velord.university.ui.util.view.deactivate
 import velord.university.ui.util.view.setupAndShowPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
-import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.databinding.AddToPlaylistFragmentBinding
 import velord.university.databinding.GeneralRvBinding
 import velord.university.interactor.SongPlaylistInteractor

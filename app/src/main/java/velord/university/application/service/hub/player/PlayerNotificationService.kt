@@ -6,10 +6,10 @@ import android.content.IntentFilter
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
-import velord.university.application.broadcast.*
 import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
+import velord.university.application.broadcast.hub.*
 import velord.university.application.broadcast.restarter.RestarterNotificationService
 import velord.university.application.notification.MiniPlayerNotification
 import velord.university.application.service.mayInvokeRadio
@@ -30,7 +30,7 @@ class PlayerNotificationService : Service(),
 
     override val songPathF: (Intent?) -> Unit = { intent ->
         intent?.apply {
-            val extra = AppBroadcastHub.Extra.songPathUI
+            val extra = BroadcastExtra.songPathUI
             val songPath = getStringExtra(extra)
 
             val song = SongPlaylistInteractor.songs.find {
@@ -52,7 +52,7 @@ class PlayerNotificationService : Service(),
 
     override val nameRadioUIF: (Intent?) -> Unit = {
         it?.apply {
-            val extra = AppBroadcastHub.Extra.radioNameUI
+            val extra = BroadcastExtra.radioNameUI
             val value = getStringExtra(extra)!!
 
             this@PlayerNotificationService.mayInvokeRadio {
@@ -64,7 +64,7 @@ class PlayerNotificationService : Service(),
 
     override val artistRadioUIF: (Intent?) -> Unit = {
         it?.apply {
-            val extra = AppBroadcastHub.Extra.radioArtistUI
+            val extra = BroadcastExtra.radioArtistUI
             val value = getStringExtra(extra)!!
 
             this@PlayerNotificationService.mayInvokeRadio {
@@ -88,7 +88,7 @@ class PlayerNotificationService : Service(),
 
     override val iconRadioUIF: (Intent?) -> Unit = {
         it?.apply {
-            val extra = AppBroadcastHub.Extra.iconRadioUI
+            val extra = BroadcastExtra.iconRadioUI
             val value = getStringExtra(extra)!!
 
            MiniPlayerNotification
@@ -98,7 +98,7 @@ class PlayerNotificationService : Service(),
 
     override val iconF: (Intent?) -> Unit = {
         it?.apply {
-            val extra = AppBroadcastHub.Extra.iconUI
+            val extra = BroadcastExtra.iconUI
             val value = getStringExtra(extra)!!
 
             MiniPlayerNotification
@@ -121,13 +121,13 @@ class PlayerNotificationService : Service(),
     //not need
     override val songArtistF: (Intent?) -> Unit = { intent ->
         intent?.apply {
-            val extra = AppBroadcastHub.Extra.songArtistUI
+            val extra = BroadcastExtra.songArtistUI
             val value = getStringExtra(extra)
         }
     }
     override val songNameF: (Intent?) -> Unit = { intent ->
         intent?.apply {
-            val extra = AppBroadcastHub.Extra.songNameUI
+            val extra = BroadcastExtra.songNameUI
             val value = getStringExtra(extra)
         }
     }

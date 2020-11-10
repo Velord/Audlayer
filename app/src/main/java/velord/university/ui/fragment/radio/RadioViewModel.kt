@@ -3,13 +3,12 @@ package velord.university.ui.fragment.radio
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.*
-import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.RadioInteractor
 import velord.university.model.entity.music.RadioStation
 import velord.university.repository.db.transaction.hub.HubTransaction
-import velord.university.repository.hub.RadioRepository
 import velord.university.ui.util.RVSelection
 
 class RadioViewModel(private val app: Application) : AndroidViewModel(app) {

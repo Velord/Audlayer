@@ -4,7 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import velord.university.application.broadcast.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastAction
 
 interface RadioUIReceiver:
     RadioNameArtistUIReceiver,
@@ -14,14 +15,14 @@ interface RadioUIReceiver:
         getRadioNameArtistUIReceiverList() +
                 getRadioUnavailableUIReceiverList() +
                 arrayOf(
-                    Pair(stopRadio(), AppBroadcastHub.Action.stopRadioUI),
-                    Pair(playRadio(), AppBroadcastHub.Action.playRadioUI),
-                    Pair(likeRadio(), AppBroadcastHub.Action.likeRadioUI),
-                    Pair(unlikeRadio(), AppBroadcastHub.Action.unlikeRadioUI),
-                    Pair(showRadio(), AppBroadcastHub.Action.showMiniPlayerRadioUI),
-                    Pair(iconRadio(), AppBroadcastHub.Action.iconRadioUI),
-                    Pair(radioPlayerUnavailable(), AppBroadcastHub.Action.radioPlayerUnavailableUI),
-                    Pair(radioUrlIsWrongUI(), AppBroadcastHub.Action.radioUrlIsWrongUI)
+                    Pair(stopRadio(), BroadcastAction.stopRadioUI),
+                    Pair(playRadio(), BroadcastAction.playRadioUI),
+                    Pair(likeRadio(), BroadcastAction.likeRadioUI),
+                    Pair(unlikeRadio(), BroadcastAction.unlikeRadioUI),
+                    Pair(showRadio(), BroadcastAction.showMiniPlayerRadioUI),
+                    Pair(iconRadio(), BroadcastAction.iconRadioUI),
+                    Pair(radioPlayerUnavailable(), BroadcastAction.radioPlayerUnavailableUI),
+                    Pair(radioUrlIsWrongUI(), BroadcastAction.radioUrlIsWrongUI)
                 )
 
     val iconRadioUIF: (Intent?) -> Unit
