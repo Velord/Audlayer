@@ -11,6 +11,7 @@ import velord.university.ui.util.view.gone
 import velord.university.ui.util.view.visible
 import velord.university.application.broadcast.behaviour.MiniPlayerBroadcastReceiverShowAndHider
 import velord.university.application.broadcast.hub.*
+import velord.university.application.broadcast.hub.AppBroadcastHub.doAction
 import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.ui.fragment.miniPlayer.MiniPlayerRadioGeneralFragment
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
@@ -98,10 +99,10 @@ abstract class MiniPlayerFragment :
     private fun stopAndHideMiniPLayer() {
         when(MiniPlayerRepository.getState(requireContext())) {
             MiniPlayerLayoutState.GENERAL -> AppBroadcastHub.run {
-                requireContext().doAction(BroadcastActionType.STOP_MINI_PLAYER)
+                requireContext().doAction(BroadcastActionType.STOP_PLAYER_SERVICE)
             }
             MiniPlayerLayoutState.RADIO -> AppBroadcastHub.run {
-                requireContext().stopRadioService()
+                requireContext().doAction(BroadcastActionType.STOP_RADIO_SERVICE)
             }
         }
         AppBroadcastHub.apply {

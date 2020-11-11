@@ -230,7 +230,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         MiniPlayerServicePreferences(this).isShuffle =
             QueueResolver.shuffleState
         mayInvoke {
-            AppBroadcastHub.run { shuffleUI() }
+            AppBroadcastHub.run {
+                doAction(BroadcastActionType.SHUFFLE_PLAYER_UI)
+            }
         }
     }
 
@@ -240,7 +242,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         MiniPlayerServicePreferences(this).isShuffle =
             QueueResolver.shuffleState
         mayInvoke {
-            AppBroadcastHub.run { unShuffleUI() }
+            AppBroadcastHub.run {
+                doAction(BroadcastActionType.UN_SHUFFLE_PLAYER_UI)
+            }
         }
     }
 
@@ -275,7 +279,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         QueueResolver.loopState()
         MiniPlayerServicePreferences(this).loopState = 1
         mayInvoke {
-            AppBroadcastHub.apply { this@MiniPlayerService.loopUI() }
+            AppBroadcastHub.apply {
+                doAction(BroadcastActionType.LOOP_PLAYER_UI)
+            }
         }
     }
 
@@ -283,7 +289,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         QueueResolver.notLoopState()
         MiniPlayerServicePreferences(this).loopState = 0
         mayInvoke {
-            AppBroadcastHub.apply { this@MiniPlayerService.notLoopUI() }
+            AppBroadcastHub.apply {
+                doAction(BroadcastActionType.LOOP_NOT_PLAYER_UI)
+            }
         }
     }
 
@@ -291,7 +299,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         QueueResolver.loopAllState()
         MiniPlayerServicePreferences(this).loopState = 2
         mayInvoke {
-            AppBroadcastHub.apply { this@MiniPlayerService.loopAllUI() }
+            AppBroadcastHub.apply {
+                doAction(BroadcastActionType.LOOP_ALL_PLAYER_UI)
+            }
         }
     }
 
@@ -318,13 +328,15 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         //send command to change ui
         mayInvoke {
             AppBroadcastHub.run {
-                doAction(BroadcastActionType.PLAY_MINI_PLAYER_UI)
+                doAction(BroadcastActionType.PLAY_PLAYER_UI)
             }
         }
     }
 
     private fun stopElseService() {
-        AppBroadcastHub.run { stopRadioService() }
+        AppBroadcastHub.run {
+            doAction(BroadcastActionType.STOP_RADIO_SERVICE)
+        }
         sendShowGeneralUI()
     }
 
@@ -415,7 +427,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         //send command to change ui
         mayInvoke {
             AppBroadcastHub.run {
-                doAction(BroadcastActionType.STOP_MINI_PLAYER_UI)
+                doAction(BroadcastActionType.STOP_PLAYER_UI)
             }
         }
     }
@@ -581,10 +593,10 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         mayInvoke {
             if (playerIsInitialized()) {
                 if(player.isPlaying) AppBroadcastHub.run {
-                    doAction(BroadcastActionType.PLAY_MINI_PLAYER_UI)
+                    doAction(BroadcastActionType.PLAY_PLAYER_UI)
                 }
                 else AppBroadcastHub.run {
-                    doAction(BroadcastActionType.STOP_MINI_PLAYER_UI)
+                    doAction(BroadcastActionType.STOP_PLAYER_UI)
                 }
             }
         }
@@ -595,17 +607,36 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private fun sendLoopState() =
-        when(MiniPlayerServicePreferences(this).loopState) {
-            0 -> mayInvoke { AppBroadcastHub.run { notLoopUI() } }
-            1 -> mayInvoke { AppBroadcastHub.run { loopUI() } }
-            2 -> mayInvoke { AppBroadcastHub.run { loopAllUI() } }
-            else -> Unit
+        mayInvoke {
+            when (MiniPlayerServicePreferences(this).loopState) {
+                0 -> AppBroadcastHub.apply {
+                    doAction(BroadcastActionType.LOOP_NOT_PLAYER_UI)
+                }
+                1 -> AppBroadcastHub.run {
+                    doAction(BroadcastActionType.LOOP_PLAYER_UI)
+                }
+
+                2 -> AppBroadcastHub.run {
+                    doAction(BroadcastActionType.LOOP_ALL_PLAYER_UI)
+                }
+                else -> Unit
+            }
         }
 
     private fun sendShuffleState() {
         if (MiniPlayerServicePreferences(this).isShuffle)
-            mayInvoke { AppBroadcastHub.run { shuffleUI() } }
-        else mayInvoke { AppBroadcastHub.run { unShuffleUI() } }
+            mayInvoke {
+                AppBroadcastHub.run {
+                    doAction(BroadcastActionType.SHUFFLE_PLAYER_UI)
+                }
+            }
+        else mayInvoke {
+            AppBroadcastHub.run {
+                AppBroadcastHub.run {
+                    doAction(BroadcastActionType.UN_SHUFFLE_PLAYER_UI)
+                }
+            }
+        }
     }
 
     private fun sendPath(song: File) =
@@ -636,12 +667,12 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         val favourite = PlaylistTransaction.getFavouriteSongs()
         if (favourite.contains(song.path)) mayInvoke {
             AppBroadcastHub.run {
-                doAction(BroadcastActionType.LIKE_MINI_PLAYER_UI)
+                doAction(BroadcastActionType.LIKE_PLAYER_UI)
             }
         }
         else mayInvoke {
             AppBroadcastHub.run {
-                doAction(BroadcastActionType.UNLIKE_MINI_PLAYER_UI)
+                doAction(BroadcastActionType.UNLIKE_PLAYER_UI)
             }
         }
     }

@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
@@ -110,7 +111,7 @@ class AllSongViewModel(
         AppBroadcastHub.apply {
             app.showGeneralUI()
             app.playByPathService(song.file.path)
-            app.loopAllService()
+            app.doAction(BroadcastActionType.LOOP_ALL_PLAYER_SERVICE)
             sendIconToMiniPlayer(song)
         }
     }
@@ -122,7 +123,7 @@ class AllSongViewModel(
             app.showGeneralUI()
             app.playByPathService(song.file.path)
             sendIconToMiniPlayer(song)
-            app.loopService()
+            app.doAction(BroadcastActionType.LOOP_PLAYER_SERVICE)
         }
     }
 

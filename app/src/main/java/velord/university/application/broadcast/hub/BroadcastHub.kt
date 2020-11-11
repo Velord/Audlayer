@@ -7,14 +7,36 @@ const val PERM_PRIVATE_MINI_PLAYER = "velord.university.PERM_PRIVATE_MINI_PLAYER
 const val PERM_PRIVATE_RADIO = "velord.university.PERM_PRIVATE_RADIO"
 
 enum class BroadcastActionType {
-    STOP_MINI_PLAYER,
-    STOP_MINI_PLAYER_UI,
-    PLAY_MINI_PLAYER,
-    PLAY_MINI_PLAYER_UI,
-    LIKE_MINI_PLAYER,
-    LIKE_MINI_PLAYER_UI,
-    UNLIKE_MINI_PLAYER,
-    UNLIKE_MINI_PLAYER_UI,
+    STOP_PLAYER_SERVICE,
+    STOP_PLAYER_UI,
+    PLAY_PLAYER_SERVICE,
+    PLAY_PLAYER_UI,
+    LIKE_PLAYER_SERVICE,
+    LIKE_PLAYER_UI,
+    UNLIKE_PLAYER_SERVICE,
+    UNLIKE_PLAYER_UI,
+    SKIP_PLAYER_SERVICE,
+    SKIP_PLAYER_UI,
+    SKIP_PREV_PLAYER_SERVICE,
+    SKIP_PREV_PLAYER_UI,
+    SHUFFLE_PLAYER_SERVICE,
+    SHUFFLE_PLAYER_UI,
+    UN_SHUFFLE_PLAYER_SERVICE,
+    UN_SHUFFLE_PLAYER_UI,
+    LOOP_PLAYER_SERVICE,
+    LOOP_PLAYER_UI,
+    LOOP_ALL_PLAYER_SERVICE,
+    LOOP_ALL_PLAYER_UI,
+    LOOP_NOT_PLAYER_SERVICE,
+    LOOP_NOT_PLAYER_UI,
+    STOP_RADIO_SERVICE,
+    STOP_RADIO_UI,
+    PLAY_RADIO_SERVICE,
+    PLAY_RADIO_UI,
+    LIKE_RADIO_SERVICE,
+    LIKE_RADIO_UI,
+    UNLIKE_RADIO_SERVICE,
+    UNLIKE_RADIO_UI,
 }
 
 object AppBroadcastHub {
@@ -22,50 +44,161 @@ object AppBroadcastHub {
     fun Context.doAction(
         type: BroadcastActionType
     ) = when(type) {
-        BroadcastActionType.STOP_MINI_PLAYER -> MiniPlayerBroadcastStop.run {
+        BroadcastActionType.STOP_PLAYER_SERVICE -> MiniPlayerBroadcastStop.run {
             sendBroadcastStop()
         }
-        BroadcastActionType.STOP_MINI_PLAYER_UI -> MiniPlayerBroadcastStop.run {
+        BroadcastActionType.STOP_PLAYER_UI -> MiniPlayerBroadcastStop.run {
             sendBroadcastStopUI()
         }
-        BroadcastActionType.PLAY_MINI_PLAYER -> MiniPlayerBroadcastPlay.run {
+        BroadcastActionType.PLAY_PLAYER_SERVICE -> MiniPlayerBroadcastPlay.run {
             sendBroadcastPlay()
         }
-        BroadcastActionType.PLAY_MINI_PLAYER_UI -> MiniPlayerBroadcastPlay.run {
+        BroadcastActionType.PLAY_PLAYER_UI -> MiniPlayerBroadcastPlay.run {
             sendBroadcastPlayUI()
         }
-        BroadcastActionType.LIKE_MINI_PLAYER -> MiniPlayerBroadcastLike.run {
+        BroadcastActionType.LIKE_PLAYER_SERVICE -> MiniPlayerBroadcastLike.run {
             sendBroadcastLike()
         }
-        BroadcastActionType.LIKE_MINI_PLAYER_UI -> MiniPlayerBroadcastLike.run {
+        BroadcastActionType.LIKE_PLAYER_UI -> MiniPlayerBroadcastLike.run {
             sendBroadcastLikeUI()
         }
-        BroadcastActionType.UNLIKE_MINI_PLAYER -> MiniPlayerBroadcastUnlike.run {
+        BroadcastActionType.UNLIKE_PLAYER_SERVICE -> MiniPlayerBroadcastUnlike.run {
             sendBroadcastUnlike()
         }
-        BroadcastActionType.UNLIKE_MINI_PLAYER_UI -> MiniPlayerBroadcastUnlike.run {
+        BroadcastActionType.UNLIKE_PLAYER_UI -> MiniPlayerBroadcastUnlike.run {
+            sendBroadcastUnlikeUI()
+        }
+        BroadcastActionType.SKIP_PLAYER_SERVICE -> MiniPlayerBroadcastSkipNext.run {
+            sendBroadcastSkipNext()
+        }
+        BroadcastActionType.SKIP_PLAYER_UI -> MiniPlayerBroadcastSkipNext.run {
+            sendBroadcastSkipNextUI()
+        }
+        BroadcastActionType.SKIP_PREV_PLAYER_SERVICE -> MiniPlayerBroadcastSkipPrev.run {
+            sendBroadcastSkipPrev()
+        }
+        BroadcastActionType.SKIP_PREV_PLAYER_UI -> MiniPlayerBroadcastSkipPrev.run {
+            sendBroadcastSkipPrevUI()
+        }
+        BroadcastActionType.SHUFFLE_PLAYER_SERVICE -> MiniPlayerBroadcastShuffle.run {
+            sendBroadcastShuffle()
+        }
+        BroadcastActionType.SHUFFLE_PLAYER_UI -> MiniPlayerBroadcastShuffle.run {
+            sendBroadcastShuffleUI()
+        }
+        BroadcastActionType.UN_SHUFFLE_PLAYER_SERVICE -> MiniPlayerBroadcastUnShuffle.run {
+            sendBroadcastUnShuffle()
+        }
+        BroadcastActionType.UN_SHUFFLE_PLAYER_UI -> MiniPlayerBroadcastUnShuffle.run {
+            sendBroadcastUnShuffleUI()
+        }
+        BroadcastActionType.LOOP_PLAYER_SERVICE -> MiniPlayerBroadcastLoop.run {
+            sendBroadcastLoop()
+        }
+        BroadcastActionType.LOOP_PLAYER_UI -> MiniPlayerBroadcastLoop.run {
+            sendBroadcastLoopUI()
+        }
+        BroadcastActionType.LOOP_ALL_PLAYER_SERVICE -> MiniPlayerBroadcastLoopAll.run {
+            sendBroadcastLoopAll()
+        }
+        BroadcastActionType.LOOP_ALL_PLAYER_UI -> MiniPlayerBroadcastLoopAll.run {
+            sendBroadcastLoopAllUI()
+        }
+        BroadcastActionType.LOOP_NOT_PLAYER_SERVICE -> MiniPlayerBroadcastNotLoop.run {
+            sendBroadcastNotLoop()
+        }
+        BroadcastActionType.LOOP_NOT_PLAYER_UI -> MiniPlayerBroadcastNotLoop.run {
+            sendBroadcastNotLoopUI()
+        }
+        BroadcastActionType.STOP_RADIO_SERVICE -> RadioBroadcastStop.run {
+            sendBroadcastStop()
+        }
+        BroadcastActionType.STOP_RADIO_UI -> RadioBroadcastStop.run {
+            sendBroadcastStopUI()
+        }
+        BroadcastActionType.PLAY_RADIO_SERVICE -> RadioBroadcastPlay.run {
+            sendBroadcastPlay()
+        }
+        BroadcastActionType.PLAY_RADIO_UI -> RadioBroadcastPlay.run {
+            sendBroadcastPlayUI()
+        }
+        BroadcastActionType.LIKE_RADIO_SERVICE -> RadioBroadcastLike.run {
+            sendBroadcastLike()
+        }
+        BroadcastActionType.LIKE_RADIO_UI -> RadioBroadcastLike.run {
+            sendBroadcastLikeUI()
+        }
+        BroadcastActionType.UNLIKE_RADIO_SERVICE -> RadioBroadcastUnlike.run {
+            sendBroadcastUnlike()
+        }
+        BroadcastActionType.UNLIKE_RADIO_UI -> RadioBroadcastUnlike.run {
             sendBroadcastUnlikeUI()
         }
     }
 
-    fun Context.skipNextService() =
-        MiniPlayerBroadcastSkipNext.run {
-            this@skipNextService.sendBroadcastSkipNext()
+    fun Context.showGeneralUI() =
+        MiniPlayerBroadcastShowGeneral.run {
+            this@showGeneralUI.sendBroadcastShowUI()
         }
 
-    fun Context.skipNextUI() =
-        MiniPlayerBroadcastSkipNext.run {
-            this@skipNextUI.sendBroadcastSkipNextUI()
+    fun Context.hideUI() =
+        MiniPlayerBroadcastHide.run {
+            this@hideUI.sendBroadcastHide()
         }
 
-    fun Context.skipPrevService() =
-        MiniPlayerBroadcastSkipPrev.run {
-            this@skipPrevService.sendBroadcastSkipPrev()
+    fun Context.showUI() =
+        MiniPlayerBroadcastShow.run {
+            this@showUI.sendBroadcastShow()
         }
 
-    fun Context.skipPrevUI() =
-        MiniPlayerBroadcastSkipPrev.run {
-            this@skipPrevUI.sendBroadcastSkipPrevUI()
+    fun Context.getInfoService() =
+        MiniPlayerBroadcastGetInfo.run {
+            this@getInfoService.sendBroadcastGetInfo()
+        }
+
+    fun Context.playOrStopService() =
+        MiniPlayerBroadcastPlayOrStop.run {
+            this@playOrStopService.sendBroadcastPlayOrStop()
+        }
+
+    fun Context.playerUnavailableUI() =
+        MiniPlayerBroadcastUnavailable.run {
+            this@playerUnavailableUI.sendBroadcastUnavailableUI()
+        }
+
+    fun Context.clickOnIcon() =
+        MiniPlayerBroadcastClickOnIcon.run {
+            this@clickOnIcon.sendBroadcastClickOnIcon()
+        }
+
+    fun Context.pathIsWrongUI(path: String) =
+        MiniPlayerBroadcastPathWrong.run {
+            this@pathIsWrongUI.sendBroadcastPathIsWrongUI(path)
+        }
+
+    fun Context.iconUI(icon: String) =
+        MiniPlayerBroadcastIcon.run {
+            this@iconUI.sendBroadcastIconUI(icon)
+        }
+
+    fun Context.playAllInFolderService(path: String) =
+        MiniPlayerBroadcastPlayAllInFolder.run {
+            this@playAllInFolderService.sendBroadcastPlayAllInFolder(path)
+        }
+
+    fun Context.playNextAllInFolderService(path: String) =
+        MiniPlayerBroadcastPlayNextAllInFolder.run {
+            this@playNextAllInFolderService.sendBroadcastPlayNextAllInFolder(path)
+        }
+
+    fun Context.shuffleAndPlayAllInFolderService(path: String) =
+        MiniPlayerBroadcastShuffleAndPlayAllInFolder.run {
+            this@shuffleAndPlayAllInFolderService.sendBroadcastShuffleAndPlayAllInFolder(path)
+        }
+
+    fun Context.addToQueueService(path: String) =
+        MiniPlayerBroadcastAddToQueue.run {
+            this@addToQueueService.sendBroadcastAddToQueue(path)
         }
 
     fun Context.rewindService(duration: Int) =
@@ -76,56 +209,6 @@ object AppBroadcastHub {
     fun Context.rewindUI(duration: Int) =
         MiniPlayerBroadcastRewind.run {
             this@rewindUI.sendBroadcastRewindUI(duration)
-        }
-
-    fun Context.shuffleService() =
-        MiniPlayerBroadcastShuffle.run {
-            this@shuffleService.sendBroadcastShuffle()
-        }
-
-    fun Context.shuffleUI() =
-        MiniPlayerBroadcastShuffle.run {
-            this@shuffleUI.sendBroadcastShuffleUI()
-        }
-
-    fun Context.unShuffleService() =
-        MiniPlayerBroadcastUnShuffle.run {
-            this@unShuffleService.sendBroadcastUnShuffle()
-        }
-
-    fun Context.unShuffleUI() =
-        MiniPlayerBroadcastUnShuffle.run {
-            this@unShuffleUI.sendBroadcastUnShuffleUI()
-        }
-
-    fun Context.loopService() =
-        MiniPlayerBroadcastLoop.run {
-            this@loopService.sendBroadcastLoop()
-        }
-
-    fun Context.loopUI() =
-        MiniPlayerBroadcastLoop.run {
-            this@loopUI.sendBroadcastLoopUI()
-        }
-
-    fun Context.loopAllService() =
-        MiniPlayerBroadcastLoopAll.run {
-            this@loopAllService.sendBroadcastLoopAll()
-        }
-
-    fun Context.loopAllUI() =
-        MiniPlayerBroadcastLoopAll.run {
-            this@loopAllUI.sendBroadcastLoopAllUI()
-        }
-
-    fun Context.notLoopService() =
-        MiniPlayerBroadcastNotLoop.run {
-            this@notLoopService.sendBroadcastNotLoop()
-        }
-
-    fun Context.notLoopUI() =
-        MiniPlayerBroadcastNotLoop.run {
-            this@notLoopUI.sendBroadcastNotLoopUI()
         }
 
     fun Context.playByPathService(path: String) =
@@ -158,112 +241,7 @@ object AppBroadcastHub {
             this@songDurationUI.sendBroadcastSongDurationUI(duration)
         }
 
-    fun Context.showGeneralUI() =
-        MiniPlayerBroadcastShowGeneral.run {
-            this@showGeneralUI.sendBroadcastShowUI()
-        }
-
-    fun Context.hideUI() =
-        MiniPlayerBroadcastHide.run {
-            this@hideUI.sendBroadcastHide()
-        }
-
-    fun Context.showUI() =
-        MiniPlayerBroadcastShow.run {
-            this@showUI.sendBroadcastShow()
-        }
-
-    fun Context.playAllInFolderService(path: String) =
-        MiniPlayerBroadcastPlayAllInFolder.run {
-            this@playAllInFolderService.sendBroadcastPlayAllInFolder(path)
-        }
-
-    fun Context.playNextAllInFolderService(path: String) =
-        MiniPlayerBroadcastPlayNextAllInFolder.run {
-            this@playNextAllInFolderService.sendBroadcastPlayNextAllInFolder(path)
-        }
-
-    fun Context.shuffleAndPlayAllInFolderService(path: String) =
-        MiniPlayerBroadcastShuffleAndPlayAllInFolder.run {
-            this@shuffleAndPlayAllInFolderService.sendBroadcastShuffleAndPlayAllInFolder(path)
-        }
-
-    fun Context.addToQueueService(path: String) =
-        MiniPlayerBroadcastAddToQueue.run {
-            this@addToQueueService.sendBroadcastAddToQueue(path)
-        }
-
-    fun Context.getInfoService() =
-        MiniPlayerBroadcastGetInfo.run {
-            this@getInfoService.sendBroadcastGetInfo()
-        }
-
-    fun Context.pathIsWrongUI(path: String) =
-        MiniPlayerBroadcastPathWrong.run {
-            this@pathIsWrongUI.sendBroadcastPathIsWrongUI(path)
-        }
-
-    fun Context.playOrStopService() =
-        MiniPlayerBroadcastPlayOrStop.run {
-            this@playOrStopService.sendBroadcastPlayOrStop()
-        }
-
-    fun Context.iconUI(icon: String) =
-        MiniPlayerBroadcastIcon.run {
-            this@iconUI.sendBroadcastIconUI(icon)
-        }
-
-    fun Context.playerUnavailableUI() =
-        MiniPlayerBroadcastUnavailable.run {
-            this@playerUnavailableUI.sendBroadcastUnavailableUI()
-        }
-
-    fun Context.clickOnIcon() =
-        MiniPlayerBroadcastClickOnIcon.run {
-            this@clickOnIcon.sendBroadcastClickOnIcon()
-        }
-
     //radio
-    fun Context.stopRadioService() =
-        RadioBroadcastStop.run {
-            this@stopRadioService.sendBroadcastStop()
-        }
-
-    fun Context.stopRadioUI() =
-        RadioBroadcastStop.run {
-            this@stopRadioUI.sendBroadcastStopUI()
-        }
-
-    fun Context.playRadioService() =
-        RadioBroadcastPlay.run {
-            this@playRadioService.sendBroadcastPlay()
-        }
-
-    fun Context.playRadioUI() =
-        RadioBroadcastPlay.run {
-            this@playRadioUI.sendBroadcastPlayUI()
-        }
-
-    fun Context.likeRadioService() =
-        RadioBroadcastLike.run {
-            this@likeRadioService.sendBroadcastLike()
-        }
-
-    fun Context.likeRadioUI() =
-        RadioBroadcastLike.run {
-            this@likeRadioUI.sendBroadcastLikeUI()
-        }
-
-    fun Context.unlikeRadioService() =
-        RadioBroadcastUnlike.run {
-            this@unlikeRadioService.sendBroadcastUnlike()
-        }
-
-    fun Context.unlikeRadioUI() =
-        RadioBroadcastUnlike.run {
-            this@unlikeRadioUI.sendBroadcastUnlikeUI()
-        }
-
     fun Context.radioNameUI(name: String) =
         RadioBroadcastName.run {
             this@radioNameUI.sendBroadcastRadioNameUI(name)

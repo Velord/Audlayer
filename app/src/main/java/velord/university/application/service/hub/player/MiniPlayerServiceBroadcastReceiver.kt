@@ -7,12 +7,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import velord.university.application.broadcast.hub.AppBroadcastHub.skipNextUI
-import velord.university.application.broadcast.hub.AppBroadcastHub.skipPrevUI
 import velord.university.application.broadcast.hub.AppBroadcastHub.songDurationUI
 import velord.university.application.broadcast.behaviour.MiniPlayerServiceReceiver
 import velord.university.application.broadcast.hub.*
-import velord.university.application.broadcast.hub.BroadcastAction.likeUI
 import velord.university.model.converter.SongTimeConverter
 
 class MiniPlayerServiceBroadcastReceiver :
@@ -72,7 +69,7 @@ class MiniPlayerServiceBroadcastReceiver :
         scope.launch {
             super.likeSong()
             AppBroadcastHub.run {
-                doAction(BroadcastActionType.LIKE_MINI_PLAYER_UI)
+                doAction(BroadcastActionType.LIKE_PLAYER_UI)
             }
         }
     }
@@ -81,7 +78,7 @@ class MiniPlayerServiceBroadcastReceiver :
         scope.launch {
             super.unlikeSong()
             AppBroadcastHub.run {
-                doAction(BroadcastActionType.UNLIKE_MINI_PLAYER_UI)
+                doAction(BroadcastActionType.UNLIKE_PLAYER_UI)
             }
         }
     }
@@ -89,14 +86,18 @@ class MiniPlayerServiceBroadcastReceiver :
     override val skipNextF: (Intent?) -> Unit = {
         scope.launch {
             super.skipSongAndPlayNext()
-            skipNextUI()
+            AppBroadcastHub.run {
+                doAction(BroadcastActionType.SKIP_PLAYER_UI)
+            }
         }
     }
 
     override val skipPrevF: (Intent?) -> Unit = {
         scope.launch {
             super.skipSongAndPlayPrevious()
-            skipPrevUI()
+            AppBroadcastHub.run {
+                doAction(BroadcastActionType.SKIP_PREV_PLAYER_UI)
+            }
         }
     }
     //get in seconds cause view does not operate at milliseconds

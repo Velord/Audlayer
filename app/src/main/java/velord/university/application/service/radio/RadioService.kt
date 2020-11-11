@@ -265,7 +265,7 @@ abstract class RadioService : AudioFocusListenerService() {
 
     private fun stopMiniPlayerService() =
         AppBroadcastHub.apply {
-            doAction(BroadcastActionType.STOP_MINI_PLAYER)
+            doAction(BroadcastActionType.STOP_PLAYER_SERVICE)
         }
 
     private fun stopPlayer() = stopOrPausePlayer {
@@ -347,8 +347,8 @@ abstract class RadioService : AudioFocusListenerService() {
     private fun sendIsPlayed() {
         mayInvoke {
             if (playerIsInitialized() && player.isPlaying) {
-                AppBroadcastHub.apply {
-                    playRadioUI()
+                AppBroadcastHub.run {
+                    doAction(BroadcastActionType.PLAY_RADIO_UI)
                 }
             }
         }
@@ -377,17 +377,23 @@ abstract class RadioService : AudioFocusListenerService() {
         }
         when (isLike) {
             true -> mayInvoke {
-                AppBroadcastHub.apply { likeRadioUI() }
+                AppBroadcastHub.run {
+                    doAction(BroadcastActionType.LIKE_RADIO_UI)
+                }
             }
             false -> mayInvoke {
-                AppBroadcastHub.apply { unlikeRadioUI() }
+                AppBroadcastHub.run {
+                    doAction(BroadcastActionType.UNLIKE_RADIO_UI)
+                }
             }
         }
     }
 
     private fun sendInfoWhenStop() {
         mayInvoke {
-            AppBroadcastHub.apply { stopRadioUI() }
+            AppBroadcastHub.run {
+                doAction(BroadcastActionType.STOP_RADIO_UI)
+            }
         }
     }
 

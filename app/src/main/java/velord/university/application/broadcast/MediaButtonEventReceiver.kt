@@ -12,6 +12,7 @@ import android.view.KeyEvent.ACTION_UP
 import android.widget.Toast
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 
@@ -99,13 +100,17 @@ object MediaButtonEventHeadSeatHook {
     private fun skipNext(context: Context) {
         val playerState = MiniPlayerRepository.getState(context)
         if (playerState == MiniPlayerLayoutState.GENERAL)
-            AppBroadcastHub.run { context.skipNextService() }
+            AppBroadcastHub.run {
+                context.doAction(BroadcastActionType.SKIP_PLAYER_SERVICE)
+            }
     }
 
     private fun skipPrev(context: Context) {
         val playerState = MiniPlayerRepository.getState(context)
         if (playerState == MiniPlayerLayoutState.GENERAL)
-            AppBroadcastHub.run { context.skipPrevService() }
+            AppBroadcastHub.run {
+                context.doAction(BroadcastActionType.SKIP_PREV_PLAYER_SERVICE)
+            }
     }
 
     private fun playOrStop(context: Context) {

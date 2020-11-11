@@ -14,11 +14,11 @@ object HeartLogic: TwoStateLogic() {
             when(state) {
                 MiniPlayerLayoutState.GENERAL ->
                     AppBroadcastHub.run {
-                        context.doAction(BroadcastActionType.UNLIKE_MINI_PLAYER)
+                        context.doAction(BroadcastActionType.UNLIKE_PLAYER_SERVICE)
                     }
                 MiniPlayerLayoutState.RADIO ->
                     AppBroadcastHub.run {
-                        context.unlikeRadioService()
+                        context.doAction(BroadcastActionType.UNLIKE_RADIO_SERVICE)
                     }
             }
         }
@@ -28,11 +28,11 @@ object HeartLogic: TwoStateLogic() {
             when(state) {
                 MiniPlayerLayoutState.GENERAL ->
                     AppBroadcastHub.apply {
-                        context.doAction(BroadcastActionType.LIKE_MINI_PLAYER)
+                        context.doAction(BroadcastActionType.LIKE_PLAYER_SERVICE)
                     }
                 MiniPlayerLayoutState.RADIO ->
-                    AppBroadcastHub.apply {
-                        context.likeRadioService()
+                    AppBroadcastHub.run {
+                        context.doAction(BroadcastActionType.LIKE_RADIO_SERVICE)
                     }
             }
         }

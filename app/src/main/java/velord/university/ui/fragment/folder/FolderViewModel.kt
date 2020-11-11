@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
@@ -48,7 +49,7 @@ class FolderViewModel(
         //don't remember for SongPlaylistInteractor
         AppBroadcastHub.apply {
             app.playAllInFolderService(value.file.path)
-            app.loopAllService()
+            app.doAction(BroadcastActionType.LOOP_ALL_PLAYER_SERVICE)
         }
     }
 
@@ -62,7 +63,7 @@ class FolderViewModel(
     fun shuffleAndPlayAllInFolder(value: Song) {
         AppBroadcastHub.apply {
             app.shuffleAndPlayAllInFolderService(value.file.path)
-            app.loopAllService()
+            app.doAction(BroadcastActionType.LOOP_ALL_PLAYER_SERVICE)
         }
     }
 
@@ -73,7 +74,7 @@ class FolderViewModel(
 
         AppBroadcastHub.apply {
             app.playByPathService(value.file.path)
-            app.loopService()
+            app.doAction(BroadcastActionType.LOOP_PLAYER_SERVICE)
         }
     }
 

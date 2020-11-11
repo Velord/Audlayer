@@ -7,8 +7,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import velord.university.application.broadcast.hub.AppBroadcastHub.likeRadioUI
-import velord.university.application.broadcast.hub.AppBroadcastHub.unlikeRadioUI
 import velord.university.application.broadcast.behaviour.RadioServiceReceiver
 import velord.university.application.broadcast.hub.*
 
@@ -73,7 +71,9 @@ class RadioServiceBroadcastReceiver :
         scope.launch {
             it?.let {
                 super.likeRadio()
-                this@RadioServiceBroadcastReceiver.likeRadioUI()
+                AppBroadcastHub.run {
+                    doAction(BroadcastActionType.LIKE_RADIO_UI)
+                }
             }
         }
     }
@@ -82,7 +82,9 @@ class RadioServiceBroadcastReceiver :
         scope.launch {
             it?.let {
                 super.unlikeRadio()
-                this@RadioServiceBroadcastReceiver.unlikeRadioUI()
+                AppBroadcastHub.run {
+                    doAction(BroadcastActionType.UNLIKE_RADIO_UI)
+                }
             }
         }
     }

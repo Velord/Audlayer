@@ -14,11 +14,11 @@ object PlayPauseLogic: TwoStateLogic() {
             when(state) {
                 MiniPlayerLayoutState.GENERAL ->
                     AppBroadcastHub.apply {
-                        context.doAction(BroadcastActionType.STOP_MINI_PLAYER)
+                        context.doAction(BroadcastActionType.STOP_PLAYER_SERVICE)
                     }
                 MiniPlayerLayoutState.RADIO ->
-                    AppBroadcastHub.apply {
-                        context.stopRadioService()
+                    AppBroadcastHub.run {
+                        context.doAction(BroadcastActionType.STOP_RADIO_SERVICE)
                     }
             }
         }
@@ -28,11 +28,11 @@ object PlayPauseLogic: TwoStateLogic() {
             when(state) {
                 MiniPlayerLayoutState.GENERAL ->
                     AppBroadcastHub.apply {
-                        context.doAction(BroadcastActionType.PLAY_MINI_PLAYER)
+                        context.doAction(BroadcastActionType.PLAY_PLAYER_SERVICE)
                     }
                 MiniPlayerLayoutState.RADIO ->
-                    AppBroadcastHub.apply {
-                        context.playRadioService()
+                    AppBroadcastHub.run {
+                        context.doAction(BroadcastActionType.PLAY_RADIO_SERVICE)
                     }
             }
         }

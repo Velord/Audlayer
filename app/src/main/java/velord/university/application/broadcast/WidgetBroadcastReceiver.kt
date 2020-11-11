@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.application.notification.MiniPlayerNotification.NOTIFICATION_ACTION_NEXT
 import velord.university.application.notification.MiniPlayerNotification.NOTIFICATION_ACTION_PLAY_OR_STOP
 import velord.university.application.notification.MiniPlayerNotification.NOTIFICATION_ACTION_PREVIUOS
@@ -24,13 +25,17 @@ class WidgetBroadcastReceiver : BroadcastReceiver() {
             NOTIFICATION_ACTION_NEXT ->
                 when(MiniPlayerRepository.getState(context!!)) {
                     MiniPlayerLayoutState.GENERAL ->
-                        AppBroadcastHub.run { context.skipNextService() }
+                        AppBroadcastHub.run {
+                            context.doAction(BroadcastActionType.SKIP_PLAYER_SERVICE)
+                        }
                 }
 
             NOTIFICATION_ACTION_PREVIUOS ->
                 when(MiniPlayerRepository.getState(context!!)) {
                     MiniPlayerLayoutState.GENERAL ->
-                        AppBroadcastHub.run { context.skipPrevService() }
+                        AppBroadcastHub.run {
+                            context.doAction(BroadcastActionType.SKIP_PREV_PLAYER_SERVICE)
+                        }
                 }
         }
     }

@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
@@ -89,7 +90,7 @@ class AlbumViewModel(
                 app.playByPathService(songs[0])
             }
             AppBroadcastHub.apply {
-                app.loopAllService()
+                app.doAction(BroadcastActionType.LOOP_ALL_PLAYER_SERVICE)
             }
         }
         else Toast.makeText(app,
