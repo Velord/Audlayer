@@ -7,23 +7,20 @@ import java.io.IOException
 
 object SongBitrate {
 
+    //can throw exception
     fun getBitrate(song: File): Int {
         val mex = MediaExtractor()
-        try {
-            mex.setDataSource(song.absolutePath)
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-
+        mex.setDataSource(song.absolutePath)
         val mf = mex.getTrackFormat(0)
         return mf.getInteger(MediaFormat.KEY_BIT_RATE)
     }
 
-    fun getKbps(song: File): Int {
-        val bitrate = getBitrate(song)
-
-        return bitrate / 1000
-    }
+    fun getKbps(song: File): Int =
+        try { getBitrate(song) / 1000 }
+        catch (e: Exception) {
+            e.printStackTrace()
+            -1
+        }
 
     fun getKbpsString(song: File): String =
         "${getKbps(song)} kbit/s"

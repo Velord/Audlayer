@@ -382,6 +382,7 @@ class AllSongFragment :
                             (FileFilter.getSize(song.file).toDouble() / 1024)
                     )
 
+
                     val bitrate = SongBitrate.getKbpsString(song.file)
 
                     text.text = getString(
