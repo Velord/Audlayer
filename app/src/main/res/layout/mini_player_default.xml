@@ -3,13 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mini_player_general_cl"
-    android:layout_width="match_parent"
     android:background="@null"
-    android:layout_height="wrap_content">
+    style="@style/WrapHeightMatchWidth"
+    android:id="@+id/mini_player_general_container"
+    >
 
     <ImageView
-        android:id="@+id/mini_player_icon_imageView"
+        android:id="@+id/icon"
         android:layout_width="90dp"
         android:layout_height="90dp"
         android:layout_marginStart="8dp"
@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/mini_player_song_name"
+        android:id="@+id/song_name"
         android:layout_width="wrap_content"
         android:layout_height="18dp"
         android:layout_marginStart="8dp"
@@ -29,18 +29,14 @@
         android:maxHeight="18dp"
         android:ellipsize="marquee"
         android:text="@string/mini_player_song_no_information"
-        app:layout_constraintEnd_toStartOf="@+id/mini_player_song_quality"
+        app:layout_constraintEnd_toStartOf="@+id/song_quality"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/mini_player_icon_imageView"
+        app:layout_constraintStart_toEndOf="@+id/icon"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/mini_player_song_artist"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:id="@+id/song_artist"
+        style="@style/Wrap.Margin8dp"
         android:ellipsize="marquee"
         android:maxWidth="220dp"
         android:maxHeight="15dp"
@@ -49,94 +45,90 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/mini_player_icon_imageView"
-        app:layout_constraintTop_toBottomOf="@+id/mini_player_song_name" />
+        app:layout_constraintStart_toEndOf="@+id/icon"
+        app:layout_constraintTop_toBottomOf="@+id/song_name" />
 
     <TextView
-        android:id="@+id/mini_player_song_quality"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/song_quality"
+        style="@style/WrapContent"
         android:layout_marginEnd="8dp"
         android:text="@string/mini_player_song_high_quality"
         android:textSize="10sp"
-        app:layout_constraintBottom_toBottomOf="@+id/mini_player_song_name"
+        app:layout_constraintBottom_toBottomOf="@+id/song_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
-        android:id="@+id/mini_player_song_shuffle"
+        android:id="@+id/song_shuffle"
         style="@style/MiniPlayerShuffleRepeatLikedImageButtons"
         android:layout_marginStart="8dp"
         android:contentDescription="@string/mini_player_song_shuffle"
-
         android:src="@drawable/round_shuffle_grey_600_48dp"
-        app:layout_constraintBottom_toBottomOf="@+id/mini_player_icon_imageView"
-        app:layout_constraintStart_toEndOf="@+id/mini_player_icon_imageView"
-        app:layout_constraintTop_toBottomOf="@+id/mini_player_song_artist"
+        app:layout_constraintBottom_toBottomOf="@+id/icon"
+        app:layout_constraintStart_toEndOf="@+id/icon"
+        app:layout_constraintTop_toBottomOf="@+id/song_artist"
         app:layout_constraintVertical_bias="1.0" />
 
     <ImageButton
-        android:id="@+id/mini_player_song_repeat"
+        android:id="@+id/song_repeat"
         style="@style/MiniPlayerShuffleRepeatLikedImageButtons"
         android:contentDescription="@string/mini_player_song_repeat"
         android:src="@drawable/baseline_loop_grey_600_48dp"
-
-        app:layout_constraintBottom_toBottomOf="@+id/mini_player_icon_imageView"
-        app:layout_constraintStart_toEndOf="@+id/mini_player_song_shuffle"
-        app:layout_constraintTop_toBottomOf="@+id/mini_player_song_artist" />
+        app:layout_constraintBottom_toBottomOf="@+id/icon"
+        app:layout_constraintStart_toEndOf="@+id/song_shuffle"
+        app:layout_constraintTop_toBottomOf="@+id/song_artist" />
 
     <ImageButton
-        android:id="@+id/mini_player_song_liked"
+        android:id="@+id/song_liked"
         style="@style/MiniPlayerShuffleRepeatLikedImageButtons"
         android:contentDescription="@string/mini_player_song_liked"
         android:src="@drawable/heart_gray"
-
-        app:layout_constraintBottom_toBottomOf="@+id/mini_player_icon_imageView"
-        app:layout_constraintStart_toEndOf="@+id/mini_player_song_repeat"
-        app:layout_constraintTop_toBottomOf="@+id/mini_player_song_artist" />
+        app:layout_constraintBottom_toBottomOf="@+id/icon"
+        app:layout_constraintStart_toEndOf="@+id/song_repeat"
+        app:layout_constraintTop_toBottomOf="@+id/song_artist" />
 
     <LinearLayout
-        android:id="@+id/mini_player_song_manager_LinearLayout"
+        android:id="@+id/song_manager_LinearLayout"
         android:layout_width="0dp"
         android:layout_height="35dp"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="@+id/mini_player_icon_imageView"
+        app:layout_constraintBottom_toBottomOf="@+id/icon"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/mini_player_song_liked">
+        app:layout_constraintStart_toEndOf="@+id/song_liked">
 
         <ImageButton
-            android:id="@+id/mini_player_song_skip_prev"
+            android:id="@+id/song_skip_prev"
             style="@style/MiniPlayerTrackNextImageButtons"
             android:contentDescription="@string/mini_player_song_skip_prev"
             android:src="@drawable/round_skip_previous_deep_purple_a200_48dp" />
 
         <ImageButton
-            android:id="@+id/mini_player_song_play_or_pause"
+            android:id="@+id/song_play_or_pause"
             style="@style/MiniPlayerTrackNextImageButtons"
             android:contentDescription="@string/mini_player_song_play_or_pause"
             android:src="@drawable/play" />
 
         <ImageButton
-            android:id="@+id/mini_player_song_skip_next"
+            android:id="@+id/song_skip_next"
             style="@style/MiniPlayerTrackNextImageButtons"
             android:contentDescription="@string/mini_player_song_skip_next"
             android:src="@drawable/round_skip_next_deep_purple_a200_48dp" />
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/mini_player_song_time_constraintLayout"
+        android:id="@+id/song_time_constraintLayout"
         android:layout_width="0dp"
         android:layout_height="30dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mini_player_icon_imageView">
+        app:layout_constraintTop_toBottomOf="@+id/icon">
 
         <TextView
-            android:id="@+id/mini_player_song_time_start"
+            android:id="@+id/song_time_start"
             style="@style/MiniPlayerStartEndTrack"
             android:text="@string/mini_player_song_start_song"
             android:textAlignment="center"
@@ -146,32 +138,32 @@
             app:layout_constraintVertical_bias="0.428" />
 
         <TextView
-            android:id="@+id/mini_player_song_time_end"
+            android:id="@+id/song_time_end"
             style="@style/MiniPlayerStartEndTrack"
             android:layout_marginEnd="8dp"
             android:text="@string/mini_player_song_end_song"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.428"
-            tools:text="00: 00" />
+            tools:text="00: 00"
+
+            />
 
         <SeekBar
-            android:id="@+id/mini_player_song_time_seekBar"
-            android:layout_width="0dp"
+            android:id="@+id/song_time_seekBar"
+            style="@style/Margin8dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-
+            android:layout_width="0dp"
             android:progressBackgroundTint="@color/mortar"
             android:progressTint="@color/colorPrimaryDark"
-
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/mini_player_song_time_end"
-            app:layout_constraintStart_toEndOf="@+id/mini_player_song_time_start"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toStartOf="@+id/song_time_end"
+            app:layout_constraintStart_toEndOf="@+id/song_time_start"
+            app:layout_constraintTop_toTopOf="parent"
+
+            />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

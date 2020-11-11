@@ -2,13 +2,13 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/mini_player_radio_cl"
-    android:layout_width="match_parent"
     android:background="@null"
-    android:layout_height="wrap_content">
+    style="@style/WrapHeightMatchWidth"
+    android:id="@+id/mini_player_radio_container"
+    >
 
     <ImageView
-        android:id="@+id/mini_player_radio_imageView"
+        android:id="@+id/icon"
         android:layout_width="60dp"
         android:layout_height="70dp"
         android:contentDescription="@string/mini_player_song_image"
@@ -18,27 +18,23 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/mini_player_radio_name"
+        android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="18dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        style="@style/Margin8dp"
         android:ellipsize="marquee"
         android:maxHeight="18dp"
+        android:text="@string/no_name"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/mini_player_radio_liked"
+        app:layout_constraintEnd_toStartOf="@+id/liked"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/mini_player_radio_imageView"
-        app:layout_constraintTop_toBottomOf="@+id/mini_player_radio_artist" />
+        app:layout_constraintStart_toEndOf="@+id/icon"
+        app:layout_constraintTop_toBottomOf="@+id/artist"
+        />
 
     <TextView
-        android:id="@+id/mini_player_radio_artist"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:id="@+id/artist"
+        style="@style/Wrap.Margin8dp"
         android:ellipsize="marquee"
         android:maxHeight="15dp"
         android:text="@string/no_artist"
@@ -46,36 +42,40 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/mini_player_radio_imageView"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/icon"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
 
     <ImageButton
-        android:id="@+id/mini_player_radio_liked"
+        android:id="@+id/liked"
         style="@style/MiniPlayerShuffleRepeatLikedImageButtons"
-
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:contentDescription="@string/mini_player_song_liked"
         android:src="@drawable/heart_gray"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/mini_player_radio_manager_LinearLayout"
+        app:layout_constraintEnd_toStartOf="@+id/action_container"
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:id="@+id/mini_player_radio_manager_LinearLayout"
+        android:id="@+id/action_container"
         android:layout_width="0dp"
         android:layout_height="35dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="@+id/mini_player_radio_imageView"
+        app:layout_constraintBottom_toBottomOf="@+id/icon"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
-            android:id="@+id/mini_player_radio_play_or_pause"
+            android:id="@+id/play_or_pause"
             style="@style/MiniPlayerTrackNextImageButtons"
             android:layout_width="70dp"
             android:contentDescription="@string/mini_player_song_play_or_pause"
-            android:src="@drawable/play" />
+            android:src="@drawable/play"
+            />
+
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

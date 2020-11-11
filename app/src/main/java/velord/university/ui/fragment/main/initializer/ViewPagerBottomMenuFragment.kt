@@ -22,7 +22,7 @@ import velord.university.ui.util.findBy
 import velord.university.ui.util.firstAs
 
 
-abstract class BottomMenuFragment :
+abstract class ViewPagerBottomMenuFragment :
     LoggerSelfLifecycleFragment() {
 
     override val TAG: String = "BottomMenuFragment"

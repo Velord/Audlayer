@@ -30,7 +30,7 @@ class PlayerNotificationService : Service(),
 
     override val songPathF: (Intent?) -> Unit = { intent ->
         intent?.apply {
-            val extra = BroadcastExtra.songPathUI
+            val extra = BroadcastExtra.playByPathUI
             val songPath = getStringExtra(extra)
 
             val song = SongPlaylistInteractor.songs.find {
@@ -125,26 +125,27 @@ class PlayerNotificationService : Service(),
             val value = getStringExtra(extra)
         }
     }
+
     override val songNameF: (Intent?) -> Unit = { intent ->
         intent?.apply {
             val extra = BroadcastExtra.songNameUI
             val value = getStringExtra(extra)
         }
     }
-    override val showRadioUIF: (Intent?) -> Unit = {
-        it?.apply {
-        }
-    }
+
     override val likeRadioUIF: (Intent?) -> Unit = {
 
     }
+
     override val unlikeRadioUIF: (Intent?) -> Unit = {
 
     }
+
     override val radioPlayerUnavailableUIF: (Intent?) -> Unit = {
         it?.apply {
         }
     }
+
     override val radioUrlIsWrongUIF: (Intent?) -> Unit = {}
 
     override val playerUnavailableUIF: (Intent?) -> Unit = {
@@ -152,11 +153,7 @@ class PlayerNotificationService : Service(),
 
         }
     }
-    override val showF: (Intent?) -> Unit = {
-        it?.apply {
 
-        }
-    }
     override val likeF: (Intent?) -> Unit = {
         it?.apply {
 
@@ -167,11 +164,13 @@ class PlayerNotificationService : Service(),
 
         }
     }
+
     override val skipNextF: (Intent?) -> Unit = {
         it?.apply {
 
         }
     }
+
     override val skipPrevF: (Intent?) -> Unit = {
         it?.apply {
 
@@ -182,6 +181,7 @@ class PlayerNotificationService : Service(),
 
         }
     }
+
     override val shuffleF: (Intent?) -> Unit = {
         it?.apply {
 
@@ -192,11 +192,13 @@ class PlayerNotificationService : Service(),
 
         }
     }
+
     override val loopF: (Intent?) -> Unit = {
         it?.apply {
 
         }
     }
+
     override val loopAllF: (Intent?) -> Unit = {
         it?.apply {
 
@@ -207,11 +209,13 @@ class PlayerNotificationService : Service(),
 
         }
     }
+
     override val songHQF: (Intent?) -> Unit = {
         it?.apply {
 
         }
     }
+
     override val songDurationF: (Intent?) -> Unit = {
         it?.apply {
 

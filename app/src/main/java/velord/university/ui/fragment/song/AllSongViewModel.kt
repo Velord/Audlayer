@@ -109,9 +109,11 @@ class AllSongViewModel(
         SongPlaylistInteractor.songs = ordered
 
         AppBroadcastHub.apply {
-            app.showGeneralUI()
-            app.playByPathService(song.file.path)
-            app.doAction(BroadcastActionType.LOOP_ALL_PLAYER_SERVICE)
+            app.apply {
+                doAction(BroadcastActionType.SHOW_PLAYER_UI)
+                playByPathService(song.file.path)
+                doAction(BroadcastActionType.LOOP_ALL_PLAYER_SERVICE)
+            }
             sendIconToMiniPlayer(song)
         }
     }
@@ -120,10 +122,12 @@ class AllSongViewModel(
         //don't remember for SongQuery Interactor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(song)
         AppBroadcastHub.apply {
-            app.showGeneralUI()
-            app.playByPathService(song.file.path)
+            app.apply {
+                doAction(BroadcastActionType.SHOW_PLAYER_UI)
+                playByPathService(song.file.path)
+                doAction(BroadcastActionType.LOOP_PLAYER_SERVICE)
+            }
             sendIconToMiniPlayer(song)
-            app.doAction(BroadcastActionType.LOOP_PLAYER_SERVICE)
         }
     }
 

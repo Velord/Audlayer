@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/mini_player_FrameLayout"
-    android:layout_width="match_parent"
+    style="@style/WrapHeightMatchWidth"
     android:background="@drawable/mini_player_fragment_shape"
-    android:layout_height="wrap_content">
+    android:id="@+id/mini_player_fragment_container"
+    >
 
     <include
-        android:id="@+id/mini_player_general"
-        android:visibility="gone"
-        layout="@layout/mini_player" />
+        android:id="@+id/mini_player_default"
+        style="@style/WrapHeightMatchWidth"
+        layout="@layout/mini_player_default"
+
+        />
 
     <include
         android:id="@+id/mini_player_radio"
-        android:visibility="gone"
-        layout="@layout/mini_player_radio" />
+        style="@style/WrapHeightMatchWidth"
+        layout="@layout/mini_player_radio"
+
+        />
+
+
 </FrameLayout>

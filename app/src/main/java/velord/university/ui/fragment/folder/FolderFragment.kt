@@ -196,7 +196,7 @@ class FolderFragment :
     override val songPathF: (Intent?) -> Unit =
         { nullableIntent ->
             nullableIntent?.apply {
-                val extra = BroadcastExtra.songPathUI
+                val extra = BroadcastExtra.playByPathUI
                 val songPath = getStringExtra(extra)!!
                 scope.launch {
                     changeRVItem(songPath)

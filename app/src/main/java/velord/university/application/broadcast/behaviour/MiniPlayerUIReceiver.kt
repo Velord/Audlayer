@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.application.broadcast.hub.BroadcastAction
 
 
@@ -29,7 +28,6 @@ interface MiniPlayerUIReceiver {
         Pair(songDuration(), BroadcastAction.songDurationUI),
         Pair(songArtist(), BroadcastAction.songArtistUI),
         Pair(songHQ(), BroadcastAction.songHQUI),
-        Pair(show(), BroadcastAction.showMiniPlayerGeneralUI),
         Pair(icon(), BroadcastAction.iconUI),
         Pair(playerUnavailable(), BroadcastAction.playerUnavailableUI)
     )
@@ -47,14 +45,6 @@ interface MiniPlayerUIReceiver {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
             iconF(intent)
-        }
-    }
-
-    val showF: (Intent?) -> Unit
-    fun show() = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.i(TAG, "received broadcast: ${intent?.action}")
-            showF(intent)
         }
     }
 

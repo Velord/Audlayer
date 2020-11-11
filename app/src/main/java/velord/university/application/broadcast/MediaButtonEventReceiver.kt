@@ -99,7 +99,7 @@ object MediaButtonEventHeadSeatHook {
 
     private fun skipNext(context: Context) {
         val playerState = MiniPlayerRepository.getState(context)
-        if (playerState == MiniPlayerLayoutState.GENERAL)
+        if (playerState == MiniPlayerLayoutState.DEFAULT)
             AppBroadcastHub.run {
                 context.doAction(BroadcastActionType.SKIP_PLAYER_SERVICE)
             }
@@ -107,7 +107,7 @@ object MediaButtonEventHeadSeatHook {
 
     private fun skipPrev(context: Context) {
         val playerState = MiniPlayerRepository.getState(context)
-        if (playerState == MiniPlayerLayoutState.GENERAL)
+        if (playerState == MiniPlayerLayoutState.DEFAULT)
             AppBroadcastHub.run {
                 context.doAction(BroadcastActionType.SKIP_PREV_PLAYER_SERVICE)
             }
@@ -115,10 +115,12 @@ object MediaButtonEventHeadSeatHook {
 
     private fun playOrStop(context: Context) {
         when (MiniPlayerRepository.getState(context)) {
-            MiniPlayerLayoutState.GENERAL ->
-                AppBroadcastHub.run { context.playOrStopService() }
-            MiniPlayerLayoutState.RADIO ->
-                AppBroadcastHub.run { context.playOrStopRadioService() }
+            MiniPlayerLayoutState.DEFAULT -> AppBroadcastHub.run {
+                context.doAction(BroadcastActionType.PLAY_OR_STOP_PLAYER_SERVICE)
+            }
+            MiniPlayerLayoutState.RADIO ->AppBroadcastHub.run {
+                context.doAction(BroadcastActionType.PLAY_OR_STOP_RADIO_SERVICE)
+            }
         }
     }
 }

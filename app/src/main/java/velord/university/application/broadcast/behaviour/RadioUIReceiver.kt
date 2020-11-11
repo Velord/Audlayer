@@ -19,7 +19,6 @@ interface RadioUIReceiver:
                     Pair(playRadio(), BroadcastAction.playRadioUI),
                     Pair(likeRadio(), BroadcastAction.likeRadioUI),
                     Pair(unlikeRadio(), BroadcastAction.unlikeRadioUI),
-                    Pair(showRadio(), BroadcastAction.showMiniPlayerRadioUI),
                     Pair(iconRadio(), BroadcastAction.iconRadioUI),
                     Pair(radioPlayerUnavailable(), BroadcastAction.radioPlayerUnavailableUI),
                     Pair(radioUrlIsWrongUI(), BroadcastAction.radioUrlIsWrongUI)
@@ -30,14 +29,6 @@ interface RadioUIReceiver:
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
             iconRadioUIF(intent)
-        }
-    }
-
-    val showRadioUIF: (Intent?) -> Unit
-    fun showRadio() = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.i(TAG, "received broadcast: ${intent?.action}")
-            showRadioUIF(intent)
         }
     }
 

@@ -9,6 +9,6 @@ fun Context.mayInvokeRadio(f: () -> Unit) =
         this, MiniPlayerLayoutState.RADIO, f)
 
 //when mini player is radio no need send info
-fun Context.mayInvokeGeneral(f: () -> Unit) =
+fun Context.mayInvokeDefault(f: () -> Unit) =
     MiniPlayerRepository.mayDoAction(
-        this, MiniPlayerLayoutState.GENERAL, f)
+        this, MiniPlayerLayoutState.DEFAULT, f)

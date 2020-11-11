@@ -394,15 +394,9 @@ class RadioFragment :
             val initActionMenuLayout = { R.menu.radio_item }
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                 when (it.itemId) {
-                    R.id.radio_rv_item_play_next -> {
-                        TODO()
-                    }
-                    R.id.radio_rv_item_add_to_home_screen -> {
-                        TODO()
-                    }
-                    else -> {
-                        false
-                    }
+                    R.id.radio_rv_item_play_next -> { TODO() }
+                    R.id.radio_rv_item_add_to_home_screen -> { TODO() }
+                    else -> false
                 }
             }
 

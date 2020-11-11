@@ -7,13 +7,17 @@ import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.RadioInteractor
+import velord.university.model.coroutine.getScope
+import velord.university.model.coroutine.onDef
 import velord.university.model.entity.music.RadioStation
 import velord.university.repository.db.transaction.hub.HubTransaction
 import velord.university.ui.util.RVSelection
 
-class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
+class RadioViewModel(
+    private val app: Application
+) : AndroidViewModel(app) {
 
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
+    private val scope = getScope()
 
     lateinit var currentQuery: String
 
@@ -41,7 +45,6 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
             //first of all reassignment interactor
             RadioInteractor.radioStation = radio
             AppBroadcastHub.apply {
-                app.showUI()
                 app.playByUrlRadioService(radio.url)
             }
         }
@@ -57,7 +60,7 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     suspend fun filterByQuery(query: String): List<RadioStation> =
-        withContext(Dispatchers.Default) {
+       onDef {
             val filtered = radioPlaylist.filter {
                 it.name.contains(query)
             }
@@ -80,7 +83,7 @@ class RadioViewModel(private val app: Application) : AndroidViewModel(app) {
                 else -> sorted
             }
 
-            return@withContext ordered
+            return@onDef ordered
         }
 
     private suspend fun reassignmentRadioPlaylist() {

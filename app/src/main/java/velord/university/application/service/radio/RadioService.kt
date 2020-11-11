@@ -10,6 +10,7 @@ import android.widget.Toast
 import velord.university.model.coroutine.getScope
 import kotlinx.coroutines.*
 import velord.university.application.broadcast.hub.AppBroadcastHub
+import velord.university.application.broadcast.hub.AppBroadcastHub.doAction
 import velord.university.application.broadcast.hub.AppBroadcastHub.iconRadioUI
 import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.application.broadcast.restarter.RestarterRadioService
@@ -17,6 +18,7 @@ import velord.university.application.service.audioFocus.AudioFocusChangeF
 import velord.university.application.service.audioFocus.AudioFocusListenerService
 import velord.university.application.settings.miniPlayer.RadioServicePreference
 import velord.university.interactor.RadioInteractor
+import velord.university.model.coroutine.onIO
 import velord.university.model.entity.music.RadioStation
 import velord.university.model.entity.isyStreamMeta.IcyStreamMeta
 import velord.university.repository.db.transaction.hub.HubTransaction
@@ -214,16 +216,18 @@ abstract class RadioService : AudioFocusListenerService() {
         else false
 
     private fun sendAllInfo() {
-        scope.launch {
-            sendRadioArtist()
-            sendIsPlayed()
-            sendRadioName()
-            sendIsLiked()
-            sendIcon()
+        mayInvoke {
+            scope.launch {
+                sendRadioArtist()
+                sendIsPlayed()
+                sendRadioName()
+                sendIsLiked()
+                sendIcon()
+            }
         }
     }
 
-    private suspend fun restoreState() = withContext(Dispatchers.IO) {
+    private suspend fun restoreState() = onIO {
         Log.d(TAG, "restoreState")
         val id = RadioServicePreference(this@RadioService).currentRadioId
 
@@ -302,8 +306,8 @@ abstract class RadioService : AudioFocusListenerService() {
     }
 
     private fun sendRadioPlayerUnavailable() =
-        AppBroadcastHub.run {
-            radioPlayerUnavailableUI()
+        AppBroadcastHub.apply {
+            doAction(BroadcastActionType.UNAVAILABLE_RADIO_UI)
         }
 
     private fun sendIcon() {
@@ -355,11 +359,8 @@ abstract class RadioService : AudioFocusListenerService() {
     }
 
     private fun sendShowRadioUI() {
-        MiniPlayerRepository.setState(
-            this, MiniPlayerLayoutState.RADIO
-        )
         AppBroadcastHub.apply {
-            showRadioUI()
+            doAction(BroadcastActionType.SHOW_RADIO_UI)
         }
     }
 

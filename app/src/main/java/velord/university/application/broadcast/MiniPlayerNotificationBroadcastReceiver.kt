@@ -19,14 +19,16 @@ class MiniPlayerNotificationBroadcastReceiver : BroadcastReceiver() {
         when (intent!!.action) {
             NOTIFICATION_ACTION_PLAY_OR_STOP ->
                 when(MiniPlayerRepository.getState(context!!)) {
-                    MiniPlayerLayoutState.GENERAL ->
-                        AppBroadcastHub.run { context.playOrStopService() }
-                    MiniPlayerLayoutState.RADIO ->
-                        AppBroadcastHub.run { context.playOrStopRadioService() }
+                    MiniPlayerLayoutState.DEFAULT -> AppBroadcastHub.run {
+                        context.doAction(BroadcastActionType.PLAY_OR_STOP_PLAYER_SERVICE)
+                    }
+                    MiniPlayerLayoutState.RADIO -> AppBroadcastHub.run {
+                        context.doAction(BroadcastActionType.PLAY_OR_STOP_RADIO_SERVICE)
+                    }
                 }
             NOTIFICATION_ACTION_NEXT ->
                 when(MiniPlayerRepository.getState(context!!)) {
-                    MiniPlayerLayoutState.GENERAL ->
+                    MiniPlayerLayoutState.DEFAULT ->
                         AppBroadcastHub.run {
                             context.doAction(BroadcastActionType.SKIP_PLAYER_SERVICE)
                         }
@@ -34,7 +36,7 @@ class MiniPlayerNotificationBroadcastReceiver : BroadcastReceiver() {
 
             NOTIFICATION_ACTION_PREVIUOS ->
                 when(MiniPlayerRepository.getState(context!!)) {
-                    MiniPlayerLayoutState.GENERAL ->
+                    MiniPlayerLayoutState.DEFAULT ->
                         AppBroadcastHub.run {
                             context.doAction(BroadcastActionType.SKIP_PREV_PLAYER_SERVICE)
                         }

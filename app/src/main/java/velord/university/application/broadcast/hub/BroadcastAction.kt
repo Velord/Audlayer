@@ -1,9 +1,6 @@
 package velord.university.application.broadcast.hub
 
 object BroadcastAction {
-    //general
-    const val hideUI = "velord.university.GENERAL_HIDE"
-    const val showUI = "velord.university.GENERAL_SHOW"
     //miniPlayer
     const val stopService = "velord.university.STOP"
     const val stopUI = "velord.university.STOP_UI"
@@ -30,12 +27,13 @@ object BroadcastAction {
     const val notLoopService = "velord.university.NOT_LOOP"
     const val notLoopUI = "velord.university.NOT_LOOP_UI"
     const val playByPathService = "velord.university.PLAY_BY_PATH"
-    const val songPathUI = "velord.university.SONG_PATH_UI"
+    const val playByPathUI = "velord.university.SONG_PATH_UI"
     const val songArtistUI = "velord.university.SONG_ARTIST_UI"
     const val songNameUI = "velord.university.SONG_NAME_UI"
     const val songHQUI = "velord.university.SONG_HQ_UI"
     const val songDurationUI = "velord.university.SONG_DURATION_UI"
-    const val showMiniPlayerGeneralUI = "velord.university.SHOW_MINI_PLAYER_GENERAL_UI"
+    const val showMiniPlayerUI = "velord.university.SHOW_MINI_PLAYER_UI"
+    const val hideMiniPlayerUI = "velord.university.HIDE_MINI_PLAYER_UI"
     const val playAllInFolderService = "velord.university.PLAY_ALL_IN_FOLDER"
     const val playNextAllInFolderService = "velord.university.PLAY_NEXT_ALL_IN_FOLDER"
     const val shuffleAndPlayAllInFolderService = "velord.university.SHUFFLE_AND_PLAY_ALL_IN_FOLDER"
@@ -57,12 +55,15 @@ object BroadcastAction {
     const val unlikeRadioUI = "velord.university.UNLIKE_RADIO_UI"
     const val playOrStopRadioService = "velord.university.PLAY_OR_STOP_RADIO"
     const val playByUrlRadioService = "velord.university.PLAY_BY_URL_RADIO"
+    const val playByUrlRadioUI = "velord.university.PLAY_BY_URL_RADIO_UI"
     const val getInfoRadioService = "velord.university.GET_INFO_RADIO"
     const val radioArtistUI = "velord.university.RADIO_ARTIST_UI"
     const val radioNameUI = "velord.university.RADIO_NAME_UI"
     const val showMiniPlayerRadioUI = "velord.university.RADIO_SHOW_UI"
+    const val hideMiniPlayerRadioUI = "velord.university.RADIO_HIDE_UI"
     const val iconRadioUI = "velord.university.ICON_RADIO_UI"
     const val radioPlayerUnavailableUI = "velord.university.RADIO_PLAYER_UNAVAILABLE"
     const val clickOnRadioIcon = "velord.university.CLICK_ON_RADIO_ICON"
     const val radioUrlIsWrongUI = "velord.university.RADIO_URL_IS_WRONG_UI"
+
 }

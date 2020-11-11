@@ -6,36 +6,47 @@ import android.view.View
 import android.webkit.URLUtil
 import android.widget.ImageButton
 import android.widget.SeekBar
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import kotlinx.android.synthetic.main.mini_player_default.view.*
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.broadcast.behaviour.MiniPlayerUIReceiver
 import velord.university.application.broadcast.hub.*
+import velord.university.databinding.MiniPlayerDefaultBinding
+import velord.university.databinding.MiniPlayerRadioBinding
 import velord.university.model.converter.SongTimeConverter
+import velord.university.model.coroutine.getScope
+import velord.university.model.exception.ViewDestroyed
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import velord.university.ui.fragment.miniPlayer.logic.general.*
+import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
 import velord.university.ui.util.DrawableIcon
+import velord.university.ui.util.view.gone
+import velord.university.ui.util.view.setAutoScrollable
+import velord.university.ui.util.view.visible
 
-open class MiniPlayerGeneralFragment :
-    MiniPlayerInitializerFragment(),
+abstract class MiniPlayerDefaultFragment :
+    LoggerSelfLifecycleFragment(),
     MiniPlayerUIReceiver {
 
-    override val TAG: String = "MiniPlayerGeneralFragment"
+    override val TAG: String = "MiniPlayerDefaultFragment"
 
-    companion object {
-        fun newInstance() = MiniPlayerGeneralFragment()
-    }
-
-    protected val viewModel by lazy {
-        ViewModelProviders.of(this).get(MiniPlayerViewModel::class.java)
-    }
+    protected val viewModel: MiniPlayerViewModel by viewModels()
 
     private val receivers = this.miniPlayerUIReceiverList()
 
-    private val scope =
-        CoroutineScope(Job() + Dispatchers.Default)
+    private val scope = getScope()
+
+    abstract var _bindingRadio: MiniPlayerRadioBinding?
+    abstract var _bindingDefault: MiniPlayerDefaultBinding?
+
+    protected val bindingRadio get() = _bindingRadio ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
+    protected val bindingDefault get() = _bindingDefault ?:
+    throw ViewDestroyed("Don't touch view when it is destroyed")
 
     override fun onStart() {
         super.onStart()
@@ -59,32 +70,32 @@ open class MiniPlayerGeneralFragment :
         }
     }
 
-    protected fun initMiniPlayerGeneralView(view: View) {
-        //init mini player initializer fragment
-        super.initMiniPlayerView(view)
+    protected fun initMiniPlayerGeneralView() {
         //self
-        miniPlayerIconIV.setOnClickListener {
-            AppBroadcastHub.run { requireContext().clickOnIcon() }
+        bindingDefault.icon.setOnClickListener {
+            AppBroadcastHub.run {
+                requireContext().doAction(BroadcastActionType.CLICK_ON_ICON_PLAYER_UI)
+            }
         }
-        miniPlayerSongLikedIB.setOnClickListener {
+        bindingDefault.songLiked.setOnClickListener {
             HeartLogic.press(requireActivity(), viewModel.getState())
         }
-        miniPlayerSongRepeatIB.setOnClickListener {
+        bindingDefault.songRepeat.setOnClickListener {
             LoopLogic.press(requireActivity())
         }
-        miniPlayerPlayOrPauseIB.setOnClickListener {
+        bindingDefault.songPlayOrPause.setOnClickListener {
             PlayPauseLogic.press(requireActivity(), viewModel.getState())
         }
-        miniPlayerSongShuffleIB.setOnClickListener {
+        bindingDefault.songShuffle.setOnClickListener {
             ShuffleLogic.press(requireActivity(), viewModel.getState())
         }
-        miniPlayerSongSkipNextIB.setOnClickListener {
+        bindingDefault.songSkipNext.setOnClickListener {
             SkipNextLogic.press(requireActivity())
         }
-        miniPlayerSongSkipPrevIB.setOnClickListener {
+        bindingDefault.songSkipPrev.setOnClickListener {
             SkipPrevLogic.press(requireActivity())
         }
-        miniPlayerSongTimeSeekBar.setOnSeekBarChangeListener(
+        bindingDefault.songTimeSeekBar.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
 
                 override fun onProgressChanged(
@@ -92,57 +103,80 @@ open class MiniPlayerGeneralFragment :
                     value: Int,
                     fromUser: Boolean
                 ) {
-                    if (fromUser)
-                        AppBroadcastHub.apply {
-                            val allSeconds =
-                                SongTimeConverter.textToSeconds(miniPlayerSongTimeEndTV)
-                            val seconds =
-                                SongTimeConverter.percentToSeconds(value, allSeconds)
-                            requireActivity().rewindService(seconds)
-                        }
+                    if (fromUser) AppBroadcastHub.apply {
+                        val allSeconds =
+                            SongTimeConverter.textToSeconds(bindingDefault.songTimeEnd)
+                        val seconds =
+                            SongTimeConverter.percentToSeconds(value, allSeconds)
+                        requireActivity().rewindService(seconds)
+                    }
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {}
 
                 override fun onStopTrackingTouch(seekBar: SeekBar) {}
             })
+
+        initSongName()
+        initSongArtist()
     }
 
-    override val showF: (Intent?) -> Unit = {
-        it?.apply {
-            viewModel.setState(MiniPlayerLayoutState.GENERAL)
-            showMiniPlayerGeneral()
-        }
+    private fun initSongName() {
+        bindingDefault.songName.setAutoScrollable()
+    }
+
+    private fun initSongArtist() {
+        bindingDefault.songArtist.setAutoScrollable()
+    }
+
+    protected fun startSongAndArtistNameScrolling() {
+        bindingDefault.songArtist.isSelected = true
+        bindingDefault.songName.isSelected = true
+    }
+
+    protected fun stopSongAndArtistNameScrolling()  {
+        bindingDefault.songArtist.isSelected = false
+        bindingDefault.songName.isSelected = false
+    }
+
+    protected fun showMiniPlayerDefault() {
+        bindingDefault.miniPlayerGeneralContainer.visible()
+        bindingRadio.miniPlayerRadioContainer.gone()
+    }
+
+    protected fun showMiniPlayerRadio() {
+        bindingDefault.miniPlayerGeneralContainer.gone()
+        bindingRadio.miniPlayerRadioContainer.visible()
     }
 
     override val songArtistF: (Intent?) -> Unit = { intent ->
         intent?.apply {
             val extra = BroadcastExtra.songArtistUI
             val songArtist = getStringExtra(extra)
-            miniPlayerArtistTV.text = songArtist
+            bindingDefault.songArtist.text = songArtist
         }
     }
 
     override val stopF: (Intent?) -> Unit = {
-        viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL) {
+        viewModel.mayDoAction(MiniPlayerLayoutState.DEFAULT) {
             stopButtonInvoke()
         }
     }
 
     override val playF: (Intent?) -> Unit = {
-        viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL) {
+        viewModel.mayDoAction(MiniPlayerLayoutState.DEFAULT) {
             playButtonInvoke()
         }
     }
 
     override val likeF: (Intent?) -> Unit = {
-        viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL) {
+        viewModel.mayDoAction(MiniPlayerLayoutState.DEFAULT) {
             likeButtonInvoke()
         }
     }
 
     override val unlikeF: (Intent?) -> Unit = {
-        viewModel.mayDoAction(MiniPlayerLayoutState.GENERAL) {
+        viewModel.mayDoAction(MiniPlayerLayoutState.DEFAULT) {
             unlikeButtonInvoke()
         }
     }
@@ -157,44 +191,45 @@ open class MiniPlayerGeneralFragment :
             val second = intent.getIntExtra(extra, 0)
 
             val allSeconds =
-                SongTimeConverter.textToSeconds(miniPlayerSongTimeEndTV)
+                SongTimeConverter.textToSeconds(bindingDefault.songTimeEnd)
             val progress =
                 SongTimeConverter.secondsToPercent(second, allSeconds)
 
             //change UI
-            miniPlayerSongTimeSeekBar.progress = progress
-            miniPlayerSongTimeStartTV.text =
+            bindingDefault.songTimeSeekBar.progress = progress
+            bindingDefault.songTimeStart.text =
                 SongTimeConverter.secondsToTimeText(second)
         }
     }
 
     override val shuffleF: (Intent?) -> Unit = {
-        miniPlayerSongShuffleIB.setImageResource(R.drawable.round_shuffle_teal_700_48dp)
+        bindingDefault.songShuffle
+            .setImageResource(R.drawable.round_shuffle_teal_700_48dp)
         ShuffleLogic.value = true
     }
 
     override val unShuffleF: (Intent?) -> Unit = {
-        miniPlayerSongShuffleIB.setImageResource(R.drawable.round_shuffle_grey_600_48dp)
+        bindingDefault.songShuffle.setImageResource(R.drawable.round_shuffle_grey_600_48dp)
         ShuffleLogic.value = false
     }
 
     override val loopF: (Intent?) -> Unit = {
-        miniPlayerSongRepeatIB.setImageResource(R.drawable.one_teal_700)
+        bindingDefault.songRepeat.setImageResource(R.drawable.one_teal_700)
     }
 
     override val loopAllF: (Intent?) -> Unit = {
-        miniPlayerSongRepeatIB.setImageResource(R.drawable.round_loop_teal_700_48dp)
+        bindingDefault.songRepeat.setImageResource(R.drawable.round_loop_teal_700_48dp)
     }
 
     override val notLoopF: (Intent?) -> Unit = {
-        miniPlayerSongRepeatIB.setImageResource(R.drawable.round_loop_grey_600_48dp)
+        bindingDefault.songRepeat.setImageResource(R.drawable.round_loop_grey_600_48dp)
     }
 
     override val songNameF: (Intent?) -> Unit = { intent ->
         intent?.apply {
             val extra = BroadcastExtra.songNameUI
             val value = getStringExtra(extra)
-            miniPlayerNameTV.text = value
+            bindingDefault.songName.text = value
         }
     }
 
@@ -202,8 +237,8 @@ open class MiniPlayerGeneralFragment :
         intent?.apply {
             val extra = BroadcastExtra.songHQUI
             val value = getBooleanExtra(extra, true)
-            if (value) miniPlayerSongQualityTV.visibility = View.VISIBLE
-            else miniPlayerSongQualityTV.visibility = View.GONE
+            if (value) bindingDefault.songQuality.visible()
+            else bindingDefault.songQuality.gone()
         }
     }
 
@@ -212,7 +247,7 @@ open class MiniPlayerGeneralFragment :
             val extra = BroadcastExtra.songDurationUI
             val seconds = getIntExtra(extra, 0)
             val inMinutes = SongTimeConverter.millisecondsToSeconds(seconds)
-            miniPlayerSongTimeEndTV.text =
+            bindingDefault.songTimeEnd.text =
                 SongTimeConverter.secondsToTimeText(inMinutes)
         }
     }
@@ -236,24 +271,28 @@ open class MiniPlayerGeneralFragment :
         }
     }
 
-    protected fun stopButtonInvoke(button: ImageButton = miniPlayerPlayOrPauseIB) {
+    protected fun stopButtonInvoke(
+        button: ImageButton = bindingDefault.songPlayOrPause) {
         button.setImageResource(R.drawable.play)
         PlayPauseLogic.value = false
         stopSongAndArtistNameScrolling()
     }
 
-    protected fun playButtonInvoke(button: ImageButton = miniPlayerPlayOrPauseIB) {
+    protected fun playButtonInvoke(
+        button: ImageButton = bindingDefault.songPlayOrPause) {
         button.setImageResource(R.drawable.pause)
         PlayPauseLogic.value = true
         startSongAndArtistNameScrolling()
     }
 
-    protected fun likeButtonInvoke(button: ImageButton = miniPlayerSongLikedIB) {
+    protected fun likeButtonInvoke(
+        button: ImageButton = bindingDefault.songLiked) {
         button.setImageResource(R.drawable.heart_pressed)
         HeartLogic.value = true
     }
 
-    protected fun unlikeButtonInvoke(button: ImageButton = miniPlayerSongLikedIB) {
+    protected fun unlikeButtonInvoke(
+        button: ImageButton = bindingDefault.songLiked) {
         button.setImageResource(R.drawable.heart_gray)
         HeartLogic.value = false
     }
@@ -266,19 +305,19 @@ open class MiniPlayerGeneralFragment :
                 .load(value)
                 .placeholder(R.drawable.repair_tools)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                .into(miniPlayerIconIV)
+                .into(bindingDefault.icon)
         else DrawableIcon.loadSongIconDrawable(
-            requireContext(), miniPlayerIconIV, value.toInt())
+            requireContext(), bindingDefault.icon, value.toInt())
     }
 
     private fun getInfoFromServiceWhenStart() {
         val f: () -> Unit = {
             AppBroadcastHub.apply {
-                showMiniPlayerGeneral()
-                requireContext().getInfoService()
+                showMiniPlayerDefault()
+                requireContext().doAction(BroadcastActionType.GET_INFO_PLAYER_SERVICE)
             }
         }
-        val state = MiniPlayerLayoutState.GENERAL
+        val state = MiniPlayerLayoutState.DEFAULT
         viewModel.mayDoAction(state, f)
     }
 }

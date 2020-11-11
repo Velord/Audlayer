@@ -12,7 +12,7 @@ object HeartLogic: TwoStateLogic() {
     override val firstCase: (context: FragmentActivity, MiniPlayerLayoutState) -> Unit
         get() = { context, state ->
             when(state) {
-                MiniPlayerLayoutState.GENERAL ->
+                MiniPlayerLayoutState.DEFAULT ->
                     AppBroadcastHub.run {
                         context.doAction(BroadcastActionType.UNLIKE_PLAYER_SERVICE)
                     }
@@ -26,7 +26,7 @@ object HeartLogic: TwoStateLogic() {
     override val secondCase: (context: FragmentActivity, MiniPlayerLayoutState) -> Unit
         get() = { context, state ->
             when(state) {
-                MiniPlayerLayoutState.GENERAL ->
+                MiniPlayerLayoutState.DEFAULT ->
                     AppBroadcastHub.apply {
                         context.doAction(BroadcastActionType.LIKE_PLAYER_SERVICE)
                     }

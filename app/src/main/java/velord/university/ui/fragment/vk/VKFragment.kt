@@ -211,7 +211,7 @@ class VKFragment :
 
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
-                val extra = BroadcastExtra.songPathUI
+                val extra = BroadcastExtra.playByPathUI
                 val path = getStringExtra(extra)!!
                 scope.launch {
                     changeRVItem(path)
@@ -221,7 +221,7 @@ class VKFragment :
 
     override val songPathIsWrongF: (Intent?) -> Unit = { nullableIntent ->
         nullableIntent?.apply {
-            val extra = BroadcastExtra.songPathUI
+            val extra = BroadcastExtra.playByPathUI
             val songPath = getStringExtra(extra)!!
             scope.launch {
                 viewModel.pathIsWrong(songPath)

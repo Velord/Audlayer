@@ -7,13 +7,15 @@ import android.util.Log
 import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.application.broadcast.hub.BroadcastAction
 
-interface MiniPlayerBroadcastReceiverShowAndHider {
+interface MiniPlayerShowAndHiderBroadcastReceiver {
 
     val TAG: String
 
     fun miniPlayerShowAndHiderReceiverList() = arrayOf(
-        Pair(show(), BroadcastAction.showUI),
-        Pair(hide(), BroadcastAction.hideUI)
+        Pair(show(), BroadcastAction.showMiniPlayerUI),
+        Pair(hide(), BroadcastAction.hideMiniPlayerUI),
+        Pair(showRadio(), BroadcastAction.showMiniPlayerRadioUI),
+        Pair(hideRadio(), BroadcastAction.hideMiniPlayerRadioUI)
     )
 
     val showF: (Intent?) -> Unit
@@ -29,6 +31,22 @@ interface MiniPlayerBroadcastReceiverShowAndHider {
         override fun onReceive(p0: Context?, intent: Intent?) {
             Log.i(TAG, "received broadcast: ${intent?.action}")
             hideF(intent)
+        }
+    }
+
+    val showRadioF: (Intent?) -> Unit
+    fun showRadio() = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            showRadioF(intent)
+        }
+    }
+
+    val hideRadioF: (Intent?) -> Unit
+    fun hideRadio() = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            Log.i(TAG, "received broadcast: ${intent?.action}")
+            hideRadioF(intent)
         }
     }
 }

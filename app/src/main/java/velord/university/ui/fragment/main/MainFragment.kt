@@ -22,11 +22,11 @@ import velord.university.databinding.*
 import velord.university.model.converter.VolumeConverter.fifteenthScale
 import velord.university.model.converter.VolumeConverter.tenthScale
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
-import velord.university.ui.fragment.main.initializer.MiniPlayerFragment
+import velord.university.ui.fragment.main.initializer.ViewPagerMiniPlayerFragment
 
 
 class MainFragment :
-    MiniPlayerFragment(),
+    ViewPagerMiniPlayerFragment(),
     BackPressedHandlerZero {
 
     override val TAG: String = "MainFragment"

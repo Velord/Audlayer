@@ -8,15 +8,15 @@ object MiniPlayerRepository : BaseRepository() {
 
     fun getState(context: Context): MiniPlayerLayoutState =
         when(MiniPlayerUIPreference(context).state) {
-            0 -> MiniPlayerLayoutState.GENERAL
+            0 -> MiniPlayerLayoutState.DEFAULT
             1 -> MiniPlayerLayoutState.RADIO
-            else -> MiniPlayerLayoutState.GENERAL
+            else -> MiniPlayerLayoutState.DEFAULT
         }
 
     fun setState(context: Context,
                  state: MiniPlayerLayoutState) =
         when(state) {
-            MiniPlayerLayoutState.GENERAL ->
+            MiniPlayerLayoutState.DEFAULT ->
                 MiniPlayerUIPreference(context).state = 0
             MiniPlayerLayoutState.RADIO ->
                 MiniPlayerUIPreference(context).state = 1

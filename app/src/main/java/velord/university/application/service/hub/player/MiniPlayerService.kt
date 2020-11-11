@@ -163,7 +163,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun getInfoFromServiceToUI() {
         if (playerIsInitialized()) sendInfoToUI()
-        else AppBroadcastHub.run { playerUnavailableUI() }
+        else AppBroadcastHub.run {
+            doAction(BroadcastActionType.UNAVAILABLE_PLAYER_UI)
+        }
     }
 
     protected fun pausePlayer() = stopOrPausePlayer {
@@ -336,8 +338,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     private fun stopElseService() {
         AppBroadcastHub.run {
             doAction(BroadcastActionType.STOP_RADIO_SERVICE)
+            doAction(BroadcastActionType.SHOW_PLAYER_UI)
         }
-        sendShowGeneralUI()
     }
 
     private suspend fun restoreState() {
@@ -567,7 +569,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     private fun sendInfoToUI(song: File = playlist.getSong()) {
         //send info
         mayInvoke {
-            sendShowGeneralUI()
+            AppBroadcastHub.run {
+                doAction(BroadcastActionType.SHOW_PLAYER_UI)
+            }
             sendIsPlayed()
             sendLoopState()
             sendShuffleState()
@@ -600,10 +604,6 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
                 }
             }
         }
-    }
-
-    private fun sendShowGeneralUI() {
-        AppBroadcastHub.run { showGeneralUI() }
     }
 
     private fun sendLoopState() =
@@ -640,7 +640,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private fun sendPath(song: File) =
-        AppBroadcastHub.run { songPathUI(song.absolutePath) }
+        AppBroadcastHub.run { playByPathUI(song.absolutePath) }
 
     private fun sendSongDuration(player: MediaPlayer) =
         AppBroadcastHub.run { songDurationUI(player.duration) }
@@ -682,5 +682,5 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     //when mini player is radio no need send info
     private fun mayInvoke(f: () -> Unit) =
         MiniPlayerRepository.mayDoAction(
-            this, MiniPlayerLayoutState.GENERAL, f)
+            this, MiniPlayerLayoutState.DEFAULT, f)
 }

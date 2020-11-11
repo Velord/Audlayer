@@ -4,7 +4,7 @@ object BroadcastExtra {
     const val rewindService = "PROGRESS"
     const val rewindUI = "PROGRESS_UI"
     const val playByPathService = "AUDIO_FILE_PATH"
-    const val songPathUI = "SONG_PATH_UI"
+    const val playByPathUI = "SONG_PATH_UI"
     const val songArtistUI = "SONG_ARTIST_UI"
     const val songNameUI = "SONG_NAME_UI"
     const val songHQUI = "SONG_HQ_UI"

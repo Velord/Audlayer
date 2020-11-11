@@ -7,21 +7,21 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import velord.university.application.broadcast.behaviour.MiniPlayerShowAndHiderBroadcastReceiver
 import velord.university.ui.util.view.gone
 import velord.university.ui.util.view.visible
-import velord.university.application.broadcast.behaviour.MiniPlayerBroadcastReceiverShowAndHider
 import velord.university.application.broadcast.hub.*
-import velord.university.application.broadcast.hub.AppBroadcastHub.doAction
 import velord.university.repository.hub.MiniPlayerRepository
-import velord.university.ui.fragment.miniPlayer.MiniPlayerRadioGeneralFragment
+import velord.university.ui.fragment.miniPlayer.MiniPlayerRadioDefaultFragment
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import velord.university.ui.fragment.miniPlayer.miniPlayerHide.MiniPlayerHideFragment
 import velord.university.ui.fragment.miniPlayer.miniPlayerStopAndHide.MiniPlayerStopAndHideFragment
 
 
-abstract class MiniPlayerFragment :
-    BottomMenuFragment(),
-    MiniPlayerBroadcastReceiverShowAndHider {
+abstract class ViewPagerMiniPlayerFragment :
+    ViewPagerBottomMenuFragment(),
+    //control viewpager visibility
+    MiniPlayerShowAndHiderBroadcastReceiver {
 
     override val TAG: String = "MenuNowPlayingFragment"
 
@@ -92,13 +92,13 @@ abstract class MiniPlayerFragment :
 
     private fun hideMiniPlayer() {
         AppBroadcastHub.apply {
-            requireContext().hideUI()
+            requireContext().doAction(BroadcastActionType.HIDE_PLAYER_UI)
         }
     }
 
     private fun stopAndHideMiniPLayer() {
         when(MiniPlayerRepository.getState(requireContext())) {
-            MiniPlayerLayoutState.GENERAL -> AppBroadcastHub.run {
+            MiniPlayerLayoutState.DEFAULT -> AppBroadcastHub.run {
                 requireContext().doAction(BroadcastActionType.STOP_PLAYER_SERVICE)
             }
             MiniPlayerLayoutState.RADIO -> AppBroadcastHub.run {
@@ -106,7 +106,7 @@ abstract class MiniPlayerFragment :
             }
         }
         AppBroadcastHub.apply {
-            requireContext().hideUI()
+            requireContext().doAction(BroadcastActionType.HIDE_PLAYER_UI)
         }
     }
 
@@ -123,7 +123,7 @@ abstract class MiniPlayerFragment :
                 }
                 1 -> {
                     Log.d(TAG, "create MiniPlayerFragment")
-                    MiniPlayerRadioGeneralFragment()
+                    MiniPlayerRadioDefaultFragment()
                 }
                 2 -> {
                     Log.d(TAG, "create MiniPlayerStopAndHideFragment")
@@ -131,7 +131,7 @@ abstract class MiniPlayerFragment :
                 }
                 else -> {
                     Log.d(TAG, "create MiniPlayerFragment")
-                    MiniPlayerRadioGeneralFragment()
+                    MiniPlayerRadioDefaultFragment()
                 }
             }
 
@@ -139,11 +139,23 @@ abstract class MiniPlayerFragment :
     }
 
     override val showF: (Intent?) -> Unit = {
-        binding.miniPlayerViewPager.currentItem = 1
-        binding.miniPlayerFrame.visible()
+        showViewPager()
     }
 
     override val hideF: (Intent?) -> Unit = {
         binding.miniPlayerFrame.gone()
+    }
+
+    override val showRadioF: (Intent?) -> Unit = {
+        showViewPager()
+    }
+
+    override val hideRadioF: (Intent?) -> Unit = {
+        binding.miniPlayerFrame.gone()
+    }
+
+    private fun showViewPager() {
+        binding.miniPlayerViewPager.currentItem = 1
+        binding.miniPlayerFrame.visible()
     }
 }

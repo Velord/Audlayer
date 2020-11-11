@@ -11,7 +11,7 @@ import velord.university.application.broadcast.behaviour.RadioUIReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.application.broadcast.hub.*
 import velord.university.application.broadcast.restarter.RestarterWidgetService
-import velord.university.application.service.mayInvokeGeneral
+import velord.university.application.service.mayInvokeDefault
 import velord.university.application.service.mayInvokeRadio
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.music.song.Song
@@ -32,7 +32,7 @@ class WidgetService : Service(),
 
     override val songPathF: (Intent?) -> Unit = { intent ->
         intent?.apply {
-            val extra = BroadcastExtra.songPathUI
+            val extra = BroadcastExtra.playByPathUI
             val songPath = getStringExtra(extra)
 
             val song = SongPlaylistInteractor.songs.find {
@@ -45,7 +45,7 @@ class WidgetService : Service(),
                 AudlayerWidget.widgetArtist = FileNameParser.getSongArtist(it.file)
                 AudlayerWidget.widgetTitle =  FileNameParser.getSongTitle(it.file)
 
-                this@WidgetService.mayInvokeGeneral {
+                this@WidgetService.mayInvokeDefault {
                     AudlayerWidget.invokeUpdate(this@WidgetService)
                 }
                 changeIcon(songIcon)
@@ -139,20 +139,16 @@ class WidgetService : Service(),
             val value = getStringExtra(extra)
         }
     }
-    override val showRadioUIF: (Intent?) -> Unit = {
-        it?.apply {
-        }
-    }
-    override val likeRadioUIF: (Intent?) -> Unit = {
 
-    }
-    override val unlikeRadioUIF: (Intent?) -> Unit = {
+    override val likeRadioUIF: (Intent?) -> Unit = {  }
 
-    }
+    override val unlikeRadioUIF: (Intent?) -> Unit = {  }
+
     override val radioPlayerUnavailableUIF: (Intent?) -> Unit = {
         it?.apply {
         }
     }
+
     override val radioUrlIsWrongUIF: (Intent?) -> Unit = {}
 
     override val playerUnavailableUIF: (Intent?) -> Unit = {
@@ -160,26 +156,25 @@ class WidgetService : Service(),
 
         }
     }
-    override val showF: (Intent?) -> Unit = {
-        it?.apply {
 
-        }
-    }
     override val likeF: (Intent?) -> Unit = {
         it?.apply {
 
         }
     }
+
     override val unlikeF: (Intent?) -> Unit = {
         it?.apply {
 
         }
     }
+
     override val skipNextF: (Intent?) -> Unit = {
         it?.apply {
 
         }
     }
+
     override val skipPrevF: (Intent?) -> Unit = {
         it?.apply {
 
@@ -190,6 +185,7 @@ class WidgetService : Service(),
 
         }
     }
+
     override val shuffleF: (Intent?) -> Unit = {
         it?.apply {
 
@@ -200,26 +196,31 @@ class WidgetService : Service(),
 
         }
     }
+
     override val loopF: (Intent?) -> Unit = {
         it?.apply {
 
         }
     }
+
     override val loopAllF: (Intent?) -> Unit = {
         it?.apply {
 
         }
     }
+
     override val notLoopF: (Intent?) -> Unit = {
         it?.apply {
 
         }
     }
+
     override val songHQF: (Intent?) -> Unit = {
         it?.apply {
 
         }
     }
+
     override val songDurationF: (Intent?) -> Unit = {
         it?.apply {
 
@@ -251,8 +252,8 @@ class WidgetService : Service(),
         }
 
         AppBroadcastHub.apply {
-            this@WidgetService.getInfoService()
-            this@WidgetService.getInfoRadioService()
+            doAction(BroadcastActionType.GET_INFO_PLAYER_SERVICE)
+            doAction(BroadcastActionType.GET_INFO_RADIO_SERVICE)
         }
 
         AudlayerWidget.invokeUpdate(this)

@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.application.broadcast.hub.BroadcastAction
 
 interface VkReceiver {
@@ -12,7 +11,7 @@ interface VkReceiver {
     val TAG: String
 
     fun receiverList() = arrayOf(
-        Pair(songPath(), BroadcastAction.songPathUI),
+        Pair(songPath(), BroadcastAction.playByPathUI),
         Pair(songPathIsWrong(), BroadcastAction.songPathIsWrongUI)
     )
 
