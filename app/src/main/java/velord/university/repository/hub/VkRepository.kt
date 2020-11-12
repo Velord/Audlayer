@@ -15,7 +15,7 @@ import velord.university.repository.fetch.VkFetch
 
 object VkRepository : BaseRepository() {
 
-    suspend fun getPlaylistByToken(context: Context): VkPlaylist = onIO {
+    suspend fun getPlaylistViaCredential(context: Context): VkPlaylist = onIO {
         VkFetch.fetchPlaylist(context)
     }
 

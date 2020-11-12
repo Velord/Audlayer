@@ -99,9 +99,7 @@ inline fun Context.sendThenGoBack(view: Pair<ProgressBar, TextView>,
 suspend inline fun SwipeRefreshLayout.between(activity: Activity,
                                               tag: String,
                                               f: suspend () -> Unit) {
-    onMain {
-        this.isRefreshing = true
-    }
+    onMain { this.isRefreshing = true }
     try { f() }
     catch (e: Exception) {
         Log.d(tag, e.message.toString())
@@ -109,20 +107,14 @@ suspend inline fun SwipeRefreshLayout.between(activity: Activity,
             activity.toastError(e.message.toString())
         }
     }
-    finally {
-        onMain {
-            this.isRefreshing = false
-        }
-    }
+    onMain { this.isRefreshing = false }
 }
 
 suspend inline fun <T> ProgressBar.between(activity: Activity,
                                        tag: String,
                                        f: suspend () -> T): T? {
     var entity: T? = null
-    onMain {
-        this.visibility = View.VISIBLE
-    }
+    onMain { this.visibility = View.VISIBLE }
     try { entity = f() }
     catch (e: Exception) {
         Log.d(tag, e.message.toString())
@@ -130,11 +122,7 @@ suspend inline fun <T> ProgressBar.between(activity: Activity,
             activity.toastError(e.message.toString())
         }
     }
-    finally {
-        onMain {
-            this.visibility = View.GONE
-        }
-    }
+    onMain { this.visibility = View.GONE }
 
     return entity
 }

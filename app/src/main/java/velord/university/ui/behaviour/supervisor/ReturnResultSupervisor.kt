@@ -1,7 +1,16 @@
 package velord.university.ui.behaviour.supervisor
 
 import android.app.Activity
+import android.util.Log
 import androidx.fragment.app.FragmentManager
+import com.statuscasellc.statuscase.model.entity.openFragment.general.FragmentCaller
+import velord.university.R
+import velord.university.model.entity.openFragment.general.OpenFragmentEntity
+import velord.university.model.entity.openFragment.returnResult.ReturnResultFromFragment
+import velord.university.model.entity.vk.entity.VkCredential
+import velord.university.ui.fragment.vk.VKFragment
+import velord.university.ui.util.activity.toastError
+import velord.university.ui.util.findBy
 
 class ReturnResultSupervisor(
     private val activity: Activity,
@@ -9,44 +18,22 @@ class ReturnResultSupervisor(
 ) {
     private val TAG = "ReturnResultSupervisor"
 
-//    fun beforeImportantActionDialog(
-//        open: OpenFragmentEntity) {
-//        val result = open as ReturnResultFromFragment<Boolean>
-//        when(result.source) {
-//            FragmentCaller.SCHEMA_TRANSFER -> {
-//                when(result.value) {
-//                    true -> {
-//                        val fragment = fm.findBy<SchemaTransferFragment>()
-//                        fragment.userClickYesOnDialog(result.value)
-//                    }
-//                    false -> { }
-//                }
-//            }
-//            FragmentCaller.CUT_INFO_VIEWER -> {
-//                when(result.value) {
-//                    true -> {
-//                        val fragment = fm.findBy<CutInfoViewerFragment>()
-//
-//                        fragment.userClickYesOnDialog(result.value)
-//                    }
-//                    false -> { }
-//                }
-//            }
-//            FragmentCaller.WARRANTY_VIEWER -> {
-//                when(result.value) {
-//                    true -> {
-//                        val fragment = fm.findBy<WarrantyViewerFragment>()
-//
-//                        fragment.userClickYesOnDialog(result.value)
-//                    }
-//                    false -> { }
-//                }
-//            }
-//            else -> {
-//                Log.d(TAG, result.source.toString())
-//                activity.toastError(activity.getString(R.string.not_implemented))
-//            }
-//        }
-//    }
+    fun vkLogin(
+        open: OpenFragmentEntity
+    ) {
+        val result = open as ReturnResultFromFragment<VkCredential>
+        if (result.success) {
+            when(result.source) {
+                FragmentCaller.VK -> {
+                    val fragment = fm.findBy<VKFragment>()
+                    fragment.userInputLoginCredential(result)
+                }
+                else -> {
+                    Log.d(TAG, result.source.toString())
+                    activity.toastError(activity.getString(R.string.not_implemented_operation))
+                }
+            }
+        }
+    }
 
 }

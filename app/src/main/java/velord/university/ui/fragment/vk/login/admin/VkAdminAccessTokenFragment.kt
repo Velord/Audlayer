@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.vk.login
+package velord.university.ui.fragment.vk.login.admin
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,9 +15,6 @@ import velord.university.R
 import velord.university.application.settings.VkPreference
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerVkFirst
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
-
-
-const val PASSWORD = "karporediTON678"
 
 class VkAccessTokenFragment :
     LoggerSelfLifecycleFragment(),
@@ -36,7 +33,6 @@ class VkAccessTokenFragment :
 
     private val vkAdmin = 6121396
     private val scope = 1073737727
-    private val newScope = "nohttps, audio"
     private val vkOAuth =
         "https://oauth.vk.com/authorize?client_id=$vkAdmin&scope=$scope&" +
                 "redirect_uri=https://oauth.vk.com/blank.html&display=page&response_type=token&revoke=1"

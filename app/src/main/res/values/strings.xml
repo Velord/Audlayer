@@ -116,4 +116,9 @@
     <string name="all">All</string>
     <string name="not_implemented_from_this_place">Not implemented from this place</string>
     <string name="no_name">No Name</string>
+    <string name="cancel">Cancel</string>
+    <string name="apply">Apply</string>
+    <string name="password">Password</string>
+    <string name="input_login">Input Login</string>
+    <string name="input_password">Input password</string>
 </resources>

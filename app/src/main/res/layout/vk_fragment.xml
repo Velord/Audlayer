@@ -45,11 +45,12 @@
 
     <Button
         android:id="@+id/vk_login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/prussian_blue"
+        style="@style/DesignButtonWrapMargin16dp"
         android:text="@string/login"
-        android:visibility="gone"
+        android:visibility="visible"
+        android:textSize="30sp"
+        android:textColor="@color/sapphire"
+        android:background="@drawable/border_amber_fill"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -65,8 +66,8 @@
 
     <WebView
         android:id="@+id/web_view"
-        style="@style/Layout0dp"
-        android:visibility="invisible"
+        style="@style/WrapContent"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

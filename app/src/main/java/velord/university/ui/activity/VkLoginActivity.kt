@@ -11,20 +11,20 @@ import velord.university.R
 import velord.university.ui.behaviour.backPressed.BackPressedHandler
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerVkFirst
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerVkZero
-import velord.university.ui.fragment.vk.login.VkAccessTokenFragment
-import velord.university.ui.fragment.vk.login.VkLoginFragment
+import velord.university.ui.fragment.vk.login.admin.VkAccessTokenFragment
+import velord.university.ui.fragment.vk.login.admin.VkAdminFragment
 import velord.university.ui.util.addFragment
 import velord.university.ui.util.initFragment
 
 class VkLoginActivity : AppCompatActivity(),
     VkAccessTokenFragment.Callbacks,
-    VkLoginFragment.Callbacks{
+    VkAdminFragment.Callbacks{
 
     private val fm = supportFragmentManager
 
     private  val TAG ="VkLoginActivity"
 
-    private val vkLogin by lazy { VkLoginFragment() }
+    private val vkLogin by lazy { VkAdminFragment() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

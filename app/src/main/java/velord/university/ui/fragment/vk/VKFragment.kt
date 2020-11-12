@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.statuscasellc.statuscase.model.entity.openFragment.general.FragmentCaller
 import velord.university.model.coroutine.getScope
 import velord.university.model.coroutine.onMain
 import velord.university.model.exception.ViewDestroyed
@@ -42,8 +43,13 @@ import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.vk.entity.VkSong
 import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.openFragment.general.OpenFragmentEntity
+import velord.university.model.entity.openFragment.returnResult.OpenFragmentForResult
+import velord.university.model.entity.openFragment.returnResult.ReturnResultFromFragment
+import velord.university.model.entity.vk.entity.VkCredential
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
+import velord.university.ui.fragment.vk.login.dialog.VkLoginDialogFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 import velord.university.ui.util.view.between
@@ -73,6 +79,9 @@ class VKFragment :
         scope.cancel()
     }
 
+    private val receivers = receiverList() +
+            getIconClickedReceiverList()
+
     override fun onStart() {
         super.onStart()
 
@@ -95,6 +104,20 @@ class VKFragment :
 
     companion object {
         fun newInstance() = VKFragment()
+    }
+
+    private fun sortBy(index: Int): Boolean {
+        SortByPreference(requireContext()).sortByVkFragment = index
+        updateAdapterBySearchQuery()
+        super.rearwardActionButton()
+        return true
+    }
+
+    private fun sortByAscDesc(index: Int): Boolean {
+        SortByPreference(requireContext()).ascDescVkFragment = index
+        updateAdapterBySearchQuery()
+        super.rearwardActionButton()
+        return true
     }
 
     override val actionBarPopUpMenuItemOnCLick: (MenuItem) -> Boolean = { it ->
@@ -163,8 +186,7 @@ class VKFragment :
                 true
             }
             R.id.vk_fragment_log_out -> {
-                VkPreference(requireContext()).accessToken = ""
-                scope.launch { checkToken() }
+                logOut()
                 true
             }
             R.id.vk_fragment_download_all -> {
@@ -206,9 +228,6 @@ class VKFragment :
         it.setImageResource(R.drawable.arrow_down_amber_a400)
     }
 
-    private val receivers = receiverList() +
-            getIconClickedReceiverList()
-
     override val songPathF: (Intent?) -> Unit = { nullableIntent ->
             nullableIntent?.apply {
                 val extra = BroadcastExtra.playByPathUI
@@ -218,7 +237,6 @@ class VKFragment :
                 }
             }
         }
-
     override val songPathIsWrongF: (Intent?) -> Unit = { nullableIntent ->
         nullableIntent?.apply {
             val extra = BroadcastExtra.playByPathUI
@@ -231,7 +249,6 @@ class VKFragment :
             }
         }
     }
-
     override val iconClicked: (Intent?) -> Unit = {
         it?.apply {
             scope.launch {
@@ -295,61 +312,53 @@ class VKFragment :
                 super.changeUIAfterSubmitTextInSearchView(
                     super.bindingActionBar.search
                 )
-                initView()
                 //observe changes in search view
                 super.observeSearchQuery()
-                //setup adapter by invoke change in search view
-                setupAdapter()
+                //init self
+                initView()
             }
         }
         binding.root
     }
 
-    private fun checkToken() {
-        scope.launch {
-            between("checkToken") {
-                val token = VkPreference(requireContext()).accessToken
-                if (token.isBlank()) tokenIsBlank()
-                else tokenIsCorrect()
-            }
-        }
-    }
-
-    private suspend fun tokenIsBlank() = onMain {
-        bindingRv.fastScrollRv.adapter = SongAdapter(arrayOf())
-        binding.vkLogin.visible()
-    }
-
-    private suspend fun tokenIsCorrect() {
-        //hide login button
-        onMain { binding.vkLogin.gone() }
-        viewModel.refreshByToken()
-        //update ui
-        updateAdapterBySearchQuery("")
-        //viewModel.rvResolver.scroll(rv)
-    }
-
-    private fun sortBy(index: Int): Boolean {
-        SortByPreference(requireContext()).sortByVkFragment = index
-        updateAdapterBySearchQuery()
-        super.rearwardActionButton()
-        return true
-    }
-
-    private fun sortByAscDesc(index: Int): Boolean {
-        SortByPreference(requireContext()).ascDescVkFragment = index
-        updateAdapterBySearchQuery()
-        super.rearwardActionButton()
-        return true
-    }
-
     private fun initView() {
         initSwipeAndRv()
         initLogin()
+
+        refreshValue()
+    }
+
+    private fun logOut() {
+        viewModel.logout()
+        refreshValue()
+    }
+
+    fun userInputLoginCredential(
+        result: ReturnResultFromFragment<VkCredential>
+    ) {
+        //save new data
+        VkPreference(requireContext())
+            .login = result.value!!.login
+        VkPreference(requireContext())
+            .password = result.value.password
+        //update ui
+        refreshValue()
+    }
+
+    private fun credentialIsBlank()  {
+        bindingRv.fastScrollSwipe.gone()
+        binding.vkLogin.visible()
+    }
+
+    private fun credentialIsExist() {
+        binding.vkLogin.gone()
+        bindingRv.fastScrollSwipe.visible()
+        //update ui
+        setupAdapter()
     }
 
     private fun initSwipeAndRv() {
-        binding.swipeRefresh.setOnRefreshListener { checkToken() }
+        binding.swipeRefresh.setOnRefreshListener { refreshValue() }
         bindingRv.fastScrollRv.apply {
             isNestedScrollingEnabled = false
             layoutManager = LinearLayoutManager(activity)
@@ -360,15 +369,25 @@ class VKFragment :
         )
     }
 
-    private fun initLogin() {
-        binding.vkLogin.setOnClickListener {
-            openLoginActivity()
+    private fun refreshValue() {
+        scope.launch {
+            between("refreshValue") {
+                onMain {
+                    if (viewModel.checkAuth()) {
+                        credentialIsExist()
+                        viewModel.refreshByCredential()
+                        setupAdapter()
+                    } else { credentialIsBlank() }
+                }
+            }
         }
     }
 
-    private fun openLoginActivity() {
-        val intent = VkLoginActivity.newIntent(requireContext())
-        startActivity(intent)
+    private fun initLogin() {
+        binding.vkLogin.setOnClickListener {
+            val intent = VkLoginActivity.newIntent(requireContext())
+            startActivity(intent)
+        }
     }
 
     private fun setupAdapter() {
@@ -593,15 +612,13 @@ class VKFragment :
                     R.id.vk_rv_item_delete -> {
                         scope.launch {
                             viewModel.deleteSong(song)
-                            withContext(Dispatchers.Main) {
+                            onMain {
                                 viewModel.rvResolver.adapter.notifyDataSetChanged()
                             }
                         }
                         true
                     }
-                    else -> {
-                        false
-                    }
+                    else -> false
                 }
             }
 

@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.vk.login
+package velord.university.ui.fragment.vk.login.admin
 
 import android.content.Context
 import android.os.Bundle
@@ -19,7 +19,7 @@ import velord.university.ui.behaviour.backPressed.BackPressedHandlerVkZero
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
 import java.io.IOException
 
-class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero {
+class VkAdminFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero {
 
     interface Callbacks {
 
@@ -29,7 +29,7 @@ class VkLoginFragment : LoggerSelfLifecycleFragment(), BackPressedHandlerVkZero 
     }
 
     companion object {
-        fun newInstance(): VkLoginFragment = VkLoginFragment()
+        fun newInstance(): VkAdminFragment = VkAdminFragment()
     }
 
     override val TAG: String = "VkLoginFragment"

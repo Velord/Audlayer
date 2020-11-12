@@ -305,13 +305,11 @@
         <item name="android:dropDownHorizontalOffset">0dp</item>
     </style>
 
-
     <style name="TopMenuImageButtons" parent="Wrap.Margin8dp">
         <item name="android:scaleType">fitCenter</item>
         <item name="android:background">@null</item>
         <item name="android:layout_height">40dp</item>
     </style>
-
 
     <style name="UserHomeChart" parent="Margin16dp">
         <item name="android:layout_height">0dp</item>
@@ -325,12 +323,18 @@
     </style>
 
     <style name="AuthDesignTextInput" parent="Widget.AppCompat.TextView">
-        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_marginTop">2dp</item>
         <item name="android:layout_marginBottom">2dp</item>
     </style>
 
+    <style name="AuthDesignTextInputMargin16" parent="AuthDesignTextInput">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+    </style>
 
     <style name="NavigationView"  parent="Base.Theme.AppCompat">
         <item name="android:listDivider">@color/white</item>
@@ -340,7 +344,6 @@
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_width">match_parent</item>
     </style>
-
 
     <style name="NavBottomItem" parent="WrapContent">
         <item name="android:layout_marginTop">8dp</item>
@@ -362,5 +365,110 @@
         <item name="android:layout_marginEnd">8dp</item>
     </style>
 
+    <style name="DesignTextMargin32" parent="WrapHeightMatchWidthMargin32">
+        <item name="android:fontFamily">@font/arsenal</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="DesignTextMargin24" parent="WrapHeightMatchWidthMargin24">
+        <item name="android:fontFamily">@font/arsenal</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="DesignTextMargin16" parent="WrapHeightMatchWidthMargin16">
+        <item name="android:fontFamily">@font/arsenal</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="DesignTextMargin8" parent="WrapHeightMatchWidthMargin8">
+        <item name="android:fontFamily">@font/arsenal</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="RoundedCornersDialog" parent="@style/Theme.MaterialComponents.Dialog">
+        <item name="dialogCornerRadius">10dp</item>
+    </style>
+
+    <style name="DesignText" parent="WrapHeightMatchWidth">
+        <item name="android:fontFamily">@font/arsenal</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="DesignTextLayout0dp" parent="Layout0dp">
+        <item name="android:fontFamily">@font/arsenal</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="DesignTextLayout0dpMargin8dp" parent="DesignTextLayout0dp">
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+    </style>
+
+    <style name="DesignTextLayout0dpMargin16dp" parent="DesignTextLayout0dp">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+    </style>
+
+    <style name="DesignTextWrap" parent="DesignText">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
+
+    <style name="DesignTextWrapMargin16dp" parent="DesignTextWrap">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+    </style>
+
+    <style name="DesignTextWrapMargin8dp" parent="DesignTextWrap">
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+    </style>
+
+    <style name="DesignButtonWrapMargin16dp" parent="DesignTextWrapMargin16dp">
+        <item name="android:background">@drawable/border_deep_purple_a200_fill</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
+
+    <style name="DesignButtonWrapMargin8dp" parent="DesignTextWrapMargin8dp">
+        <item name="android:background">@drawable/border_deep_purple_a200_fill</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
+    <style name="DesignButton" parent="DesignText">
+        <item name="android:background">@drawable/border_deep_purple_a200_fill</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
+    <style name="DesignButtonMargin32" parent="DesignButton">
+        <item name="android:layout_marginTop">32dp</item>
+        <item name="android:layout_marginBottom">32dp</item>
+        <item name="android:layout_marginStart">32dp</item>
+        <item name="android:layout_marginEnd">32dp</item>
+    </style>
 
 </resources>

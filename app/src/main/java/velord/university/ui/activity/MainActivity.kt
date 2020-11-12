@@ -15,7 +15,9 @@ import velord.university.application.notification.MiniPlayerNotification
 import velord.university.application.permission.PermissionChecker.checkReadWriteExternalStoragePermission
 import velord.university.application.settings.AppPreference
 import velord.university.model.coroutine.getScope
+import velord.university.model.entity.openFragment.general.OpenFragmentEntity
 import velord.university.ui.behaviour.supervisor.BackPressSupervisor
+import velord.university.ui.behaviour.supervisor.ReturnResultSupervisor
 import velord.university.ui.fragment.addToPlaylist.AddToPlaylistFragment
 import velord.university.ui.fragment.addToPlaylist.CreateNewPlaylistDialogFragment
 import velord.university.ui.fragment.addToPlaylist.select.SelectSongFragment
@@ -23,6 +25,7 @@ import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.main.MainFragment
 import velord.university.ui.fragment.song.AllSongFragment
 import velord.university.ui.fragment.vk.VKFragment
+import velord.university.ui.fragment.vk.login.dialog.VkLoginDialogFragment
 import velord.university.ui.util.*
 import velord.university.ui.util.view.VolumeEvent
 import velord.university.ui.util.view.hideDefaultChangeVolumeBar
@@ -34,7 +37,8 @@ class MainActivity : AppCompatActivity(),
     AddToPlaylistFragment.Callbacks,
     CreateNewPlaylistDialogFragment.Callbacks,
     AllSongFragment.Callbacks,
-    VKFragment.Callbacks {
+    VKFragment.Callbacks,
+    VkLoginDialogFragment.Callbacks {
 
     private val TAG = "MainActivity"
 
@@ -143,6 +147,10 @@ class MainActivity : AppCompatActivity(),
         dismissNotification()
     }
 
+    private inline fun returnResult(
+        f: ReturnResultSupervisor.() -> Unit
+    ): Unit = ReturnResultSupervisor(this, fm).run { f() }
+
     override fun toZeroLevel() =
         backPressShell().backPressToZeroLevel()
 
@@ -180,5 +188,9 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun backPressShell() = BackPressSupervisor(TAG, fm)
+
+
+    override fun returnResultVkLogin(open: OpenFragmentEntity) =
+        returnResult { vkLogin(open) }
 }
 

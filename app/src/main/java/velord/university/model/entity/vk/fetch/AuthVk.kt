@@ -11,7 +11,7 @@ data class AuthVk(
     val expiresIn: Int,
     @SerialName("user_id")
     val userId: Int,
-    val secret: String,
+    val secret: String? = null,
     @SerialName("https_required")
-    val httpsRequired: Int
+    val httpsRequired: Int? = null
 )

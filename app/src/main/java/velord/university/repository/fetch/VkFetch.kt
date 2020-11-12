@@ -3,64 +3,21 @@ package velord.university.repository.fetch
 import android.content.Context
 import com.himanshurawat.hasher.HashType
 import com.himanshurawat.hasher.Hasher
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import okhttp3.MultipartBody
-import okio.ByteString.Companion.encode
 import velord.university.application.settings.VkPreference
 import velord.university.model.entity.vk.fetch.AuthVk
 import velord.university.model.entity.vk.fetch.ResponseVk
 import velord.university.model.entity.vk.fetch.VkPlaylist
-import velord.university.ui.fragment.vk.login.PASSWORD
 
 object VkFetch : FetchJson() {
 
-    suspend fun fetchPlaylist(context: Context): VkPlaylist {
-        //vk Admin rudiments
-        val userId = VkPreference(context).pageId
-        val token = VkPreference(context).accessToken
+    private const val version: String = "5.95"
 
-        val version = "5.95"
-        return getAudio(token, version)
-    }
-
-    //not work
-     suspend fun getAudioByHash(version: String): VkPlaylist {
-        //create auth session
-        val authVk = authByPretendViaOfficialAndroidVkApp(version)
-        //create hash
-        val md5Hash = Hasher.hash(
-            getUrlToHash(authVk, version) + authVk.secret,
-            HashType.MD5
-        )
-        //create sig
-        val sig = "&sig=$md5Hash"
-        //create url with sig
-        val urlSongWithSig = "http://api.vk.com" +
-                getUrlToHash(authVk, version) + sig
-        //made response
-        val response = makeResponse<ResponseVk>(
-            urlSongWithSig,
-            getPretendableDataPart()
-        )
-        val urlList = response.response.items.filter { it.url.isNotEmpty() }
-        return response.response
-    }
-
-    private fun getUrlToHash(
-        authVk: AuthVk,
-        version: String,
-    ): String {
-        val deviceId = 7492736296047395
-        return  "/method/audio.get?" +
-                "access_token=${authVk.accessToken}" +
-                "&device_id=$deviceId" +
-                "&v=$version"
-    }
+    suspend fun fetchPlaylist(context: Context): VkPlaylist =
+        getAudio(VkPreference(context).accessToken)
 
     private fun getAudio(
         token: String,
-        version: String
     ): VkPlaylist {
         val dataPart = getPretendableDataPart()
         //v=5.80 in 5.26.2020 9:00 pm don't working
@@ -76,21 +33,54 @@ object VkFetch : FetchJson() {
         return response.response
     }
 
-    private fun authByPretendViaOfficialAndroidVkApp(
-        version: String
-    ): AuthVk {
+    private fun authByPretendViaOfficialAndroidVkApp(context: Context): AuthVk {
         val dataPart = getPretendableDataPart()
         //auth by official app vk
-        val login = "+380992345205"
-        val newScope = "nohttps, audio"
+        val login = VkPreference(context).login
+        val password = VkPreference(context).password
+        //add 'nohttps, if need test with sig parameter'
+        val newScope = "audio"
         val url = "https://oauth.vk.com/token?grant_type=password" +
                 "&scope=$newScope" +
                 "&client_id=2274003" +
                 "&client_secret=hHbZxrka2uZ6jB1inYsH" +
                 "&username=$login" +
-                "&password=$PASSWORD" +
+                "&password=$password" +
                 "&v=$version"
-        return makeResponse<AuthVk>(url, dataPart)
+
+        return makeResponse(url, dataPart)
+    }
+
+    //not work
+     suspend fun getAudioByHash(context: Context): VkPlaylist {
+        //create auth session
+        val authVk = authByPretendViaOfficialAndroidVkApp(context)
+        //create hash
+        val md5Hash = Hasher.hash(
+            getUrlToHash(authVk) + authVk.secret,
+            HashType.MD5
+        )
+        //create sig
+        val sig = "&sig=$md5Hash"
+        //create url with sig
+        val urlSongWithSig = "http://api.vk.com" + getUrlToHash(authVk) + sig
+        //made response
+        val response = makeResponse<ResponseVk>(
+            urlSongWithSig,
+            getPretendableDataPart()
+        )
+        val urlList = response.response.items.filter { it.url.isNotEmpty() }
+        return response.response
+    }
+
+    private fun getUrlToHash(
+        authVk: AuthVk,
+    ): String {
+        val deviceId = 7492736296047395
+        return  "/method/audio.get?" +
+                "access_token=${authVk.accessToken}" +
+                "&device_id=$deviceId" +
+                "&v=$version"
     }
 
     private fun getPretendableDataPart(): Array<MultipartBody.Part> {

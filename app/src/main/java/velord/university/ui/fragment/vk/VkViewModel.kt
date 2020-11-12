@@ -13,6 +13,7 @@ import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
+import velord.university.application.settings.VkPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.music.playlist.Playlist
 import velord.university.model.entity.music.song.Song
@@ -124,6 +125,16 @@ class VkViewModel(
         }
     }
 
+    fun checkAuth(): Boolean {
+        val token = VkPreference(app).accessToken
+        return (token.isNotEmpty())
+    }
+
+    fun logout() {
+        viewModelScope.launch { deleteAll() }
+        VkPreference(app).accessToken = ""
+    }
+
     suspend fun pathIsWrong(path: String) {
         vkSongList.get().find { it.path == path }?.let {
             applyNewPath(it, "")
@@ -143,11 +154,11 @@ class VkViewModel(
         }
     }
 
-    suspend fun refreshByToken() {
+    suspend fun refreshByCredential() = onDef {
         try {
             //from vk
             val byTokenSongs = app.vkRepository {
-                getPlaylistByToken(app).items
+                getPlaylistViaCredential(app).items
             }
             //from db
             val fromDbSongs = vkSongList.get()
@@ -156,16 +167,14 @@ class VkViewModel(
             //compare with existed and delete
             compareAndDelete(byTokenSongs, fromDbSongs)
             //create vkPlaylist
-            refresh()
+            load()
         }
         catch (e: Exception) {
             Log.d(TAG, e.message.toString())
         }
     }
 
-    suspend fun refresh() {
-        vkSongList.load()
-    }
+    private suspend fun load() { vkSongList.load() }
 
     suspend fun downloadAll(webView: WebView) {
         //which
@@ -188,7 +197,7 @@ class VkViewModel(
 
     suspend fun deleteAll() {
         VkRepository.deleteAllTables()
-        refresh()
+        load()
     }
 
     suspend fun filterByQuery(query: String): Array<VkSong> = onDef {
