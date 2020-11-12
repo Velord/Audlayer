@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.song
+package velord.university.ui.fragment.song.all
 
 import android.app.Application
 import android.media.MediaMetadataRetriever

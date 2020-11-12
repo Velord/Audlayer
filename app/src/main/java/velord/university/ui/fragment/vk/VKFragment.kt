@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -22,7 +23,6 @@ import com.statuscasellc.statuscase.model.entity.openFragment.general.FragmentCa
 import velord.university.model.coroutine.getScope
 import velord.university.model.coroutine.onMain
 import velord.university.model.exception.ViewDestroyed
-import velord.university.ui.util.activity.toastInfo
 import velord.university.ui.util.activity.toastSuccess
 import velord.university.ui.util.view.gone
 import velord.university.ui.util.view.setupAndShowPopupMenuOnClick
@@ -43,13 +43,14 @@ import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.vk.entity.VkSong
 import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.music.song.DownloadSong
 import velord.university.model.entity.openFragment.general.OpenFragmentEntity
 import velord.university.model.entity.openFragment.returnResult.OpenFragmentForResult
+import velord.university.model.entity.openFragment.returnResult.OpenFragmentForResultWithData
 import velord.university.model.entity.openFragment.returnResult.ReturnResultFromFragment
 import velord.university.model.entity.vk.entity.VkCredential
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
-import velord.university.ui.fragment.vk.login.dialog.VkLoginDialogFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 import velord.university.ui.util.view.between
@@ -59,11 +60,14 @@ class VKFragment :
     ActionBarSearchFragment(),
     VkReceiver,
     MiniPlayerIconClickReceiver {
+
     override val TAG: String = "VKFragment"
     //Required interface for hosting activities
     interface Callbacks {
 
         fun openAddToPlaylistFragment()
+
+        fun openDownloadSong(open: OpenFragmentEntity)
     }
     private var callbacks: Callbacks? =  null
 
@@ -191,7 +195,8 @@ class VKFragment :
             }
             R.id.vk_fragment_download_all -> {
                 scope.launch {
-                    viewModel.downloadAll(binding.webView)
+                    val list = viewModel.needDownloadList()
+                    openDownloadSong(*list)
                 }
                 true
             }
@@ -377,9 +382,13 @@ class VKFragment :
                         credentialIsExist()
                         viewModel.refreshByCredential()
                         setupAdapter()
-                    } else { credentialIsBlank() }
+                    } else {
+                        credentialIsBlank()
+                    }
                 }
             }
+            //for XIAOMI
+            onMain { binding.swipeRefresh.isRefreshing = false }
         }
     }
 
@@ -417,38 +426,22 @@ class VKFragment :
         }
     }
 
-    private fun downloadInform(song: VkSong) {
-        if (viewModel.needDownload(song)) {
-            scope.launch {
-                val onSuccess: (VkSong, CoroutineScope) -> Unit = { song, scope ->
-                    scope.launch {
-                        onMain {
-                            updateAdapterBySearchQuery()
-                            requireActivity().toastSuccess(
-                                requireContext().
-                                getString(R.string.song_success_downloaded)
-                            )
-                        }
-                    }
-                }
-                val onFailure: (CoroutineScope) -> Unit = {
-                    scope.launch {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Sorry we did not found any link",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                }
-                viewModel.downloadThenPlay(song, binding.webView, onSuccess, onFailure)
+    private fun openDownloadSong(vararg song: DownloadSong) {
+        val forResult = OpenFragmentForResultWithData(
+            FragmentCaller.VK,
+            song as Array<DownloadSong>
+        )
+        callbacks?.openDownloadSong(forResult)
+    }
+
+    fun songDownloaded(song: DownloadSong) {
+        scope.launch {
+            Log.d(TAG, song.toString())
+            viewModel.applyNewPath(song)
+            onMain {
+                viewModel.rvResolver.adapter.notifyDataSetChanged()
             }
         }
-        else requireActivity().toastInfo(
-            requireContext().
-            getString(R.string.don_not_need_download)
-        )
     }
 
     private suspend fun between(tag: String,
@@ -597,18 +590,6 @@ class VKFragment :
                     R.id.vk_rv_item_add_to_home_screen -> {
                         TODO()
                     }
-                    R.id.vk_rv_item_download -> {
-                        val need = {
-                            downloadInform(song)
-                            Unit
-                        }
-                        val notNeed = {
-                            Toast.makeText(requireContext(),
-                                "Download not needed", Toast.LENGTH_SHORT).show()
-                        }
-                        needDownload(song, need, notNeed)
-                        true
-                    }
                     R.id.vk_rv_item_delete -> {
                         scope.launch {
                             viewModel.deleteSong(song)
@@ -662,7 +643,7 @@ class VKFragment :
             }
             action.setOnClickListener {
                 val need: () -> Unit = {
-                    downloadInform(song)
+                    openDownloadSong(song.toDownloadSong())
                 }
                 val notNeed: () -> Unit = {
                     actionPopUpMenu(song)

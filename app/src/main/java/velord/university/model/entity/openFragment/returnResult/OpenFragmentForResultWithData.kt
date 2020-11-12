@@ -7,6 +7,7 @@ import kotlinx.android.parcel.RawValue
 import velord.university.model.entity.openFragment.general.OpenFragmentEntity
 
 @Parcelize
-data class OpenFragmentForResult (
+data class OpenFragmentForResultWithData <T> (
     val source: FragmentCaller,
+    val data: @RawValue T
 ) : Parcelable, OpenFragmentEntity

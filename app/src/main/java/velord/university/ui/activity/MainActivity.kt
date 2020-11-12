@@ -7,6 +7,7 @@ import android.view.KeyEvent
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import velord.university.ui.util.activity.hideStatusBarAndNoTitle
 import kotlinx.coroutines.*
 import velord.university.R
@@ -15,6 +16,7 @@ import velord.university.application.notification.MiniPlayerNotification
 import velord.university.application.permission.PermissionChecker.checkReadWriteExternalStoragePermission
 import velord.university.application.settings.AppPreference
 import velord.university.model.coroutine.getScope
+import velord.university.model.entity.music.song.DownloadSong
 import velord.university.model.entity.openFragment.general.OpenFragmentEntity
 import velord.university.ui.behaviour.supervisor.BackPressSupervisor
 import velord.university.ui.behaviour.supervisor.ReturnResultSupervisor
@@ -23,7 +25,8 @@ import velord.university.ui.fragment.addToPlaylist.CreateNewPlaylistDialogFragme
 import velord.university.ui.fragment.addToPlaylist.select.SelectSongFragment
 import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.main.MainFragment
-import velord.university.ui.fragment.song.AllSongFragment
+import velord.university.ui.fragment.song.all.AllSongFragment
+import velord.university.ui.fragment.song.download.DownloadSongFragment
 import velord.university.ui.fragment.vk.VKFragment
 import velord.university.ui.fragment.vk.login.dialog.VkLoginDialogFragment
 import velord.university.ui.util.*
@@ -38,7 +41,8 @@ class MainActivity : AppCompatActivity(),
     CreateNewPlaylistDialogFragment.Callbacks,
     AllSongFragment.Callbacks,
     VKFragment.Callbacks,
-    VkLoginDialogFragment.Callbacks {
+    VkLoginDialogFragment.Callbacks,
+    DownloadSongFragment.Callbacks {
 
     private val TAG = "MainActivity"
 
@@ -151,16 +155,14 @@ class MainActivity : AppCompatActivity(),
         f: ReturnResultSupervisor.() -> Unit
     ): Unit = ReturnResultSupervisor(this, fm).run { f() }
 
+    private inline fun addFragment(f: () -> Fragment) =
+        addFragment(fm, f(), R.id.main_container)
+
     override fun toZeroLevel() =
         backPressShell().backPressToZeroLevel()
 
-    override fun openAddToPlaylistFragment() {
-        addFragment(
-            fm,
-            AddToPlaylistFragment(),
-            R.id.main_container
-        )
-    }
+    override fun openAddToPlaylistFragment() =
+        addFragment { AddToPlaylistFragment() }
 
     override fun openCreateNewPlaylistFragment() {
         toZeroLevel()
@@ -189,8 +191,15 @@ class MainActivity : AppCompatActivity(),
 
     private fun backPressShell() = BackPressSupervisor(TAG, fm)
 
-
     override fun returnResultVkLogin(open: OpenFragmentEntity) =
         returnResult { vkLogin(open) }
+
+    override fun returnDownloadSong(open: OpenFragmentEntity) =
+        returnResult { downloadSong(open) }
+
+    override fun openDownloadSong(open: OpenFragmentEntity) =
+        addFragment { DownloadSongFragment.newInstance(open) }
+
+    override fun close() = backPressShell().backPressToZeroLevel()
 }
 

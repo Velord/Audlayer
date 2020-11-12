@@ -18,10 +18,6 @@
         android:title="@string/pop_up_menu_item_add_to_home_screen"
         app:showAsAction="ifRoom"/>
 
-    <item android:id="@+id/vk_rv_item_download"
-        android:title="@string/download"
-        app:showAsAction="ifRoom"/>
-
     <item android:id="@+id/vk_rv_item_delete"
         android:title="@string/delete"
         app:showAsAction="ifRoom"/>

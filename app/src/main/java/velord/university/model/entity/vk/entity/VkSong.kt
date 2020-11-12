@@ -2,6 +2,7 @@ package velord.university.model.entity.vk.entity
 
 import androidx.room.*
 import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.music.song.DownloadSong
 
 @Entity(
     indices = [Index("artist", "title", "path", "album_id")]
@@ -38,6 +39,9 @@ data class VkSong(
         }
         return null
     }
+
+    fun toDownloadSong(): DownloadSong =
+        DownloadSong(artist, title, path)
 
     companion object {
 

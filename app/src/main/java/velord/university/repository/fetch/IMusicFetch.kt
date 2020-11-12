@@ -19,13 +19,16 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import velord.university.model.converter.transliterate
-import velord.university.model.entity.vk.fetch.VkDownloadFile
+import velord.university.model.coroutine.onIO
+import velord.university.model.coroutine.onMain
+import velord.university.model.entity.music.song.DownloadSong
+import velord.university.model.entity.vk.fetch.DownloadFile
 import velord.university.model.entity.vk.entity.VkSong
 
 //https://imusic.я.wiki
 data class IMusicFetch(private val context: Context,
                        val webView: WebView,
-                       val song: VkSong
+                       val song: DownloadSong
 ) {
 
     private val TAG = "IMusicFetchSequential"
@@ -63,7 +66,7 @@ data class IMusicFetch(private val context: Context,
 
     @SuppressLint("SetJavaScriptEnabled")
     suspend fun interceptDirectFileLink(url: String) =
-        withContext(Dispatchers.Main) {
+        onMain {
             val fullUrl = url
             webView.apply {
                 settings.javaScriptEnabled = true
@@ -97,8 +100,7 @@ data class IMusicFetch(private val context: Context,
             }
         }
 
-    private suspend fun fetchSong(url: String): String? =
-        withContext(Dispatchers.IO) {
+    private suspend fun fetchSong(url: String): String? = onIO {
         //register receiver on download completed
         val sdfsdds = url
         val sdfsdsss = url
@@ -111,16 +113,16 @@ data class IMusicFetch(private val context: Context,
         context.registerReceiver(onComplete,
             IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
         //ready steady go
-        val vkDownloadFile = VkDownloadFile(song)
-        Log.d(TAG, "To path: ${vkDownloadFile.fullPath}")
+        val downloadFile = DownloadFile(song)
+        Log.d(TAG, "To path: ${downloadFile.fullPath}")
         //build
         val req = DownloadManager.Request(Uri.parse(url))
-            .setTitle(vkDownloadFile.name)
+            .setTitle(downloadFile.name)
             .setDescription("Downloading")
             .setVisibleInDownloadsUi(true)
             .setNotificationVisibility(
                 DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            .setDestinationUri(vkDownloadFile.uriFromFile)
+            .setDestinationUri(downloadFile.uriFromFile)
             .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or
                     DownloadManager.Request.NETWORK_MOBILE)
             .setAllowedOverRoaming(false)
@@ -138,18 +140,17 @@ data class IMusicFetch(private val context: Context,
         context.unregisterReceiver(onComplete)
         //if download is not success
         if (downloaded.not()) {
-            return@withContext null
+            return@onIO null
         }
 
-        return@withContext vkDownloadFile.fullPath
+        return@onIO downloadFile.fullPath
     }
 
-    private suspend fun filterSearchResultByUrl(url: String)
-            : List<String> = withContext(Dispatchers.IO) {
+    private suspend fun filterSearchResultByUrl(url: String): List<String> = onIO {
         val doc: Document = Jsoup.connect(url).get()
         val links: Elements = doc.select("a")
         val urlStr = links.map {  it.attr("href") }
-        return@withContext urlStr
+        return@onIO urlStr
             .filter {
                 it.contains("/public/download_song.php?id=")
             }
@@ -159,24 +160,24 @@ data class IMusicFetch(private val context: Context,
     private suspend fun fetchSearchLink(directSearchLink: String): List<String> =
         filterSearchResultBySong(filterSearchResultByUrl(directSearchLink))
 
-    private suspend fun filterSearchResultBySong(url: List<String>): List<String> =
-        withContext(Dispatchers.IO) {
-            //site in links contain only artist not like a hashcode
-            val onlyAlphabetAndDigit = Regex("[^a-z0-9]]")
-            val transliterateArtist = song.artist.transliterate()
-            val alphaArtist = onlyAlphabetAndDigit
-                .replace(transliterateArtist, "")
-                .split(' ')
-            return@withContext url
-                .filter { url ->
-                    var cont = false
-                    alphaArtist.forEach {
-                        if (url.contains(it)) cont = true
-                    }
-                    cont
+    private suspend fun filterSearchResultBySong
+                (url: List<String>): List<String> = onIO {
+        //site in links contain only artist not like a hashcode
+        val onlyAlphabetAndDigit = Regex("[^a-z0-9]]")
+        val transliterateArtist = song.artist.transliterate()
+        val alphaArtist = onlyAlphabetAndDigit
+            .replace(transliterateArtist, "")
+            .split(' ')
+        return@onIO url
+            .filter { url ->
+                var cont = false
+                alphaArtist.forEach {
+                    if (url.contains(it)) cont = true
                 }
-                .filter { it.isNotBlank() }
-        }
+                cont
+            }
+            .filter { it.isNotBlank() }
+    }
 
     private suspend fun getSearchLinkList(): List<String> {
         //intercept link

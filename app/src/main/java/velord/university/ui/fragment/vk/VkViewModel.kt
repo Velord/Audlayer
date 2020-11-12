@@ -23,6 +23,7 @@ import velord.university.model.entity.vk.fetch.VkSongFetch
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.file.FileNameParser
 import velord.university.model.entity.fileType.json.general.Loadable
+import velord.university.model.entity.music.song.DownloadSong
 import velord.university.model.entity.vk.entity.VkSong.Companion.filterByQuery
 import velord.university.model.entity.vk.entity.VkSong.Companion.mapWithAlbum
 import velord.university.repository.hub.FolderRepository
@@ -34,7 +35,6 @@ import velord.university.repository.db.transaction.vk.VkSongTransaction
 import velord.university.repository.hub.HubRepository.vkRepository
 import velord.university.ui.util.RVSelection
 import java.io.File
-
 
 class VkViewModel(
     private val app: Application
@@ -98,20 +98,6 @@ class VkViewModel(
         }
     }
 
-    suspend fun downloadThenPlay(vkSong: VkSong,
-                                 webView: WebView,
-                                 onSuccess: (VkSong, CoroutineScope) -> Unit,
-                                 onFailure: (CoroutineScope) -> Unit) {
-        val filePath =  download(vkSong, webView)
-        //if download will be success ->  not null
-        if (filePath != null) {
-            applyNewPath(vkSong, filePath)
-            playAudioAndAllSong(vkSong)
-            onSuccess(vkSong, viewModelScope)
-        }
-        else onFailure(viewModelScope)
-    }
-
     fun shuffle(): Array<VkSong> {
         ordered.shuffle()
         return ordered
@@ -134,6 +120,13 @@ class VkViewModel(
         viewModelScope.launch { deleteAll() }
         VkPreference(app).accessToken = ""
     }
+
+    suspend fun needDownloadList(): Array<DownloadSong> =
+        vkSongList.get()
+            .filter { needDownload(it) }
+            .reversed()
+            .map { it.toDownloadSong() }
+            .toTypedArray()
 
     suspend fun pathIsWrong(path: String) {
         vkSongList.get().find { it.path == path }?.let {
@@ -175,25 +168,6 @@ class VkViewModel(
     }
 
     private suspend fun load() { vkSongList.load() }
-
-    suspend fun downloadAll(webView: WebView) {
-        //which
-        val toDownload = vkSongList.get()
-            .filter { needDownload(it) }
-            .reversed()
-        //download
-        val downloaded = app.vkRepository {
-            downloadAll(app, webView, toDownload)
-        }
-        //save in db new info
-        downloaded.forEach {
-            applyNewPath(it, it.path)
-        }
-        //refresh ui
-        withContext(Dispatchers.Main) {
-            rvResolver.adapter.notifyDataSetChanged()
-        }
-    }
 
     suspend fun deleteAll() {
         VkRepository.deleteAllTables()
@@ -239,10 +213,7 @@ class VkViewModel(
         SongPlaylistInteractor.songs = ordered
             .filter { it.path.isNotBlank() }
             .map {
-                Song(
-                    File(it.path),
-                    it.getAlbumIcon()
-                )
+                Song(File(it.path), it.getAlbumIcon())
             }
             .toTypedArray()
     }
@@ -273,6 +244,16 @@ class VkViewModel(
             .map { it.component2() }
             .filter { it.id != 0 }
 
+    suspend fun applyNewPath(downloaded: DownloadSong) {
+        val find = vkSongList.get().find {
+            it.artist == downloaded.artist &&
+                    it.title == downloaded.title
+        }
+        if (find == null) return
+
+        applyNewPath(find, downloaded.path)
+    }
+
     private suspend fun applyNewPath(vkSong: VkSong, path: String) {
         val index = vkSongList.get().indexOf(vkSong)
         val song = vkSongList.get()[index]
@@ -282,14 +263,6 @@ class VkViewModel(
         ordered[orderedIndex].path = path
 
         VkSongTransaction.update(song)
-    }
-
-    private suspend fun download(vkSong: VkSong,
-                                 webView: WebView): String? {
-        //refresh path to blank
-        applyNewPath(vkSong, "")
-        //download
-        return app.vkRepository { download(app, webView, vkSong) }
     }
 
     private suspend fun getNoExistInDbSong(byTokenSongs: Array<VkSongFetch>,

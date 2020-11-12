@@ -27,4 +27,10 @@ object HubRepository {
     ): T = FolderRepository.run {
         f(this@folderRepository)
     }
+
+    inline fun <T> Context.downloadRepository(
+        f: DownloadRepository.(Context) -> T
+    ): T = DownloadRepository.run {
+        f(this@downloadRepository)
+    }
 }

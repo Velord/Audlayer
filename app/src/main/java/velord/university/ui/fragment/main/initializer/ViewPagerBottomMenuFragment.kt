@@ -1,10 +1,8 @@
 package velord.university.ui.fragment.main.initializer
 
 import android.util.Log
-import android.util.SparseArray
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import velord.university.model.coroutine.getScope
@@ -16,10 +14,9 @@ import velord.university.ui.fragment.album.AlbumFragment
 import velord.university.ui.fragment.folder.FolderFragment
 import velord.university.ui.fragment.radio.RadioFragment
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
-import velord.university.ui.fragment.song.AllSongFragment
+import velord.university.ui.fragment.song.all.AllSongFragment
 import velord.university.ui.fragment.vk.VKFragment
 import velord.university.ui.util.findBy
-import velord.university.ui.util.firstAs
 
 
 abstract class ViewPagerBottomMenuFragment :

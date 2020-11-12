@@ -102,7 +102,7 @@
                 android:resource="@xml/audlayer_widget_info" />
         </receiver>
 
-        <receiver android:name=".application.notification.VkDownloadNotification$VkDownloadNotificationReceiver">
+        <receiver android:name=".application.notification.DownloadNotification$DownloadNotificationReceiver">
         </receiver>
 
         <receiver android:name=".application.broadcast.MiniPlayerNotificationBroadcastReceiver">

@@ -10,12 +10,12 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import velord.university.R
 
-private const val channelId = "velord.audlayer.notification.vk"
-private const val notificationCancelExtra = "velord.audlayer.notification.vk_cancel_downloading"
+private const val channelId = "velord.audlayer.notification.download"
+private const val notificationCancelExtra = "velord.audlayer.notification.cancel_downloading"
 private const val notificationDownloadId = 1234
 private const val notificationCancelValue = notificationDownloadId
 
-object VkDownloadNotification {
+object DownloadNotification {
 
     private lateinit var notificationManager: NotificationManager
 
@@ -45,7 +45,7 @@ object VkDownloadNotification {
     }
 
     private fun getNotificationBuilder(context: Context): NotificationCompat.Builder {
-        val broadIntent = Intent(context, VkDownloadNotificationReceiver().javaClass)
+        val broadIntent = Intent(context, DownloadNotificationReceiver().javaClass)
         broadIntent.putExtra(notificationCancelExtra, notificationCancelValue)
         val pendIntent = PendingIntent.getBroadcast(context,
             0, broadIntent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -69,7 +69,7 @@ object VkDownloadNotification {
             .addAction(R.drawable.cancel, "Cancel", pendIntent)
     }
 
-    class VkDownloadNotificationReceiver: BroadcastReceiver() {
+    class DownloadNotificationReceiver: BroadcastReceiver() {
 
         override fun onReceive(context: Context?, intent: Intent?) {
             val message = intent!!.getIntExtra(notificationCancelExtra, -1)

@@ -110,7 +110,7 @@
     <string name="no_one_song">No one Song</string>
     <string name="not_implemented_operation">Operation not implemented: %1$s</string>
     <string name="show_incompatible_files">Show incompatible files</string>
-    <string name="don_not_need_download">Don\'t need download</string>
+    <string name="do_not_need_download">Don\'t need download</string>
     <string name="song_success_downloaded">Song success downloaded</string>
     <string name="album">Album</string>
     <string name="all">All</string>
@@ -121,4 +121,5 @@
     <string name="password">Password</string>
     <string name="input_login">Input Login</string>
     <string name="input_password">Input password</string>
+    <string name="sorry_no_link">Sorry we did not found any link</string>
 </resources>

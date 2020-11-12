@@ -25,7 +25,10 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import velord.university.model.converter.transliterate
-import velord.university.model.entity.vk.fetch.VkDownloadFile
+import velord.university.model.coroutine.onIO
+import velord.university.model.coroutine.onMain
+import velord.university.model.entity.music.song.DownloadSong
+import velord.university.model.entity.vk.fetch.DownloadFile
 import velord.university.model.entity.vk.entity.VkSong
 import java.io.File
 import java.util.*
@@ -33,7 +36,7 @@ import java.util.*
 
 data class SefonFetchAsync(private val context: Context,
                            val webView: WebView,
-                           val song: VkSong,
+                           val song: DownloadSong,
                            val successF: (File) -> Unit) {
 
     private val TAG = "SefonFetchAsync"
@@ -67,7 +70,7 @@ data class SefonFetchAsync(private val context: Context,
                     if (url.contains("sefon.pro/api/mp3_download/direct")) {
                         Log.d(TAG, url)
                         scope.launch {
-                            val file = downloadSong(url, song.artist, song.title)
+                            val file = downloadSong(url, song)
                             successF(file)
                         }
                     }
@@ -80,8 +83,7 @@ data class SefonFetchAsync(private val context: Context,
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    suspend fun getDirectSearchLink() =
-        withContext(Dispatchers.Main) {
+    suspend fun getDirectSearchLink() = onMain {
         val withoutRemix = song.title.substringBefore('(')
         val fullUrl = "https://sefon.pro/search/?q=${song.artist} $withoutRemix"
         webView.apply {
@@ -100,7 +102,7 @@ data class SefonFetchAsync(private val context: Context,
                                 fetchSearchResult(directUrl))
                             if (links.isNotEmpty())
                                 getDirectFileLink(links[0])
-                            else withContext(Dispatchers.Main) {
+                            else onMain {
                                 Toast.makeText(context,
                                     "Sorry we did not found any link", Toast.LENGTH_LONG).show()
                             }
@@ -115,8 +117,7 @@ data class SefonFetchAsync(private val context: Context,
     }
 
     suspend fun downloadSong(url: String,
-                             artist: String,
-                             title: String): File = withContext(Dispatchers.IO) {
+                             song: DownloadSong): File = onIO {
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(url)
@@ -126,20 +127,19 @@ data class SefonFetchAsync(private val context: Context,
 
         val ext = ".mp3"
         val vkDir = "${Environment.getExternalStorageDirectory().path}/Audlayer/Vk"
-        val downloadedFile = File(vkDir, "$artist - $title$ext")
+        val downloadedFile = File(vkDir, "${song.artist} - ${song.title}$ext")
         val sink = downloadedFile.sink().buffer()
         sink.writeAll(response.body!!.source())
         sink.close()
 
-        return@withContext downloadedFile
+        return@onIO downloadedFile
     }
 
     suspend fun download() {
         getDirectSearchLink()
     }
 
-    suspend fun filterSearchResult(url: List<String>): List<String> =
-        withContext(Dispatchers.IO) {
+    suspend fun filterSearchResult(url: List<String>): List<String> = onIO {
         val onlyAlphabetAndDigit = Regex("[^a-z0-9]]")
         val lowerTitle = song.title.transliterate().toLowerCase(Locale.ROOT)
         val lowerArtist = song.artist.transliterate().toLowerCase(Locale.ROOT)
@@ -149,7 +149,7 @@ data class SefonFetchAsync(private val context: Context,
         val alphaArtist = onlyAlphabetAndDigit
             .replace(lowerArtist, "")
             .split(' ')
-        return@withContext url
+        return@onIO url
             .filter { url ->
                 var cont = false
                 alphaTitle.forEach {
@@ -167,12 +167,11 @@ data class SefonFetchAsync(private val context: Context,
             .filter { it.isNotBlank() }
     }
 
-    suspend fun fetchSearchResult(url: String): List<String> =
-        withContext(Dispatchers.IO) {
+    suspend fun fetchSearchResult(url: String): List<String> = onIO {
         val doc: Document = Jsoup.connect(url).get()
         val links: Elements = doc.select("a")
         val urlStr = links.map {  it.attr("href") }
-        return@withContext urlStr
+        return@onIO urlStr
             .filter {
                 it.contains("/mp3/")
             }
@@ -182,8 +181,7 @@ data class SefonFetchAsync(private val context: Context,
 
 data class SefonFetchSequential(private val context: Context,
                                 val webView: WebView,
-                                val song: VkSong
-) {
+                                val song: DownloadSong) {
 
     private val TAG = "SefonFetchSequential"
 
@@ -191,8 +189,7 @@ data class SefonFetchSequential(private val context: Context,
     private var directFileLink: String = ""
 
     @SuppressLint("SetJavaScriptEnabled")
-    private suspend fun fetchDirectFileLink(url: String) =
-        withContext(Dispatchers.Main) {
+    private suspend fun fetchDirectFileLink(url: String) = onMain {
         val fullUrl = "https:/sefon.pro$url"
         webView.apply {
             settings.javaScriptEnabled = true
@@ -227,8 +224,7 @@ data class SefonFetchSequential(private val context: Context,
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private suspend fun fetchDirectSearchLink() =
-        withContext(Dispatchers.Main) {
+    private suspend fun fetchDirectSearchLink() = onMain {
         val withoutRemix = song.title.substringBefore('(')
         val fullUrl = "https://sefon.pro/search/?q=${song.artist} $withoutRemix"
         webView.apply {
@@ -252,8 +248,7 @@ data class SefonFetchSequential(private val context: Context,
         }
     }
 
-    private suspend fun fetchSong(url: String): String?
-            = withContext(Dispatchers.IO) {
+    private suspend fun fetchSong(url: String): String? = onIO {
         //register receiver on download completed
         var downloaded = false
         val onComplete = object : BroadcastReceiver() {
@@ -266,7 +261,7 @@ data class SefonFetchSequential(private val context: Context,
         )
         //ready steady go
         val vkDownloadFile =
-            VkDownloadFile(song)
+            DownloadFile(song)
         Log.d(TAG, "To path: ${vkDownloadFile.fullPath}")
         //build
         val req = DownloadManager.Request(Uri.parse(url))
@@ -292,19 +287,17 @@ data class SefonFetchSequential(private val context: Context,
         //unregister
         context.unregisterReceiver(onComplete)
         //if download is not success
-        if (downloaded.not()) {
-            return@withContext null
-        }
+        if (downloaded.not()) return@onIO null
 
-        return@withContext  vkDownloadFile.fullPath
+        return@onIO  vkDownloadFile.fullPath
     }
 
-    private suspend fun fetchSearchResult(url: String)
-            : List<String> = withContext(Dispatchers.IO) {
+    private suspend fun fetchSearchResult
+                (url: String): List<String> = onIO {
         val doc: Document = Jsoup.connect(url).get()
         val links: Elements = doc.select("a")
         val urlStr = links.map {  it.attr("href") }
-        return@withContext urlStr
+        return@onIO urlStr
             .filter {
                 it.contains("/mp3/")
             }
@@ -314,8 +307,8 @@ data class SefonFetchSequential(private val context: Context,
     private suspend fun fetchSearch(directSearchLink: String): List<String> =
         filterSearchResult(fetchSearchResult(directSearchLink))
 
-    private suspend fun filterSearchResult(url: List<String>): List<String> =
-        withContext(Dispatchers.IO) {
+    private suspend fun filterSearchResult
+                (url: List<String>): List<String> = onIO {
             val onlyAlphabetAndDigit = Regex("[^a-z0-9]]")
             val lowerTitle = song.title
                 .transliterate()
@@ -329,7 +322,7 @@ data class SefonFetchSequential(private val context: Context,
             val alphaArtist = onlyAlphabetAndDigit
                 .replace(lowerArtist, "")
                 .split(' ')
-            return@withContext url
+            return@onIO url
                 .filter { url ->
                     var cont = false
                     alphaTitle.forEach {

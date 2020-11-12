@@ -1,4 +1,4 @@
-package velord.university.ui.fragment.song
+package velord.university.ui.fragment.song.all
 
 import android.content.Context
 import android.content.Intent
