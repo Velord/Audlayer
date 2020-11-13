@@ -2,7 +2,7 @@ package velord.university.model.entity.vk.fetch
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import velord.university.model.entity.vk.entity.VkSong
+import velord.university.model.entity.music.newGeneration.song.AudlayerSong
 
 @Serializable
 data class Ads(
@@ -101,32 +101,28 @@ data class VkSongFetch(
     val trackCode: String,
     @SerialName("main_artists")
     val mainArtistList: Array<MainArtist>?= null,
+    val subtitle: String? = null,
+    val album: Album ? = null,
     @SerialName("featured_artists")
     val featuredArtistList: Array<FeaturedArtist>? = null,
-    val subtitle: String? = null,
-    val album: Album ? = null
 ) {
 
-    fun toVkSong(): VkSong = toVkSong(this)
+    fun toAudlayerSong(): AudlayerSong = toVkSong(this)
+
+    fun getImgUrl(): String =
+        this.album?.thumb?.photo1200 ?: ""
+
+    fun getFullName(): String = "$artist$title"
 
     companion object {
 
-        fun toVkSong(song: VkSongFetch): VkSong =
+        fun toVkSong(song: VkSongFetch): AudlayerSong =
             song.run {
-                VkSong(
+                AudlayerSong(
                     artist,
-                    ownerId,
                     title,
                     duration,
-                    accessKey,
-                    isLicensed,
-                    date,
-                    isHq,
-                    trackGenreId ?: -1,
-                    id,
-                    albumId,
-                    url,
-                    path
+                    getImgUrl()
                 )
             }
     }

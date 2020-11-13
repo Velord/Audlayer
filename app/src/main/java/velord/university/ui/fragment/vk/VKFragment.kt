@@ -23,7 +23,6 @@ import com.statuscasellc.statuscase.model.entity.openFragment.general.FragmentCa
 import velord.university.model.coroutine.getScope
 import velord.university.model.coroutine.onMain
 import velord.university.model.exception.ViewDestroyed
-import velord.university.ui.util.activity.toastSuccess
 import velord.university.ui.util.view.gone
 import velord.university.ui.util.view.setupAndShowPopupMenuOnClick
 import velord.university.ui.util.view.visible
@@ -41,14 +40,13 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.entity.music.song.Song
-import velord.university.model.entity.vk.entity.VkSong
 import velord.university.model.entity.fileType.file.FileFilter
-import velord.university.model.entity.music.song.DownloadSong
+import velord.university.model.entity.music.newGeneration.song.AudlayerSong
+import velord.university.model.entity.music.song.download.DownloadSong
 import velord.university.model.entity.openFragment.general.OpenFragmentEntity
-import velord.university.model.entity.openFragment.returnResult.OpenFragmentForResult
 import velord.university.model.entity.openFragment.returnResult.OpenFragmentForResultWithData
 import velord.university.model.entity.openFragment.returnResult.ReturnResultFromFragment
-import velord.university.model.entity.vk.entity.VkCredential
+import velord.university.model.entity.vk.VkCredential
 import velord.university.ui.activity.VkLoginActivity
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
@@ -266,14 +264,14 @@ class VKFragment :
         if (viewModel.rvResolverIsInitialized() &&
             viewModel.orderedIsInitialized()) {
             viewModel.rvResolver.apply {
-                val song = viewModel.vkSongList.get().find {
+                val song = viewModel.songList.get().find {
                     it.path == songPath
                 } ?: return
 
                 clearAndChangeSelectedItem(song)
                 //apply to ui
                 val files = viewModel.ordered
-                val containF: (VkSong) -> Boolean = {
+                val containF: (AudlayerSong) -> Boolean = {
                     it == song
                 }
                 refreshAndScroll(
@@ -379,10 +377,12 @@ class VKFragment :
             between("refreshValue") {
                 onMain {
                     if (viewModel.checkAuth()) {
+                        val songList = viewModel.songList.get()
+                        if (songList.isEmpty())
+                            viewModel.refreshByCredential()
                         credentialIsExist()
-                        viewModel.refreshByCredential()
-                        setupAdapter()
-                    } else {
+                    }
+                    else {
                         credentialIsBlank()
                     }
                 }
@@ -450,7 +450,7 @@ class VKFragment :
 
     private fun getRecyclerViewResolver(
         adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
-    ): RVSelection<VkSong> {
+    ): RVSelection<AudlayerSong> {
         return if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.adapter = adapter
             viewModel.rvResolver
@@ -472,14 +472,14 @@ class VKFragment :
         private val icon: ImageButton =
             itemView.findViewById(R.id.general_item_icon)
 
-        private inline fun needDownload(song: VkSong,
+        private inline fun needDownload(song: AudlayerSong,
                                         need: () -> Unit,
                                         notNeed: () -> Unit = { } ) {
             if (viewModel.needDownload(song)) need()
             else notNeed()
         }
 
-        private fun needDownloadAction(song: VkSong) {
+        private fun needDownloadAction(song: AudlayerSong) {
             val need: () -> Unit = {
                 Glide.with(requireActivity())
                     .load(R.drawable.download_200_amber_a400)
@@ -497,7 +497,7 @@ class VKFragment :
             needDownload(song, need, notNeed)
         }
 
-        private fun needDownloadBackground(song: VkSong) {
+        private fun needDownloadBackground(song: AudlayerSong) {
             val need: () -> Unit = {
                 itemView.setBackgroundResource(R.color.mortar_opacity_65)
             }
@@ -509,7 +509,7 @@ class VKFragment :
             needDownload(song, need, notNeed)
         }
 
-        val general: (VkSong) -> Array<() -> Unit> = { song ->
+        val general: (AudlayerSong) -> Array<() -> Unit> = { song ->
             arrayOf(
                 { needDownloadAction(song) },
                 {
@@ -528,7 +528,7 @@ class VKFragment :
             )
         }
 
-        val selected: (VkSong) -> Array<() -> Unit> = { song ->
+        val selected: (AudlayerSong) -> Array<() -> Unit> = { song ->
             general(song) + arrayOf(
                 {
                     val size: Double =
@@ -548,7 +548,7 @@ class VKFragment :
             )
         }
 
-        val notSelected: (VkSong) -> Array<() -> Unit> = { song ->
+        val notSelected: (AudlayerSong) -> Array<() -> Unit> = { song ->
             general(song) + arrayOf(
                 {
                     text.text = getString(R.string.vk_rv_item_not_selected,
@@ -563,7 +563,7 @@ class VKFragment :
             )
         }
 
-        private val actionPopUpMenu: (VkSong) -> Unit = { song ->
+        private val actionPopUpMenu: (AudlayerSong) -> Unit = { song ->
             val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
             val initActionMenuLayout = { R.menu.vk_item }
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
@@ -609,8 +609,8 @@ class VKFragment :
             Unit
         }
 
-        private fun play(song: VkSong,
-                         rvSelectResolver: RVSelection<VkSong>) {
+        private fun play(song: AudlayerSong,
+                         rvSelectResolver: RVSelection<AudlayerSong>) {
             val need: () -> Unit = {
                 Toast.makeText(requireContext(),
                     "Click Download Icon", Toast.LENGTH_SHORT).show()
@@ -626,8 +626,8 @@ class VKFragment :
             needDownload(song, need, notNeed)
         }
 
-        private fun setOnClickAndImageResource(song: VkSong,
-                                               rvSelectResolver: RVSelection<VkSong>
+        private fun setOnClickAndImageResource(song: AudlayerSong,
+                                               rvSelectResolver: RVSelection<AudlayerSong>
         ) {
             itemView.setOnClickListener {
                 play(song, rvSelectResolver)
@@ -649,8 +649,8 @@ class VKFragment :
             }
         }
 
-        private fun applyState(value: VkSong,
-                               rvSelectResolver: RVSelection<VkSong>) {
+        private fun applyState(value: AudlayerSong,
+                               rvSelectResolver: RVSelection<AudlayerSong>) {
             when(rvSelectResolver.state) {
                 0 -> rvSelectResolver.isContains(
                     value,
@@ -660,14 +660,14 @@ class VKFragment :
             }
         }
 
-        fun bindItem(song: VkSong, position: Int,
-                     rvSelectResolver: RVSelection<VkSong>) {
+        fun bindItem(song: AudlayerSong, position: Int,
+                     rvSelectResolver: RVSelection<AudlayerSong>) {
             applyState(song, rvSelectResolver)
             setOnClickAndImageResource(song, rvSelectResolver)
         }
     }
 
-    private inner class SongAdapter(val items: Array<out VkSong>):
+    private inner class SongAdapter(val items: Array<out AudlayerSong>):
         RecyclerView.Adapter<SongHolder>(),
         FastScrollRecyclerView.SectionedAdapter{
 

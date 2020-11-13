@@ -1,4 +1,4 @@
-package velord.university.model.entity.music.song
+package velord.university.model.entity.music.song.download
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize

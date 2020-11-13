@@ -27,8 +27,8 @@ import org.jsoup.select.Elements
 import velord.university.model.converter.transliterate
 import velord.university.model.coroutine.onIO
 import velord.university.model.coroutine.onMain
-import velord.university.model.entity.music.song.DownloadSong
-import velord.university.model.entity.music.song.DownloadFile
+import velord.university.model.entity.music.song.download.DownloadSong
+import velord.university.model.entity.music.song.download.DownloadFile
 import java.io.File
 import java.util.*
 
@@ -116,7 +116,8 @@ data class SefonFetchAsync(private val context: Context,
     }
 
     suspend fun downloadSong(url: String,
-                             song: DownloadSong): File = onIO {
+                             song: DownloadSong
+    ): File = onIO {
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(url)
@@ -180,7 +181,8 @@ data class SefonFetchAsync(private val context: Context,
 
 data class SefonFetchSequential(private val context: Context,
                                 val webView: WebView,
-                                val song: DownloadSong) {
+                                val song: DownloadSong
+) {
 
     private val TAG = "SefonFetchSequential"
 

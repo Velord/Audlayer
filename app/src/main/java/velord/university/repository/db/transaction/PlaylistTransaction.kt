@@ -1,8 +1,7 @@
 package velord.university.repository.db.transaction
 
 import velord.university.model.coroutine.onIO
-import velord.university.model.entity.music.playlist.Playlist
-import velord.university.repository.db.dao.PlaylistDao
+import velord.university.model.entity.music.playlist.base.Playlist
 import velord.university.repository.db.transaction.hub.BaseTransaction
 import velord.university.repository.db.transaction.hub.HubTransaction.playlistTransaction
 

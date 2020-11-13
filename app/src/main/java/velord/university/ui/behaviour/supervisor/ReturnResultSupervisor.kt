@@ -5,10 +5,10 @@ import android.util.Log
 import androidx.fragment.app.FragmentManager
 import com.statuscasellc.statuscase.model.entity.openFragment.general.FragmentCaller
 import velord.university.R
-import velord.university.model.entity.music.song.DownloadSong
+import velord.university.model.entity.music.song.download.DownloadSong
 import velord.university.model.entity.openFragment.general.OpenFragmentEntity
 import velord.university.model.entity.openFragment.returnResult.ReturnResultFromFragment
-import velord.university.model.entity.vk.entity.VkCredential
+import velord.university.model.entity.vk.VkCredential
 import velord.university.ui.fragment.vk.VKFragment
 import velord.university.ui.util.activity.toastError
 import velord.university.ui.util.findBy

@@ -16,7 +16,6 @@ import velord.university.application.notification.MiniPlayerNotification
 import velord.university.application.permission.PermissionChecker.checkReadWriteExternalStoragePermission
 import velord.university.application.settings.AppPreference
 import velord.university.model.coroutine.getScope
-import velord.university.model.entity.music.song.DownloadSong
 import velord.university.model.entity.openFragment.general.OpenFragmentEntity
 import velord.university.ui.behaviour.supervisor.BackPressSupervisor
 import velord.university.ui.behaviour.supervisor.ReturnResultSupervisor

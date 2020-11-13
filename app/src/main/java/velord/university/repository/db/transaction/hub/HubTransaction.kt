@@ -1,23 +1,15 @@
 package velord.university.repository.db.transaction.hub
 
-import velord.university.repository.db.dao.MiniPlayerServiceSongDao
-import velord.university.repository.db.dao.PlaylistDao
-import velord.university.repository.db.dao.RadioStationDao
-import velord.university.repository.db.dao.vk.VkSongDao
+import velord.university.model.entity.music.newGeneration.song.AudlayerSongDao
+import velord.university.model.entity.music.song.serviceSong.MiniPlayerServiceSongDao
+import velord.university.model.entity.music.playlist.base.PlaylistDao
+import velord.university.model.entity.music.radio.RadioStationDao
+import velord.university.repository.db.transaction.AudlayerSongTransaction
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.repository.db.transaction.RadioTransaction
 import velord.university.repository.db.transaction.ServiceTransaction
-import velord.university.repository.db.transaction.vk.VkSongTransaction
 
 object HubTransaction {
-
-    suspend fun <T> vkSongTransaction(
-        tag: String,
-        f: VkSongDao.() -> T
-    ): T = VkSongTransaction.transaction(tag) {
-        vkSongDao().run(f)
-    }
-
 
     suspend fun <T> playlistTransaction(
         tag: String,
@@ -38,5 +30,12 @@ object HubTransaction {
         f: MiniPlayerServiceSongDao.() -> T
     ): T = ServiceTransaction.transaction(tag) {
         serviceDao().run(f)
+    }
+
+    suspend fun <T> songTransaction(
+        tag: String,
+        f: AudlayerSongDao.() -> T
+    ): T = AudlayerSongTransaction.transaction(tag) {
+        songDao().run(f)
     }
 }

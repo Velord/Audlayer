@@ -3,31 +3,36 @@ package velord.university.repository.db.factory
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import velord.university.model.converter.LocalDateTimeConverter
 import velord.university.model.converter.StringListConverter
-import velord.university.model.entity.music.song.MiniPlayerServiceSong
-import velord.university.model.entity.music.playlist.Playlist
-import velord.university.model.entity.music.RadioStation
-import velord.university.model.entity.vk.entity.VkSong
-import velord.university.repository.db.dao.MiniPlayerServiceSongDao
-import velord.university.repository.db.dao.PlaylistDao
-import velord.university.repository.db.dao.RadioStationDao
-import velord.university.repository.db.dao.vk.VkSongDao
+import velord.university.model.entity.music.song.serviceSong.MiniPlayerServiceSong
+import velord.university.model.entity.music.playlist.base.Playlist
+import velord.university.model.entity.music.radio.RadioStation
+import velord.university.model.entity.music.newGeneration.song.AudlayerSong
+import velord.university.model.entity.music.newGeneration.song.AudlayerSongDao
+import velord.university.model.entity.music.song.serviceSong.MiniPlayerServiceSongDao
+import velord.university.model.entity.music.playlist.base.PlaylistDao
+import velord.university.model.entity.music.radio.RadioStationDao
 
 @Database(
     entities = [
         MiniPlayerServiceSong::class, Playlist::class,
-        VkSong::class, RadioStation::class
+        RadioStation::class,
+        AudlayerSong::class
     ],
     version = 1
 )
-@TypeConverters(StringListConverter::class)
+@TypeConverters(
+    StringListConverter::class,
+    LocalDateTimeConverter::class
+)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun serviceDao(): MiniPlayerServiceSongDao
 
     abstract fun playlistDao(): PlaylistDao
 
-    abstract fun vkSongDao(): VkSongDao
-
     abstract fun radioDao(): RadioStationDao
+
+    abstract fun songDao(): AudlayerSongDao
 }

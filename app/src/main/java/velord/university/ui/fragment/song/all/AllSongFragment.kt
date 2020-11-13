@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -39,7 +38,7 @@ import velord.university.model.coroutine.getScope
 import velord.university.model.coroutine.onMain
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.file.FileNameParser
-import velord.university.model.entity.music.playlist.Playlist
+import velord.university.model.entity.music.playlist.base.Playlist
 import velord.university.model.entity.music.song.Song
 import velord.university.model.exception.ViewDestroyed
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment

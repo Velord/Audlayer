@@ -2,8 +2,8 @@ package velord.university.repository.db.transaction
 
 import velord.university.repository.db.transaction.hub.BaseTransaction
 
-object ServiceTransaction : BaseTransaction() {
+object AudlayerSongTransaction : BaseTransaction() {
 
-    override val TAG: String = "ServiceTransaction"
+    override val TAG: String = "AudlayerSongTransaction"
 
 }

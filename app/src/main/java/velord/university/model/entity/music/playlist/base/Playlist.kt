@@ -1,4 +1,4 @@
-package velord.university.model.entity.music.playlist
+package velord.university.model.entity.music.playlist.base
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

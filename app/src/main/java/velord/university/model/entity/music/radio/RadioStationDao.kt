@@ -1,10 +1,10 @@
-package velord.university.repository.db.dao
+package velord.university.model.entity.music.radio
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import velord.university.model.entity.music.RadioStation
+import velord.university.model.entity.music.radio.RadioStation
 
 @Dao
 interface RadioStationDao {

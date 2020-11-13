@@ -21,8 +21,8 @@ import org.jsoup.select.Elements
 import velord.university.model.converter.transliterate
 import velord.university.model.coroutine.onIO
 import velord.university.model.coroutine.onMain
-import velord.university.model.entity.music.song.DownloadSong
-import velord.university.model.entity.music.song.DownloadFile
+import velord.university.model.entity.music.song.download.DownloadSong
+import velord.university.model.entity.music.song.download.DownloadFile
 
 //https://imusic.я.wiki
 data class IMusicFetch(private val context: Context,

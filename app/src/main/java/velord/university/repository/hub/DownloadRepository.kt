@@ -3,7 +3,7 @@ package velord.university.repository.hub
 import android.content.Context
 import android.webkit.WebView
 import velord.university.application.notification.DownloadNotification
-import velord.university.model.entity.music.song.DownloadSong
+import velord.university.model.entity.music.song.download.DownloadSong
 import velord.university.repository.fetch.IMusicFetch
 import velord.university.repository.fetch.SefonFetchSequential
 

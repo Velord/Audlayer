@@ -1,4 +1,4 @@
-package velord.university.model.entity.vk.entity
+package velord.university.model.entity.vk
 
 data class VkCredential(
     val login: String,

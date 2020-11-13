@@ -1,4 +1,4 @@
-package velord.university.model.entity.music
+package velord.university.model.entity.music.radio
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

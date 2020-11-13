@@ -1,9 +1,7 @@
-package velord.university.model.entity.music.song
+package velord.university.model.entity.music.song.download
 
 import android.net.Uri
 import android.os.Environment
-import velord.university.model.entity.music.song.DownloadSong
-import velord.university.model.entity.vk.entity.VkSong
 import java.io.File
 
 data class DownloadFile(

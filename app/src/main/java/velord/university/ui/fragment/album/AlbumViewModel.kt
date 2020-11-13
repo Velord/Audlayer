@@ -1,7 +1,6 @@
 package velord.university.ui.fragment.album
 
 import android.app.Application
-import android.media.MediaMetadataRetriever
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
@@ -13,7 +12,7 @@ import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.coroutine.onIO
-import velord.university.model.entity.music.playlist.Playlist
+import velord.university.model.entity.music.playlist.base.Playlist
 import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.repository.hub.FolderRepository

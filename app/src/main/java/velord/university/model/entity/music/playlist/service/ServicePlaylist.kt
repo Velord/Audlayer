@@ -1,8 +1,10 @@
-package velord.university.model.entity.music.playlist
+package velord.university.model.entity.music.playlist.service
 
 import java.io.File
 
-class ServicePlaylist(val notShuffled: MutableList<File> = mutableListOf()) {
+class ServicePlaylist(
+    val notShuffled: MutableList<File> = mutableListOf()
+) {
 
     private var currentPos: Int = 0
 

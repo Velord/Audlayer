@@ -1,9 +1,7 @@
 package velord.university.ui.fragment.song.download
 
 import android.content.Context
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,18 +10,13 @@ import androidx.fragment.app.viewModels
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import velord.university.R
-import velord.university.databinding.ActionBarSearchBinding
 import velord.university.databinding.DownloadSongFragmentBinding
-import velord.university.databinding.GeneralRvBinding
-import velord.university.databinding.VkFragmentBinding
 import velord.university.model.coroutine.getScope
 import velord.university.model.coroutine.onMain
-import velord.university.model.entity.music.song.DownloadSong
+import velord.university.model.entity.music.song.download.DownloadSong
 import velord.university.model.entity.openFragment.general.OpenFragmentEntity
-import velord.university.model.entity.openFragment.returnResult.OpenFragmentForResult
 import velord.university.model.entity.openFragment.returnResult.OpenFragmentForResultWithData
 import velord.university.model.entity.openFragment.returnResult.ReturnResultFromFragment
-import velord.university.model.entity.vk.entity.VkSong
 import velord.university.model.exception.ViewDestroyed
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerFirst
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment

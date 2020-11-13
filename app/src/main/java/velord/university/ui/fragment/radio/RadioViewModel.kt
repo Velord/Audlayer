@@ -9,7 +9,7 @@ import velord.university.application.settings.SortByPreference
 import velord.university.interactor.RadioInteractor
 import velord.university.model.coroutine.getScope
 import velord.university.model.coroutine.onDef
-import velord.university.model.entity.music.RadioStation
+import velord.university.model.entity.music.radio.RadioStation
 import velord.university.repository.db.transaction.hub.HubTransaction
 import velord.university.ui.util.RVSelection
 

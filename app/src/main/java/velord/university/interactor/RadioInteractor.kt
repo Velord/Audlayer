@@ -1,6 +1,6 @@
 package velord.university.interactor
 
-import velord.university.model.entity.music.RadioStation
+import velord.university.model.entity.music.radio.RadioStation
 
 object RadioInteractor {
 

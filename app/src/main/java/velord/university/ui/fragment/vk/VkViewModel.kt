@@ -14,20 +14,19 @@ import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.application.settings.VkPreference
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.music.playlist.Playlist
+import velord.university.model.entity.music.playlist.base.Playlist
 import velord.university.model.entity.music.song.Song
-import velord.university.model.entity.vk.entity.VkSong
 import velord.university.model.entity.vk.fetch.VkSongFetch
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.file.FileNameParser
 import velord.university.model.entity.fileType.json.general.Loadable
-import velord.university.model.entity.music.song.DownloadSong
-import velord.university.model.entity.vk.entity.VkSong.Companion.filterByQuery
+import velord.university.model.entity.music.newGeneration.song.AudlayerSong
+import velord.university.model.entity.music.newGeneration.song.AudlayerSong.Companion.filterByQuery
+import velord.university.model.entity.music.song.download.DownloadSong
 import velord.university.repository.hub.FolderRepository
 import velord.university.repository.hub.VkRepository
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.repository.db.transaction.hub.HubTransaction
-import velord.university.repository.db.transaction.vk.VkSongTransaction
 import velord.university.repository.hub.HubRepository.vkRepository
 import velord.university.ui.util.RVSelection
 import java.io.File
@@ -38,17 +37,17 @@ class VkViewModel(
 
     private val TAG = "VkViewModel"
 
-    val vkSongList: Loadable<Array<VkSong>> = Loadable {
-        HubTransaction.vkSongTransaction("vkSongList") {
+    var songList: Loadable<Array<AudlayerSong>> = Loadable {
+        HubTransaction.songTransaction("vkSongList") {
             getAll().toTypedArray()
         }
     }
 
-    lateinit var ordered: Array<VkSong>
+    lateinit var ordered: Array<AudlayerSong>
 
     lateinit var currentQuery: String
 
-    lateinit var rvResolver: RVSelection<VkSong>
+    lateinit var rvResolver: RVSelection<AudlayerSong>
 
     fun orderedIsInitialized() = ::ordered.isInitialized
 
@@ -63,7 +62,7 @@ class VkViewModel(
     fun getSearchQuery(): String =
         SearchQueryPreferences(app).storedQueryVk
 
-    fun playAudioNext(song: VkSong) {
+    fun playAudioNext(song: AudlayerSong) {
         //don't remember for SongQuery Interactor it will be used between this and service
         addToInteractor()
         //add to queue one song
@@ -73,10 +72,10 @@ class VkViewModel(
     }
 
     //path must be not blank and file can be created by that path
-    fun needDownload(vkSong: VkSong): Boolean =
+    fun needDownload(vkSong: AudlayerSong): Boolean =
         (vkSong.path.isBlank()) and (File(vkSong.path).exists().not())
 
-    fun playAudioAndAllSong(song: VkSong) {
+    fun playAudioAndAllSong(song: AudlayerSong) {
         viewModelScope.launch {
             addToInteractor()
 
@@ -89,12 +88,12 @@ class VkViewModel(
         }
     }
 
-    fun shuffle(): Array<VkSong> {
+    fun shuffle(): Array<AudlayerSong> {
         ordered.shuffle()
         return ordered
     }
 
-    fun sendIconToMiniPlayer(song: VkSong) {
+    fun sendIconToMiniPlayer(song: AudlayerSong) {
         //toDO()
     }
 
@@ -109,19 +108,19 @@ class VkViewModel(
     }
 
     suspend fun needDownloadList(): Array<DownloadSong> =
-        vkSongList.get()
+        songList.get()
             .filter { needDownload(it) }
             .reversed()
             .map { it.toDownloadSong() }
             .toTypedArray()
 
     suspend fun pathIsWrong(path: String) {
-        vkSongList.get().find { it.path == path }?.let {
+        songList.get().find { it.path == path }?.let {
             applyNewPath(it, "")
         }
     }
 
-    suspend fun deleteSong(vkSong: VkSong) {
+    suspend fun deleteSong(vkSong: AudlayerSong) {
         FolderRepository.getApplicationVkDir()
             .listFiles()?.find { it.path == vkSong.path }.let {
                 if (it != null) {
@@ -136,38 +135,31 @@ class VkViewModel(
 
     suspend fun refreshByCredential() = onDef {
         try {
-            //from vk
-            val byTokenSongs = app.vkRepository {
-                getPlaylistViaCredential(app).items
+            app.vkRepository {
+                refreshPlaylistViaCredential(it)
             }
-            //from db
-            val fromDbSongs = vkSongList.get()
-            //compare with existed and insert
-            compareAndInsert(byTokenSongs, fromDbSongs)
-            //compare with existed and delete
-            compareAndDelete(byTokenSongs, fromDbSongs)
-            //create vkPlaylist
-            load()
+            refresh()
         }
-        catch (e: Exception) {
+        catch(e: Exception) {
             Log.d(TAG, e.message.toString())
         }
     }
 
-    private suspend fun load() { vkSongList.load() }
+    private suspend fun load() { songList.load() }
 
     suspend fun deleteAll() {
-        VkRepository.deleteAllTables()
+        //todo()
+        songList = Loadable { arrayOf() }
         load()
     }
 
-    suspend fun filterByQuery(query: String): Array<VkSong> = onDef {
-        val filtered: List<VkSong> = vkSongList
+    suspend fun filterByQuery(query: String): Array<AudlayerSong> = onDef {
+        val filtered: List<AudlayerSong> = songList
             .get()
             .filterByQuery(query)
         //sort by name or artist or date added or duration or size
         val sortBy = SortByPreference(app).sortByVkFragment
-        val sorted: List<VkSong> = when(sortBy) {
+        val sorted: List<AudlayerSong> = when(sortBy) {
             //name
             0 -> filtered.sortedBy {
                 FileFilter.getName(File(it.path))
@@ -178,7 +170,7 @@ class VkViewModel(
             }
             //date added
             2 -> filtered.sortedBy {
-                it.date
+                it.dateAdded
             }
             3 -> filtered.sortedBy { it.duration }
             //file size
@@ -205,20 +197,8 @@ class VkViewModel(
             .toTypedArray()
     }
 
-    private fun getPathIndex(vkSong: VkSong, allSongFromDb: List<String>): Int {
-        val name = "${vkSong.artist} - ${vkSong.title}"
-        val index = allSongFromDb.indexOf(name)
-        if (index == -1) {
-            allSongFromDb.forEachIndexed { fromDbIndex, vkName ->
-                val dist = LevenshteinDistance().apply(name, vkName)
-                if (dist in 0..4) return fromDbIndex
-            }
-        }
-        return index
-    }
-
     suspend fun applyNewPath(downloaded: DownloadSong) {
-        val find = vkSongList.get().find {
+        val find = songList.get().find {
             it.artist == downloaded.artist &&
                     it.title == downloaded.title
         }
@@ -227,61 +207,20 @@ class VkViewModel(
         applyNewPath(find, downloaded.path)
     }
 
-    private suspend fun applyNewPath(vkSong: VkSong, path: String) {
-        val index = vkSongList.get().indexOf(vkSong)
-        val song = vkSongList.get()[index]
-        vkSongList.get()[index].path = path
+    private suspend fun applyNewPath(vkSong: AudlayerSong,
+                                     path: String) {
+        val index = songList.get().indexOf(vkSong)
+        val song = songList.get()[index]
+        HubTransaction.songTransaction("applyNewPath") {
+            update(song.getWithNewPath(path))
+        }
 
-        val orderedIndex = ordered.indexOf(song)
-        ordered[orderedIndex].path = path
-
-        VkSongTransaction.update(song)
+        refresh()
     }
 
-    private suspend fun getNoExistInDbSong(byTokenSongs: Array<VkSongFetch>,
-                                           fromDbSongs: Array<VkSong>
-    ): List<VkSong> {
-        val fromDbSongsId = fromDbSongs.map { it.id }
-        val allSongFromDb = Playlist
-            .allSongFromPlaylist(PlaylistTransaction.getAllPlaylist())
-        val allSongPath = allSongFromDb.map { it.path }
-        val allSongName = allSongFromDb.map { FileNameParser.removeExtension(it) }
-        return byTokenSongs.fold(mutableListOf<VkSong>()) { notExist, byToken ->
-            if (fromDbSongsId.contains(byToken.id).not())
-                notExist.add(byToken.toVkSong())
-            notExist
-        }.map {
-            val index = getPathIndex(it, allSongName)
-            if (index != -1) {
-                it.path = allSongPath[index]
-                it.artist = FileNameParser.getSongArtist(allSongFromDb[index])
-                it.title = FileNameParser.getSongTitle(allSongFromDb[index])
-            } else it.path = ""
-            it
-        }
-    }
-
-    private suspend fun compareAndInsert(byTokenSongs: Array<VkSongFetch>,
-                                         fromDbSongs: Array<VkSong>) {
-        if (byTokenSongs.isEmpty()) return
-        //song
-        val notExistSong = getNoExistInDbSong(byTokenSongs, fromDbSongs)
-        //insert
-        app.vkRepository {
-            insertSong(notExistSong.toTypedArray())
-        }
-    }
-
-    private suspend fun compareAndDelete(byTokenSongs: Array<VkSongFetch>,
-                                         fromDbSongs: Array<VkSong>) {
-        if (byTokenSongs.isEmpty()) return
-
-        val toDelete = mutableListOf<VkSong>()
-        fromDbSongs.forEach { fromDb ->
-            if (byTokenSongs.find { it.id == fromDb.id } == null)
-                toDelete.add(fromDb)
-        }
-        VkSongTransaction.delete(*toDelete.toTypedArray())
+    private suspend fun refresh() {
+        songList.load()
+        filterByQuery(currentQuery)
     }
 
     override fun onCleared() {

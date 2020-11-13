@@ -7,13 +7,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import velord.university.application.notification.DownloadNotification
-import velord.university.model.entity.music.song.DownloadSong
-import velord.university.model.entity.openFragment.returnResult.OpenFragmentForResult
+import velord.university.model.entity.music.song.download.DownloadSong
 import velord.university.model.entity.openFragment.returnResult.OpenFragmentForResultWithData
 import velord.university.repository.hub.DownloadRepository
-import velord.university.repository.hub.HubRepository.downloadRepository
 
 class DownloadSongViewModel(
     private val app: Application

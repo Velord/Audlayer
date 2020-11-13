@@ -13,7 +13,7 @@ import velord.university.databinding.VkLoginDialogFragmentBinding
 import velord.university.model.entity.openFragment.general.OpenFragmentEntity
 import velord.university.model.entity.openFragment.returnResult.OpenFragmentForResult
 import velord.university.model.entity.openFragment.returnResult.ReturnResultFromFragment
-import velord.university.model.entity.vk.entity.VkCredential
+import velord.university.model.entity.vk.VkCredential
 import velord.university.model.exception.ViewDestroyed
 import velord.university.ui.util.activity.toastError
 

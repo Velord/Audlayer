@@ -16,10 +16,10 @@ import velord.university.application.settings.AppPreference
 import velord.university.application.settings.miniPlayer.MiniPlayerServicePreferences
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.music.QueueResolver
-import velord.university.model.entity.music.playlist.ServicePlaylist
+import velord.university.model.entity.music.playlist.service.ServicePlaylist
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.SongTimeConverter
-import velord.university.model.entity.music.song.MiniPlayerServiceSong
+import velord.university.model.entity.music.song.serviceSong.MiniPlayerServiceSong
 import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.file.FileNameParser

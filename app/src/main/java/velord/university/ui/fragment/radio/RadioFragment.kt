@@ -26,7 +26,7 @@ import velord.university.application.broadcast.behaviour.RadioUnavailableUIRecei
 import velord.university.application.broadcast.hub.*
 import velord.university.application.settings.SortByPreference
 import velord.university.databinding.*
-import velord.university.model.entity.music.RadioStation
+import velord.university.model.entity.music.radio.RadioStation
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection

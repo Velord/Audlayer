@@ -17,13 +17,12 @@ import velord.university.model.coroutine.onMain
 import velord.university.model.exception.ViewDestroyed
 import velord.university.ui.util.view.makeCheck
 import velord.university.ui.util.view.setupAndShowPopupMenuOnClick
-import velord.university.ui.util.view.setupPopupMenuOnClick
 import kotlinx.coroutines.*
 import velord.university.R
 import velord.university.application.settings.SortByPreference
 import velord.university.databinding.ActionBarSearchBinding
 import velord.university.databinding.AlbumFragmentBinding
-import velord.university.model.entity.music.playlist.Playlist
+import velord.university.model.entity.music.playlist.base.Playlist
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 
