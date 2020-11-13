@@ -31,9 +31,9 @@ class AllSongViewModel(
     }
     val allSong: Loadable<Array<Song>> = Loadable {
         Log.d(TAG, "get all song retrieved")
-        Playlist.allSongFromPlaylist(allPlaylist.get().toList()).map {
-            Song(it)
-        }.toTypedArray()
+        Playlist.allSongFromPlaylist(allPlaylist.get().toList())
+            .map { Song(it) }
+            .toTypedArray()
     }
     lateinit var ordered: Array<Song>
 
@@ -58,7 +58,9 @@ class AllSongViewModel(
             }
             //date added
             //todo()
-            2 -> filtered
+            2 -> filtered.sortedBy {
+                FileFilter.getLastDateModified(it.file)
+            }
             //duration TODO()
             3 -> {
                 val mediaMetadataRetriever = MediaMetadataRetriever()

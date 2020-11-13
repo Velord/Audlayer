@@ -514,10 +514,10 @@ class VKFragment :
                 { needDownloadAction(song) },
                 {
                     scope.launch {
-                        val songIcon = song.getAlbumIcon()
                         onMain {
+                            //todo()
                             Glide.with(requireActivity())
-                                .load(songIcon)
+                                .load(DrawableIcon.getRandomSongIconName())
                                 .placeholder(DrawableIcon.getRandomSongIconName())
                                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                                 .into(icon)
@@ -533,7 +533,6 @@ class VKFragment :
                 {
                     val size: Double =
                         roundOfDecimalToUp((FileFilter.getSize(File(song.path)).toDouble() / 1024))
-                    val album = song.album?.title?.let { "Album: $it" } ?: ""
 
                     val bitrate = SongBitrate.getKbpsString(File(song.path))
 
@@ -541,7 +540,6 @@ class VKFragment :
                         R.string.vk_rv_item_selected,
                         song.artist,
                         song.title,
-                        album,
                         size.toString(),
                         bitrate
                     )
@@ -553,9 +551,8 @@ class VKFragment :
         val notSelected: (VkSong) -> Array<() -> Unit> = { song ->
             general(song) + arrayOf(
                 {
-                    val album = song.album?.title?.let { "Album: $it" } ?: ""
                     text.text = getString(R.string.vk_rv_item_not_selected,
-                        song.artist, song.title, album)
+                        song.artist, song.title)
                 },
                 { needDownloadBackground(song) },
                 {

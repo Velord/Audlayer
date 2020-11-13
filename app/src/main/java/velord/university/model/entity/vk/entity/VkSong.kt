@@ -30,37 +30,16 @@ data class VkSong(
     var url: String = "",
     var path: String = "",
 ) {
-    @Ignore var album: VkAlbum? = null
 
-    fun getAlbumIcon(): String? {
-        this.album?.thumb?.apply {
-            return photo_135 ?: photo_270 ?: photo_300 ?:
-            photo_600 ?: photo_68 ?: photo_34 ?: photo_1200
-        }
-        return null
-    }
-
-    fun toDownloadSong(): DownloadSong =
-        DownloadSong(artist, title, path)
+    fun toDownloadSong(): DownloadSong = DownloadSong(artist, title, path)
 
     companion object {
-
-        fun Array<VkSong>.mapWithAlbum(
-            album: Array<VkAlbum>
-        ): List<VkSong> = map { song ->
-            song.albumId?.let { albumId ->
-                val indexAlbum = album.find { it.id == albumId }
-                indexAlbum?.let { song.album = it }
-            }
-            song
-        }
 
         fun Array<VkSong>.filterByQuery(
             query: String
         ): List<VkSong> = filter {
             FileFilter.filterBySearchQuery("${it.artist} - ${it.title}", query)
         }
-
     }
 
 }

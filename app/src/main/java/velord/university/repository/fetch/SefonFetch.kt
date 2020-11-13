@@ -28,8 +28,7 @@ import velord.university.model.converter.transliterate
 import velord.university.model.coroutine.onIO
 import velord.university.model.coroutine.onMain
 import velord.university.model.entity.music.song.DownloadSong
-import velord.university.model.entity.vk.fetch.DownloadFile
-import velord.university.model.entity.vk.entity.VkSong
+import velord.university.model.entity.music.song.DownloadFile
 import java.io.File
 import java.util.*
 
@@ -260,8 +259,7 @@ data class SefonFetchSequential(private val context: Context,
             IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
         )
         //ready steady go
-        val vkDownloadFile =
-            DownloadFile(song)
+        val vkDownloadFile = DownloadFile(song)
         Log.d(TAG, "To path: ${vkDownloadFile.fullPath}")
         //build
         val req = DownloadManager.Request(Uri.parse(url))

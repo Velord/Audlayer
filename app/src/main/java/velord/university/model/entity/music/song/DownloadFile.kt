@@ -1,4 +1,4 @@
-package velord.university.model.entity.vk.fetch
+package velord.university.model.entity.music.song
 
 import android.net.Uri
 import android.os.Environment

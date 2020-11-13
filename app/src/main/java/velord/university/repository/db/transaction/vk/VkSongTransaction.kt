@@ -1,8 +1,6 @@
 package velord.university.repository.db.transaction.vk
 
 import velord.university.model.entity.vk.entity.VkSong
-import velord.university.repository.db.dao.AlbumDao
-import velord.university.repository.db.dao.vk.VkSongDao
 import velord.university.repository.db.transaction.hub.BaseTransaction
 import velord.university.repository.db.transaction.hub.HubTransaction.vkSongTransaction
 
@@ -26,7 +24,4 @@ object VkSongTransaction : BaseTransaction() {
 
     suspend fun deleteAll() =
         vkSongTransaction("deleteAll") { nukeTable() }
-
-    suspend fun getPlaylist(): Array<VkSong> =
-        vkSongTransaction("getPlaylist") { getVkPlaylist().toTypedArray() }
 }

@@ -2,7 +2,6 @@ package velord.university.model.entity.vk.fetch
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import velord.university.model.entity.vk.entity.VkAlbum
 import velord.university.model.entity.vk.entity.VkSong
 
 @Serializable
@@ -27,6 +26,37 @@ data class FeaturedArtist(
     val name: String,
     val domain: String,
     val id: String
+)
+
+@Serializable
+data class Album(
+    val id: Int,
+    val title: String,
+    @SerialName("owner_id")
+    val ownerId: Int,
+    @SerialName("access_key")
+    val accessKey: String,
+    val thumb: Thumb? = null
+)
+
+@Serializable
+data class Thumb(
+    val width: Int,
+    val height: Int,
+    @SerialName("photo_34")
+    val photo34: String,
+    @SerialName("photo_68")
+    val photo68: String,
+    @SerialName("photo_135")
+    val photo135: String,
+    @SerialName("photo_270")
+    val photo270: String,
+    @SerialName("photo_300")
+    val photo300: String,
+    @SerialName("photo_600")
+    val photo600: String,
+    @SerialName("photo_1200")
+    val photo1200: String,
 )
 
 @Serializable
@@ -66,7 +96,6 @@ data class VkSongFetch(
     val genreId: Int = -1,
     @SerialName("lyrics_id")
     val lyricsId: Int = -1,
-    val album: VkAlbum? = null,
     val ads: Ads? = null,
     @SerialName("track_code")
     val trackCode: String,
@@ -74,7 +103,8 @@ data class VkSongFetch(
     val mainArtistList: Array<MainArtist>?= null,
     @SerialName("featured_artists")
     val featuredArtistList: Array<FeaturedArtist>? = null,
-    val subtitle: String? = null
+    val subtitle: String? = null,
+    val album: Album ? = null
 ) {
 
     fun toVkSong(): VkSong = toVkSong(this)

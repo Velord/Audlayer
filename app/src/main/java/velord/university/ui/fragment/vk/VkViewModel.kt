@@ -2,7 +2,6 @@ package velord.university.ui.fragment.vk
 
 import android.app.Application
 import android.util.Log
-import android.webkit.WebView
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,7 +16,6 @@ import velord.university.application.settings.VkPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.music.playlist.Playlist
 import velord.university.model.entity.music.song.Song
-import velord.university.model.entity.vk.entity.VkAlbum
 import velord.university.model.entity.vk.entity.VkSong
 import velord.university.model.entity.vk.fetch.VkSongFetch
 import velord.university.model.entity.fileType.file.FileFilter
@@ -25,12 +23,10 @@ import velord.university.model.entity.fileType.file.FileNameParser
 import velord.university.model.entity.fileType.json.general.Loadable
 import velord.university.model.entity.music.song.DownloadSong
 import velord.university.model.entity.vk.entity.VkSong.Companion.filterByQuery
-import velord.university.model.entity.vk.entity.VkSong.Companion.mapWithAlbum
 import velord.university.repository.hub.FolderRepository
 import velord.university.repository.hub.VkRepository
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.repository.db.transaction.hub.HubTransaction
-import velord.university.repository.db.transaction.vk.VkAlbumTransaction
 import velord.university.repository.db.transaction.vk.VkSongTransaction
 import velord.university.repository.hub.HubRepository.vkRepository
 import velord.university.ui.util.RVSelection
@@ -43,13 +39,8 @@ class VkViewModel(
     private val TAG = "VkViewModel"
 
     val vkSongList: Loadable<Array<VkSong>> = Loadable {
-        val vkAlbumList = HubTransaction.vkAlbumTransaction("vkSongList") {
-            getAll().toTypedArray()
-        }
         HubTransaction.vkSongTransaction("vkSongList") {
             getAll().toTypedArray()
-                .mapWithAlbum(vkAlbumList)
-                .toTypedArray()
         }
     }
 
@@ -104,11 +95,7 @@ class VkViewModel(
     }
 
     fun sendIconToMiniPlayer(song: VkSong) {
-        song.getAlbumIcon()?.let {
-            AppBroadcastHub.apply {
-                app.iconUI(it)
-            }
-        }
+        //toDO()
     }
 
     fun checkAuth(): Boolean {
@@ -213,7 +200,7 @@ class VkViewModel(
         SongPlaylistInteractor.songs = ordered
             .filter { it.path.isNotBlank() }
             .map {
-                Song(File(it.path), it.getAlbumIcon())
+                Song(File(it.path), "")
             }
             .toTypedArray()
     }
@@ -229,20 +216,6 @@ class VkViewModel(
         }
         return index
     }
-
-    private fun getNoExistInDbAlbum(notExistInDbSong: List<VkSong>,
-                                    fromDbAlbumsTitle: List<String>) =
-        notExistInDbSong
-            .fold(hashMapOf<String, VkAlbum>()) { notExist, vkSong: VkSong ->
-                vkSong.album?.let {
-                    if (fromDbAlbumsTitle.contains(it.title).not())
-                        if (notExist.containsKey(it.title).not())
-                            notExist += Pair(it.title, it)
-                }
-                notExist
-            }
-            .map { it.component2() }
-            .filter { it.id != 0 }
 
     suspend fun applyNewPath(downloaded: DownloadSong) {
         val find = vkSongList.get().find {
@@ -278,8 +251,6 @@ class VkViewModel(
                 notExist.add(byToken.toVkSong())
             notExist
         }.map {
-            if (it.album?.id != 0)
-                it.albumId = it.album?.id
             val index = getPathIndex(it, allSongName)
             if (index != -1) {
                 it.path = allSongPath[index]
@@ -295,17 +266,9 @@ class VkViewModel(
         if (byTokenSongs.isEmpty()) return
         //song
         val notExistSong = getNoExistInDbSong(byTokenSongs, fromDbSongs)
-        //album
-        val fromDbAlbums = VkAlbumTransaction.getAlbums()
-        val fromDbAlbumsTitle = fromDbAlbums.map { it.title }
-        val notExistAlbum =
-            getNoExistInDbAlbum(notExistSong, fromDbAlbumsTitle)
         //insert
         app.vkRepository {
-            insertAlbumAndSong(
-                notExistAlbum.toTypedArray(),
-                notExistSong.toTypedArray()
-            )
+            insertSong(notExistSong.toTypedArray())
         }
     }
 

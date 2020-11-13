@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -16,15 +17,17 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-import velord.university.model.coroutine.getScope
-import velord.university.model.coroutine.onMain
-import velord.university.model.exception.ViewDestroyed
-import velord.university.ui.util.view.setupAndShowPopupMenuOnClick
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import velord.university.R
 import velord.university.application.broadcast.behaviour.MiniPlayerIconClickReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
-import velord.university.application.broadcast.hub.*
+import velord.university.application.broadcast.hub.BroadcastExtra
+import velord.university.application.broadcast.hub.PERM_PRIVATE_MINI_PLAYER
+import velord.university.application.broadcast.hub.registerBroadcastReceiver
+import velord.university.application.broadcast.hub.unregisterBroadcastReceiver
 import velord.university.application.settings.SortByPreference
 import velord.university.databinding.ActionBarSearchBinding
 import velord.university.databinding.AllSongFragmentBinding
@@ -32,15 +35,19 @@ import velord.university.databinding.GeneralRvBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
-import velord.university.model.entity.music.playlist.Playlist
-import velord.university.model.entity.music.song.Song
+import velord.university.model.coroutine.getScope
+import velord.university.model.coroutine.onMain
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.file.FileNameParser
+import velord.university.model.entity.music.playlist.Playlist
+import velord.university.model.entity.music.song.Song
+import velord.university.model.exception.ViewDestroyed
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 import velord.university.ui.util.view.between
 import velord.university.ui.util.view.makeCheck
+import velord.university.ui.util.view.setupAndShowPopupMenuOnClick
 
 class AllSongFragment :
     ActionBarSearchFragment(),
@@ -178,19 +185,33 @@ class AllSongFragment :
 
                     val sortBy =
                         SortByPreference(requireContext()).sortByAllSongFragment
-                    when(sortBy) {
-                        0 -> { menuItem.makeCheck(0) }
-                        1 -> { menuItem.makeCheck(1) }
-                        2 -> { menuItem.makeCheck(2) }
-                        3 -> { menuItem.makeCheck(3) }
-                        4 -> { menuItem.makeCheck(4) }
+                    when (sortBy) {
+                        0 -> {
+                            menuItem.makeCheck(0)
+                        }
+                        1 -> {
+                            menuItem.makeCheck(1)
+                        }
+                        2 -> {
+                            menuItem.makeCheck(2)
+                        }
+                        3 -> {
+                            menuItem.makeCheck(3)
+                        }
+                        4 -> {
+                            menuItem.makeCheck(4)
+                        }
                     }
 
                     val ascDescOrder =
                         SortByPreference(requireContext()).ascDescAllSongFragment
-                    when(ascDescOrder) {
-                        0 -> { menuItem.makeCheck(5) }
-                        1 -> { menuItem.makeCheck(6) }
+                    when (ascDescOrder) {
+                        0 -> {
+                            menuItem.makeCheck(5)
+                        }
+                        1 -> {
+                            menuItem.makeCheck(6)
+                        }
                     }
                 }
 
@@ -237,8 +258,10 @@ class AllSongFragment :
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.all_song_fragment,
-        container, false).run {
+    ): View = inflater.inflate(
+        R.layout.all_song_fragment,
+        container, false
+    ).run {
         //bind
         _binding = AllSongFragmentBinding.bind(this)
         _bindingActionBar = binding.actionBarInclude
@@ -337,9 +360,10 @@ class AllSongFragment :
         }
     }
 
-    private suspend fun between(tag: String,
-                                f: suspend () -> Unit) =
-        bindingRv.fastScrollSwipe.between(requireActivity(), tag, f)
+    private suspend fun between(
+        tag: String,
+        f: suspend () -> Unit
+    ) = bindingRv.fastScrollSwipe.between(requireActivity(), tag, f)
 
     private fun getRecyclerViewResolver(
         adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
@@ -367,7 +391,7 @@ class AllSongFragment :
         private val icon: ImageButton =
             itemView.findViewById(R.id.general_item_icon)
 
-        val selected:  (Song) -> Array<() -> Unit> = { song ->
+        val selected: (Song) -> Array<() -> Unit> = { song ->
             arrayOf(
                 {
                     icon.setImageResource(R.drawable.song_item_playing)
@@ -379,7 +403,7 @@ class AllSongFragment :
                     )
 
                     val size: Double = roundOfDecimalToUp(
-                            (FileFilter.getSize(song.file).toDouble() / 1024)
+                        (FileFilter.getSize(song.file).toDouble() / 1024)
                     )
 
 
@@ -457,8 +481,10 @@ class AllSongFragment :
             Unit
         }
 
-        private fun setOnClickAndImageResource(song: Song,
-                                               rvSelectResolver: RVSelection<Song>) {
+        private fun setOnClickAndImageResource(
+            song: Song,
+            rvSelectResolver: RVSelection<Song>
+        ) {
             itemView.setOnClickListener {
                 scope.launch {
                     withContext(Dispatchers.Main) {
@@ -485,8 +511,10 @@ class AllSongFragment :
             }
         }
 
-        private fun setIconView(song: Song,
-                                rvSelectResolver: RVSelection<Song>) {
+        private fun setIconView(
+            song: Song,
+            rvSelectResolver: RVSelection<Song>
+        ) {
             icon.setOnClickListener {
                 scope.launch {
                     onMain {
@@ -497,11 +525,14 @@ class AllSongFragment :
             }
 
             DrawableIcon.loadSongIconDrawable(
-                requireContext(), icon, song.icon)
+                requireContext(), icon, song.icon
+            )
         }
 
-        private fun applyState(value: Song,
-                               rvSelectResolver: RVSelection<Song>) {
+        private fun applyState(
+            value: Song,
+            rvSelectResolver: RVSelection<Song>
+        ) {
             when(rvSelectResolver.state) {
                 0 -> rvSelectResolver.isContains(
                     value,
@@ -511,8 +542,10 @@ class AllSongFragment :
             }
         }
 
-        fun bindItem(song: Song, position: Int,
-                     rvSelectResolver: RVSelection<Song>) {
+        fun bindItem(
+            song: Song, position: Int,
+            rvSelectResolver: RVSelection<Song>
+        ) {
             applyState(song, rvSelectResolver)
             setOnClickAndImageResource(song, rvSelectResolver)
         }
@@ -525,8 +558,10 @@ class AllSongFragment :
             this as RecyclerView.Adapter<RecyclerView.ViewHolder>
         )
 
-        override fun onCreateViewHolder(parent: ViewGroup,
-                                        viewType: Int): SongHolder {
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+        ): SongHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(
                 R.layout.general_rv_item, parent, false
@@ -534,8 +569,10 @@ class AllSongFragment :
             return SongHolder(view)
         }
 
-        override fun onBindViewHolder(holder: SongHolder,
-                                      position: Int) {
+        override fun onBindViewHolder(
+            holder: SongHolder,
+            position: Int
+        ) {
             items[position].apply {
                 holder.bindItem(this, position, rvSelectResolver)
             }

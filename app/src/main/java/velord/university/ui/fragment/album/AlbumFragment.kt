@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.PopupMenu
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,7 +23,6 @@ import velord.university.R
 import velord.university.application.settings.SortByPreference
 import velord.university.databinding.ActionBarSearchBinding
 import velord.university.databinding.AlbumFragmentBinding
-import velord.university.model.entity.music.Album
 import velord.university.model.entity.music.playlist.Playlist
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
@@ -115,7 +113,6 @@ class AlbumFragment :
         scope.launch {
             launch {
                 viewModel.retrievePlaylistFromDb()
-                viewModel.retrieveAlbumFromDb()
             }
             onMain {
                 //init action bar
@@ -152,7 +149,6 @@ class AlbumFragment :
                     val refresh = it as TextView
                     refresh.text = getString(R.string.album_refreshing)
                 }
-                viewModel.refreshAllAlbum()
                 updateAdapterBySearchQuery(viewModel.currentQuery)
                 withContext(Dispatchers.Main) {
                     val refresh = it as TextView
@@ -226,120 +222,12 @@ class AlbumFragment :
                     }
                 }
             }
-            this.launch {
-                if (viewModel.albumsIsInitialized()) {
-                    val albums = viewModel.albums.toTypedArray()
-                    withContext(Dispatchers.Main) {
-                        binding.albumRV.adapter = AlbumAdapter(albums)
-                    }
-                }
-            }
         }
     }
 
     private fun setupAdapter() {
         val query = viewModel.getSearchQuery()
         super.viewModelActionBarSearch.setupSearchQuery(query)
-    }
-
-    private inner class AlbumHolder(itemView: View):
-        RecyclerView.ViewHolder(itemView) {
-
-        private val pathTextView: TextView =
-            itemView.findViewById(R.id.general_item_path)
-        private val actionImageButton: ImageButton =
-            itemView.findViewById(R.id.general_action_ImageButton)
-        private val actionFrame: FrameLayout =
-            itemView.findViewById(R.id.general_action_frame)
-        private val icon: ImageButton =
-            itemView.findViewById(R.id.general_item_icon)
-
-        private fun openAlbum(album: Album) {
-            viewModel.playSongs(album.songs.toTypedArray())
-        }
-
-        private val actionPopUpMenu: (Album) -> Unit = { album ->
-            val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
-            val initActionMenuLayout = { R.menu.add_to_playlist_pop_up }
-            val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
-                when (it.itemId) {
-                    R.id.playlist_item_play -> {
-                        viewModel.playSongs(album.songs.toTypedArray())
-                        true
-                    }
-                    R.id.playlist_item_add_to_home_screen -> {
-                        TODO()
-                        true
-                    }
-                    R.id.playlist_item_delete -> {
-                        TODO()
-                        true
-                    }
-                    else -> {
-                        false
-                    }
-                }
-            }
-
-            actionImageButton.setupPopupMenuOnClick(
-                requireContext(),
-                initActionMenuStyle,
-                initActionMenuLayout,
-                initActionMenuItemClickListener
-            )
-
-            Unit
-        }
-
-        private fun setOnClickAndImageResource(album: Album) {
-            itemView.setOnClickListener {
-                openAlbum(album)
-            }
-            pathTextView.setOnClickListener {
-                openAlbum(album)
-            }
-            actionImageButton.setOnClickListener {
-                    actionPopUpMenu(album)
-            }
-            icon.apply {
-                setOnClickListener {
-                    actionPopUpMenu(album)
-                }
-                setImageResource(R.drawable.album_item_icon)
-            }
-            actionFrame.setOnClickListener {
-                actionPopUpMenu(album)
-            }
-        }
-
-        fun bindItem(album: Album, position: Int) {
-            setOnClickAndImageResource(album)
-            pathTextView.text =
-                getString(R.string.album_item, album.name, album.songs.size)
-        }
-    }
-
-    private inner class AlbumAdapter(val items:  Array<out Album>):
-        RecyclerView.Adapter<AlbumHolder>(),  FastScrollRecyclerView.SectionedAdapter {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {
-            val layoutInflater = LayoutInflater.from(parent.context)
-            val view = layoutInflater.inflate(
-                R.layout.album_rv_item, parent, false
-            )
-            return AlbumHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: AlbumHolder, position: Int) {
-            items[position].apply {
-                holder.bindItem(this, position)
-            }
-        }
-
-        override fun getItemCount(): Int = items.size
-
-        override fun getSectionName(position: Int): String =
-            "${items[position].name[0]}"
     }
 
     private inner class PlaylistHolder(itemView: View):

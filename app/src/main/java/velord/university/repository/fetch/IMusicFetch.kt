@@ -22,8 +22,7 @@ import velord.university.model.converter.transliterate
 import velord.university.model.coroutine.onIO
 import velord.university.model.coroutine.onMain
 import velord.university.model.entity.music.song.DownloadSong
-import velord.university.model.entity.vk.fetch.DownloadFile
-import velord.university.model.entity.vk.entity.VkSong
+import velord.university.model.entity.music.song.DownloadFile
 
 //https://imusic.я.wiki
 data class IMusicFetch(private val context: Context,
@@ -139,9 +138,7 @@ data class IMusicFetch(private val context: Context,
         //unregister
         context.unregisterReceiver(onComplete)
         //if download is not success
-        if (downloaded.not()) {
-            return@onIO null
-        }
+        if (downloaded.not()) return@onIO null
 
         return@onIO downloadFile.fullPath
     }

@@ -69,7 +69,7 @@ class DownloadSongViewModel(
         //finalize notification
         val downloadedText = "Audlayer Downloaded!"
         DownloadNotification.setText(context, downloadedText)
-        //al downloaded infrom ui
+        //alд downloaded inform ui
         endLive.postValue(true)
     }
 

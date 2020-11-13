@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/folder_fragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="@drawable/forest_trees_frog"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    style="@style/MatchParent"
+    android:id="@+id/folder_fragment"
+    >
 
     <FrameLayout
         android:id="@+id/action_bar_frame"
@@ -14,14 +14,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-
         >
 
         <include
             android:id="@+id/action_bar_include"
             layout="@layout/action_bar_search"
             >
-
         </include>
 
     </FrameLayout>
@@ -51,29 +49,24 @@
 
         <Button
             android:id="@+id/action_select_all"
-            style="@style/AddSongTextButton"
-            android:layout_marginEnd="8dp"
-            android:background="@color/teal700"
+            style="@style/DesignButtonWrapMargin16dp"
             android:contentDescription="@string/add_song_select_all"
             android:text="@string/add_song_select_all"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_weight="1"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/action_continue"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/action_continue"
-            style="@style/AddSongTextButton"
-            android:layout_marginStart="8dp"
-            android:background="@color/teal700"
+            style="@style/DesignButtonWrapMargin16dp"
             android:contentDescription="@string/add_song_continue"
             android:text="@string/add_song_continue"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_weight="1"
             app:layout_constraintLeft_toRightOf="@+id/action_select_all"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
