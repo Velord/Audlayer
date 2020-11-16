@@ -77,7 +77,7 @@ data class VkSongFetch(
     val isHq: Boolean,
     @SerialName("track_genre_id")
     val trackGenreId: Int? = null,
-    val id: Int,
+    var id: Int,
     @SerialName("album_id")
     var albumId: Int? = null,
     var url: String = "",
@@ -107,6 +107,8 @@ data class VkSongFetch(
     val featuredArtistList: Array<FeaturedArtist>? = null,
 ) {
 
+    var position = -1
+
     fun toAudlayerSong(): AudlayerSong = toVkSong(this)
 
     fun getImgUrl(): String =
@@ -124,6 +126,32 @@ data class VkSongFetch(
                     duration,
                     getImgUrl()
                 )
+            }
+
+        fun Array<VkSongFetch>.toAppSong(): List<AudlayerSong> =
+            this.map {
+                AudlayerSong(
+                    it.artist,
+                    it.title,
+                    it.duration,
+                    it.getImgUrl()
+                )
+            }
+
+        fun List<VkSongFetch>.toAppSong(): List<AudlayerSong> =
+            this.map {
+                AudlayerSong(
+                    it.artist,
+                    it.title,
+                    it.duration,
+                    it.getImgUrl()
+                )
+            }
+
+        fun Array<VkSongFetch>.mapWithPosition(): List<VkSongFetch> =
+            this.mapIndexed { index, vkSongFetch ->
+                vkSongFetch.position = index
+                vkSongFetch
             }
     }
 }

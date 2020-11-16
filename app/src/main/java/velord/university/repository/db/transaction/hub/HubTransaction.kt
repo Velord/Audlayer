@@ -39,4 +39,11 @@ object HubTransaction {
     ): T = PlaylistTransaction.transaction(tag) {
         playlistDao().run(f)
     }
+
+    suspend fun <T> songWithPos(
+        tag: String,
+        f: SongWithPosDao.() -> T
+    ): T = PlaylistTransaction.transaction(tag) {
+        songWithPosDao().run(f)
+    }
 }

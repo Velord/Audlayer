@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import velord.university.application.broadcast.hub.RadioBroadcastAction
 import velord.university.model.entity.music.newGeneration.song.AudlayerSong
+import java.util.zip.Inflater
 
 @Dao
 interface AudlayerSongDao {
@@ -33,4 +35,12 @@ interface AudlayerSongDao {
     @Query("Select *, `rowid` From AudlayerSong Where rowid = :id")
     fun getById(id: Int): AudlayerSong
 
+    @Query("Select *, `rowid` From AudlayerSong Where :artist Not In (artist) And :title Not In (title)")
+    fun getByNameArtistNot(artist: String, title: String): Boolean
+
+    @Query("Select *, `rowid` From AudlayerSong Where artist In (:artist) And title In (:title)")
+    fun getByNameArtist(artist: List<String>, title: List<String>): List<AudlayerSong>
+
+    @Query("Select `rowid` From AudlayerSong ")
+    fun getAllId(): List<Int>
 }

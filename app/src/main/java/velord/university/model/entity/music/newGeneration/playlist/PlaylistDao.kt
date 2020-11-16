@@ -29,4 +29,7 @@ interface PlaylistDao {
 
     @Query("Select *, `rowid` From Playlist Where name = :playlistName")
     fun getByName(playlistName: String): Playlist
+
+    @Query("Insert Where name = :playlistName")
+    fun insertAllByName(vararg playlist: Playlist)
 }
