@@ -22,7 +22,6 @@ import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.databinding.AddToPlaylistFragmentBinding
 import velord.university.databinding.GeneralRvBinding
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.music.playlist.base.Playlist
 import velord.university.model.entity.music.song.Song
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.repository.db.transaction.hub.HubTransaction

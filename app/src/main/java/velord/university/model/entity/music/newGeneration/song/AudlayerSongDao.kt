@@ -27,6 +27,10 @@ interface AudlayerSongDao {
     @Query("Delete From AudlayerSong")
     fun nukeTable()
 
-    @Query("delete from AudlayerSong where rowid in (:idList)")
+    @Query("delete from AudlayerSong Where rowid in (:idList)")
     fun deleteById(idList: List<Int>)
+
+    @Query("Select *, `rowid` From AudlayerSong Where rowid = :id")
+    fun getById(id: Int): AudlayerSong
+
 }

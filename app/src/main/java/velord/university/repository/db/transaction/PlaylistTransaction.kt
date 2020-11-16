@@ -1,7 +1,9 @@
 package velord.university.repository.db.transaction
 
 import velord.university.model.coroutine.onIO
-import velord.university.model.entity.music.playlist.base.Playlist
+import velord.university.model.entity.music.newGeneration.playlist.Playlist
+import velord.university.model.entity.music.newGeneration.song.AudlayerSong
+import velord.university.model.entity.music.newGeneration.song.withPos.SongWithPos
 import velord.university.repository.db.transaction.hub.BaseTransaction
 import velord.university.repository.db.transaction.hub.HubTransaction.playlistTransaction
 
@@ -15,79 +17,64 @@ object PlaylistTransaction : BaseTransaction() {
     suspend fun update(playlist: Playlist) =
         playlistTransaction("update") { update(playlist) }
 
-    suspend fun getPlayedSongs(): List<String> =
-        playlistTransaction("getPlayedSongs") {
-            getByName("Played")
-                .songs.reversed()
-                .filter { it.isNotEmpty() }
+    suspend fun convertPlaylist(playlist: Playlist): Playlist {
+        //get all SongWitPos
+        val songWithPos = playlist.songIdList.map {
+            transaction("convertPlaylist") {
+                songWithPosDao().getById(it)
+            }
         }
+        //convert SongWithPos
+        songWithPos.forEach {
+            it.song = transaction("convertPlaylist") {
+                songDao().getById(it.songId)
+            }
+        }
+        playlist.songs = songWithPos
+        return playlist
+    }
 
     suspend fun getPlayed(): Playlist =
-        playlistTransaction("getPlayed") {
-            getByName("Played")
-        }
-
-    suspend fun getFavouriteSongs(): List<String> =
-        playlistTransaction("getFavouriteSongs") {
-            getByName("Favourite")
-                .songs.reversed()
-                .filter { it.isNotEmpty() }
-        }
+        convertPlaylist(playlistTransaction("getPlayed") {
+            (getByName("Played"))
+        })
 
     suspend fun getFavourite(): Playlist =
-        playlistTransaction("getFavourite") {
-            getByName("Favourite")
-        }
+        convertPlaylist(playlistTransaction("getFavourite") {
+            (getByName("Favourite"))
+        })
 
-    suspend fun createNewPlaylist(name: String, songs: List<String>) =
+    suspend fun getVk(): Playlist =
+        convertPlaylist(playlistTransaction("getFavourite") {
+            (getByName("Vk"))
+        })
+
+    suspend fun createNewPlaylist(name: String, songs: List<Int>) =
         playlistTransaction("createNewPlaylist") {
             val playlist = Playlist(name, songs)
             insertAll(playlist)
         }
 
-    suspend fun updateFavourite(changeSongsF: (List<String>) -> List<String>) =
-        transaction("updateFavourite") {
-            val favourite = getFavourite()
-            favourite.songs += changeSongsF(favourite.songs)
-            update(favourite)
-        }
-
-    suspend fun updatePlayedSong(path: String) = onIO {
+    suspend fun updatePlayedSong(song: SongWithPos) = onIO {
         //retrieve from Db
         val playedSongs = getPlayed()
         //add new path
         //secure from duplicate last
-        if (playedSongs.songs.last() != path)
-            playedSongs.songs += path
+        if (playedSongs.songs.last() != song)
+            playedSongs.songs += song
         //update column
         update(playedSongs)
     }
 
-    suspend fun whichAlbum(path: String): String =
-        transaction("whichAlbum") {
-            Playlist.other(getAllPlaylist()).forEach {
-                if(it.songs.contains(path))
-                    return@transaction it.name
-            }
-            return@transaction ""
-        }
-
     suspend fun checkDbTableColumn() =
         transaction("checkDbTableColumn") {
-            val playlist = getAllPlaylist()
+            val playlist = getAllPlaylist().map { it.name }
 
-            var favouriteExist = false
-            var playedSongExist = false
-            var downloadedExist = false
-
-            playlist.forEach {
-                if (it.name == "Favourite")
-                    favouriteExist = true
-                if (it.name == "Played")
-                    playedSongExist = true
-                if (it.name == "Downloaded")
-                    downloadedExist = true
-            }
+            val favouriteExist = playlist.contains("Favourite")
+            val playedSongExist = playlist.contains("Played")
+            val downloadedExist = playlist.contains("Downloaded")
+            val vkExist = playlist.contains("Vk")
+            val currentExist = playlist.contains("Current")
 
             playlistTransaction("checkDbTableColumn") {
                 if (favouriteExist.not())
@@ -98,6 +85,12 @@ object PlaylistTransaction : BaseTransaction() {
 
                 if (downloadedExist.not())
                     insertAll(Playlist("Downloaded", listOf()))
+
+                if (vkExist.not())
+                    insertAll(Playlist("Vk", listOf()))
+
+                if (currentExist.not())
+                    insertAll(Playlist("Current", listOf()))
             }
         }
 }

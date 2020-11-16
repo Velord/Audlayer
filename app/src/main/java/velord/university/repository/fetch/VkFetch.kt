@@ -9,15 +9,14 @@ import velord.university.model.entity.music.newGeneration.song.AudlayerSong
 import velord.university.model.entity.vk.fetch.AuthVk
 import velord.university.model.entity.vk.fetch.ResponseVk
 import velord.university.model.entity.vk.fetch.VkPlaylist
+import velord.university.model.entity.vk.fetch.VkSongFetch
 
 object VkFetch : FetchJson() {
 
     private const val version: String = "5.95"
 
-    suspend fun fetchPlaylist(context: Context): Array<AudlayerSong> =
+    suspend fun fetchPlaylist(context: Context): Array<VkSongFetch> =
         getAudio(VkPreference(context).accessToken).items
-            .map { it.toAudlayerSong() }
-            .toTypedArray()
 
     private fun getAudio(
         token: String,

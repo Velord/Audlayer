@@ -5,6 +5,8 @@ import org.apache.commons.text.similarity.LevenshteinDistance
 import velord.university.model.coroutine.onIO
 import velord.university.model.entity.fileType.file.FileNameParser
 import velord.university.model.entity.music.newGeneration.song.AudlayerSong
+import velord.university.model.entity.music.newGeneration.song.withPos.SongWithPos
+import velord.university.model.entity.vk.fetch.VkSongFetch
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.repository.db.transaction.hub.HubTransaction
 import velord.university.repository.fetch.VkFetch
@@ -14,17 +16,13 @@ object VkRepository : BaseRepository() {
 
     private suspend fun getPlaylistViaCredential(
         context: Context
-    ): Array<AudlayerSong> = onIO {
-        VkFetch.fetchPlaylist(context)
-    }
+    ): Array<VkSongFetch> = onIO { VkFetch.fetchPlaylist(context) }
 
     suspend fun refreshPlaylistViaCredential(context: Context) {
         //from vk
         val byTokenSongs = getPlaylistViaCredential(context)
         //from db
-        val fromDbSongs = HubTransaction
-            .songTransaction("refresh") { getAll() }
-            .toTypedArray()
+        val fromDbPlaylist = PlaylistTransaction.getVk()
         //compare with existed and insert
         compareAndInsert(byTokenSongs, fromDbSongs)
         //compare with existed and delete
@@ -59,15 +57,6 @@ object VkRepository : BaseRepository() {
             return null
         }
         return allPathList[index]
-    }
-
-    private suspend fun getAllPathFromDbBasedOnPlaylist(): Array<String> {
-        val pathList = mutableListOf<String>()
-        PlaylistTransaction
-            .getAllPlaylist()
-            .forEach { pathList.addAll(it.songs) }
-
-        return pathList.toTypedArray()
     }
 
     private suspend fun getNoExistInDbSong(
