@@ -20,7 +20,7 @@ import velord.university.interactor.RadioInteractor
 import velord.university.model.coroutine.onIO
 import velord.university.model.entity.music.radio.RadioStation
 import velord.university.model.entity.isyStreamMeta.IcyStreamMeta
-import velord.university.repository.db.transaction.hub.HubTransaction
+import velord.university.repository.db.transaction.hub.DB
 import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.repository.hub.RadioRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
@@ -230,7 +230,7 @@ abstract class RadioService : AudioFocusListenerService() {
         Log.d(TAG, "restoreState")
         val id = RadioServicePreference(this@RadioService).currentRadioId
 
-        HubTransaction.radioTransaction("restoreState") {
+        DB.radioTransaction("restoreState") {
             getById(id)?.let {
                 currentStation = it
                 RadioInteractor.radioStation = currentStation
@@ -372,7 +372,7 @@ abstract class RadioService : AudioFocusListenerService() {
     }
 
     private suspend fun sendIsLiked() {
-        val isLike = HubTransaction.radioTransaction("sendIsLiked") {
+        val isLike = DB.radioTransaction("sendIsLiked") {
             getByUrl(currentStation.url).liked
         }
         when (isLike) {

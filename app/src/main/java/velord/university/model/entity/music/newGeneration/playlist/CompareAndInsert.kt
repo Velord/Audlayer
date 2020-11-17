@@ -5,16 +5,14 @@ import velord.university.model.entity.music.newGeneration.song.AudlayerSong
 import velord.university.model.entity.music.newGeneration.song.withPos.SongWithPos
 import velord.university.model.entity.vk.fetch.VkSongFetch
 import velord.university.model.entity.vk.fetch.VkSongFetch.Companion.toAppSong
-import velord.university.repository.db.transaction.hub.HubTransaction
-import velord.university.repository.hub.VkRepository
-import kotlin.random.Random
+import velord.university.repository.db.transaction.hub.DB
 
 object CompareAndInsert {
 
     suspend fun compareAndInsert(tokenSongs: List<VkSongFetch>) {
         if (tokenSongs.isEmpty()) return
         //all from db
-        val allFromDb = HubTransaction.songTransaction("compareAndInsert") {
+        val allFromDb = DB.songTransaction("compareAndInsert") {
             getAll()
         }
         //get index list of song not existed in db
@@ -30,20 +28,21 @@ object CompareAndInsert {
             it
         }
         //insert to all
-        HubTransaction.songTransaction("filterByLevenstein") {
+        DB.songTransaction("filterByLevenstein") {
             insertAll(*(notExistedWithNewId.toAppSong().toTypedArray()))
         }
+        //get last pos id
+        var lastIdWitPos = DB.songWithPos("getLastId") { getLastId() }
         //map Song with pos
         val toPlaylist: List<SongWithPos> = (existed + notExistedWithNewId).map {
-            SongWithPos(it.position, it.id)
+            SongWithPos(it.position, it.id, ++lastIdWitPos)
         }
-        val getLastWitPosId = HubTransaction.songWithPos()
         //insertWithPos
         //insert To Playlist new Song
-        HubTransaction.playlistTransaction("insert To Vk") {
+        DB.playlistTransaction("insert To Vk") {
             val playlist = getByName("Vk")
-            playlist.songs += toPlaylist
-            Playlist
+            playlist.songIdList.addAll(toPlaylist.map { it.id })
+            update(playlist)
         }
     }
 
@@ -78,7 +77,7 @@ object CompareAndInsert {
     suspend fun getNotExistInDbSong(
         byTokenSongs: List<VkSongFetch>
     ): List<VkSongFetch> = byTokenSongs.filter { vkSong ->
-        HubTransaction.songTransaction("getNoExistInDbSong") {
+        DB.songTransaction("getNoExistInDbSong") {
             val notExist = getByNameArtistNot(vkSong.artist, vkSong.title)
             notExist
         }

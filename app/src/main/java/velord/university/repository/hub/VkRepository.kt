@@ -1,16 +1,13 @@
 package velord.university.repository.hub
 
 import android.content.Context
-import org.apache.commons.text.similarity.LevenshteinDistance
 import velord.university.model.coroutine.onIO
 import velord.university.model.entity.music.newGeneration.playlist.CompareAndInsert
-import velord.university.model.entity.music.newGeneration.playlist.Playlist
 import velord.university.model.entity.music.newGeneration.song.AudlayerSong
 import velord.university.model.entity.vk.fetch.VkSongFetch
 import velord.university.model.entity.vk.fetch.VkSongFetch.Companion.mapWithPosition
-import velord.university.model.entity.vk.fetch.VkSongFetch.Companion.toVkSong
 import velord.university.repository.db.transaction.PlaylistTransaction
-import velord.university.repository.db.transaction.hub.HubTransaction
+import velord.university.repository.db.transaction.hub.DB
 import velord.university.repository.fetch.VkFetch
 
 object VkRepository : BaseRepository() {
@@ -42,7 +39,7 @@ object VkRepository : BaseRepository() {
         }
         //delete
         val toDeleteId = toDelete.map { it.id }
-        HubTransaction.songTransaction("compareAndDelete") {
+        DB.songTransaction("compareAndDelete") {
             deleteById(toDeleteId)
         }
     }

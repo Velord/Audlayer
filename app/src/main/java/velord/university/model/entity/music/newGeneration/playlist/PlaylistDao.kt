@@ -19,7 +19,7 @@ interface PlaylistDao {
     fun insertAll(vararg playlist: Playlist)
 
     @Query("Delete From Playlist Where rowid = :id")
-    fun deletePlaylistById(id: Long)
+    fun deletePlaylistById(id: Int)
 
     @Query("Delete From Playlist")
     fun nukeTable()
@@ -29,7 +29,4 @@ interface PlaylistDao {
 
     @Query("Select *, `rowid` From Playlist Where name = :playlistName")
     fun getByName(playlistName: String): Playlist
-
-    @Query("Insert Where name = :playlistName")
-    fun insertAllByName(vararg playlist: Playlist)
 }

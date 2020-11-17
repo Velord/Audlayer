@@ -1,25 +1,31 @@
 package velord.university.model.entity.music.newGeneration.playlist
 
 import androidx.room.*
+import velord.university.model.entity.music.newGeneration.song.AudlayerSong
 import velord.university.model.entity.music.newGeneration.song.withPos.SongWithPos
-import velord.university.ui.fragment.album.MAX_MOST_PLAYED
-import java.io.File
-import java.util.HashMap
 
 @Fts4
 @Entity
 data class Playlist(
     val name: String,
-    val songIdList: List<Int>,
+    val songIdList: MutableList<Int>,
     @PrimaryKey @ColumnInfo(name = "rowid") val id: Int = 0
 ) {
 
     @Ignore
-    lateinit var songs: List<SongWithPos>
+    lateinit var songWithPosList: List<SongWithPos>
+
+    @Ignore var songList: List<AudlayerSong> = songWithPosList.map { it.song }
+
+    fun isDefault(): Boolean = defaultPlaylist.contains(name)
+
+    fun take(value: Int): Playlist = Playlist(name, songIdList.take(value).toMutableList()).also {
+        it.songWithPosList = this.songWithPosList.take(value)
+    }
 
     companion object {
 
-        private val defaultPlaylist: Array<String> = arrayOf(
+        val defaultPlaylist: Array<String> = arrayOf(
             "Favourite", "Played", "Vk", "Downloaded", "Current"
         )
 
@@ -28,33 +34,5 @@ data class Playlist(
             playlist.filter {
                  defaultPlaylist.contains(it.name).not()
             }
-
-        fun getMostPlayed(playlist: List<String>) =
-            playlist
-                .fold(HashMap<String, Int>()) { mostPlayed, song ->
-                    if (song.isNotEmpty()) {
-                        mostPlayed += if (mostPlayed.containsKey(song).not())
-                            Pair(song, 1)
-                        else {
-                            val count = mostPlayed[song]
-                            Pair(song, count!!.plus(1))
-                        }
-                    }
-                    mostPlayed
-                }
-                .toList()
-                .sortedBy { it.second }
-                .reversed()
-                .map { it.first }
-                .take(MAX_MOST_PLAYED)
-
-        fun whichPlaylist(playlist: List<Playlist>,
-                          path: String): String  {
-            other(playlist).forEach {
-                if(it.songs.contains(path))
-                    return it.name
-            }
-            return ""
-        }
     }
 }

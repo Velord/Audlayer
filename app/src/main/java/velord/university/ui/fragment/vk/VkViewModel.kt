@@ -20,7 +20,7 @@ import velord.university.model.entity.music.newGeneration.song.AudlayerSong
 import velord.university.model.entity.music.newGeneration.song.AudlayerSong.Companion.filterByQuery
 import velord.university.model.entity.music.song.download.DownloadSong
 import velord.university.repository.hub.FolderRepository
-import velord.university.repository.db.transaction.hub.HubTransaction
+import velord.university.repository.db.transaction.hub.DB
 import velord.university.repository.hub.HubRepository.vkRepository
 import velord.university.ui.util.RVSelection
 import java.io.File
@@ -32,7 +32,7 @@ class VkViewModel(
     private val TAG = "VkViewModel"
 
     var songList: Loadable<Array<AudlayerSong>> = Loadable {
-        HubTransaction.songTransaction("vkSongList") {
+        DB.songTransaction("vkSongList") {
             getAll().toTypedArray()
         }
     }
@@ -205,7 +205,7 @@ class VkViewModel(
                                      path: String) {
         val index = songList.get().indexOf(vkSong)
         val song = songList.get()[index]
-        HubTransaction.songTransaction("applyNewPath") {
+        DB.songTransaction("applyNewPath") {
             update(song.getWithNewPath(path))
         }
 

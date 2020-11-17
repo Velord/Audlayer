@@ -14,9 +14,10 @@ import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.coroutine.onIO
 import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.music.newGeneration.playlist.Playlist
 import velord.university.repository.hub.FolderRepository
 import velord.university.repository.db.transaction.PlaylistTransaction
-import velord.university.repository.db.transaction.hub.HubTransaction
+import velord.university.repository.db.transaction.hub.DB
 import java.io.File
 
 const val MAX_LAST_PLAYED: Int = 50
@@ -31,45 +32,14 @@ class AlbumViewModel(
     lateinit var currentQuery: String
 
     private lateinit var playlist: List<Playlist>
-    private lateinit var recentlyModified: List<String>
-    private lateinit var lastPlayed: List<String>
-    private lateinit var mostPlayed: List<String>
-    private lateinit var favourite: List<String>
-    private lateinit var downloaded: List<String>
+    private lateinit var lastPlayed: Playlist
+    private lateinit var favourite: Playlist
     private lateinit var other: List<Playlist>
-
-    private lateinit var allSongRemovedDuplicate: List<File>
 
     fun getSearchQuery(): String =
         SearchQueryPreferences(app).storedQueryAlbum
 
     fun playlistIsInitialized(): Boolean = ::playlist.isInitialized
-
-    fun filterByQueryPlaylist(query: String): List<Playlist> {
-        val newOther = other.filter { it.name.contains(query) }
-        // sort by album or artist or year or number of tracks
-        val sortedPlaylist = when(SortByPreference(app).sortByAlbumFragment) {
-            //album TODO()
-            0 -> newOther
-            //artist
-            1 -> newOther.sortedBy {
-                FileFilter.getArtist(File(it.songs[0]))
-            }
-            //year TODO()
-            2 -> newOther
-            //number of tracks
-            3 -> newOther.sortedBy { it.songs.size }
-            else -> newOther
-        }
-        // sort by ascending or descending order
-        val orderedPlaylist = when(SortByPreference(app).ascDescAlbumFragment) {
-            0 -> sortedPlaylist
-            1 ->  sortedPlaylist.reversed()
-            else -> sortedPlaylist
-        }
-
-        return collect(orderedPlaylist)
-    }
 
     fun playSongs(songs: Array<String>) {
         if (songs.isNotEmpty()) {
@@ -99,8 +69,10 @@ class AlbumViewModel(
     }
 
     suspend fun deletePlaylist(playlist: Playlist) {
-        HubTransaction.playlistTransaction("deletePlaylist") {
-            deletePlaylistByName(playlist.name)
+        if (playlist.isDefault()) return
+        //update db
+        DB.playlistTransaction("deletePlaylist") {
+            deletePlaylistById(playlist.id)
         }
         //refresh playlist
         getDefaultAndUserPlaylist()
@@ -111,57 +83,29 @@ class AlbumViewModel(
         Log.d(TAG, "all playlist collected")
     }
 
-    private fun collect(otherPlaylist: List<Playlist>): List<Playlist> {
-        return listOf(
-            Playlist("Recently Modified", recentlyModified),
-            Playlist("Last Played", lastPlayed),
-            Playlist("Most Played", mostPlayed),
-            Playlist("Favourite", favourite),
-            Playlist("Downloaded", downloaded),
-            *otherPlaylist.map {
-                Playlist(it.name, it.songs)
-            }.toTypedArray()
-        )
-    }
-
     private suspend fun getDefaultAndUserPlaylist(): List<Playlist> {
         val allPlaylist =  PlaylistTransaction.getAllPlaylist()
         Log.d(TAG, "all playlist retrieved")
-        //unique songs
-        allSongRemovedDuplicate = Playlist
-            .allSongFromPlaylist(allPlaylist.toList()).toList()
         Log.d(TAG, "all song retrieved")
-        //1 month
-        recentlyModified = FileFilter
-                .recentlyModified(allSongRemovedDuplicate)
-                .map { it.path }
+        //1 month TODO()
         Log.d(TAG, "last modified playlist retrieved")
         //lastPlayed
-        val played = PlaylistTransaction.getPlayedSongs()
+        val played = PlaylistTransaction.getPlayed()
         //last 50
         lastPlayed = played.take(MAX_LAST_PLAYED)
         Log.d(TAG, "last play playlist retrieved")
-        //most played
-        mostPlayed = Playlist.getMostPlayed(played)
+        //most played TODO()
         Log.d(TAG, "most played playlist retrieved")
         //favourite
-        favourite =  PlaylistTransaction.getFavouriteSongs()
+        favourite =  PlaylistTransaction.getFavourite()
         Log.d(TAG, "favourite playlist retrieved")
-        //downloaded
-        val filesAppDir: Array<out File> = FolderRepository
-            .getApplicationDir()
-            .listFiles() ?: arrayOf()
-        val filesVkDir: Array<out File> = FolderRepository
-            .getApplicationVkDir()
-            .listFiles() ?: arrayOf()
-        val allFiles = (filesAppDir.toList() + filesVkDir).toTypedArray()
-        downloaded =  FileFilter.filterOnlyAudio(allFiles).map { it.path }
+        //downloaded TODO()
         Log.d(TAG, "downloaded playlist retrieved")
         //other
         other = Playlist.other(allPlaylist)
         Log.d(TAG, "other playlist retrieved")
-        //collect all to one list
-        return collect(other)
+
+        return listOf()
     }
 
     override fun onCleared() {

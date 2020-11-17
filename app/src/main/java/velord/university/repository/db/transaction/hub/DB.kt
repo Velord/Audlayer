@@ -10,7 +10,7 @@ import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.repository.db.transaction.RadioTransaction
 import velord.university.repository.db.transaction.ServiceTransaction
 
-object HubTransaction {
+object DB {
 
     suspend fun <T> radioTransaction(
         tag: String,

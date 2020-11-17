@@ -5,14 +5,14 @@ import velord.university.model.entity.music.newGeneration.song.AudlayerSong
 
 
 @Entity(
-    foreignKeys = arrayOf(
+    indices = [Index("song_id")],
+    foreignKeys = [
         ForeignKey(
-            entity = AudlayerSong::class,
-            parentColumns = arrayOf("rowid"),
-            childColumns = arrayOf("song_id"),
-            onDelete = ForeignKey.CASCADE
-        )
-    )
+        entity = AudlayerSong::class,
+        parentColumns = arrayOf("rowid"),
+        childColumns = arrayOf("song_id"),
+        onDelete = ForeignKey.CASCADE)
+    ]
 )
 data class SongWithPos(
     val pos: Int,

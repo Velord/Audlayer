@@ -29,4 +29,7 @@ interface SongWithPosDao {
 
     @Query("Select *, `rowid` From SongWithPos Where rowid = :id")
     fun getById(id: Int): SongWithPos
+
+    @Query("SELECT rowid FROM SongWithPos ORDER BY rowid DESC LIMIT 1")
+    fun getLastId(): Int
 }

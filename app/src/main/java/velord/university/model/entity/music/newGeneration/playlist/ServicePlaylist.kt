@@ -1,17 +1,16 @@
 package velord.university.model.entity.music.newGeneration.playlist
 
+import velord.university.model.entity.music.newGeneration.song.AudlayerSong
 import java.io.File
 
-class ServicePlaylist(
-    val notShuffled: MutableList<File> = mutableListOf()
-) {
+class ServicePlaylist(val notShuffled: Playlist) {
 
     private var currentPos: Int = 0
 
-    private val songQueue: MutableList<File> = mutableListOf()
+    private val songQueue: MutableList<AudlayerSong> = mutableListOf()
 
     init {
-        songQueue.addAll(notShuffled)
+        songQueue.addAll(notShuffled.songList)
     }
 
     fun shuffle() = songQueue.shuffle()
@@ -19,7 +18,7 @@ class ServicePlaylist(
     fun notShuffle() {
         songQueue.apply {
             clear()
-            addAll(notShuffled)
+            addAll(notShuffled.songList)
         }
     }
 
@@ -28,7 +27,7 @@ class ServicePlaylist(
     fun lastInQueue() = songQueue.last()
 
     fun clearQueue() {
-        notShuffled.clear()
+        notShuffled.songWithPosList.
         songQueue.clear()
     }
 

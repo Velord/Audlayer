@@ -19,13 +19,14 @@ import velord.university.model.entity.music.QueueResolver
 import velord.university.model.entity.music.newGeneration.playlist.ServicePlaylist
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.SongTimeConverter
+import velord.university.model.coroutine.getScope
 import velord.university.model.entity.music.song.serviceSong.MiniPlayerServiceSong
 import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.file.FileNameParser
 import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.repository.db.transaction.PlaylistTransaction
-import velord.university.repository.db.transaction.hub.HubTransaction
+import velord.university.repository.db.transaction.hub.DB
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import java.io.File
 
@@ -33,7 +34,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private val playlist = ServicePlaylist()
 
-    private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
+    private val scope: CoroutineScope = getScope()
 
     private lateinit var rewindJob: Job
 
@@ -260,6 +261,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun likeSong() {
         scope.launch {
+            //TODO()
             val songPath = playlist.getSongPath()
             PlaylistTransaction.updateFavourite {
                 val updated = it + songPath
@@ -344,7 +346,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private suspend fun restoreState() {
         val songsFromDb: List<MiniPlayerServiceSong> =
-            HubTransaction.serviceTransaction("restoreState") { getAll() }
+            DB.serviceTransaction("restoreState") { getAll() }
         val songsToPlaylist = MiniPlayerServiceSong.getSongsToPlaylist(songsFromDb)
 
         if (songsToPlaylist.isNotEmpty()) {
@@ -559,7 +561,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             val songsToDb =
                 MiniPlayerServiceSong.getSongsToDb(playlist.notShuffled)
             //db
-            HubTransaction.serviceTransaction("storeQueue") {
+            DB.serviceTransaction("storeQueue") {
                 updateData(songsToDb)
             }
         }

@@ -1,7 +1,7 @@
 package velord.university.repository.hub
 
 import android.content.Context
-import velord.university.repository.db.transaction.hub.HubTransaction.radioTransaction
+import velord.university.repository.db.transaction.hub.DB.radioTransaction
 import velord.university.repository.fetch.RadioFetch
 
 object RadioRepository : BaseRepository() {
