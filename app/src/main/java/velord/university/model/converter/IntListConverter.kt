@@ -6,11 +6,12 @@ object IntListConverter {
 
     @TypeConverter
     @JvmStatic
-    fun fromString(stringListString: String): List<Int>  =
-        stringListString.split("@#$%").map { it.toInt() }
+    fun fromString(str: String): List<Int> =
+        if (str.isEmpty()) listOf()
+        else str.split("@#$%").map { it.toInt() }
 
     @TypeConverter
     @JvmStatic
-    fun toString(stringList: List<Int>): String =
-        stringList.joinToString(separator = "@#$%")
+    fun toString(str: List<Int>): String =
+        str.joinToString(separator = "@#$%")
 }

@@ -40,7 +40,7 @@ class AlbumViewModel(
     fun playSongs(songs: List<AudlayerSong>) {
         if (songs.isNotEmpty()) {
             //don't remember for SongPlaylistInteractor
-            SongPlaylistInteractor.songs = songs.toTypedArray()
+            SongPlaylistInteractor.songList = songs
 
             AppBroadcastHub.apply {
                 app.playByPathService(songs[0].path)

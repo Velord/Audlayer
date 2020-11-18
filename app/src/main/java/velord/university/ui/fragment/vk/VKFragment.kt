@@ -39,7 +39,8 @@ import velord.university.databinding.VkFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
-import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.fileType.file.FileRetrieverConverter
+import velord.university.model.entity.fileType.file.FileRetrieverConverter.getSize
 import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.model.entity.music.song.download.DownloadSong
 import velord.university.model.entity.openFragment.general.OpenFragmentEntity
@@ -531,7 +532,7 @@ class VKFragment :
             general(song) + arrayOf(
                 {
                     val size: Double =
-                        roundOfDecimalToUp((FileFilter.getSize(File(song.path)).toDouble() / 1024))
+                        roundOfDecimalToUp((File(song.path).getSize().toDouble() / 1024))
 
                     val bitrate = SongBitrate.getKbpsString(File(song.path))
 
@@ -574,7 +575,7 @@ class VKFragment :
                     R.id.vk_rv_item_add_to_playlist -> {
                         callbacks?.let { callback ->
 
-                            SongPlaylistInteractor.songs = arrayOf(song)
+                            SongPlaylistInteractor.songList = listOf(song)
                             callback.openAddToPlaylistFragment()
                         }
                         true

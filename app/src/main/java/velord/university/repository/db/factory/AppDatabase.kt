@@ -18,7 +18,8 @@ import velord.university.model.entity.music.radio.RadioStationDao
 @Database(
     entities = [
         RadioStation::class,
-        AudlayerSong::class, SongWithPos::class,
+        AudlayerSong::class,
+        SongWithPos::class,
         Playlist::class
     ],
     version = 1

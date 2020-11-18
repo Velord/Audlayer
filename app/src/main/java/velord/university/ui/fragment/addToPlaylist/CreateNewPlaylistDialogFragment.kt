@@ -38,7 +38,7 @@ class CreateNewPlaylistDialogFragment :
     private val binding get() = _binding ?:
     throw ViewDestroyed("Don't touch view when it is destroyed")
 
-    private val songsToPlaylist = SongPlaylistInteractor.songs
+    private val songsToPlaylist = SongPlaylistInteractor.songList
 
     private var playlistName = ""
 

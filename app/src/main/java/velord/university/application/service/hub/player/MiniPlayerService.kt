@@ -8,7 +8,6 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.*
-import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.application.broadcast.restarter.RestarterMiniPlayerGeneralService
@@ -22,23 +21,15 @@ import velord.university.model.entity.music.playlist.ServicePlaylist
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.SongTimeConverter
 import velord.university.model.coroutine.getScope
-import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.fileType.file.FileRetrieverConverter
+import velord.university.model.entity.fileType.file.FileRetrieverConverter.toAudlayerSong
 import velord.university.model.entity.fileType.json.general.Loadable
 import velord.university.model.entity.music.playlist.Playlist
 import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.repository.hub.MiniPlayerRepository
-import velord.university.repository.hub.RadioRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import java.io.File
-
-fun File.toAudlayerSong(
-    mediaMetadataRetriever: MediaMetadataRetriever
-): AudlayerSong = AudlayerSong(
-    FileFilter.getArtist(this),
-    FileFilter.getTitle(this),
-    FileFilter.getDuration(mediaMetadataRetriever, this).toInt()
-)
 
 abstract class MiniPlayerService : AudioFocusListenerService() {
 
@@ -137,7 +128,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun playAllInFolder(pathFolder: String) {
         playlistResolver.clearQueue()
-        val songs = FileFilter.filterOnlyAudio(File(pathFolder)).map {
+        val songs = FileRetrieverConverter.filterOnlyAudio(File(pathFolder)).map {
             it.toAudlayerSong(metaRetriever)
         }
         val info = if (songs.isNotEmpty()) {
@@ -152,7 +143,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     protected fun playNextAllInFolder(pathFolder: String) {
-        val songs = FileFilter.filterOnlyAudio(File(pathFolder)).map {
+        val songs = FileRetrieverConverter.filterOnlyAudio(File(pathFolder)).map {
             it.toAudlayerSong(metaRetriever)
         }
         addToQueue(songs)
@@ -163,7 +154,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun shuffleAndPlayAllInFolder(pathFolder: String) {
         playlistResolver.clearQueue()
-        val songs = FileFilter.filterOnlyAudio(File(pathFolder)).map {
+        val songs = FileRetrieverConverter.filterOnlyAudio(File(pathFolder)).map {
             it.toAudlayerSong(metaRetriever)
         }
         val info = if (songs.isNotEmpty()) {
@@ -180,7 +171,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun playByPath(path: String) {
         playlistResolver.clearQueue()
-        addToQueue(SongPlaylistInteractor.songs.toList())
+        addToQueue(SongPlaylistInteractor.songList)
 
         playNext(File(path).toAudlayerSong(metaRetriever))
         //showUI

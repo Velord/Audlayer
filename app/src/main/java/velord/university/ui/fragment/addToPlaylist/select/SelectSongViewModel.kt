@@ -6,10 +6,8 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import velord.university.application.permission.PermissionChecker.checkReadWriteExternalStoragePermission
 import velord.university.application.settings.SortByPreference
-import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.model.entity.music.song.main.AudlayerSong.Companion.filterByQuery
-import java.io.File
 
 class SelectSongViewModel(
     private val app: Application
@@ -17,14 +15,14 @@ class SelectSongViewModel(
 
     val TAG = "SelectSongViewModel"
 
-    lateinit var songList: Array<AudlayerSong>
+    lateinit var songList: List<AudlayerSong>
 
     val checked = mutableListOf<AudlayerSong>()
 
     lateinit var currentQuery: String
 
     fun filterAndSortFiles(context: Context,
-                           searchTerm: String): Array<AudlayerSong> {
+                           searchTerm: String): List<AudlayerSong> {
         val songs = songList.filterByQuery(searchTerm)
         // sort by name or artist or date added
         val sorted = when(SortByPreference(context).sortBySelectSongFragment) {
@@ -38,7 +36,7 @@ class SelectSongViewModel(
             0 -> sorted
             1 ->  sorted.reversed()
             else -> sorted
-        }.toTypedArray()
+        }
     }
 
     fun checkPermission(activity: Activity): Boolean =

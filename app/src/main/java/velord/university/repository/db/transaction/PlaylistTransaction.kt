@@ -1,8 +1,6 @@
 package velord.university.repository.db.transaction
 
-import velord.university.model.coroutine.onIO
 import velord.university.model.entity.music.playlist.Playlist
-import velord.university.model.entity.music.song.withPos.SongWithPos
 import velord.university.repository.db.transaction.hub.BaseTransaction
 import velord.university.repository.db.transaction.hub.DB.playlistTransaction
 
@@ -62,7 +60,7 @@ object PlaylistTransaction : BaseTransaction() {
     suspend fun checkDbTableColumn() = transaction("checkDbTableColumn") {
         val playlist = getAllPlaylist().map { it.name }
 
-        Playlist.defaultPlaylist.forEach {
+        Playlist.defaultPlaylistName.forEach {
             val exist = playlist.contains(it)
             if (exist.not()) playlistTransaction("checkDbTableColumn") {
                 insertAll(Playlist(it, mutableListOf()))

@@ -1,6 +1,8 @@
 package velord.university.model.entity.music.song.main
 
 import androidx.room.*
+import velord.university.model.entity.fileType.file.FileRetrieverConverter
+import velord.university.model.entity.fileType.file.FileRetrieverConverter.getSize
 import velord.university.model.entity.music.song.download.DownloadSong
 import java.io.File
 import java.time.LocalDateTime
@@ -20,6 +22,8 @@ data class AudlayerSong(
     @PrimaryKey @ColumnInfo(name = "rowid") val id: Int = 0,
 ) {
 
+    fun getSize(): Long = File(path).getSize()
+
     fun toDownloadSong(): DownloadSong =
         DownloadSong(artist, title, path)
 
@@ -36,6 +40,9 @@ data class AudlayerSong(
     companion object {
 
         fun Array<AudlayerSong>.filterByQuery(query: String): List<AudlayerSong> =
+            this.filter { it.filterByQuery(query) }
+
+        fun List<AudlayerSong>.filterByQuery(query: String): List<AudlayerSong> =
             this.filter { it.filterByQuery(query) }
     }
 }

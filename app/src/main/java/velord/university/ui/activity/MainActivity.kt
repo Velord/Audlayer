@@ -51,6 +51,8 @@ class MainActivity : AppCompatActivity(),
 
     private val viewModel: MainActivityViewModel by viewModels()
 
+    private val scope = getScope()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "called onCreate")
         super.onCreate(savedInstanceState)
@@ -58,7 +60,7 @@ class MainActivity : AppCompatActivity(),
         hideStatusBarAndNoTitle()
 
         if(baseContext.checkReadWriteExternalStoragePermission(this))
-            startApp()
+            scope.launch {  startApp() }
     }
 
     override fun onRequestPermissionsResult(
@@ -71,7 +73,7 @@ class MainActivity : AppCompatActivity(),
             && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(baseContext, "Permission granted", Toast.LENGTH_SHORT).show()
             //start activity
-            startApp()
+            scope.launch { startApp() }
         } else {
             baseContext.checkReadWriteExternalStoragePermission(this)
         }
@@ -84,11 +86,12 @@ class MainActivity : AppCompatActivity(),
         AppPreference(this).appIsDestroyed = false
 
         scopeNotification.cancel()
+
+        scope.cancel()
     }
 
     override fun onStart() {
         Log.d(TAG, "called onStart")
-
 
         scopeNotification.launch {
             dismissNotification()
@@ -117,7 +120,7 @@ class MainActivity : AppCompatActivity(),
             else -> super.onKeyDown(keyCode, event)
         }
 
-    private fun startApp() {
+    private suspend fun startApp() {
         try {
             //hide virtual buttons
             //start app
@@ -134,6 +137,9 @@ class MainActivity : AppCompatActivity(),
             viewModel
         }
         catch(e: Exception) {
+            val msg = e.message.toString()
+            Log.d(TAG, msg)
+            delay(1000)
             startApp()
         }
     }

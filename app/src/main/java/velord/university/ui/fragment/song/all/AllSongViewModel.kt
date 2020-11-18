@@ -11,7 +11,8 @@ import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.coroutine.onDef
-import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.fileType.file.FileRetrieverConverter
+import velord.university.model.entity.fileType.file.FileRetrieverConverter.getSize
 import velord.university.model.entity.fileType.json.general.Loadable
 import velord.university.model.entity.music.playlist.Playlist
 import velord.university.model.entity.music.song.main.AudlayerSong
@@ -26,14 +27,14 @@ class AllSongViewModel(
 
     private val TAG = "AllSongViewModel"
 
-    val allPlaylist: Loadable<Array<Playlist>> = Loadable {
+    val allPlaylist: Loadable<List<Playlist>> = Loadable {
         Log.d(TAG, "get all playlist retrieved")
-        PlaylistTransaction.getAllPlaylist().toTypedArray()
+        PlaylistTransaction.getAllPlaylist()
     }
-    val allSong: Loadable<Array<AudlayerSong>> = Loadable {
+    val allSong: Loadable<List<AudlayerSong>> = Loadable {
         val songList = mutableListOf<AudlayerSong>()
         allPlaylist.get().map { songList.addAll(it.songList) }
-        songList.toTypedArray()
+        songList
     }
 
     lateinit var ordered: Array<AudlayerSong>
@@ -56,7 +57,7 @@ class AllSongViewModel(
             //duration
             3 -> filtered.sortedBy { it.duration }
             //file size
-            4 -> filtered.sortedBy { FileFilter.getSize(File(it.path)) }
+            4 -> filtered.sortedBy { File(it.path).getSize() }
             else -> filtered
         }.toTypedArray()
         // sort by ascending or descending order
@@ -90,7 +91,7 @@ class AllSongViewModel(
         SearchQueryPreferences(app).storedQueryAllSong
 
     fun playAudioAndAllSong(song: AudlayerSong) {
-        SongPlaylistInteractor.songs = ordered
+        SongPlaylistInteractor.songList = ordered.toList()
 
         AppBroadcastHub.apply {
             app.apply {
@@ -104,7 +105,7 @@ class AllSongViewModel(
 
     fun playAudio(song: AudlayerSong) {
         //don't remember for SongQuery Interactor it will be used between this and service
-        SongPlaylistInteractor.songs = arrayOf(song)
+        SongPlaylistInteractor.songList = listOf(song)
         AppBroadcastHub.apply {
             app.apply {
                 doAction(BroadcastActionType.SHOW_PLAYER_UI)
@@ -117,7 +118,7 @@ class AllSongViewModel(
 
     fun playAudioNext(song: AudlayerSong) {
         //don't remember for SongQuery Interactor it will be used between this and service
-        SongPlaylistInteractor.songs = arrayOf(song)
+        SongPlaylistInteractor.songList = listOf(song)
         //add to queue one song
         AppBroadcastHub.apply {
             app.addToQueueService(song.path)

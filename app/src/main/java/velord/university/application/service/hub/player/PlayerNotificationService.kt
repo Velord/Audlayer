@@ -33,7 +33,7 @@ class PlayerNotificationService : Service(),
             val extra = BroadcastExtra.playByPathUI
             val songPath = getStringExtra(extra)
 
-            val song = SongPlaylistInteractor.songs.find {
+            val song = SongPlaylistInteractor.songList.find {
                 it.path == songPath
             }
 

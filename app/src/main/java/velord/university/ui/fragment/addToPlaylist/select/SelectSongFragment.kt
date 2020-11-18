@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.PopupMenu
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,7 +25,6 @@ import velord.university.databinding.ActionBarSearchBinding
 import velord.university.databinding.GeneralRvBinding
 import velord.university.databinding.SelectSongFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.file.FileNameParser
 import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerFirst
@@ -203,7 +201,7 @@ class SelectSongFragment :
         binding.actionContinue.setOnClickListener {
             callbacks?.let { it ->
                 if (viewModel.checked.isNotEmpty()) {
-                    SongPlaylistInteractor.songs = viewModel.songList
+                    SongPlaylistInteractor.songList = viewModel.songList
 
                     it.openAddToPlaylistFragment()
                 }
@@ -228,12 +226,12 @@ class SelectSongFragment :
         //apply all filters to recycler view
         val filteredAndSortered =
             viewModel.filterAndSortFiles(requireContext(), searchTerm)
-        bindingRv.fastScrollRv.adapter = FileAdapter(filteredAndSortered)
+        bindingRv.fastScrollRv.adapter = FileAdapter(filteredAndSortered.toTypedArray())
         setupAdapter()
     }
 
     private fun setupAdapter() {
-        viewModel.songList = SongPlaylistInteractor.songs
+        viewModel.songList = SongPlaylistInteractor.songList
         updateAdapterBySearchQuery("")
     }
 

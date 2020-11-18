@@ -13,26 +13,28 @@ data class Playlist(
 ) {
 
     @Ignore
-    lateinit var songWithPosList: List<SongWithPos>
+    var songWithPosList: List<SongWithPos> = listOf()
 
     @Ignore var songList: List<AudlayerSong> = songWithPosList.map { it.song }
 
-    fun isDefault(): Boolean = defaultPlaylist.contains(name)
+    fun isDefault(): Boolean = defaultPlaylistName.contains(name)
 
-    fun take(value: Int): Playlist = Playlist(name, songIdList.take(value).toMutableList()).also {
-        it.songWithPosList = this.songWithPosList.take(value)
-    }
+    fun take(value: Int): Playlist =
+        Playlist(name, songIdList.take(value).toMutableList())
+            .also {
+                it.songWithPosList = this.songWithPosList.take(value)
+            }
 
     companion object {
 
-        val defaultPlaylist: Array<String> = arrayOf(
+        val defaultPlaylistName: Array<String> = arrayOf(
             "Favourite", "Played", "Vk", "Downloaded", "Current"
         )
 
 
         fun other(playlist: List<Playlist>): List<Playlist> =
             playlist.filter {
-                 defaultPlaylist.contains(it.name).not()
+                 defaultPlaylistName.contains(it.name).not()
             }
     }
 }

@@ -16,10 +16,8 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import velord.university.R
 import velord.university.application.broadcast.behaviour.MiniPlayerIconClickReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
@@ -36,12 +34,12 @@ import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
 import velord.university.model.coroutine.getScope
 import velord.university.model.coroutine.onMain
-import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.fileType.file.FileRetrieverConverter
 import velord.university.model.entity.fileType.file.FileNameParser
+import velord.university.model.entity.fileType.file.FileRetrieverConverter.getSize
 import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.model.exception.ViewDestroyed
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
-import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 import velord.university.ui.util.view.between
 import velord.university.ui.util.view.makeCheck
@@ -395,7 +393,7 @@ class AllSongFragment :
                 },
                 {
                     val size: Double = roundOfDecimalToUp(
-                        (FileFilter.getSize(song.toFile()).toDouble() / 1024)
+                        (song.toFile().getSize().toDouble() / 1024)
                     )
 
 
@@ -446,7 +444,7 @@ class AllSongFragment :
                     }
                     R.id.folder_recyclerView_item_isAudio_add_to_playlist -> {
                         callbacks?.let { callback ->
-                            SongPlaylistInteractor.songs = arrayOf(song)
+                            SongPlaylistInteractor.songList = listOf(song)
                             callback.openAddToPlaylistFragment()
                         }
                         true

@@ -13,7 +13,7 @@ import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.application.settings.VkPreference
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.fileType.file.FileRetrieverConverter
 import velord.university.model.entity.fileType.json.general.Loadable
 import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.model.entity.music.song.main.AudlayerSong.Companion.filterByQuery
@@ -153,21 +153,15 @@ class VkViewModel(
         //sort by name or artist or date added or duration or size
         val sortBy = SortByPreference(app).sortByVkFragment
         val sorted: List<AudlayerSong> = when(sortBy) {
-            //name
-            0 -> filtered.sortedBy {
-                FileFilter.getTitle(File(it.path))
-            }
+            //title
+            0 -> filtered.sortedBy { it.title }
             //artist
-            1 -> filtered.sortedBy {
-                FileFilter.getArtist(File(it.path))
-            }
+            1 -> filtered.sortedBy { it.artist }
             //date added
-            2 -> filtered.sortedBy {
-                it.dateAdded
-            }
+            2 -> filtered.sortedBy { it.dateAdded }
             3 -> filtered.sortedBy { it.duration }
             //file size
-            4 -> filtered.sortedBy { FileFilter.getSize(File(it.path)) }
+            4 -> filtered.sortedBy { it.getSize() }
             else -> filtered
         }
         // sort by ascending or descending order
@@ -182,9 +176,8 @@ class VkViewModel(
     }
 
     private fun addToInteractor() {
-        SongPlaylistInteractor.songs = ordered
+        SongPlaylistInteractor.songList = ordered
             .filter { it.path.isNotBlank() }
-            .toTypedArray()
     }
 
     suspend fun applyNewPath(downloaded: DownloadSong) {

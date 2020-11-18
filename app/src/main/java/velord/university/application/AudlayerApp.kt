@@ -42,7 +42,7 @@ class AudlayerApp : Application() {
 
         private var db: AppDatabase? = null
 
-        private val scope: CoroutineScope = getScope()
+        private val scope = getScope()
 
         fun getDatabase(): AppDatabase? = db
 
@@ -52,21 +52,13 @@ class AudlayerApp : Application() {
                 context.startForegroundService(Intent(context, service::class.java))
             else context.startService(Intent(context, service::class.java))
 
-
-        fun initApp(context: Context) {
+        suspend fun initApp(context: Context) {
             //init working folder
             FolderRepository.createFolder()
             //init db and create tables if not exist
             db = buildAppDatabase(context)
-            scope.launch {
-                try {
-                    PlaylistTransaction.checkDbTableColumn()
-                    RadioRepository.checkDefaultRadioStation(context)
-                }
-                catch (e: Exception) {
-                    Log.d(TAG, e.message.toString())
-                }
-            }
+            PlaylistTransaction.checkDbTableColumn()
+            RadioRepository.checkDefaultRadioStation(context)
         }
     }
 }

@@ -54,7 +54,7 @@ class AddToPlaylistFragment :
 
     private val scope = getScope()
 
-    private val songsToPlaylist = SongPlaylistInteractor.songs
+    private val songsToPlaylist = SongPlaylistInteractor.songList
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
@@ -151,7 +151,7 @@ class AddToPlaylistFragment :
                 when (menuItem.itemId) {
                     R.id.playlist_item_play -> {
                         //don't remember for SongPlaylist Interactor
-                        SongPlaylistInteractor.songs = playlist.songList.toTypedArray()
+                        SongPlaylistInteractor.songList = playlist.songList
 
                         AppBroadcastHub.apply {
                             requireContext().playByPathService(playlist.songList[0].path)
