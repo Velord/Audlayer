@@ -1,8 +1,8 @@
-package velord.university.model.entity.music.newGeneration.playlist
+package velord.university.model.entity.music.playlist
 
 import androidx.room.*
-import velord.university.model.entity.music.newGeneration.song.AudlayerSong
-import velord.university.model.entity.music.newGeneration.song.withPos.SongWithPos
+import velord.university.model.entity.music.song.main.AudlayerSong
+import velord.university.model.entity.music.song.withPos.SongWithPos
 
 @Fts4
 @Entity

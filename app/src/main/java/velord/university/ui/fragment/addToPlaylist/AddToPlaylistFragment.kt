@@ -22,13 +22,17 @@ import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.databinding.AddToPlaylistFragmentBinding
 import velord.university.databinding.GeneralRvBinding
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.music.song.Song
+import velord.university.model.entity.music.playlist.Playlist
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.repository.db.transaction.hub.DB
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerSecond
 import velord.university.ui.fragment.addToPlaylist.select.SelectSongFragment
 import velord.university.ui.fragment.selfLifecycle.LoggerSelfLifecycleFragment
-import java.io.File
+
+internal suspend fun <T> tryAction(tag: String,
+                                   f: suspend () -> T) =
+    try { f() }
+    catch (e: Exception) { Log.d(tag, e.message.toString()) }
 
 class AddToPlaylistFragment :
     LoggerSelfLifecycleFragment(),
@@ -50,7 +54,7 @@ class AddToPlaylistFragment :
 
     private val scope = getScope()
 
-    private val songsToPlaylist = SongPlaylistInteractor.songsPath
+    private val songsToPlaylist = SongPlaylistInteractor.songs
 
     override fun onBackPressed(): Boolean {
         Log.d(TAG, "onBackPressed")
@@ -109,11 +113,11 @@ class AddToPlaylistFragment :
 
     private fun setupAdapter() {
         scope.launch {
-            val playlist = Playlist.otherAndFavourite(
-                PlaylistTransaction.getAllPlaylist()).toTypedArray()
-
-            onMain {
-                bindingRv.fastScrollRv.adapter = PlaylistAdapter(playlist)
+            tryAction("setupAdapter") {
+                val playlist = PlaylistTransaction.getAllPlaylist().toTypedArray()
+                onMain {
+                    bindingRv.fastScrollRv.adapter = PlaylistAdapter(playlist)
+                }
             }
         }
     }
@@ -129,21 +133,15 @@ class AddToPlaylistFragment :
             itemView.findViewById(R.id.general_action_frame)
 
         private fun updatePlaylist(playlist: Playlist) {
-                val filtered = songsToPlaylist.filter {
-                    playlist.songs.contains(it).not()
-                }
-                //update db
-                scope.launch {
-                    PlaylistTransaction.update(playlist)
-                }
-                //show user info
-                Toast.makeText(
-                    requireContext(),
-                    "Songs added: ${filtered.size}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                //back pressed
-                callbacks?.toZeroLevel()
+            //todo()
+            //update db
+            playlist.songList = songsToPlaylist.toList()
+            scope.launch {
+                PlaylistTransaction.update(playlist)
+            }
+            //show user info requireActivity().toastSuccess("Songs added: ${filtered.size}")
+            //back pressed
+            callbacks?.toZeroLevel()
         }
 
         private val actionPopUpMenu: (Playlist) -> Unit = { playlist ->
@@ -153,13 +151,10 @@ class AddToPlaylistFragment :
                 when (menuItem.itemId) {
                     R.id.playlist_item_play -> {
                         //don't remember for SongPlaylist Interactor
-                        SongPlaylistInteractor.songs =
-                            playlist.songs
-                                .map { Song(File(it)) }
-                                .toTypedArray()
+                        SongPlaylistInteractor.songs = playlist.songList.toTypedArray()
 
                         AppBroadcastHub.apply {
-                            requireContext().playByPathService(playlist.songs[0])
+                            requireContext().playByPathService(playlist.songList[0].path)
                         }
                         true
                     }
@@ -209,8 +204,10 @@ class AddToPlaylistFragment :
         fun bindItem(playlist: Playlist, position: Int) {
             setOnClickAndImageResource(playlist)
 
-            pathTextView.text = getString(R.string.add_to_playlist_item,
-                playlist.name, playlist.songs.size)
+            pathTextView.text = getString(
+                R.string.add_to_playlist_item,
+                playlist.name, playlist.songList.size
+            )
         }
     }
 
@@ -234,7 +231,6 @@ class AddToPlaylistFragment :
 
         override fun getItemCount(): Int = items.size
 
-        override fun getSectionName(position: Int): String =
-            "${items[position].name[0]}"
+        override fun getSectionName(position: Int): String = "${items[position].name[0]}"
     }
 }

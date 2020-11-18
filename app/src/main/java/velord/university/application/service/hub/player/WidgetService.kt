@@ -14,8 +14,7 @@ import velord.university.application.broadcast.restarter.RestarterWidgetService
 import velord.university.application.service.mayInvokeDefault
 import velord.university.application.service.mayInvokeRadio
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.music.song.Song
-import velord.university.model.entity.fileType.file.FileNameParser
+import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.ui.widget.AudlayerWidget
 
 class WidgetService : Service(),
@@ -36,14 +35,14 @@ class WidgetService : Service(),
             val songPath = getStringExtra(extra)
 
             val song = SongPlaylistInteractor.songs.find {
-                it.file.path == songPath
+                it.path == songPath
             }
 
             song?.let {
                 val songIcon = getSongIconValue(song)
 
-                AudlayerWidget.widgetArtist = FileNameParser.getSongArtist(it.file)
-                AudlayerWidget.widgetTitle =  FileNameParser.getSongTitle(it.file)
+                AudlayerWidget.widgetArtist = it.artist
+                AudlayerWidget.widgetTitle =  it.title
 
                 this@WidgetService.mayInvokeDefault {
                     AudlayerWidget.invokeUpdate(this@WidgetService)
@@ -290,10 +289,9 @@ class WidgetService : Service(),
     }
 
     companion object {
-        fun getSongIconValue(song: Song): String =
-            if (song.iconUrl.isNullOrBlank().not())
-                song.iconUrl!!
-            else song.icon.toString()
+        fun getSongIconValue(song: AudlayerSong): String =
+            if (song.imgUrl.isBlank().not()) song.imgUrl
+            else song.imgUrl
     }
 
     private fun changeIcon(value: String) {

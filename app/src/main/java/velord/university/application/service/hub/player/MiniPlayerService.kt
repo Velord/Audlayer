@@ -1,12 +1,14 @@
 package velord.university.application.service.hub.player
 
 import android.content.Intent
+import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.*
+import velord.university.application.AudlayerApp
 import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.application.broadcast.hub.BroadcastActionType
 import velord.university.application.broadcast.restarter.RestarterMiniPlayerGeneralService
@@ -15,24 +17,38 @@ import velord.university.application.service.audioFocus.AudioFocusListenerServic
 import velord.university.application.settings.AppPreference
 import velord.university.application.settings.miniPlayer.MiniPlayerServicePreferences
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.music.QueueResolver
-import velord.university.model.entity.music.newGeneration.playlist.ServicePlaylist
+import velord.university.model.entity.music.song.QueueResolver
+import velord.university.model.entity.music.playlist.ServicePlaylist
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.SongTimeConverter
 import velord.university.model.coroutine.getScope
-import velord.university.model.entity.music.song.serviceSong.MiniPlayerServiceSong
-import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.fileType.file.FileFilter
-import velord.university.model.entity.fileType.file.FileNameParser
-import velord.university.repository.hub.MiniPlayerRepository
+import velord.university.model.entity.fileType.json.general.Loadable
+import velord.university.model.entity.music.playlist.Playlist
+import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.repository.db.transaction.PlaylistTransaction
-import velord.university.repository.db.transaction.hub.DB
+import velord.university.repository.hub.MiniPlayerRepository
+import velord.university.repository.hub.RadioRepository
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import java.io.File
 
+fun File.toAudlayerSong(
+    mediaMetadataRetriever: MediaMetadataRetriever
+): AudlayerSong = AudlayerSong(
+    FileFilter.getArtist(this),
+    FileFilter.getTitle(this),
+    FileFilter.getDuration(mediaMetadataRetriever, this).toInt()
+)
+
 abstract class MiniPlayerService : AudioFocusListenerService() {
 
-    private val playlist = ServicePlaylist()
+    private val currentPlaylist: Loadable<Playlist> = Loadable {
+        PlaylistTransaction.getCurrent()
+    }
+
+    private lateinit var playlistResolver: ServicePlaylist
+
+    private val metaRetriever = MediaMetadataRetriever()
 
     private val scope: CoroutineScope = getScope()
 
@@ -77,8 +93,13 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         super.onCreate()
 
         scope.launch {
-            PlaylistTransaction.checkDbTableColumn()
-            restoreState()
+            try {
+                PlaylistTransaction.checkDbTableColumn()
+                restoreState()
+            }
+            catch (e: Exception) {
+                Log.d(TAG, e.message.toString())
+            }
         }
     }
 
@@ -115,21 +136,25 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     protected fun playAllInFolder(pathFolder: String) {
-        playlist.clearQueue()
-        val songs = FileFilter.filterOnlyAudio(File(pathFolder))
+        playlistResolver.clearQueue()
+        val songs = FileFilter.filterOnlyAudio(File(pathFolder)).map {
+            it.toAudlayerSong(metaRetriever)
+        }
         val info = if (songs.isNotEmpty()) {
             addToQueue(songs)
             stopElseService()
-            playNext(playlist.firstInQueue().path)
+            playNext(playlistResolver.firstInQueue())
             "will play: ${songs.size}\n" +
-                    "first: ${songs[0].name}"
+                    "first: ${songs[0]}"
         } else { "no one song" }
         Log.d(TAG, info)
         Toast.makeText(this, info, Toast.LENGTH_SHORT).show()
     }
 
     protected fun playNextAllInFolder(pathFolder: String) {
-        val songs = FileFilter.filterOnlyAudio(File(pathFolder))
+        val songs = FileFilter.filterOnlyAudio(File(pathFolder)).map {
+            it.toAudlayerSong(metaRetriever)
+        }
         addToQueue(songs)
         val info = "added to queue: ${songs.size}"
         Log.d(TAG, info)
@@ -137,27 +162,27 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     protected fun shuffleAndPlayAllInFolder(pathFolder: String) {
-        playlist.clearQueue()
-        val songs = FileFilter.filterOnlyAudio(File(pathFolder))
+        playlistResolver.clearQueue()
+        val songs = FileFilter.filterOnlyAudio(File(pathFolder)).map {
+            it.toAudlayerSong(metaRetriever)
+        }
         val info = if (songs.isNotEmpty()) {
             addToQueue(songs)
-            playlist.shuffle()
-            val firstInQueue = playlist.firstInQueue()
+            playlistResolver.shuffle()
+            val firstInQueue = playlistResolver.firstInQueue()
             stopElseService()
-            playNext(firstInQueue.path)
-            "will play: ${songs.size}\n" + "first: ${firstInQueue.name}"
+            playNext(firstInQueue)
+            "will play: ${songs.size}\n" + "first: $firstInQueue"
         } else { "no one song" }
         Log.d(TAG, info)
         Toast.makeText(this, info, Toast.LENGTH_SHORT).show()
     }
 
     protected fun playByPath(path: String) {
-        playlist.clearQueue()
-        addToQueue(SongPlaylistInteractor.songs
-            .map { it.file }
-            .toTypedArray()
-        )
-        playNext(path)
+        playlistResolver.clearQueue()
+        addToQueue(SongPlaylistInteractor.songs.toList())
+
+        playNext(File(path).toAudlayerSong(metaRetriever))
         //showUI
         stopElseService()
     }
@@ -184,7 +209,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             //store player state
             storeIsPlayingState()
         } else {
-            if (playlist.notShuffled.isNotEmpty()) {
+            if (playlistResolver.currentPlaylist.songList.isNotEmpty()) {
                 playNext()
             }
         }
@@ -199,14 +224,14 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun skipSongAndPlayPrevious() {
         if (playerIsInitialized()) {
-            val currentPos = playlist.getSongPos()
+            val currentPos = playlistResolver.getSongPos()
             //current position minus 1 else first from end
             val newSong = if (currentPos != 0)
-                playlist.getSong(currentPos - 1)
+                playlistResolver.getSong(currentPos - 1)
             else
-                playlist.lastInQueue()
+                playlistResolver.lastInQueue()
             //just need got path to new file
-            playNext(newSong.path)
+            playNext(newSong)
         }
     }
 
@@ -229,7 +254,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     protected fun shuffleOn() {
         QueueResolver.shuffleState = true
         //store before shuffle
-        playlist.shuffle()
+        playlistResolver.shuffle()
         MiniPlayerServicePreferences(this).isShuffle =
             QueueResolver.shuffleState
         mayInvoke {
@@ -241,7 +266,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     protected fun shuffleOff() {
         QueueResolver.shuffleState = false
-        playlist.notShuffle()
+        playlistResolver.notShuffle()
         MiniPlayerServicePreferences(this).isShuffle =
             QueueResolver.shuffleState
         mayInvoke {
@@ -252,8 +277,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     protected fun addToQueueOneSong(path: String) {
-        val song = File(path)
-        val index = playlist.addToQueue(song)
+        val song = File(path).toAudlayerSong(metaRetriever)
+        val index = playlistResolver.addToQueue(song)
         val info = "in queue at $index"
         Log.d(TAG, info)
         Toast.makeText(this, info, Toast.LENGTH_SHORT).show()
@@ -262,20 +287,12 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     protected fun likeSong() {
         scope.launch {
             //TODO()
-            val songPath = playlist.getSongPath()
-            PlaylistTransaction.updateFavourite {
-                val updated = it + songPath
-                updated
-            }
         }
     }
 
     protected fun unlikeSong() {
         scope.launch {
-            val songPath = playlist.getSongPath()
-            PlaylistTransaction.updateFavourite { it ->
-                it.filter { it != songPath }
-            }
+            //TODO()
         }
     }
 
@@ -310,7 +327,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private fun playlistIsInitialized(): Boolean =
-        playlist.notShuffled.isNotEmpty()
+        playlistResolver.currentPlaylist.songList.isNotEmpty()
 
     private fun whenServiceKilled() {
         //store player state
@@ -345,13 +362,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private suspend fun restoreState() {
-        val songsFromDb: List<MiniPlayerServiceSong> =
-            DB.serviceTransaction("restoreState") { getAll() }
-        val songsToPlaylist = MiniPlayerServiceSong.getSongsToPlaylist(songsFromDb)
+        playlistResolver = ServicePlaylist(currentPlaylist.get())
 
-        if (songsToPlaylist.isNotEmpty()) {
-            applyInteractor(songsToPlaylist)
-            playlist.addToQueue(*songsToPlaylist.toTypedArray())
+        if (currentPlaylist.getUnsafe().songList.isNotEmpty()) {
             //restore isPlaying state
             val isPlaying = MiniPlayerServicePreferences(this).isPlaying
             val appWasDestroyed = AppPreference(this).appIsDestroyed
@@ -362,7 +375,7 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             //restore duration
             //what song should play
             //after all info got -> start player ->  set current time -> stop
-            applySong(songsToPlaylist)
+            applySong()
             //this means ui have been destroyed with service after destroy main activity
             //but app is still working -> after restoration we should play song
             //TODO() does need this lines ?
@@ -372,16 +385,10 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
     }
 
-    private fun applyInteractor(songsToPlaylist: List<File>) {
-        SongPlaylistInteractor.songs = songsToPlaylist
-            .map { Song(it) }
-            .toTypedArray()
-    }
-
-    private fun applySong(songsToPlaylist: List<File>) {
+    private fun applySong() {
         val duration = MiniPlayerServicePreferences(this).currentDuration
-        val path = restoreSongPath(songsToPlaylist)
-        if (path.isEmpty()) return
+        val path = restoreSongPath()
+        if (path != null) return
 
         playNext(path, true)
         rewindPlayer(duration)
@@ -390,12 +397,13 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             player.setVolume(1.0f, 1.0f)
     }
 
-    private fun restoreSongPath(songsToPlaylist: List<File>): String {
+    private fun restoreSongPath(): AudlayerSong? {
         var posWasPlayedSong = MiniPlayerServicePreferences(this).currentPos
-        if (posWasPlayedSong == -1) return ""
-        if (posWasPlayedSong > songsToPlaylist.lastIndex)
-            posWasPlayedSong = songsToPlaylist.lastIndex
-        return playlist.notShuffled[posWasPlayedSong].path
+        if (posWasPlayedSong == -1) return null
+
+        val lastIndex = currentPlaylist.getUnsafe().songList.lastIndex
+        if (posWasPlayedSong > lastIndex) posWasPlayedSong = lastIndex
+        return playlistResolver.currentPlaylist.songList[posWasPlayedSong]
     }
 
     private fun applyShuffleState(
@@ -413,8 +421,8 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
     }
 
-    private fun addToQueue(list: Array<File>) {
-        playlist.addToQueue(*list)
+    private fun addToQueue(list: List<AudlayerSong>) {
+        playlistResolver.addToQueue(*list.toTypedArray())
         //restore shuffle state
         if (QueueResolver.shuffleState) shuffleOn()
         storeQueue()
@@ -445,12 +453,12 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     private fun songIsOver() {
         if (playerIsInitialized()) {
             when {
-                QueueResolver.loop -> playNext(playlist.getSongPath())
+                QueueResolver.loop -> playNext(playlistResolver.getSong())
                 QueueResolver.loopAll -> playNext()
                 //reset current song ui
                 //not loop
                 else -> {
-                    playNext(playlist.getSongPath())
+                    playNext(playlistResolver.getSong())
                     pausePlayer()
                 }
             }
@@ -458,14 +466,14 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
     }
 
     private fun playNext(
-        path: String? = null,
+        song: AudlayerSong? = null,
         silence: Boolean = false) {
         //check if song now is playing
         stopPlayer()
         //start playing
-        val song = if (path == null) playlist.getNext()
-        else playlist.getSongAndResetQuery(path)
-        createPlayer(song.absoluteFile)?.let {
+        val song = if (song == null) playlistResolver.getNext()
+        else playlistResolver.getSongAndResetQuery(song)
+        createPlayer(song)?.let {
             player = it
             //low volume
             if (silence) player.setVolume(0.0f, 0.0f)
@@ -474,14 +482,15 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
             //play
             playSongAfterCreatedPlayer()
             //update db
-            scope.launch {
-                PlaylistTransaction.updatePlayedSong(song.path)
-            }
+            //todo()
+//            scope.launch {
+//                PlaylistTransaction.updatePlayedSong(song.path)
+//            }
             //send info
             sendInfoToUI(song)
             //store pos
             storeSongPositionInQueue()
-        } ?: pathIsWrong(path ?: "")
+        } ?: pathIsWrong(song.path)
     }
 
     private fun pathIsWrong(path: String) {
@@ -498,9 +507,9 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
     }
 
-    private fun createPlayer(file: File): MediaPlayer? {
-        Log.d(TAG, file.path)
-        val uri = Uri.fromFile(file)
+    private fun createPlayer(song: AudlayerSong): MediaPlayer? {
+        Log.d(TAG, song.toString())
+        val uri = Uri.fromFile(File(song.path))
         return MediaPlayer.create(baseContext, uri)
     }
 
@@ -543,8 +552,10 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private fun storeSongPositionInQueue() {
         if (playlistIsInitialized()) {
-            val posInQueue = playlist.getSong()
-            val pos = playlist.notShuffled.indexOf(posInQueue)
+            val songInQueue = playlistResolver.getSong()
+            val pos = playlistResolver.currentPlaylist
+                .songList
+                .indexOf(songInQueue)
             MiniPlayerServicePreferences(this).currentPos = pos
             Log.d(TAG, "store pos: $pos")
         }
@@ -558,17 +569,13 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
 
     private fun storeQueue() {
         scope.launch {
-            val songsToDb =
-                MiniPlayerServiceSong.getSongsToDb(playlist.notShuffled)
             //db
-            DB.serviceTransaction("storeQueue") {
-                updateData(songsToDb)
-            }
+            PlaylistTransaction.update(currentPlaylist.getUnsafe())
         }
         Log.d(TAG, "store queue")
     }
 
-    private fun sendInfoToUI(song: File = playlist.getSong()) {
+    private fun sendInfoToUI(song: AudlayerSong = playlistResolver.getSong()) {
         //send info
         mayInvoke {
             AppBroadcastHub.run {
@@ -641,42 +648,30 @@ abstract class MiniPlayerService : AudioFocusListenerService() {
         }
     }
 
-    private fun sendPath(song: File) =
-        AppBroadcastHub.run { playByPathUI(song.absolutePath) }
+    private fun sendPath(song: AudlayerSong) =
+        AppBroadcastHub.run { playByPathUI(song.path) }
 
     private fun sendSongDuration(player: MediaPlayer) =
         AppBroadcastHub.run { songDurationUI(player.duration) }
 
-    private fun sendIsHQ(song: File) {
+    private fun sendIsHQ(song: AudlayerSong) {
         mayInvoke {
-            val bitrate = SongBitrate.getKbps(song)
+            val bitrate = SongBitrate.getKbps(File(song.path))
 
             if (bitrate > 190) AppBroadcastHub.run { songHQUI(true) }
             else AppBroadcastHub.run { songHQUI(false) }
         }
     }
 
-    private fun sendSongNameAndArtist(file: File) {
-        val songArtist = FileNameParser.getSongArtist(file)
-        val songName = FileNameParser.getSongTitle(file)
+    private fun sendSongNameAndArtist(song: AudlayerSong) {
         mayInvoke {
-            AppBroadcastHub.run { songArtistUI(songArtist) }
-            AppBroadcastHub.run { songNameUI(songName) }
+            AppBroadcastHub.run { songArtistUI(song.artist) }
+            AppBroadcastHub.run { songTitleUI(song.title) }
         }
     }
 
-    private suspend fun sendIsLoved(song: File) {
-        val favourite = PlaylistTransaction.getFavouriteSongs()
-        if (favourite.contains(song.path)) mayInvoke {
-            AppBroadcastHub.run {
-                doAction(BroadcastActionType.LIKE_PLAYER_UI)
-            }
-        }
-        else mayInvoke {
-            AppBroadcastHub.run {
-                doAction(BroadcastActionType.UNLIKE_PLAYER_UI)
-            }
-        }
+    private suspend fun sendIsLoved(song: AudlayerSong) {
+        //todo()
     }
 
     private fun sendPathIsWrong(path: String) =

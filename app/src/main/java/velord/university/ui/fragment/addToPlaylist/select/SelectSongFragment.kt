@@ -26,9 +26,9 @@ import velord.university.databinding.ActionBarSearchBinding
 import velord.university.databinding.GeneralRvBinding
 import velord.university.databinding.SelectSongFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.file.FileNameParser
+import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerFirst
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import java.io.File
@@ -186,14 +186,13 @@ class SelectSongFragment :
     private fun initSelectAll() {
         binding.actionSelectAll.setOnClickListener {
             scope.launch {
-                val checkedAll = viewModel.checked.size == viewModel.fileList.size
+                val checkedAll = viewModel.checked.size == viewModel.songList.size
                 viewModel.checked.clear()
-                if (checkedAll.not())
-                    viewModel.fileList.forEach {
-                        viewModel.checked += it.path
-                    }
+                if (checkedAll.not()) viewModel.songList.forEach {
+                    viewModel.checked += it
+                }
 
-                withContext(Dispatchers.Main) {
+                onMain {
                     updateAdapterBySearchQuery(viewModel.currentQuery)
                 }
             }
@@ -204,10 +203,7 @@ class SelectSongFragment :
         binding.actionContinue.setOnClickListener {
             callbacks?.let { it ->
                 if (viewModel.checked.isNotEmpty()) {
-                    SongPlaylistInteractor.songs =
-                        viewModel.checked
-                            .map { Song(File(it)) }
-                            .toTypedArray()
+                    SongPlaylistInteractor.songs = viewModel.songList
 
                     it.openAddToPlaylistFragment()
                 }
@@ -227,30 +223,17 @@ class SelectSongFragment :
     }
 
     private fun updateAdapterBySearchQuery(searchTerm: String) {
-        fun setupAdapter( //default filter
-            filter: (File, String) -> Boolean = FileFilter.filterByEmptySearchQuery
-        ) {
-            //while permission is not granted
-            if (viewModel.checkPermission(requireActivity()).not())
-                setupAdapter(filter)
-            //apply all filters to recycler view
-            val filteredAndSortered =
-                viewModel.filterAndSortFiles(requireContext(), filter, searchTerm)
-            bindingRv.fastScrollRv.adapter = FileAdapter(filteredAndSortered)
-        }
-
-        if (searchTerm.isNotEmpty()) {
-            val f = FileFilter.filterFileBySearchQuery
-            setupAdapter(f)
-        }
-        else setupAdapter()
+        //while permission is not granted
+        if (viewModel.checkPermission(requireActivity()).not()) setupAdapter()
+        //apply all filters to recycler view
+        val filteredAndSortered =
+            viewModel.filterAndSortFiles(requireContext(), searchTerm)
+        bindingRv.fastScrollRv.adapter = FileAdapter(filteredAndSortered)
+        setupAdapter()
     }
 
     private fun setupAdapter() {
-        viewModel.fileList = SongPlaylistInteractor.songs
-            .map { it.file }
-            .toTypedArray()
-
+        viewModel.songList = SongPlaylistInteractor.songs
         updateAdapterBySearchQuery("")
     }
 
@@ -264,44 +247,37 @@ class SelectSongFragment :
         private val fileCheckBox: CheckBox =
             itemView.findViewById(R.id.add_song_item_checkBox)
 
-        private fun setOnClickAndImageResource(file: File) {
+        private fun setOnClickAndImageResource(song: AudlayerSong) {
             fileIconImageButton.apply {
-                setImageResource(R.drawable.select_song_icon
-                )
+                setImageResource(R.drawable.select_song_icon)
                 setOnClickListener {
-                    if (fileCheckBox.isChecked)
-                        viewModel.checked -= file.path
-                    else
-                        viewModel.checked += file.path
+                    if (fileCheckBox.isChecked) viewModel.checked -= song
+                    else viewModel.checked += song
                     fileCheckBox.isChecked = !(fileCheckBox.isChecked)
                 }
             }
             pathTextView.setOnClickListener {
-                if (fileCheckBox.isChecked)
-                    viewModel.checked -= file.path
-                else
-                    viewModel.checked += file.path
+                if (fileCheckBox.isChecked) viewModel.checked -= song
+                else viewModel.checked += song
                 fileCheckBox.isChecked = !(fileCheckBox.isChecked)
             }
 
             fileCheckBox.setOnClickListener {
                 //this is strange but it's right behaviour
-                if (fileCheckBox.isChecked)
-                    viewModel.checked += file.path
-                else
-                    viewModel.checked -= file.path
+                if (fileCheckBox.isChecked) viewModel.checked += song
+                else viewModel.checked -= song
             }
         }
 
-        fun bindItem(file: File, position: Int) {
-            setOnClickAndImageResource(file)
-            pathTextView.text = FileNameParser.removeExtension(file)
+        fun bindItem(song: AudlayerSong, position: Int) {
+            setOnClickAndImageResource(song)
+            pathTextView.text = FileNameParser.removeExtension(File(song.path))
 
-            fileCheckBox.isChecked = file.path in viewModel.checked
+            fileCheckBox.isChecked = song in viewModel.checked
         }
     }
 
-    private inner class FileAdapter(val items: Array<out File>):
+    private inner class FileAdapter(val items: Array<out AudlayerSong>):
         RecyclerView.Adapter<FileHolder>(),  FastScrollRecyclerView.SectionedAdapter {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileHolder {
@@ -322,6 +298,6 @@ class SelectSongFragment :
         override fun getItemCount(): Int = items.size
 
         override fun getSectionName(position: Int): String =
-            "${items[position].name[0]}"
+            "${items[position].title[0]}"
     }
 }

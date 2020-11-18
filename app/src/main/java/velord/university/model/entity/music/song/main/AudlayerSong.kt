@@ -1,9 +1,9 @@
-package velord.university.model.entity.music.newGeneration.song
+package velord.university.model.entity.music.song.main
 
 import androidx.room.*
 import velord.university.model.entity.music.song.download.DownloadSong
+import java.io.File
 import java.time.LocalDateTime
-import java.util.*
 
 @Fts4
 @Entity
@@ -30,6 +30,8 @@ data class AudlayerSong(
 
     fun getWithNewPath(newPath: String): AudlayerSong =
         AudlayerSong(artist, title, duration, imgUrl, dateAdded, url, newPath, id)
+
+    fun toFile(): File = File(path)
 
     companion object {
 

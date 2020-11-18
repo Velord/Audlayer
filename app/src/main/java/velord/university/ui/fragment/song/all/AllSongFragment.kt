@@ -38,7 +38,7 @@ import velord.university.model.coroutine.getScope
 import velord.university.model.coroutine.onMain
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.file.FileNameParser
-import velord.university.model.entity.music.song.Song
+import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.model.exception.ViewDestroyed
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
@@ -128,14 +128,13 @@ class AllSongFragment :
     private suspend fun changeRVItem(songPath: String) {
         if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.apply {
-                val song = viewModel.allSong.get().find {
-                    it.file.absolutePath == songPath
-                } ?: return
+                val song = viewModel.allSong.get()
+                    .find { it.path == songPath } ?: return
 
                 clearAndChangeSelectedItem(song)
                 //apply to ui
                 val songList = viewModel.ordered
-                val containF: (Song) -> Boolean = {
+                val containF: (AudlayerSong) -> Boolean = {
                     it == song
                 }
                 refreshAndScroll(
@@ -365,7 +364,7 @@ class AllSongFragment :
 
     private fun getRecyclerViewResolver(
         adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
-    ): RVSelection<Song> {
+    ): RVSelection<AudlayerSong> {
         return if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.adapter = adapter
             viewModel.rvResolver
@@ -389,29 +388,24 @@ class AllSongFragment :
         private val icon: ImageButton =
             itemView.findViewById(R.id.general_item_icon)
 
-        val selected: (Song) -> Array<() -> Unit> = { song ->
+        val selected: (AudlayerSong) -> Array<() -> Unit> = { song ->
             arrayOf(
                 {
                     icon.setImageResource(R.drawable.song_item_playing)
                 },
                 {
-                    val album = Playlist.whichPlaylist(
-                        viewModel.allPlaylist.getWithNull()?.toList() ?: listOf(),
-                        song.file.path
-                    )
-
                     val size: Double = roundOfDecimalToUp(
-                        (FileFilter.getSize(song.file).toDouble() / 1024)
+                        (FileFilter.getSize(song.toFile()).toDouble() / 1024)
                     )
 
 
-                    val bitrate = SongBitrate.getKbpsString(song.file)
+                    val bitrate = SongBitrate.getKbpsString(song.toFile())
 
                     text.text = getString(
                         R.string.song_rv_item,
-                        FileNameParser.removeExtension(song.file),
+                        FileNameParser.removeExtension(song.toFile()),
                         size.toString(),
-                        album,
+                        "TODO()",
                         bitrate
                     )
                 },
@@ -421,13 +415,13 @@ class AllSongFragment :
             )
         }
 
-        val notSelected: (Song) -> Array<() -> Unit> = { song ->
+        val notSelected: (AudlayerSong) -> Array<() -> Unit> = { song ->
             arrayOf(
                 {
                     icon.setImageResource(R.drawable.song_item_black)
                 },
                 {
-                    text.text = FileNameParser.removeExtension(song.file)
+                    text.text = FileNameParser.removeExtension(song.toFile())
                 },
                 {
                     itemView.setBackgroundResource(R.color.opacity)
@@ -435,10 +429,9 @@ class AllSongFragment :
             )
         }
 
-        private fun playSong(song: Song) =
-            viewModel.playAudioAndAllSong(song)
+        private fun playSong(song: AudlayerSong) = viewModel.playAudioAndAllSong(song)
 
-        private val actionPopUpMenu: (Song) -> Unit = { song ->
+        private val actionPopUpMenu: (AudlayerSong) -> Unit = { song ->
             val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
             val initActionMenuLayout = { R.menu.folder_item_is_audio_pop_up }
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
@@ -480,12 +473,12 @@ class AllSongFragment :
         }
 
         private fun setOnClickAndImageResource(
-            song: Song,
-            rvSelectResolver: RVSelection<Song>
+            song: AudlayerSong,
+            rvSelectResolver: RVSelection<AudlayerSong>
         ) {
             itemView.setOnClickListener {
                 scope.launch {
-                    withContext(Dispatchers.Main) {
+                    onMain {
                         rvSelectResolver.singleSelectionPrinciple(song)
                         playSong(song)
                     }
@@ -493,10 +486,9 @@ class AllSongFragment :
             }
             text.setOnClickListener {
                 scope.launch {
-                    withContext(Dispatchers.Main) {
+                    onMain {
                         rvSelectResolver.singleSelectionPrinciple(song)
                         playSong(song)
-
                     }
                 }
             }
@@ -510,8 +502,8 @@ class AllSongFragment :
         }
 
         private fun setIconView(
-            song: Song,
-            rvSelectResolver: RVSelection<Song>
+            song: AudlayerSong,
+            rvSelectResolver: RVSelection<AudlayerSong>
         ) {
             icon.setOnClickListener {
                 scope.launch {
@@ -522,14 +514,12 @@ class AllSongFragment :
                 }
             }
 
-            DrawableIcon.loadSongIconDrawable(
-                requireContext(), icon, song.icon
-            )
+            //todo() icon
         }
 
         private fun applyState(
-            value: Song,
-            rvSelectResolver: RVSelection<Song>
+            value: AudlayerSong,
+            rvSelectResolver: RVSelection<AudlayerSong>
         ) {
             when(rvSelectResolver.state) {
                 0 -> rvSelectResolver.isContains(
@@ -541,15 +531,15 @@ class AllSongFragment :
         }
 
         fun bindItem(
-            song: Song, position: Int,
-            rvSelectResolver: RVSelection<Song>
+            song: AudlayerSong, position: Int,
+            rvSelectResolver: RVSelection<AudlayerSong>
         ) {
             applyState(song, rvSelectResolver)
             setOnClickAndImageResource(song, rvSelectResolver)
         }
     }
 
-    private inner class SongAdapter(val items: Array<out Song>):
+    private inner class SongAdapter(val items: Array<out AudlayerSong>):
         RecyclerView.Adapter<SongHolder>(),  FastScrollRecyclerView.SectionedAdapter {
 
         private val rvSelectResolver = getRecyclerViewResolver(
@@ -579,6 +569,6 @@ class AllSongFragment :
         override fun getItemCount(): Int = items.size
 
         override fun getSectionName(position: Int): String =
-            "${items[position].file.name[0]}"
+            "${items[position].title[0]}"
     }
 }

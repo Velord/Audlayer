@@ -5,6 +5,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -36,6 +37,9 @@ class AudlayerApp : Application() {
     }
 
     companion object {
+
+        private val TAG = "AudlayerAppCompanion"
+
         private var db: AppDatabase? = null
 
         private val scope: CoroutineScope = getScope()
@@ -55,8 +59,13 @@ class AudlayerApp : Application() {
             //init db and create tables if not exist
             db = buildAppDatabase(context)
             scope.launch {
-                PlaylistTransaction.checkDbTableColumn()
-                RadioRepository.checkDefaultRadioStation(context)
+                try {
+                    PlaylistTransaction.checkDbTableColumn()
+                    RadioRepository.checkDefaultRadioStation(context)
+                }
+                catch (e: Exception) {
+                    Log.d(TAG, e.message.toString())
+                }
             }
         }
     }

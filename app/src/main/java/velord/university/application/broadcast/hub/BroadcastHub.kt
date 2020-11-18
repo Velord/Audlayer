@@ -130,7 +130,7 @@ object AppBroadcastHub {
     fun Context.playByPathUI(path: String) =
         PlayerBroadcastAction.PlayByPath(this).toUI(path)
 
-    fun Context.songNameUI(name: String) =
+    fun Context.songTitleUI(name: String) =
         PlayerBroadcastAction.SongName(this).toUI(name)
 
     fun Context.songArtistUI(artist: String) =

@@ -38,7 +38,7 @@ class CreateNewPlaylistDialogFragment :
     private val binding get() = _binding ?:
     throw ViewDestroyed("Don't touch view when it is destroyed")
 
-    private val songsToPlaylist = SongPlaylistInteractor.songsPath
+    private val songsToPlaylist = SongPlaylistInteractor.songs
 
     private var playlistName = ""
 
@@ -106,8 +106,9 @@ class CreateNewPlaylistDialogFragment :
 
     private fun createNewPlaylist() {
         if (playlistName.isNotEmpty()) {
+            //todo()
             scope.launch {
-                PlaylistTransaction.createNewPlaylist(playlistName, songsToPlaylist.toList())
+                PlaylistTransaction.createNewPlaylist(playlistName, songsToPlaylist.map { it.id })
             }
             dismiss()
         } else requireActivity().toastInfo(

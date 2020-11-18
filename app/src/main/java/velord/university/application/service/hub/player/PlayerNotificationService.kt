@@ -34,13 +34,13 @@ class PlayerNotificationService : Service(),
             val songPath = getStringExtra(extra)
 
             val song = SongPlaylistInteractor.songs.find {
-                it.file.path == songPath
+                it.path == songPath
             }
 
             song?.let {
                 val songIcon = WidgetService.getSongIconValue(song)
-                val artist = FileNameParser.getSongArtist(it.file)
-                val title = FileNameParser.getSongTitle(it.file)
+                val artist = it.artist
+                val title = it.title
 
                 MiniPlayerNotification
                     .updateIcon(this@PlayerNotificationService, songIcon, true)

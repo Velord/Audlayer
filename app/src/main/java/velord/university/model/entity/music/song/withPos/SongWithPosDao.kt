@@ -1,10 +1,9 @@
-package velord.university.model.entity.music.newGeneration.song.withPos
+package velord.university.model.entity.music.song.withPos
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import velord.university.model.entity.music.newGeneration.song.withPos.SongWithPos
 
 @Dao
 interface SongWithPosDao {

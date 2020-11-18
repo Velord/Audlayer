@@ -11,6 +11,7 @@ import velord.university.model.coroutine.getScope
 import velord.university.model.coroutine.onDef
 import velord.university.model.entity.music.radio.RadioStation
 import velord.university.repository.db.transaction.hub.DB
+import velord.university.ui.fragment.addToPlaylist.tryAction
 import velord.university.ui.util.RVSelection
 
 class RadioViewModel(
@@ -87,8 +88,10 @@ class RadioViewModel(
         }
 
     private suspend fun reassignmentRadioPlaylist() {
-        radioPlaylist = DB.radioTransaction("reassignmentRadioPlaylist") {
-            getAll()
+        tryAction("reassignmentRadioPlaylist") {
+            radioPlaylist = DB.radioTransaction("reassignmentRadioPlaylist") {
+                getAll()
+            }
         }
     }
 }

@@ -1,10 +1,10 @@
 package velord.university.interactor
 
-import velord.university.model.entity.music.song.Song
+import velord.university.model.entity.music.song.main.AudlayerSong
 
 object SongPlaylistInteractor {
-    lateinit var songs: Array<Song>
+    lateinit var songs: Array<AudlayerSong>
 
     val songsPath: Array<String>
-        get() = songs.map { it.file.path }.toTypedArray()
+        get() = songs.map { it.path }.toTypedArray()
 }

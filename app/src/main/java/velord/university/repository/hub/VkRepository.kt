@@ -2,8 +2,8 @@ package velord.university.repository.hub
 
 import android.content.Context
 import velord.university.model.coroutine.onIO
-import velord.university.model.entity.music.newGeneration.playlist.CompareAndInsert
-import velord.university.model.entity.music.newGeneration.song.AudlayerSong
+import velord.university.model.entity.music.playlist.CompareAndInsert
+import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.model.entity.vk.fetch.VkSongFetch
 import velord.university.model.entity.vk.fetch.VkSongFetch.Companion.mapWithPosition
 import velord.university.repository.db.transaction.PlaylistTransaction
@@ -24,7 +24,8 @@ object VkRepository : BaseRepository() {
         //compare with existed and insert
         CompareAndInsert.compareAndInsert(byTokenSongs.mapWithPosition())
         //compare with existed and delete
-        compareAndDelete(byTokenSongs, playlist)
+        //todo()
+        //compareAndDelete(byTokenSongs, playlist)
     }
 
     private suspend fun compareAndDelete(byTokenSongs: Array<VkSongFetch>,

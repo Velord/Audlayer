@@ -39,9 +39,8 @@ import velord.university.databinding.VkFragmentBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
-import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.fileType.file.FileFilter
-import velord.university.model.entity.music.newGeneration.song.AudlayerSong
+import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.model.entity.music.song.download.DownloadSong
 import velord.university.model.entity.openFragment.general.OpenFragmentEntity
 import velord.university.model.entity.openFragment.returnResult.OpenFragmentForResultWithData
@@ -575,9 +574,8 @@ class VKFragment :
                     R.id.vk_rv_item_add_to_playlist -> {
                         callbacks?.let { callback ->
 
-                            SongPlaylistInteractor.songs = arrayOf(Song(File(song.path)))
+                            SongPlaylistInteractor.songs = arrayOf(song)
                             callback.openAddToPlaylistFragment()
-
                         }
                         true
                     }

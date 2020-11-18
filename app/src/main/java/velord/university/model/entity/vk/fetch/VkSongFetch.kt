@@ -2,7 +2,7 @@ package velord.university.model.entity.vk.fetch
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import velord.university.model.entity.music.newGeneration.song.AudlayerSong
+import velord.university.model.entity.music.song.main.AudlayerSong
 
 @Serializable
 data class Ads(

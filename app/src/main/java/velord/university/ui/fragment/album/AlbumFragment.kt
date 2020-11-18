@@ -22,6 +22,7 @@ import velord.university.R
 import velord.university.application.settings.SortByPreference
 import velord.university.databinding.ActionBarSearchBinding
 import velord.university.databinding.AlbumFragmentBinding
+import velord.university.model.entity.music.playlist.Playlist
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 
@@ -97,7 +98,6 @@ class AlbumFragment :
             //store search term in shared preferences
             viewModel.storeSearchQuery(correctQuery)
             //update files list
-            updateAdapterBySearchQuery(correctQuery)
     }
 
     override fun onCreateView(
@@ -147,8 +147,7 @@ class AlbumFragment :
                     val refresh = it as TextView
                     refresh.text = getString(R.string.album_refreshing)
                 }
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                withContext(Dispatchers.Main) {
+                onMain {
                     val refresh = it as TextView
                     refresh.text = getString(R.string.album_refresh)
                 }
@@ -178,8 +177,7 @@ class AlbumFragment :
                     refresh.text = getString(R.string.album_refreshing)
                 }
                 viewModel.retrievePlaylistFromDb()
-                updateAdapterBySearchQuery(viewModel.currentQuery)
-                withContext(Dispatchers.Main) {
+                onMain {
                     val refresh = it as TextView
                     refresh.text = getString(R.string.album_refresh)
                 }
@@ -197,30 +195,14 @@ class AlbumFragment :
 
     private fun sortBy(index: Int): Boolean {
         SortByPreference(requireContext()).sortByAlbumFragment = index
-        updateAdapterBySearchQuery(viewModel.currentQuery)
         super.rearwardActionButton()
         return true
     }
 
     private fun sortByAscDesc(index: Int): Boolean {
         SortByPreference(requireContext()).ascDescAlbumFragment = index
-        updateAdapterBySearchQuery(viewModel.currentQuery)
         super.rearwardActionButton()
         return true
-    }
-
-    private fun updateAdapterBySearchQuery(searchQuery: String) {
-        scope.launch {
-            this.launch {
-                if (viewModel.playlistIsInitialized()) {
-                    val playlistFiltered =
-                        viewModel.filterByQueryPlaylist(searchQuery).toTypedArray()
-                    withContext(Dispatchers.Main) {
-                        binding.playlistRV.adapter = PlaylistAdapter(playlistFiltered)
-                    }
-                }
-            }
-        }
     }
 
     private fun setupAdapter() {
@@ -241,7 +223,7 @@ class AlbumFragment :
             itemView.findViewById(R.id.general_item_icon)
 
         private fun openPlaylist(playlist: Playlist) {
-            viewModel.playSongs(playlist.songs.toTypedArray())
+            viewModel.playSongs(playlist.songList)
         }
 
         private val actionPopUpMenu: (Playlist) -> Unit = { playlist ->
@@ -250,7 +232,7 @@ class AlbumFragment :
             val initActionMenuItemClickListener: (MenuItem) -> Boolean = {
                 when (it.itemId) {
                     R.id.playlist_item_play -> {
-                        viewModel.playSongs(playlist.songs.toTypedArray())
+                        viewModel.playSongs(playlist.songList)
                         true
                     }
                     R.id.playlist_item_add_to_home_screen -> {
@@ -305,7 +287,7 @@ class AlbumFragment :
         fun bindItem(playlist: Playlist, position: Int) {
             setOnClickAndImageResource(playlist)
             pathTextView.text =
-                getString(R.string.album_item, playlist.name, playlist.songs.size)
+                getString(R.string.album_item, playlist.name, playlist.songList.size)
         }
     }
 

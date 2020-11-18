@@ -1,8 +1,8 @@
 package velord.university.repository.db.transaction
 
 import velord.university.model.coroutine.onIO
-import velord.university.model.entity.music.newGeneration.playlist.Playlist
-import velord.university.model.entity.music.newGeneration.song.withPos.SongWithPos
+import velord.university.model.entity.music.playlist.Playlist
+import velord.university.model.entity.music.song.withPos.SongWithPos
 import velord.university.repository.db.transaction.hub.BaseTransaction
 import velord.university.repository.db.transaction.hub.DB.playlistTransaction
 
@@ -38,6 +38,11 @@ object PlaylistTransaction : BaseTransaction() {
             (getByName("Played"))
         })
 
+    suspend fun getCurrent(): Playlist =
+        convertPlaylist(playlistTransaction("getCurrent") {
+            (getByName("Current"))
+        })
+
     suspend fun getFavourite(): Playlist =
         convertPlaylist(playlistTransaction("getFavourite") {
             (getByName("Favourite"))
@@ -53,17 +58,6 @@ object PlaylistTransaction : BaseTransaction() {
             val playlist = Playlist(name, songs.toMutableList())
             insertAll(playlist)
         }
-
-    suspend fun updatePlayedSong(song: SongWithPos) = onIO {
-        //retrieve from Db
-        val playedSongs = getPlayed()
-        //add new path
-        //secure from duplicate last
-        if (playedSongs.songWithPosList.last() != song)
-            playedSongs.songWithPosList += song
-        //update column
-        update(playedSongs)
-    }
 
     suspend fun checkDbTableColumn() = transaction("checkDbTableColumn") {
         val playlist = getAllPlaylist().map { it.name }

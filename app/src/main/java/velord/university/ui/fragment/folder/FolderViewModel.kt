@@ -1,17 +1,20 @@
 package velord.university.ui.fragment.folder
 
 import android.app.Application
+import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import velord.university.application.broadcast.hub.AppBroadcastHub
 import velord.university.application.broadcast.hub.BroadcastActionType
+import velord.university.application.service.hub.player.toAudlayerSong
 import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.entity.fileType.directory.DirectoryResolver
-import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.fileType.file.FileExtension
 import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.music.song.main.AudlayerSong
+import velord.university.model.entity.music.song.main.AudlayerSong.Companion.filterByQuery
 import velord.university.ui.util.DrawableIcon
 import velord.university.ui.util.RVSelection
 import java.io.File
@@ -22,68 +25,68 @@ class FolderViewModel(
 
     val TAG = "FolderViewModel"
 
-    lateinit var fileList: Array<Song>
-    lateinit var ordered: List<Song>
+    lateinit var songList: Array<AudlayerSong>
+    lateinit var ordered: List<AudlayerSong>
 
     lateinit var currentQuery: String
 
-    lateinit var rvResolver: RVSelection<Song>
+    lateinit var rvResolver: RVSelection<AudlayerSong>
 
     val directory: DirectoryResolver = DirectoryResolver()
 
-    fun sendIconToMiniPlayer(song: Song) =
-        AppBroadcastHub.apply { app.iconUI(song.icon.toString()) }
+    val mediaMetadataRetriever = MediaMetadataRetriever()
+
+    fun sendIconToMiniPlayer(song: AudlayerSong) =
+        AppBroadcastHub.apply { app.iconUI(song.imgUrl) }
 
     fun rvResolverIsInitialized(): Boolean = ::rvResolver.isInitialized
 
     fun getSearchQuery(): String =
         SearchQueryPreferences.getStoredQueryFolder(app, directory.getPath())
 
-    fun onlyAudio(file: File = directory.getDirectory()): Array<Song> =
-        FileFilter
-            .filterOnlyAudio(file)
-            .map { Song(it) }
+    fun onlyAudio(file: File = directory.getDirectory()): Array<AudlayerSong> =
+        FileFilter.filterOnlyAudio(file)
+            .map { it.toAudlayerSong(mediaMetadataRetriever) }
             .toTypedArray()
 
-    fun playAllInFolder(value: Song) {
+    fun playAllInFolder(value: AudlayerSong) {
         //don't remember for SongPlaylistInteractor
         AppBroadcastHub.apply {
-            app.playAllInFolderService(value.file.path)
+            app.playAllInFolderService(value.path)
             app.doAction(BroadcastActionType.LOOP_ALL_PLAYER_SERVICE)
         }
     }
 
-    fun playAllInFolderNext(value: Song) {
+    fun playAllInFolderNext(value: AudlayerSong) {
         //add to queue
         AppBroadcastHub.apply {
-            app.playNextAllInFolderService(value.file.path)
+            app.playNextAllInFolderService(value.path)
         }
     }
 
-    fun shuffleAndPlayAllInFolder(value: Song) {
+    fun shuffleAndPlayAllInFolder(value: AudlayerSong) {
         AppBroadcastHub.apply {
-            app.shuffleAndPlayAllInFolderService(value.file.path)
+            app.shuffleAndPlayAllInFolderService(value.path)
             app.doAction(BroadcastActionType.LOOP_ALL_PLAYER_SERVICE)
         }
     }
 
-    fun playAudio(value: Song) {
+    fun playAudio(value: AudlayerSong) {
         //don't remember for SongPlaylistInteractor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(value)
 
-
         AppBroadcastHub.apply {
-            app.playByPathService(value.file.path)
+            app.playByPathService(value.path)
             app.doAction(BroadcastActionType.LOOP_PLAYER_SERVICE)
         }
     }
 
-    fun playAudioNext(value: Song) {
+    fun playAudioNext(value: AudlayerSong) {
         //don't remember for SongQueryInteractor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(value)
         //add to queue one song
         AppBroadcastHub.apply {
-            app.addToQueueService(value.file.path)
+            app.addToQueueService(value.path)
         }
     }
 
@@ -95,41 +98,27 @@ class FolderViewModel(
         Log.d(TAG, "query: $currentQuery path: $folderPath")
     }
 
-    fun playAudioFile(value: Song) {
+    fun playAudioFile(value: AudlayerSong) {
         AppBroadcastHub.apply {
-           SongPlaylistInteractor.songs = fileList
-               .filter { FileExtension.isAudio(it.file.extension) }
-               .toTypedArray()
+           SongPlaylistInteractor.songs = songList
 
-           app.playByPathService(value.file.path)
+           app.playByPathService(value.path)
        }
     }
 
-    fun filterAndSortFiles(filter: FileFilter.TYPE = FileFilter.TYPE.SEARCH,
-                           searchTerm: String = currentQuery
-    ): Array<Song> {
+    fun filterAndSortFiles(searchTerm: String = currentQuery): Array<AudlayerSong> {
         val filesInFolder = getSongListInCurrentFolder()
         //if you would see not compatible format
         //just remove or comment 2 lines bottom
-        val compatibleFileFormat = filesInFolder.filter {
-            when (filter) {
-                FileFilter.TYPE.EMPTY_SEARCH ->
-                    FileFilter.filterByEmptySearchQuery(it.file, searchTerm)
-                FileFilter.TYPE.SEARCH ->
-                    FileFilter.filterFileBySearchQuery(it.file, searchTerm)
-            }
-        }
+        val compatibleFileFormat = filesInFolder.filterByQuery(searchTerm)
         // sort by name or artist or date added
         val sortedFiles = when(SortByPreference(app).sortByFolderFragment) {
-            0 ->  {
-                compatibleFileFormat.sortedBy {  FileFilter.getName(it.file)  }
-            }
-            1 ->  {
-                compatibleFileFormat.sortedBy { FileFilter.getArtist(it.file) }
-            }
-            2 ->  {
-                compatibleFileFormat.sortedBy { FileFilter.getLastDateModified(it.file) }
-            }
+            //title
+            0 -> compatibleFileFormat.sortedBy {  it.title }
+            //artist
+            1 -> compatibleFileFormat.sortedBy { it.artist }
+            //last date modified
+            2 -> compatibleFileFormat.sortedBy { it.dateAdded }
             else -> compatibleFileFormat
         }
         // sort by ascending or descending order
@@ -141,13 +130,11 @@ class FolderViewModel(
         return ordered.toTypedArray()
     }
 
-    fun isAudio(value: Song): Boolean =
-        FileExtension.isAudio(value.file.extension)
+    fun isAudio(value: AudlayerSong): Boolean =
+        FileExtension.isAudio(File(value.path).extension)
 
-    private fun getSongListInCurrentFolder(): Array<Song> =
+    private fun getSongListInCurrentFolder(): Array<AudlayerSong> =
         directory.getFilesInDirectory()
-            .map {
-                Song(it, "", DrawableIcon.getRandomFolderSongIconName)
-            }
+            .map { it.toAudlayerSong(mediaMetadataRetriever) }
             .toTypedArray()
 }

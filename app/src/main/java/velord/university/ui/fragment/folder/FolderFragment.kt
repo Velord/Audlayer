@@ -29,18 +29,20 @@ import velord.university.R
 import velord.university.application.broadcast.behaviour.MiniPlayerIconClickReceiver
 import velord.university.application.broadcast.behaviour.SongPathReceiver
 import velord.university.application.broadcast.hub.*
+import velord.university.application.service.hub.player.toAudlayerSong
 import velord.university.application.settings.SortByPreference
 import velord.university.databinding.ActionBarSearchBinding
+import velord.university.databinding.AudlayerWidgetBinding
 import velord.university.databinding.FolderFragmentBinding
 import velord.university.databinding.GeneralRvBinding
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.converter.SongBitrate
 import velord.university.model.converter.roundOfDecimalToUp
-import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.fileType.file.FileExtension
 import velord.university.model.entity.fileType.file.FileExtensionModifier
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.file.FileNameParser
+import velord.university.model.entity.music.song.main.AudlayerSong
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.actionBar.ActionBarSearchFragment
 import velord.university.ui.util.DrawableIcon
@@ -216,11 +218,11 @@ class FolderFragment :
         if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.apply {
                 val fileList = viewModel.ordered
-                val file = fileList.find { it.file.absolutePath == songPath } ?: return
+                val file = fileList.find { it.path == songPath } ?: return
 
                 clearAndChangeSelectedItem(file)
                 //apply to ui
-                val containF: (Song) -> Boolean = {
+                val containF: (AudlayerSong) -> Boolean = {
                     it == file
                 }
                 refreshAndScroll(fileList, bindingRv.fastScrollRv, containF)
@@ -333,7 +335,7 @@ class FolderFragment :
         }
     }
 
-    private fun openAddToPlaylistFragment(songs: Array<Song>) {
+    private fun openAddToPlaylistFragment(songs: Array<AudlayerSong>) {
         callbacks?.let {
             if (songs.isNotEmpty()) {
                 SongPlaylistInteractor.songs = songs
@@ -345,7 +347,7 @@ class FolderFragment :
         }
     }
 
-    private fun openCreatePlaylistFragment(songs: Array<Song>) {
+    private fun openCreatePlaylistFragment(songs: Array<AudlayerSong>) {
         if (songs.isNotEmpty()) {
             SongPlaylistInteractor.songs = songs
             callbacks?.openCreateNewPlaylistFragment()
@@ -357,13 +359,12 @@ class FolderFragment :
 
     private fun openAddToPlaylistFragmentByQuery() {
         val files = viewModel.filterAndSortFiles()
-            .map { it.file }
+            .map { it.toFile() }
             .toTypedArray()
 
-        val audio = FileFilter
-            .filterOnlyAudio(files)
-            .map { Song(it) }
-            .toTypedArray()
+        val audio = FileFilter.filterOnlyAudio(files).map {
+            it.toAudlayerSong(viewModel.mediaMetadataRetriever)
+        }.toTypedArray()
 
         openAddToPlaylistFragment(audio)
     }
@@ -400,18 +401,13 @@ class FolderFragment :
     private fun updateAdapterBySearchQuery(searchQuery: String) {
         scope.launch {
             between("updateAdapterBySearchQuery") {
-                //get filter type
-                val filter = if (searchQuery.isNotEmpty())
-                    FileFilter.TYPE.SEARCH
-                else FileFilter.TYPE.EMPTY_SEARCH
                 //now do everything to setup adapter
-                changeCurrentTextView(viewModel.directory.getDirectory())
                 //apply all filters to recycler view
-                viewModel.fileList = viewModel
-                    .filterAndSortFiles(filter, searchQuery)
+                val songList = viewModel.filterAndSortFiles(searchQuery)
                 //change ui
                 onMain {
-                    bindingRv.fastScrollRv.adapter = FileAdapter(viewModel.fileList)
+                    changeCurrentTextView(viewModel.directory.getDirectory())
+                    bindingRv.fastScrollRv.adapter = FileAdapter(songList)
                 }
             }
         }
@@ -428,7 +424,7 @@ class FolderFragment :
 
     private fun getRecyclerViewResolver(
         adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
-    ): RVSelection<Song> {
+    ): RVSelection<AudlayerSong> {
         return if (viewModel.rvResolverIsInitialized()) {
             viewModel.rvResolver.adapter = adapter
             viewModel.rvResolver
@@ -452,11 +448,11 @@ class FolderFragment :
         private val actionFrame: FrameLayout =
             itemView.findViewById(R.id.general_action_frame)
 
-        private fun setOnClickAndImageResource(value: Song,
-                                               rvSelectResolver: RVSelection<Song>) {
-            when(FileExtension.getFileExtension(value.file)) {
+        private fun setOnClickAndImageResource(value: AudlayerSong,
+                                               rvSelectResolver: RVSelection<AudlayerSong>) {
+            when(FileExtension.getFileExtension(value.toFile())) {
                 FileExtensionModifier.DIRECTORY -> {
-                    val action = { setupAdapter(value.file) }
+                    val action = { setupAdapter(value.toFile()) }
                     val popUpAction = {
                         val initActionMenuStyle = { R.style.PopupMenuOverlapAnchorFolder }
                         val initActionMenuLayout = { R.menu.folder_item_is_folder_pop_up }
@@ -471,12 +467,12 @@ class FolderFragment :
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_add_to_playlist -> {
-                                    val songs = viewModel.onlyAudio(value.file)
+                                    val songs = viewModel.onlyAudio(value.toFile())
                                     openAddToPlaylistFragment(songs)
                                     true
                                 }
                                 R.id.folder_recyclerView_item_isFolder_create_playlist -> {
-                                    val songs = viewModel.onlyAudio(value.file)
+                                    val songs = viewModel.onlyAudio(value.toFile())
                                     openCreatePlaylistFragment(songs)
                                     true
                                 }
@@ -556,8 +552,8 @@ class FolderFragment :
             }
         }
 
-        private inline fun setOnClick(value: Song,
-                                      rvSelectResolver: RVSelection<Song>,
+        private inline fun setOnClick(value: AudlayerSong,
+                                      rvSelectResolver: RVSelection<AudlayerSong>,
                                       crossinline f: () -> Unit,
                                       crossinline popUpF: () -> Unit) {
             itemView.setOnClickListener {
@@ -586,24 +582,24 @@ class FolderFragment :
             }
         }
 
-        private val selected: (Song) -> Array<() -> Unit> = { value ->
+        private val selected: (AudlayerSong) -> Array<() -> Unit> = { value ->
             arrayOf(
                 {
                     path.text = if (viewModel.isAudio(value)) {
                         val size: Double = roundOfDecimalToUp(
-                            (FileFilter.getSize(value.file).toDouble() / 1024)
+                            (FileFilter.getSize(value.toFile()).toDouble() / 1024)
                         )
 
-                        val bitrate = SongBitrate.getKbpsString(value.file)
+                        val bitrate = SongBitrate.getKbpsString(value.toFile())
 
                         getString(
                             R.string.folder_fragment_rv_item,
-                            FileNameParser.removeExtension(value.file),
+                            FileNameParser.removeExtension(value.toFile()),
                             size.toString(),
                             bitrate
                         )
                     }
-                    else FileNameParser.removeExtension(value.file)
+                    else FileNameParser.removeExtension(value.toFile())
 
                 },
                 {
@@ -615,24 +611,22 @@ class FolderFragment :
             )
         }
 
-        private val notSelected: (Song) -> Array<() -> Unit> = { value ->
+        private val notSelected: (AudlayerSong) -> Array<() -> Unit> = { value ->
             arrayOf(
                 {
-                    path.text = FileNameParser.removeExtension(value.file)
+                    path.text = FileNameParser.removeExtension(value.toFile())
                 },
                 {
                     itemView.setBackgroundResource(R.color.opacity)
                 },
                 {
-                    if (viewModel.isAudio(value))
-                        DrawableIcon.loadSongIconDrawable(
-                            requireContext(), icon, value.icon)
+                    //todo() if audio load icon
                 }
             )
         }
 
-        private fun applyState(value: Song,
-                               rvSelectResolver: RVSelection<Song>) {
+        private fun applyState(value: AudlayerSong,
+                               rvSelectResolver: RVSelection<AudlayerSong>) {
             when(rvSelectResolver.state) {
                 0 -> rvSelectResolver.isContains(
                     value,
@@ -642,16 +636,16 @@ class FolderFragment :
             }
         }
 
-        fun bindItem(value: Song,
+        fun bindItem(value: AudlayerSong,
                      position: Int,
-                     rvSelectResolver: RVSelection<Song>) {
+                     rvSelectResolver: RVSelection<AudlayerSong>) {
 
             applyState(value, rvSelectResolver)
             setOnClickAndImageResource(value, rvSelectResolver)
         }
     }
 
-    private inner class FileAdapter(val items: Array<out Song>):
+    private inner class FileAdapter(val items: Array<out AudlayerSong>):
         RecyclerView.Adapter<FileHolder>(),
         FastScrollRecyclerView.SectionedAdapter {
 
@@ -679,6 +673,6 @@ class FolderFragment :
         override fun getItemCount(): Int = items.size
 
         override fun getSectionName(position: Int): String =
-            "${items[position].file.name[0]}"
+            "${items[position].title[0]}"
     }
 }

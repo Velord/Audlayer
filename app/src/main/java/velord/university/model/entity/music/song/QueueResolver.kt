@@ -1,4 +1,4 @@
-package velord.university.model.entity.music
+package velord.university.model.entity.music.song
 
 object QueueResolver {
 

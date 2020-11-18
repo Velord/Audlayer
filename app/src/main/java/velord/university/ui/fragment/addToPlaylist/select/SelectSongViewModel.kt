@@ -7,6 +7,8 @@ import androidx.lifecycle.AndroidViewModel
 import velord.university.application.permission.PermissionChecker.checkReadWriteExternalStoragePermission
 import velord.university.application.settings.SortByPreference
 import velord.university.model.entity.fileType.file.FileFilter
+import velord.university.model.entity.music.song.main.AudlayerSong
+import velord.university.model.entity.music.song.main.AudlayerSong.Companion.filterByQuery
 import java.io.File
 
 class SelectSongViewModel(
@@ -15,28 +17,20 @@ class SelectSongViewModel(
 
     val TAG = "SelectSongViewModel"
 
-    lateinit var fileList: Array<File>
+    lateinit var songList: Array<AudlayerSong>
 
-    val checked = mutableListOf<String>()
+    val checked = mutableListOf<AudlayerSong>()
 
     lateinit var currentQuery: String
 
     fun filterAndSortFiles(context: Context,
-                           filter: (File, String) -> Boolean,
-                           searchTerm: String): Array<File> {
-        val songs =
-            fileList.filter { filter(it, searchTerm) }
+                           searchTerm: String): Array<AudlayerSong> {
+        val songs = songList.filterByQuery(searchTerm)
         // sort by name or artist or date added
         val sorted = when(SortByPreference(context).sortBySelectSongFragment) {
-            0 ->  {
-                songs.sortedBy {  FileFilter.getName(it)  }
-            }
-            1 ->  {
-                songs.sortedBy { FileFilter.getArtist(it) }
-            }
-            2 ->  {
-                songs.sortedBy { FileFilter.getLastDateModified(it) }
-            }
+            0 ->  songs.sortedBy { it.title }
+            1 ->  songs.sortedBy { it.artist }
+            2 -> songs.sortedBy { it.dateAdded }
             else -> songs
         }
         // sort by ascending or descending order

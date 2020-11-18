@@ -23,6 +23,7 @@ import velord.university.model.entity.isyStreamMeta.IcyStreamMeta
 import velord.university.repository.db.transaction.hub.DB
 import velord.university.repository.hub.MiniPlayerRepository
 import velord.university.repository.hub.RadioRepository
+import velord.university.ui.fragment.addToPlaylist.tryAction
 import velord.university.ui.fragment.miniPlayer.logic.MiniPlayerLayoutState
 import java.net.URL
 
@@ -230,17 +231,19 @@ abstract class RadioService : AudioFocusListenerService() {
         Log.d(TAG, "restoreState")
         val id = RadioServicePreference(this@RadioService).currentRadioId
 
-        DB.radioTransaction("restoreState") {
-            getById(id)?.let {
-                currentStation = it
-                RadioInteractor.radioStation = currentStation
-                //cache radio
-                mayInvoke {
-                    sendAllInfo()
-                    playByUrl(currentStation.url)
-                    pausePlayer()
+        tryAction("restoreState") {
+            DB.radioTransaction("restoreState") {
+                getById(id).let {
+                    currentStation = it
+                    RadioInteractor.radioStation = currentStation
+                    //cache radio
+                    mayInvoke {
+                        sendAllInfo()
+                        playByUrl(currentStation.url)
+                        pausePlayer()
+                    }
                 }
-            } ?: sendRadioPlayerUnavailable()
+            }
         }
     }
 
@@ -304,10 +307,15 @@ abstract class RadioService : AudioFocusListenerService() {
             currentStation.id.toInt()
     }
 
-    private fun sendRadioPlayerUnavailable() =
-        AppBroadcastHub.apply {
-            doAction(BroadcastActionType.UNAVAILABLE_RADIO_UI)
+    private var unavailable: Boolean = false
+    private fun sendRadioPlayerUnavailable() {
+        if (unavailable.not()) {
+            unavailable = true
+            AppBroadcastHub.apply {
+                doAction(BroadcastActionType.UNAVAILABLE_RADIO_UI)
+            }
         }
+    }
 
     private fun sendIcon() {
         currentStation.icon?.let {

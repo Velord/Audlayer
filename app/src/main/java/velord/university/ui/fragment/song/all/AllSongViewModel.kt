@@ -1,7 +1,6 @@
 package velord.university.ui.fragment.song.all
 
 import android.app.Application
-import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,11 +11,14 @@ import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.interactor.SongPlaylistInteractor
 import velord.university.model.coroutine.onDef
-import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.json.general.Loadable
+import velord.university.model.entity.music.playlist.Playlist
+import velord.university.model.entity.music.song.main.AudlayerSong
+import velord.university.model.entity.music.song.main.AudlayerSong.Companion.filterByQuery
 import velord.university.repository.db.transaction.PlaylistTransaction
 import velord.university.ui.util.RVSelection
+import java.io.File
 
 class AllSongViewModel(
     private val app: Application
@@ -28,52 +30,33 @@ class AllSongViewModel(
         Log.d(TAG, "get all playlist retrieved")
         PlaylistTransaction.getAllPlaylist().toTypedArray()
     }
-    val allSong: Loadable<Array<Song>> = Loadable {
-        Log.d(TAG, "get all song retrieved")
-        Playlist.allSongFromPlaylist(allPlaylist.get().toList())
-            .map { Song(it) }
-            .toTypedArray()
+    val allSong: Loadable<Array<AudlayerSong>> = Loadable {
+        val songList = mutableListOf<AudlayerSong>()
+        allPlaylist.get().map { songList.addAll(it.songList) }
+        songList.toTypedArray()
     }
-    lateinit var ordered: Array<Song>
+
+    lateinit var ordered: Array<AudlayerSong>
 
     lateinit var currentQuery: String
 
-    lateinit var rvResolver: RVSelection<Song>
+    lateinit var rvResolver: RVSelection<AudlayerSong>
 
-    suspend fun filterByQuery(query: String): Array<Song> = onDef {
-        val filtered = allSong.get().filter {
-            FileFilter.filterFileBySearchQuery(it.file, query)
-        }
+    suspend fun filterByQuery(query: String): Array<AudlayerSong> = onDef {
+        val filtered = allSong.get().filterByQuery(query)
         //sort by name or artist or date added or duration or size
         val sortByOrder = SortByPreference(app).sortByAllSongFragment
         val sorted = when(sortByOrder) {
-            //name
-            0 -> filtered.sortedBy {
-                FileFilter.getName(it.file)
-            }
+            //title
+            0 -> filtered.sortedBy { it.title }
             //artist
-            1 -> filtered.sortedBy {
-                FileFilter.getArtist(it.file)
-            }
+            1 -> filtered.sortedBy { it.artist }
             //date added
-            //todo()
-            2 -> filtered.sortedBy {
-                FileFilter.getLastDateModified(it.file)
-            }
-            //duration TODO()
-            3 -> {
-                val mediaMetadataRetriever = MediaMetadataRetriever()
-                filtered.sortedBy {
-                    mediaMetadataRetriever
-                        .setDataSource(it.file.absolutePath)
-
-                    val durationStr = mediaMetadataRetriever
-                        .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
-                    durationStr.toLong()
-                }
-            }
+            2 -> filtered.sortedBy { it.dateAdded }
+            //duration
+            3 -> filtered.sortedBy { it.duration }
             //file size
-            4 -> filtered.sortedBy { FileFilter.getSize(it.file) }
+            4 -> filtered.sortedBy { FileFilter.getSize(File(it.path)) }
             else -> filtered
         }.toTypedArray()
         // sort by ascending or descending order
@@ -87,10 +70,10 @@ class AllSongViewModel(
         return@onDef ordered
     }
 
-    fun sendIconToMiniPlayer(song: Song) =
-        AppBroadcastHub.apply { app.iconUI(song.icon.toString()) }
+    fun sendIconToMiniPlayer(song: AudlayerSong) =
+        AppBroadcastHub.apply { app.iconUI(song.imgUrl) }
 
-    fun shuffle(): Array<Song> {
+    fun shuffle(): Array<AudlayerSong> {
         ordered.shuffle()
         return ordered
     }
@@ -106,38 +89,38 @@ class AllSongViewModel(
     fun getSearchQuery(): String =
         SearchQueryPreferences(app).storedQueryAllSong
 
-    fun playAudioAndAllSong(song: Song) {
+    fun playAudioAndAllSong(song: AudlayerSong) {
         SongPlaylistInteractor.songs = ordered
 
         AppBroadcastHub.apply {
             app.apply {
                 doAction(BroadcastActionType.SHOW_PLAYER_UI)
-                playByPathService(song.file.path)
+                playByPathService(song.path)
                 doAction(BroadcastActionType.LOOP_ALL_PLAYER_SERVICE)
             }
             sendIconToMiniPlayer(song)
         }
     }
 
-    fun playAudio(song: Song) {
+    fun playAudio(song: AudlayerSong) {
         //don't remember for SongQuery Interactor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(song)
         AppBroadcastHub.apply {
             app.apply {
                 doAction(BroadcastActionType.SHOW_PLAYER_UI)
-                playByPathService(song.file.path)
+                playByPathService(song.path)
                 doAction(BroadcastActionType.LOOP_PLAYER_SERVICE)
             }
             sendIconToMiniPlayer(song)
         }
     }
 
-    fun playAudioNext(song: Song) {
+    fun playAudioNext(song: AudlayerSong) {
         //don't remember for SongQuery Interactor it will be used between this and service
         SongPlaylistInteractor.songs = arrayOf(song)
         //add to queue one song
         AppBroadcastHub.apply {
-            app.addToQueueService(song.file.path)
+            app.addToQueueService(song.path)
         }
     }
 

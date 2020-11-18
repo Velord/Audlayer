@@ -13,11 +13,10 @@ import velord.university.application.settings.SearchQueryPreferences
 import velord.university.application.settings.SortByPreference
 import velord.university.application.settings.VkPreference
 import velord.university.interactor.SongPlaylistInteractor
-import velord.university.model.entity.music.song.Song
 import velord.university.model.entity.fileType.file.FileFilter
 import velord.university.model.entity.fileType.json.general.Loadable
-import velord.university.model.entity.music.newGeneration.song.AudlayerSong
-import velord.university.model.entity.music.newGeneration.song.AudlayerSong.Companion.filterByQuery
+import velord.university.model.entity.music.song.main.AudlayerSong
+import velord.university.model.entity.music.song.main.AudlayerSong.Companion.filterByQuery
 import velord.university.model.entity.music.song.download.DownloadSong
 import velord.university.repository.hub.FolderRepository
 import velord.university.repository.db.transaction.hub.DB
@@ -156,7 +155,7 @@ class VkViewModel(
         val sorted: List<AudlayerSong> = when(sortBy) {
             //name
             0 -> filtered.sortedBy {
-                FileFilter.getName(File(it.path))
+                FileFilter.getTitle(File(it.path))
             }
             //artist
             1 -> filtered.sortedBy {
@@ -185,9 +184,6 @@ class VkViewModel(
     private fun addToInteractor() {
         SongPlaylistInteractor.songs = ordered
             .filter { it.path.isNotBlank() }
-            .map {
-                Song(File(it.path), "")
-            }
             .toTypedArray()
     }
 

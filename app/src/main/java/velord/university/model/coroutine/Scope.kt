@@ -11,5 +11,4 @@ suspend fun <T> onIO(f: suspend () -> T): T = withContext(Dispatchers.IO) { f() 
 
 suspend fun <T> onDef(f: suspend () -> T): T = withContext(Dispatchers.Default) { f() }
 
-fun getScope(): CoroutineScope =
-    CoroutineScope(Job() + Dispatchers.Default)
+fun getScope(): CoroutineScope = CoroutineScope(Job() + Dispatchers.Default)

@@ -1,8 +1,8 @@
-package velord.university.model.entity.music.newGeneration.playlist
+package velord.university.model.entity.music.playlist
 
 import org.apache.commons.text.similarity.LevenshteinDistance
-import velord.university.model.entity.music.newGeneration.song.AudlayerSong
-import velord.university.model.entity.music.newGeneration.song.withPos.SongWithPos
+import velord.university.model.entity.music.song.main.AudlayerSong
+import velord.university.model.entity.music.song.withPos.SongWithPos
 import velord.university.model.entity.vk.fetch.VkSongFetch
 import velord.university.model.entity.vk.fetch.VkSongFetch.Companion.toAppSong
 import velord.university.repository.db.transaction.hub.DB

@@ -1,12 +1,9 @@
-package velord.university.model.entity.music.newGeneration.song
+package velord.university.model.entity.music.song.main
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import velord.university.application.broadcast.hub.RadioBroadcastAction
-import velord.university.model.entity.music.newGeneration.song.AudlayerSong
-import java.util.zip.Inflater
 
 @Dao
 interface AudlayerSongDao {
