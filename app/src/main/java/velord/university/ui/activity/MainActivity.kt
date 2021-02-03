@@ -16,6 +16,7 @@ import velord.university.application.notification.MiniPlayerNotification
 import velord.university.application.permission.PermissionChecker.checkReadWriteExternalStoragePermission
 import velord.university.application.settings.AppPreference
 import velord.university.model.coroutine.getScope
+import velord.university.model.coroutine.onMain
 import velord.university.model.entity.openFragment.general.OpenFragmentEntity
 import velord.university.ui.behaviour.supervisor.BackPressSupervisor
 import velord.university.ui.behaviour.supervisor.ReturnResultSupervisor
@@ -126,7 +127,9 @@ class MainActivity : AppCompatActivity(),
             //start app
             AudlayerApp.initApp(baseContext)
             //self view
-            setContentView(R.layout.main_activity)
+            onMain {
+                setContentView(R.layout.main_activity)
+            }
             //fragment
             initFragment(
                 fm,

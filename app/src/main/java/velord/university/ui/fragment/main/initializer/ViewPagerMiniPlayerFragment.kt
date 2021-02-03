@@ -87,7 +87,6 @@ abstract class ViewPagerMiniPlayerFragment :
                 }
             }
         })
-        binding.miniPlayerViewPager.currentItem = 1
     }
 
     private fun hideMiniPlayer() {

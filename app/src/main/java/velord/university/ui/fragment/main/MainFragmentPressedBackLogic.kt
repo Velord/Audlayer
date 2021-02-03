@@ -1,11 +1,8 @@
 package velord.university.ui.fragment.main
 
 import android.content.Context
-import android.util.SparseArray
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.viewpager.widget.ViewPager
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -31,12 +28,12 @@ object MainFragmentPressedBackLogic {
             if (folderFragment.onBackPressed()) {
                 backPressedCount = 0
                 //change to central fragment
-                binding.bottomNavigation.selectedItemId = R.id.action_all
+                binding.bottomNavigation.selectedItemId = R.id.action_all_song
             }
             return true
         }
         if (binding.menuMemberViewPager.currentItem != 2) {
-            binding.bottomNavigation.selectedItemId = R.id.action_all
+            binding.bottomNavigation.selectedItemId = R.id.action_all_song
             backPressedCount = 0
             return true
         }

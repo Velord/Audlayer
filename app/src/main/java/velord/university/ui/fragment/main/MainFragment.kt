@@ -24,7 +24,6 @@ import velord.university.model.converter.VolumeConverter.tenthScale
 import velord.university.ui.behaviour.backPressed.BackPressedHandlerZero
 import velord.university.ui.fragment.main.initializer.ViewPagerMiniPlayerFragment
 
-
 class MainFragment :
     ViewPagerMiniPlayerFragment(),
     BackPressedHandlerZero {
@@ -86,7 +85,7 @@ class MainFragment :
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.main_fragment, container,
+    ): View = inflater.inflate(R.layout.main_fragment, container,
         false).run {
         //bind
         _binding = MainFragmentBinding.bind(this)

@@ -18,11 +18,17 @@ import velord.university.ui.fragment.song.all.AllSongFragment
 import velord.university.ui.fragment.vk.VKFragment
 import velord.university.ui.util.findBy
 
-
+//first of all invokes viewpager onPageSelected
+//second is changeUI
+//third is changeCurrentBottom
+//fourth is bottomNavigation setOnNavigationItemSelectedListener
+//fifth is invoke function which invoke binding.menuMemberViewPager.currentItem = digit
+//which produces MenuMemberPagerAdapter createFragment
+//then creating fragment by function createNewFragment
 abstract class ViewPagerBottomMenuFragment :
     LoggerSelfLifecycleFragment() {
 
-    override val TAG: String = "BottomMenuFragment"
+    override val TAG: String = "ViewPagerBottomMenuFragment"
 
     private var buttonPressed: Int = 2
 
@@ -37,6 +43,63 @@ abstract class ViewPagerBottomMenuFragment :
     //view
     abstract val binding: MainFragmentBinding
 
+    protected fun initViewPagerAndBottomMenu() {
+        initViewPager()
+        initBottomMenu()
+    }
+
+    private fun initViewPager() {
+        binding.menuMemberViewPager.adapter = MenuMemberPagerAdapter(requireActivity())
+        binding.menuMemberViewPager.apply {
+
+
+
+            registerOnPageChangeCallback(
+                object : ViewPager2.OnPageChangeCallback() {
+
+                    override fun onPageScrolled(
+                        position: Int,
+                        positionOffset: Float,
+                        positionOffsetPixels: Int
+                    ) {
+                        when (position) {
+                            0 -> Log.d(TAG, "onPageScrolled FolderFragment")
+                            1 -> Log.d(TAG, "onPageScrolled AlbumFragment")
+                            2 -> Log.d(TAG, "onPageScrolled SongFragment")
+                            3 -> Log.d(TAG, "onPageScrolled RadioFragment")
+                            4 -> Log.d(TAG, "onPageScrolled VKFragment")
+                        }
+                    }
+
+                    override fun onPageSelected(position: Int) {
+                        when (position) {
+                            0 -> {
+                                Log.d(TAG, "onPageSelected FolderFragment")
+                                changeUI(R.drawable.star_sky_night, position)
+                            }
+                            1 -> {
+                                Log.d(TAG, "onPageSelected AlbumFragment")
+                                changeUI(R.drawable.star_sky_horizon, position)
+                            }
+                            2 -> {
+                                Log.d(TAG, "onPageSelected SongFragment")
+                                changeUI(R.drawable.star_sky_mount, position)
+                            }
+                            3 -> {
+                                Log.d(TAG, "onPageSelected RadioFragment")
+                                changeUI(R.drawable.mountains_sea_ocean, position)
+                            }
+                            4 -> {
+                                Log.d(TAG, "onPageSelected VKFragment")
+                                changeUI(R.drawable.sea_lake_island, position)
+                            }
+                        }
+                    }
+                }
+            )
+        }
+    }
+
     private fun initBottomMenu() {
         binding.bottomNavigation.apply {
             //for work custom selectors on icon
@@ -46,68 +109,35 @@ abstract class ViewPagerBottomMenuFragment :
                 when (it.itemId) {
                     R.id.action_folder -> openFolderFragment()
                     R.id.action_album -> openAlbumFragment()
-                    R.id.action_all -> openSongFragment()
+                    R.id.action_all_song -> openSongFragment()
                     R.id.action_radio -> openRadioFragment()
                     R.id.action_vk -> openVKFragment()
                 }
                 true
             }
-            //init
-            selectedItemId = R.id.action_all
         }
     }
 
-    protected fun initViewPagerAndBottomMenu() {
-        initViewPager()
-        initBottomMenu()
+    private fun changeUI(background: Int, position: Int) {
+        buttonPressed = position
+        // main fragment background
+        scope.launch {
+            onMain {
+                binding.mainFragmentContainer.setBackgroundResource(background)
+            }
+        }
+        changeCurrentBottom(position)
     }
 
-    private fun initViewPager() {
-        binding.menuMemberViewPager.adapter =
-            MenuMemberPagerAdapter(requireActivity())
-        binding.menuMemberViewPager.registerOnPageChangeCallback(
-            object : ViewPager2.OnPageChangeCallback() {
-
-            override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
-                when(position) {
-                    0 -> Log.d(TAG, "onPageScrolled FolderFragment")
-                    1 -> Log.d(TAG, "onPageScrolled AlbumFragment")
-                    2 -> Log.d(TAG, "onPageScrolled SongFragment")
-                    3 -> Log.d(TAG, "onPageScrolled RadioFragment")
-                    4 -> Log.d(TAG, "onPageScrolled VKFragment")
-                }
-            }
-
-            override fun onPageSelected(position: Int) {
-                when(position) {
-                    0 -> {
-                        Log.d(TAG, "onPageSelected FolderFragment")
-                        changeUI(R.drawable.star_sky_night, position)
-                    }
-                    1 -> {
-                        Log.d(TAG, "onPageSelected AlbumFragment")
-                        changeUI(R.drawable.star_sky_horizon, position)
-                    }
-                    2 -> {
-                        Log.d(TAG, "onPageSelected SongFragment")
-                        changeUI(R.drawable.star_sky_mount, position)
-                    }
-                    3 -> {
-                        Log.d(TAG, "onPageSelected RadioFragment")
-                        changeUI(R.drawable.mountains_sea_ocean, position)
-                    }
-                    4 -> {
-                        Log.d(TAG, "onPageSelected VKFragment")
-                        changeUI(R.drawable.sea_lake_island, position)
-                    }
-                }
-            }
-        })
-    }
+    private fun changeCurrentBottom(position: Int) =
+        when (position) {
+            0 -> binding.bottomNavigation.selectedItemId = R.id.action_folder
+            1 -> binding.bottomNavigation.selectedItemId = R.id.action_album
+            2 -> binding.bottomNavigation.selectedItemId = R.id.action_all_song
+            3 -> binding.bottomNavigation.selectedItemId = R.id.action_radio
+            4 -> binding.bottomNavigation.selectedItemId = R.id.action_vk
+            else -> {}
+        }
 
     private fun openFolderFragment() {
         Log.d(TAG, "opening FolderFragment")
@@ -145,27 +175,6 @@ abstract class ViewPagerBottomMenuFragment :
         Log.d(TAG, "opening VKFragment")
         binding.menuMemberViewPager.currentItem = 4
     }
-
-    private fun changeUI(background: Int, position: Int) {
-        buttonPressed = position
-        // main fragment background
-        scope.launch {
-            onMain {
-                binding.mainFragmentContainer.setBackgroundResource(background)
-            }
-        }
-        changeCurrentBottom(position)
-    }
-
-    private fun changeCurrentBottom(position: Int) =
-        when (position) {
-            0 -> binding.bottomNavigation.selectedItemId = R.id.action_folder
-            1 -> binding.bottomNavigation.selectedItemId = R.id.action_album
-            2 -> binding.bottomNavigation.selectedItemId = R.id.action_all
-            3 -> binding.bottomNavigation.selectedItemId = R.id.action_radio
-            4 -> binding.bottomNavigation.selectedItemId = R.id.action_vk
-            else -> {}
-        }
 
     private inner class MenuMemberPagerAdapter(
         fa: FragmentActivity

@@ -18,7 +18,7 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/action_all"
+        android:id="@+id/action_all_song"
         android:enabled="true"
         android:icon="@drawable/menu_song_selector"
         android:title="@string/all"
